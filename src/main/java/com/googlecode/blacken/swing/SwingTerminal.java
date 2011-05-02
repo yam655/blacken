@@ -44,19 +44,15 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void clear() {
-        cursorX = 0; cursorY = 0;
-        updateX = 0; updateY = 0;
-        empty.setDirty(false);
-        grid.clear(empty);
+        super.clear();
         Font f = gui.getEmpty().getFont();
-        AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), empty);
+        AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
         awtempty.setDirty(true);
         awtempty.setFont(f);
-        awtempty.setForeground(this.getSwingColor(curForeground));
-        awtempty.setBackground(this.getSwingColor(curBackground));
+        awtempty.setForeground(this.getSwingColor(getCurForeground()));
+        awtempty.setBackground(this.getSwingColor(getCurBackground()));
         gui.setEmpty(awtempty);
         gui.clear();
-        empty.setDirty(true);
     }
 
     @Override
@@ -85,7 +81,7 @@ public class SwingTerminal extends AbstractTerminal
         if (oterm == this) {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
         } else {
-            grid.copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
+            getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
                            destY, destX, new TerminalCell().new ResetCell());
             forceRefresh(numRows, numCols, destY, destX);
         }
@@ -115,6 +111,7 @@ public class SwingTerminal extends AbstractTerminal
     }
     
     private void forceRefresh(int numRows, int numCols, int startY, int startX) {
+        Grid<TerminalCell> grid = getGrid();
         for (int y = startY; y < numRows + startY; y++) {
             for (int x = startX; x < numCols + startX; x++) {
                 this.setAwtFromTerminal(gui.get(y, x), grid.get(y, x));
@@ -136,7 +133,7 @@ public class SwingTerminal extends AbstractTerminal
         }
         if (ch == BlackenKeys.RESIZED_EVENT) {
             gui.windowResized();
-            grid.setSize(gui.getGridSize());
+            getGrid().setSize(gui.getGridSize());
         }
         return ch;
     }
@@ -161,9 +158,10 @@ public class SwingTerminal extends AbstractTerminal
 
     protected Color getSwingColor(int c) {
         Color clr;
-        if (this.palette != null && c < this.palette.size() && c >= 0) {
+        ColorPalette palette = getPalette();
+        if (palette != null && c < palette.size() && c >= 0) {
             // This is near guaranteed correct.
-            c = this.palette.get(c);
+            c = palette.get(c);
         }
         if (swingColor.containsKey(c)) {
             clr = swingColor.get(c);
@@ -204,11 +202,7 @@ public class SwingTerminal extends AbstractTerminal
         
         AwtCell empty = new AwtCell();
         gui.init(font, rows, cols, empty);
-        if (grid == null) {
-            grid = new Grid<TerminalCell>(this.empty, rows, cols);
-        } else {
-            grid.reset(rows, cols, this.empty);
-        }
+        getGrid().reset(rows, cols, getEmpty());
 
         frame.addKeyListener(listener);
         frame.addMouseListener(listener);
@@ -241,7 +235,7 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX) {
-        grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
+        getGrid().moveBlock(numRows, numCols, origY, origX, newY, newX, 
                        new TerminalCell().new ResetCell());
         gui.moveBlock(numRows, numCols, origY, origX, newY, newX);
     }
@@ -262,7 +256,7 @@ public class SwingTerminal extends AbstractTerminal
                     Integer foreground, Integer background, 
                     EnumSet<TerminalStyle> style, 
                     EnumSet<CellWalls> walls) {
-        TerminalCell tcell = grid.get(y,x);
+        TerminalCell tcell = getGrid().get(y,x);
         if (walls != null) {
             tcell.setCellWalls(walls);
         }
@@ -289,6 +283,7 @@ public class SwingTerminal extends AbstractTerminal
         if (acell == null) {
             gui.set(y, x, r);
         }
+        Grid<TerminalCell> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
     }
@@ -417,6 +412,14 @@ public class SwingTerminal extends AbstractTerminal
         }
         awt.setAttributes(attrs);
         return awt;
+    }
+
+    @Override
+    public void setCursorLocation(int y, int x) {
+        super.setCursorLocation(y, x);
+        if (gui != null) {
+            gui.moveCursor(y, x);
+        }
     }
     
     /*

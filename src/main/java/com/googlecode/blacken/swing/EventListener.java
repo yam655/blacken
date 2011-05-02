@@ -41,6 +41,7 @@ public class EventListener implements WindowListener, KeyListener,
         EnumSet.noneOf(BlackenEventType.class);
     private BlackenMouseEvent lastMouseEvent = null;
     private BlackenPanel gui;
+    private boolean variantKeyMode = true;
 
     public EnumSet<BlackenEventType> getEnabled() {
         return enabled;
@@ -162,6 +163,13 @@ public class EventListener implements WindowListener, KeyListener,
     
     @Override
     public void keyPressed(KeyEvent e) {
+        // in variantKeyMode all keys are handled here.
+        // In the normal key mode, only action keys are handled here.
+        if (!this.variantKeyMode) {
+            if (!e.isActionKey()) {
+                return;
+            }
+        }
         switch(e.getKeyCode()) {
         // dead keys
         case KeyEvent.VK_DEAD_ABOVEDOT: 
@@ -292,9 +300,6 @@ public class EventListener implements WindowListener, KeyListener,
             // Constant for the Begin key. 
             loadKey(e, BlackenKeys.KEY_BEGIN);
             break;
-        case KeyEvent.VK_CLEAR:
-            loadKey(e, BlackenKeys.KEY_CLEAR);
-            break;
         case KeyEvent.VK_CONVERT:
             // Constant for the Convert function key. 
             loadKey(e, BlackenKeys.KEY_CONVERT);
@@ -355,7 +360,11 @@ public class EventListener implements WindowListener, KeyListener,
             loadKey(e, BlackenKeys.KEY_ESCAPE);
             break;
         case KeyEvent.VK_ENTER:
-            loadKey(e, BlackenKeys.KEY_ENTER);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_NP_ENTER);
+            } else {
+                loadKey(e, BlackenKeys.KEY_ENTER);
+            }
             break;
         case KeyEvent.VK_PAUSE:
             loadKey(e, BlackenKeys.KEY_PAUSE);
@@ -373,54 +382,102 @@ public class EventListener implements WindowListener, KeyListener,
 
         // Keys which may also be able via the numpad/keypad
         case KeyEvent.VK_INSERT:
-            loadKey(e, BlackenKeys.KEY_INSERT);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_INSERT);
+            } else {
+                loadKey(e, BlackenKeys.KEY_INSERT);
+            }
             break;
         case KeyEvent.VK_DELETE:
-            loadKey(e, BlackenKeys.KEY_DELETE);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_DELETE);
+            } else {
+                loadKey(e, BlackenKeys.KEY_DELETE);
+            }
             break;
         case KeyEvent.VK_LEFT:
-            // Constant for the non-numpad left arrow key. 
-            loadKey(e, BlackenKeys.KEY_LEFT);
+            // Constant for the non-numpad left arrow key.
+            // In case Java decides to deprecate VK_KP_LEFT, support both here.
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_LEFT);
+            } else {
+                loadKey(e, BlackenKeys.KEY_LEFT);
+            }
             break;
         case KeyEvent.VK_KP_LEFT:
             // Constant for the numeric keypad left arrow key. 
-            loadKey(e, BlackenKeys.KEY_LEFT);
+            loadKey(e, BlackenKeys.KEY_KP_LEFT);
             break;
         case KeyEvent.VK_RIGHT:
             // Constant for the non-numpad right arrow key. 
-            loadKey(e, BlackenKeys.KEY_RIGHT);
+            // In case Java decides to deprecate VK_KP_RIGHT, support both here
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_RIGHT);
+            } else {
+                loadKey(e, BlackenKeys.KEY_RIGHT);
+            }
             break;
         case KeyEvent.VK_KP_RIGHT: 
             // Constant for the numeric keypad right arrow key. 
-            loadKey(e, BlackenKeys.KEY_RIGHT);
+            loadKey(e, BlackenKeys.KEY_KP_RIGHT);
+            break;
+        case KeyEvent.VK_CLEAR:
+            // Also known as KEY_KP_B2
+            loadKey(e, BlackenKeys.KEY_KP_CLEAR);
             break;
         case KeyEvent.VK_UP:
             // Constant for the non-numpad up arrow key. 
-            loadKey(e, BlackenKeys.KEY_UP);
+            // In case Java decides to deprecate VK_KP_UP, support both here
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_UP);
+            } else {
+                loadKey(e, BlackenKeys.KEY_UP);
+            }
             break;
         case KeyEvent.VK_KP_UP:
             // Constant for the numeric keypad up arrow key. 
-            loadKey(e, BlackenKeys.KEY_UP);
+            loadKey(e, BlackenKeys.KEY_KP_UP);
             break;
         case KeyEvent.VK_DOWN:
             // Constant for the non-numpad down arrow key. 
-            loadKey(e, BlackenKeys.KEY_DOWN);
+            // In case Java decides to deprecate KEY_KP_DOWN, support both here
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_DOWN);
+            } else {
+                loadKey(e, BlackenKeys.KEY_DOWN);
+            }
             break;
         case KeyEvent.VK_KP_DOWN:
             // Constant for the numeric keypad down arrow key. 
-            loadKey(e, BlackenKeys.KEY_DOWN);
+            loadKey(e, BlackenKeys.KEY_KP_DOWN);
             break;
         case KeyEvent.VK_PAGE_UP:
-            loadKey(e, BlackenKeys.KEY_PAGE_UP);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_PAGE_UP);
+            } else {
+                loadKey(e, BlackenKeys.KEY_PAGE_UP);
+            }
             break;
         case KeyEvent.VK_PAGE_DOWN: 
-            loadKey(e, BlackenKeys.KEY_PAGE_DOWN);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_PAGE_DOWN);
+            } else {
+                loadKey(e, BlackenKeys.KEY_PAGE_DOWN);
+            }
             break;
         case KeyEvent.VK_HOME:
-            loadKey(e, BlackenKeys.KEY_HOME);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_HOME);
+            } else {
+                loadKey(e, BlackenKeys.KEY_HOME);
+            }
             break;
         case KeyEvent.VK_END:
-            loadKey(e, BlackenKeys.KEY_END);
+            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                loadKey(e, BlackenKeys.KEY_KP_END);
+            } else {
+                loadKey(e, BlackenKeys.KEY_END);
+            }
             break;
 
         // Number pad actions
@@ -538,6 +595,15 @@ public class EventListener implements WindowListener, KeyListener,
             loadKey(e, BlackenKeys.KEY_UNKNOWN);
             break;
         default:
+            if (this.variantKeyMode) {
+                int cp = e.getKeyChar();
+                if (cp != KeyEvent.CHAR_UNDEFINED) {
+                    if (cp < 0x20) {
+                        cp += '@';
+                    }
+                    loadKey(e, cp);
+                }
+            }
             break;
         }
     }
@@ -548,19 +614,26 @@ public class EventListener implements WindowListener, KeyListener,
 
     @Override
     public void keyTyped(KeyEvent e) {
+        if (this.variantKeyMode) {
+            return;
+        }
+        
         // XXX: this fails to grab characters outside of the BMP.
         int cp = e.getKeyChar();
         if (cp == KeyEvent.CHAR_UNDEFINED) {
             return;
         }
 
-        int mods = makeModifierNotice(e);
-        if (cp < 0x20) {
-            cp += '@';
+        if (cp >= 0x20 && !e.isControlDown()) {
+            int mods = makeModifierNotice(e);
+            if (mods != BlackenKeys.NO_KEY &&
+                (mods != BlackenModifier.MODIFIER_KEY_SHIFT.getAsCodepoint() ||
+                 BlackenKeys.isSpecial(cp))) {
+                loadKey(mods);
+            }
+            loadKey(cp);
         }
     
-        if (mods != BlackenKeys.NO_KEY) loadKey(mods);
-        loadKey(cp);
     }
 
     public void loadKey(int key) {
@@ -588,8 +661,11 @@ public class EventListener implements WindowListener, KeyListener,
             k = BlackenKeys.removeModifier(k);
         }
         int mods = makeModifierNotice(e);
-        e.consume();
-        if (mods != BlackenKeys.NO_KEY) loadKey(mods);
+        if (mods != BlackenKeys.NO_KEY && 
+            (mods != BlackenModifier.MODIFIER_KEY_SHIFT.getAsCodepoint() ||
+             BlackenKeys.isSpecial(keycode))) {
+            loadKey(mods);
+        }
         loadKey(k);
     }
 
@@ -883,6 +959,47 @@ public class EventListener implements WindowListener, KeyListener,
     public void inputMethodTextChanged(InputMethodEvent e) {
         // TODO Auto-generated method stub
         
+    }
+
+    /**
+     * Switch between two modes of processing incoming keys.
+     * 
+     * In Java you can't have right/left variant keys and use Unicode.
+     * 
+     * <p>The issue is there are two different types of key events, the
+     * low-level "keyPressed" and the higher-level "keyTyped" events.
+     * The keyTyped events don't get action keys and can't tell key
+     * locations. The keyPressed events don't get the full processing to get
+     * the full-set of characters (particularly some of the Unicode characters).
+     * </p>
+     * 
+     * <p>It would be nice if we could process the action keys in keyPressed
+     * and the keys that generate good, solid Unicode in keyTyped. 
+     * Unfortunately, Java makes that hard. We're stuck with one set of two
+     * bad options:</p>
+     * <ul>
+     * <li>We get no knowledge of keyboard variations for a number of
+     *     important keys (like those around the number pad). (When the
+     *     variantKeyMode is disabled.)</li>
+     * <li>We can't get full unicode processing done automatically. (When the
+     *     variantKeyMode is enabled, and the default.)</li>
+     * </ul>
+     * 
+     * <p>For the general Rogue-like use-case, we rarely care about full
+     * Unicode support. We need the option, of course, so that we can more
+     * easily support native non-English Roguelikes.
+     * 
+     * @param variantKeyMode the when true limit Unicode characters
+     */
+    public void setVariantKeyMode(boolean variantKeyMode) {
+        this.variantKeyMode = variantKeyMode;
+    }
+
+    /**
+     * @return the variant key mode state
+     */
+    public boolean isVariantKeyMode() {
+        return variantKeyMode;
     }
 
 }

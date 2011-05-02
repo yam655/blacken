@@ -3,6 +3,8 @@ package com.googlecode.blacken.terminal;
 
 import java.util.EnumSet;
 
+import com.googlecode.blacken.grid.Grid;
+
 
 public class UnboundTerminal extends AbstractTerminal {
 
@@ -53,6 +55,7 @@ public class UnboundTerminal extends AbstractTerminal {
 
     @Override
     public void set(int y, int x, TerminalCell tcell) {
+        Grid<TerminalCell> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
         

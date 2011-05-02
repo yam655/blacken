@@ -9,21 +9,22 @@ import com.googlecode.blacken.grid.Grid;
 
 public abstract class AbstractTerminal implements TerminalInterface {
 
-    protected ColorPalette palette = null;
-    protected Grid<TerminalCell> grid = null;
-    protected TerminalCell empty = new TerminalCell();
-    protected int cursorX = 0;
-    protected int cursorY = 0;
-    protected int updateX = 0;
-    protected int updateY = 0;
-    protected int curForeground = 0xffffffff;
-    protected int curBackground = 0xff000000;
-    protected boolean separateCursor = false;
+    private ColorPalette palette = null;
+    private Grid<TerminalCell> grid = null;
+    private TerminalCell empty = new TerminalCell();
+
+    private int cursorX = 0;
+    private int cursorY = 0;
+    private int updateX = 0;
+    private int updateY = 0;
+    private int curForeground = 0xffffffff;
+    private int curBackground = 0xff000000;
+    private boolean separateCursor = false;
 
     public AbstractTerminal() {
         super();
     }
-
+    
     @Override
     public void addch(int what) {
         if (grid == null) {
@@ -67,7 +68,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
             this.moveBlock(grid.getHeight() -1, grid.getWidth(), 1, 0, 0, 0);
             updateY = grid.getHeight() -1;
         }
-        if (!separateCursor) moveCursor(updateY, updateX);
+        if (!separateCursor) setCursorLocation(updateY, updateX);
     }
 
     @Override
@@ -198,6 +199,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
             grid.reset(rows, cols, this.empty);
             
         }
+        setCursorLocation(0,0);
         move(0, 0);
     }
 
@@ -212,20 +214,33 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void move(int y, int x) {
         updateX = x; updateY = y;
-        if (!separateCursor) moveCursor(y, x);
+        if (!separateCursor) setCursorLocation(y, x);
     }
 
     @Override
-    public void moveBlock(int numRows, int numCols, int origY,
-                             int origX, int newY, int newX) {
-                                grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                                               new TerminalCell().new ResetCell());
-                            }
+    public void moveBlock(int numRows, int numCols, int origY, int origX, 
+                          int newY, int newX) {
+        grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
+                       new TerminalCell().new ResetCell());
+    }
 
-    @Override
+    @Override @Deprecated
     public void moveCursor(int y, int x) {
-        cursorX = x; cursorY = y;
+        setCursorLocation(y, x);
+    }
     
+    @Override
+    public int[] getCursorLocation() {
+        int[] ret = {cursorY, cursorX};
+        return ret;
+    }
+    @Override
+    public int getCursorX() {
+        return cursorX;
+    }
+    @Override
+    public int getCursorY() {
+        return cursorY;
     }
 
     @Override
@@ -236,7 +251,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public int mvgetch(int y, int x) {
-        moveCursor(y, x);
+        setCursorLocation(y, x);
         return getch();
     }
 
@@ -309,6 +324,11 @@ public abstract class AbstractTerminal implements TerminalInterface {
             tcell.setGlyph(glyph);
         }
         tcell.setDirty(true);
+    }
+
+    @Override
+    public void setCursorLocation(int y, int x) {
+        cursorX = x; cursorY = y;
     }
 
     public void setCurBackground(int c) {
@@ -437,6 +457,16 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void setSeparateCursor(boolean separateCursor) {
         this.separateCursor = separateCursor;
+    }
+
+    @Override
+    public TerminalCell getEmpty() {
+        return empty;
+    }
+
+    @Override
+    public void setEmpty(TerminalCell empty) {
+        this.empty = empty;
     }
 
 }

@@ -46,7 +46,7 @@ public interface TerminalInterface {
      * @param x column
      */
     public void move(int y, int x);
-    public void moveCursor(int y, int x);
+    public void setCursorLocation(int y, int x);
     public void mvaddch(int y, int x, int what);
 
     public int mvgetch(int y, int x);
@@ -150,5 +150,28 @@ public interface TerminalInterface {
     public void disableEventNotice(BlackenEventType event);
     public void init(String name, int rows, int cols);
     public void init();
+    public int[] getCursorLocation();
+    public int getCursorX();
+    public int getCursorY();
+    /**
+     * Use {@link #setCursorLocation(int, int)} instead.
+     * 
+     * @param y y location
+     * @param x x location
+     */
+    @Deprecated
+    public void moveCursor(int y, int x);
+    /**
+     * Get the template cell used for new and clear cells.
+     * 
+     * @return template cell
+     */
+    public TerminalCell getEmpty();
+    /**
+     * Set the template cell used for new and clear cells.
+     * 
+     * @param empty new empty cell
+     */
+    public void setEmpty(TerminalCell empty);
 
 }

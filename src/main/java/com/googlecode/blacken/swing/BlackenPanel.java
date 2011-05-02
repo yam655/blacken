@@ -39,24 +39,50 @@ public class BlackenPanel extends JPanel {
     private int fontSglAdvance;
     private int fontDblAdvance;
     private int fontHeight;
-
-    private int cursorX;
-    private int cursorY;
-
-    private int lastCursorX;
-    private int lastCursorY;
-
-    private Paint cursorColor;
-
+    private Font font;
     private FontMetrics metrics;
 
-    private boolean refresh_all;
-    private Font font;
+    /**
+     * X Position where the cursor will be when image is updated
+     */
+    private int cursorX;
+    /**
+     * Y Position where the cursor will be when image is updated
+     */
+    private int cursorY;
 
+    /**
+     * X Position where the cursor is in the image
+     */
+    private int lastCursorX;
+    /**
+     * Y Position where the cursor is in the image
+     */
+    private int lastCursorY;
+
+    /**
+     * The cursor's color
+     */
+    private Paint cursorColor;
+
+    /**
+     * Flag to ignore cell-specific refresh and refresh everything.
+     */
+    private boolean refresh_all;
+
+    /**
+     * The AWT-side image.
+     */
     private Image imageDisplay = null;
 
+    /**
+     * Marker for aborted Terminal-side updates.
+     */
     private int updates;
 
+    /**
+     * Indicates the AWT-side image needs to be updated.
+     */
     private boolean changed;
     
     public BlackenPanel() {
@@ -175,7 +201,9 @@ public class BlackenPanel extends JPanel {
     
     public void moveCursor(int y, int x, Paint cursorColor) {
         this.maybeRepaint();
-        this.cursorColor = cursorColor;
+        if (cursorColor != null) {
+            this.cursorColor = cursorColor;
+        }
         cursorX = x;
         cursorY = y;
     }
@@ -200,6 +228,13 @@ public class BlackenPanel extends JPanel {
         }
     }
 
+    /**
+     * Paint the bitmap the terminal-side sees.
+     * 
+     * <p>The Terminal and AWT sides exist in separate threads. This function
+     * updates the Terminal-visible bitmap. {@link #paintComponent(Graphics)}
+     * copies the Terminal-visible bitmap to the AWT-visible bitmap.</p>
+     */
     public void paintImage() {
         AwtCell c = null;
         boolean need_cursor = false;

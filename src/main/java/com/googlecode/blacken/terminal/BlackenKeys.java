@@ -110,7 +110,6 @@ public class BlackenKeys {
 
     static final public int KEY_ACCEPT = KEY_FIRST + 45;
     static final public int KEY_BEGIN = KEY_FIRST + 46;
-    static public int KEY_CLEAR = KEY_FIRST + 47;
     static final public int KEY_CONVERT = KEY_FIRST + 48;
     static final public int KEY_CODE_INPUT = KEY_FIRST + 49;
 
@@ -158,38 +157,54 @@ public class BlackenKeys {
     static public int KEY_NP_8 = KEY_FIRST + 88;
     static public int KEY_NP_9 = KEY_FIRST + 89;
 
-   static final public int KEY_UP = KEY_FIRST + 90;
-   static final public int KEY_DOWN = KEY_FIRST + 91;
-   static final public int KEY_LEFT = KEY_FIRST + 92;
-   static final public int KEY_RIGHT = KEY_FIRST + 93;
-   static final public int KEY_PAGE_DOWN = KEY_FIRST + 94;
-   static final public int KEY_PAGE_UP = KEY_FIRST + 95;
-   static final public int KEY_HOME = KEY_FIRST + 96;
-   static final public int KEY_END = KEY_FIRST + 97;
-   static final public int KEY_INSERT = KEY_FIRST + 98;
-   static final public int KEY_DELETE = KEY_FIRST + 99;
+    static final public int KEY_UP = KEY_FIRST + 90;
+    static final public int KEY_DOWN = KEY_FIRST + 91;
+    static final public int KEY_LEFT = KEY_FIRST + 92;
+    static final public int KEY_RIGHT = KEY_FIRST + 93;
+    static final public int KEY_PAGE_DOWN = KEY_FIRST + 94;
+    static final public int KEY_PAGE_UP = KEY_FIRST + 95;
+    static final public int KEY_HOME = KEY_FIRST + 96;
+    static final public int KEY_END = KEY_FIRST + 97;
+    static final public int KEY_INSERT = KEY_FIRST + 98;
+    static final public int KEY_DELETE = KEY_FIRST + 99;
 
-  static final public int KEY_ALL_CANDIDATES = KEY_FIRST + 100;
-  static final public int KEY_PREVIOUS_CANDIDATE = KEY_FIRST + 101;
-  static final public int KEY_FULL_WIDTH = KEY_FIRST + 102;
-  static final public int KEY_HALF_WIDTH = KEY_FIRST + 103;
-  static final public int KEY_ALPHANUMERIC = KEY_FIRST + 104;
-  static final public int KEY_HIRAGANA = KEY_FIRST + 105;
-  static final public int KEY_KATAKANA = KEY_FIRST + 106;
-  static final public int KEY_KANJI = KEY_FIRST + 107;
-  static final public int KEY_NONCONVERT = KEY_FIRST + 108;
-  static final public int KEY_ROMAN_CHARACTERS = KEY_FIRST + 109;
+    static final public int KEY_ALL_CANDIDATES = KEY_FIRST + 101;
+    static final public int KEY_PREVIOUS_CANDIDATE = KEY_FIRST + 102;
+    static final public int KEY_FULL_WIDTH = KEY_FIRST + 103;
+    static final public int KEY_HALF_WIDTH = KEY_FIRST + 104;
+    static final public int KEY_ALPHANUMERIC = KEY_FIRST + 105;
+    static final public int KEY_HIRAGANA = KEY_FIRST + 106;
+    static final public int KEY_KATAKANA = KEY_FIRST + 107;
+    static final public int KEY_KANJI = KEY_FIRST + 108;
+    static final public int KEY_NONCONVERT = KEY_FIRST + 109;
+    static final public int KEY_ROMAN_CHARACTERS = KEY_FIRST + 110;
 
-  static final public int KEY_INPUT_METHOD_TOGGLE = KEY_FIRST + 110;
-  static final public int KEY_MODECHANGE = KEY_FIRST + 111;
-  static final public int KEY_JAPANESE_HIRAGANA = KEY_FIRST + 112;
-  static final public int KEY_JAPANESE_KATAKANA = KEY_FIRST + 113;
-  static final public int KEY_JAPANESE_ROMAN = KEY_FIRST + 114;
-//  static final public int KEY_ = KEY_FIRST + 115;
+    static final public int KEY_INPUT_METHOD_TOGGLE = KEY_FIRST + 111;
+    static final public int KEY_MODECHANGE = KEY_FIRST + 112;
+    static final public int KEY_JAPANESE_HIRAGANA = KEY_FIRST + 113;
+    static final public int KEY_JAPANESE_KATAKANA = KEY_FIRST + 114;
+    static final public int KEY_JAPANESE_ROMAN = KEY_FIRST + 115;
 //  static final public int KEY_ = KEY_FIRST + 116;
 //  static final public int KEY_ = KEY_FIRST + 117;
 //  static final public int KEY_ = KEY_FIRST + 118;
 //  static final public int KEY_ = KEY_FIRST + 119;
+
+    static final public int KEY_KP_UP = KEY_FIRST + 120;
+    static final public int KEY_KP_DOWN = KEY_FIRST + 121;
+    static final public int KEY_KP_LEFT = KEY_FIRST + 122;
+    static final public int KEY_KP_RIGHT = KEY_FIRST + 123;
+    static final public int KEY_KP_PAGE_DOWN = KEY_FIRST + 124;
+    static final public int KEY_KP_PAGE_UP = KEY_FIRST + 125;
+    static final public int KEY_KP_HOME = KEY_FIRST + 126;
+    static final public int KEY_KP_END = KEY_FIRST + 127;
+    static final public int KEY_KP_INSERT = KEY_FIRST + 128;
+    static final public int KEY_KP_DELETE = KEY_FIRST + 129;
+    /**
+     * Java calls it CLEAR, Curses calls it B2.
+     * It is the center key or the number pad 5 key when numberlock is disabled. 
+     */
+    static final public int KEY_KP_CLEAR = KEY_FIRST + 130;
+    static final public int KEY_KP_B2 = KEY_KP_CLEAR;
 
 //  static final public int KEY_ = KEY_FIRST + 10;
 //  static final public int KEY_ = KEY_FIRST + 11;
@@ -371,7 +386,9 @@ public class BlackenKeys {
         } else if (plane == 15) {
             String name = String.format("\\U%08x", keycode);
             for (Field f : BlackenKeys.class.getDeclaredFields()) {
-                if (f.getName().startsWith("KEY_")) {
+                String fieldName = f.getName();
+                if (fieldName.startsWith("KEY_") || 
+                    fieldName.startsWith("CODEPOINT_")) {
                     try {
                         if (f.getInt(null) == keycode) {
                             name = f.getName();
