@@ -10,8 +10,8 @@ import com.googlecode.blacken.grid.Grid;
 public abstract class AbstractTerminal implements TerminalInterface {
 
     private ColorPalette palette = null;
-    private Grid<TerminalCell> grid = null;
-    private TerminalCell empty = new TerminalCell();
+    private Grid<TerminalCellLike> grid = null;
+    private TerminalCellLike empty = new TerminalCell();
 
     private int cursorX = 0;
     private int cursorY = 0;
@@ -36,7 +36,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         if (updateY >= grid.getHeight()) {
             updateY = grid.getHeight() -1;
         }
-        TerminalCell cell = null;
+        TerminalCellLike cell = null;
 
         if (what == '\n' || what == BlackenKeys.KEY_ENTER) {
             updateY++;
@@ -46,14 +46,14 @@ public abstract class AbstractTerminal implements TerminalInterface {
         } else if (what == '\b' || what == BlackenKeys.KEY_BACKSPACE) {
             if (updateX > 0) updateX --;
             cell = this.get(updateY, updateX);
-            cell.setGlyph("\u0000");
+            cell.setSequence("\u0000");
             this.set(updateY, updateX, cell);
         } else if (what == '\t' || what == BlackenKeys.KEY_TAB) {
             updateX = updateX + 8;
             updateX -= updateX % 8;
         } else {
             cell = this.get(updateY, updateX);
-            cell.setGlyph(what);
+            cell.setSequence(what);
             cell.setForeground(getCurForeground());
             cell.setBackground(getCurBackground());
             this.set(updateY, updateX, cell);
@@ -84,6 +84,12 @@ public abstract class AbstractTerminal implements TerminalInterface {
         grid.clear(empty);
         empty.setDirty(true);
     }
+    
+    @Override
+    public void clear(TerminalCell empty) {
+        this.empty.set(empty);
+        clear();
+    }
 
     @Override
     public void copyFrom(TerminalInterface oterm, int numRows, int numCols, int startY,
@@ -106,7 +112,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public abstract void enableEventNotices(EnumSet<BlackenEventType> events);
 
     @Override
-    public TerminalCell get(int y, int x) {
+    public TerminalCellLike get(int y, int x) {
         return grid.get(y, x).copy();
     }
 
@@ -122,7 +128,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
 
     @Override
-    public Grid<TerminalCell> getGrid() {
+    public Grid<TerminalCellLike> getGrid() {
         return this.grid;
     }
 
@@ -194,7 +200,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void init(String name, int rows, int cols) {
         if (grid == null) {
-            grid = new Grid<TerminalCell>(this.empty, rows, cols);
+            grid = new Grid<TerminalCellLike>(this.empty, rows, cols);
         } else {
             grid.reset(rows, cols, this.empty);
             
@@ -222,11 +228,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
                           int newY, int newX) {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
                        new TerminalCell().new ResetCell());
-    }
-
-    @Override @Deprecated
-    public void moveCursor(int y, int x) {
-        setCursorLocation(y, x);
     }
     
     @Override
@@ -257,8 +258,8 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void mvoverlaych(int y, int x, int what) {
-        grid.get(y, x).addGlyph(what);
-    
+        TerminalCellLike c = grid.get(y, x);
+        c.addSequence(what);
     }
 
     @Override
@@ -277,14 +278,16 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void puts(String what) {
         int cp;
-        int lastUpX = -1, lastUpY = -1;
+        int lastUpX = updateX-1, lastUpY = updateY-1;
         for (int i = 0; i < what.codePointCount(0, what.length()); i++) {
             cp = what.codePointAt(i);
             switch (Character.getType(cp)) {
             case Character.COMBINING_SPACING_MARK:
             case Character.ENCLOSING_MARK:
             case Character.NON_SPACING_MARK:
-                mvoverlaych(lastUpY, lastUpX, cp);
+                if (lastUpX >= 0 && lastUpY >= 0) {
+                    mvoverlaych(lastUpY, lastUpX, cp);
+                }
                 break;
             default:
                 lastUpX = updateX; lastUpY = updateY;
@@ -307,7 +310,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public void set(int y, int x, String glyph, 
                     Integer foreground, Integer background, 
                     EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
-        TerminalCell tcell = grid.get(y,x);
+        TerminalCellLike tcell = grid.get(y,x);
         if (walls != null) {
             tcell.setCellWalls(walls);
         }
@@ -321,7 +324,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
             tcell.setBackground(background);
         }
         if (glyph != null) {
-            tcell.setGlyph(glyph);
+            tcell.setSequence(glyph);
         }
         tcell.setDirty(true);
     }
@@ -382,7 +385,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
             HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int x = 0; x < grid.getWidth(); x++) {
-                    TerminalCell cell = get(y, x);
+                    TerminalCellLike cell = get(y, x);
                     int b = cell.getBackground();
                     int f = cell.getForeground();
                     int back = -1;
@@ -439,7 +442,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
             int psize = this.palette.size();
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int x = 0; x < grid.getWidth(); x++) {
-                    TerminalCell cell = get(y, x);
+                    TerminalCellLike cell = get(y, x);
                     int b = cell.getBackground();
                     int f = cell.getForeground();
                     if (b >= psize && f >= psize) {
@@ -460,12 +463,12 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
 
     @Override
-    public TerminalCell getEmpty() {
+    public TerminalCellLike getEmpty() {
         return empty;
     }
 
     @Override
-    public void setEmpty(TerminalCell empty) {
+    public void setEmpty(TerminalCellLike empty) {
         this.empty = empty;
     }
 

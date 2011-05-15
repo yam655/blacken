@@ -20,12 +20,60 @@ public interface TerminalInterface {
      */
     public void addch(int what);
     public void clear();
+    public void clear(TerminalCell empty);
+    public void copyFrom(TerminalInterface oterm, int numRows, int numCols,
+                  int startY, int startX, int destY, int destX);
+    public void disableEventNotice(BlackenEventType event);
+    public void disableEventNotices();
+    public void enableEventNotice(BlackenEventType event);
+    public void enableEventNotices(EnumSet<BlackenEventType> events);
+    public TerminalCellLike get(int y, int x);
     /**
      * Get a character without visible user-feedback.
      * 
      * @return character returned.
      */
     public int getch();
+    public int[] getCursorLocation();
+
+    public int getCursorX();
+
+    public int getCursorY();
+    /**
+     * Get the template cell used for new and clear cells.
+     * 
+     * @return template cell
+     */
+    public TerminalCellLike getEmpty();
+    /**
+     * Don't depend on this function.
+     * 
+     * This exists to facilitate the 
+     * {@link #copyFrom(TerminalInterface, int, int, int, int, int, int)} 
+     * function. It allows direct modification of the underlying grid, but
+     * such uses break the visual interface it is bound to.
+     * 
+     * @return the underlying grid
+     */
+    public Grid<TerminalCellLike> getGrid();
+    /**
+     * Get the current locking states/modifiers
+     * 
+     * If the locking states are available to the interface, this should
+     * return them. It may or may not also include the other modifiers.
+     * 
+     * @return set of locking states enabled
+     */
+    public EnumSet<BlackenModifier> getLockingStates();
+    /**
+     * Get the latest mouse event.
+     * 
+     * This function should only be called after a KEY_MOUSE keycode 
+     * is returned by getch().
+     * 
+     * @return new mouse event
+     */
+    public BlackenMouseEvent getmouse();
     /**
      * Get a copy of the palette used.
      * 
@@ -33,8 +81,20 @@ public interface TerminalInterface {
      */
     public ColorPalette getPalette();
     public String gets(int length);
+    /**
+     * Get the latest window event.
+     * 
+     * This function should only be called after a KEY_WINDOW keycode 
+     * is returned by getch().
+     * 
+     * @return new window event
+     */
+    public BlackenWindowEvent getwindow();
     public int gridMaxX();
     public int gridMaxY();
+
+    public void init();
+    public void init(String name, int rows, int cols);
     boolean isSeparateCursor();
     /**
      * Move the invisible output cursor. 
@@ -46,11 +106,10 @@ public interface TerminalInterface {
      * @param x column
      */
     public void move(int y, int x);
-    public void setCursorLocation(int y, int x);
+    public void moveBlock(int numRows, int numCols, int origY, int origX, 
+                          int newY, int newX);
     public void mvaddch(int y, int x, int what);
-
     public int mvgetch(int y, int x);
-
     /**
      * Overlay a character on to a specific character position.
      * 
@@ -71,8 +130,19 @@ public interface TerminalInterface {
     public void puts(String what);
     void quit();
     public void refresh();
+    public void set(int y, int x, String glyph, 
+                    Integer foreground, Integer background,
+                    EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls);
+    public void set(int y, int x, TerminalCellLike cell);
     public void setCurBackground(int color);
     public void setCurForeground(int color);
+    public void setCursorLocation(int y, int x);
+    /**
+     * Set the template cell used for new and clear cells.
+     * 
+     * @param empty new empty cell
+     */
+    public void setEmpty(TerminalCellLike empty);
     /**
      * Set the palette, performing any additional implementation-specific
      * backing logic as needed.
@@ -95,83 +165,6 @@ public interface TerminalInterface {
      * @return old palette
      */
     public ColorPalette setPalette(ColorPalette palette, int white, int black);
-
     public void setSeparateCursor(boolean separateCursor);
-    public void set(int y, int x, TerminalCell tcell);
-    public void set(int y, int x, String glyph, 
-                    Integer foreground, Integer background,
-                    EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls);
-    public TerminalCell get(int y, int x);
-    public void moveBlock(int numRows, int numCols, int origY, int origX, 
-                          int newY, int newX);
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols,
-                  int startY, int startX, int destY, int destX);
-    /**
-     * Don't depend on this function.
-     * 
-     * This exists to facilitate the 
-     * {@link #copyFrom(TerminalInterface, int, int, int, int, int, int)} 
-     * function. It allows direct modification of the underlying grid, but
-     * such uses break the visual interface it is bound to.
-     * 
-     * @return the underlying grid
-     */
-    public Grid<TerminalCell> getGrid();
-    /**
-     * Get the current locking states/modifiers
-     * 
-     * If the locking states are available to the interface, this should
-     * return them. It may or may not also include the other modifiers.
-     * 
-     * @return set of locking states enabled
-     */
-    public EnumSet<BlackenModifier> getLockingStates();
-    /**
-     * Get the latest mouse event.
-     * 
-     * This function should only be called after a KEY_MOUSE keycode 
-     * is returned by getch().
-     * 
-     * @return new mouse event
-     */
-    public BlackenMouseEvent getmouse();
-    /**
-     * Get the latest window event.
-     * 
-     * This function should only be called after a KEY_WINDOW keycode 
-     * is returned by getch().
-     * 
-     * @return new window event
-     */
-    public BlackenWindowEvent getwindow();
-    public void disableEventNotices();
-    public void enableEventNotices(EnumSet<BlackenEventType> events);
-    public void enableEventNotice(BlackenEventType event);
-    public void disableEventNotice(BlackenEventType event);
-    public void init(String name, int rows, int cols);
-    public void init();
-    public int[] getCursorLocation();
-    public int getCursorX();
-    public int getCursorY();
-    /**
-     * Use {@link #setCursorLocation(int, int)} instead.
-     * 
-     * @param y y location
-     * @param x x location
-     */
-    @Deprecated
-    public void moveCursor(int y, int x);
-    /**
-     * Get the template cell used for new and clear cells.
-     * 
-     * @return template cell
-     */
-    public TerminalCell getEmpty();
-    /**
-     * Set the template cell used for new and clear cells.
-     * 
-     * @param empty new empty cell
-     */
-    public void setEmpty(TerminalCell empty);
 
 }

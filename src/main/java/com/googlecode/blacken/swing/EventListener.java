@@ -173,24 +173,50 @@ public class EventListener implements WindowListener, KeyListener,
         switch(e.getKeyCode()) {
         // dead keys
         case KeyEvent.VK_DEAD_ABOVEDOT: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOT_ABOVE);
+            break;
         case KeyEvent.VK_DEAD_ABOVERING: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_RING_ABOVE);
+            break;
         case KeyEvent.VK_DEAD_ACUTE:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_ACUTE_ACCENT);
+            break;
         case KeyEvent.VK_DEAD_BREVE:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_BREVE);
+            break;
         case KeyEvent.VK_DEAD_CARON: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CARON);
+            break;
         case KeyEvent.VK_DEAD_CEDILLA: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
+            break;
         case KeyEvent.VK_DEAD_CIRCUMFLEX: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
+            break;
         case KeyEvent.VK_DEAD_DIAERESIS:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DIAERESIS);
+            break;
         case KeyEvent.VK_DEAD_DOUBLEACUTE: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT);
+            break;
         case KeyEvent.VK_DEAD_GRAVE: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GRAVE_ACCENT);
+            break;
         case KeyEvent.VK_DEAD_IOTA:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI);
+            break;
         case KeyEvent.VK_DEAD_MACRON:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MACRON);
+            break;
         case KeyEvent.VK_DEAD_OGONEK: 
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_OGONEK);
+            break;
         case KeyEvent.VK_DEAD_SEMIVOICED_SOUND: 
+            break;
         case KeyEvent.VK_DEAD_TILDE:
+            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_TILDE);
+            break;
         case KeyEvent.VK_DEAD_VOICED_SOUND:
-            // It would be nice to support some feedback for this -- if 
-            // the AWT doesn't provide any by default. I'm thinking of 
-            // reporting these events -- but not by default.
             break;
 
         case KeyEvent.VK_F1:

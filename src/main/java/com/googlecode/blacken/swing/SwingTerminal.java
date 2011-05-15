@@ -11,6 +11,7 @@ import java.awt.font.TextAttribute;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFrame;
 
@@ -25,6 +26,7 @@ import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.CellWalls;
 import com.googlecode.blacken.terminal.TerminalCell;
+import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalStyle;
 
@@ -49,12 +51,12 @@ public class SwingTerminal extends AbstractTerminal
         AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
         awtempty.setDirty(true);
         awtempty.setFont(f);
-        awtempty.setForeground(this.getSwingColor(getCurForeground()));
-        awtempty.setBackground(this.getSwingColor(getCurBackground()));
+        awtempty.setForegroundColor(this.getSwingColor(getCurForeground()));
+        awtempty.setBackgroundColor(this.getSwingColor(getCurBackground()));
         gui.setEmpty(awtempty);
         gui.clear();
     }
-
+    
     @Override
     public void componentHidden(ComponentEvent e) {
         return;
@@ -111,7 +113,7 @@ public class SwingTerminal extends AbstractTerminal
     }
     
     private void forceRefresh(int numRows, int numCols, int startY, int startX) {
-        Grid<TerminalCell> grid = getGrid();
+        Grid<TerminalCellLike> grid = getGrid();
         for (int y = startY; y < numRows + startY; y++) {
             for (int x = startX; x < numCols + startX; x++) {
                 this.setAwtFromTerminal(gui.get(y, x), grid.get(y, x));
@@ -122,6 +124,7 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public int getch() {
+        this.refresh();
         int ch = listener.popKey();
         if (ch == BlackenKeys.NO_KEY) {
             this.refresh();
@@ -256,7 +259,7 @@ public class SwingTerminal extends AbstractTerminal
                     Integer foreground, Integer background, 
                     EnumSet<TerminalStyle> style, 
                     EnumSet<CellWalls> walls) {
-        TerminalCell tcell = getGrid().get(y,x);
+        TerminalCellLike tcell = getGrid().get(y,x);
         if (walls != null) {
             tcell.setCellWalls(walls);
         }
@@ -270,25 +273,25 @@ public class SwingTerminal extends AbstractTerminal
             tcell.setBackground(background);
         }
         if (glyph != null) {
-            tcell.setGlyph(glyph);
+            tcell.setSequence(glyph);
         }
         gui.set(y, x, this.setAwtFromTerminal(null, tcell));
         tcell.setDirty(true);
     }
 
     @Override
-    public void set(int y, int x, TerminalCell tcell) {
+    public void set(int y, int x, TerminalCellLike tcell) {
         AwtCell acell = gui.get(y, x);
         AwtCell r = this.setAwtFromTerminal(acell, tcell);
         if (acell == null) {
             gui.set(y, x, r);
         }
-        Grid<TerminalCell> grid = getGrid();
+        Grid<TerminalCellLike> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
     }
 
-    protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCell term) {
+    protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCellLike term) {
         if (term == null && awt != null) {
             awt.setCell(null);
             return awt;
@@ -302,10 +305,10 @@ public class SwingTerminal extends AbstractTerminal
         } else {
             awt.setFont(gui.getEmpty().getFont());
         }
-        awt.setGlyph(term.getGlyph());
+        awt.setSequence(term.getSequence());
         awt.setCellWalls(term.getCellWalls());
-        awt.clearAttributes();
-        EnumSet<TerminalStyle> styles = term.getStyle();
+        awt.clearTextAttributes();
+        Set<TerminalStyle> styles = term.getStyle();
         int fore = term.getForeground();
         int back = term.getBackground();
         if (styles.contains(TerminalStyle.STYLE_REVERSE)) {
@@ -316,8 +319,8 @@ public class SwingTerminal extends AbstractTerminal
         if (styles.contains(TerminalStyle.STYLE_DIM)) {
             fore = makeDim(fore);
         }
-        awt.setBackground(getSwingColor(back));
-        awt.setForeground(getSwingColor(fore));
+        awt.setBackgroundColor(getSwingColor(back));
+        awt.setForegroundColor(getSwingColor(fore));
         Map<TextAttribute, Object> attrs = awt.getAttributes();
         // attrs.put(TextAttribute.FAMILY, Font.MONOSPACED);
         if (styles.contains(TerminalStyle.STYLE_LIGHT)) {
@@ -381,11 +384,11 @@ public class SwingTerminal extends AbstractTerminal
             // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
     
             case STYLE_INVISIBLE:
-                awt.setGlyph("\u0000");
+                awt.setSequence("\u0000");
                 break;
             case STYLE_REPLACEMENT:
-                awt.setGlyph("\uFFFC");
-                String s = term.getGlyph();
+                awt.setSequence("\uFFFC");
+                String s = term.getSequence();
                 if (replacement != null && replacement.containsKey(s)) {
                     attrs.put(TextAttribute.CHAR_REPLACEMENT, replacement.get(s));
                 }
@@ -410,7 +413,7 @@ public class SwingTerminal extends AbstractTerminal
                 break;
             }
         }
-        awt.setAttributes(attrs);
+        awt.setTextAttributes(attrs);
         return awt;
     }
 

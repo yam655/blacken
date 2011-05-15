@@ -23,8 +23,7 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.terminal.CellWalls;
 
 public class BlackenPanel extends JPanel {
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = 4608415642377103276L;
     private AwtCell empty = new AwtCell();
     private int minX = 80;
     private int minY = 25;
@@ -96,6 +95,7 @@ public class BlackenPanel extends JPanel {
     public void clear() {
         this.maybeRepaint();
         grid.clear(this.empty);
+        this.moveCursor(0, 0);
     }
     
     public void doUpdate() {
@@ -295,7 +295,7 @@ public class BlackenPanel extends JPanel {
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
                     if (c.isDirty() || refresh_all) {
-                        graphics.setPaint(c.getBackground());
+                        graphics.setPaint(c.getBackgroundColor());
                         graphics.fill(new Rectangle(x * fontSglAdvance, 
                                                     y * fontHeight, 
                                                     fontSglAdvance, 
@@ -318,7 +318,7 @@ public class BlackenPanel extends JPanel {
                             w = fontSglAdvance - w;
                             if (w < 0) w = 0;
                             else w /= 2;
-                            graphics.drawString(c.getAttributedGlyph().getIterator(), 
+                            graphics.drawString(c.getAttributedString().getIterator(), 
                                             x * fontSglAdvance + w, 
                                             y * fontHeight + fontAscent);
                         }
@@ -326,7 +326,7 @@ public class BlackenPanel extends JPanel {
                         if (c.getCellWalls() != null && !c.getCellWalls().isEmpty()) {
                             int x1 = x * fontSglAdvance;
                             int y1 = y * fontHeight;
-                            graphics.setColor(c.getForeground());
+                            graphics.setColor(c.getForegroundColor());
                             if (c.getCellWalls().contains(CellWalls.TOP)) {
                                 graphics.drawLine(x1, y1, 
                                                   x1 + fontSglAdvance -1, y1);
@@ -362,7 +362,7 @@ public class BlackenPanel extends JPanel {
             if (need_cursor) {
                 c = grid.get(cursorY, cursorX);
                 if (cursorColor == null) {
-                    graphics.setPaint(c.getForeground());
+                    graphics.setPaint(c.getForegroundColor());
                 } else {
                     graphics.setPaint(cursorColor);
                 }

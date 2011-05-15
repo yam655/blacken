@@ -6,15 +6,17 @@ import java.awt.font.GraphicAttribute;
 import java.awt.font.NumericShaper;
 import java.awt.font.TextAttribute;
 import java.text.AttributedString;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.googlecode.blacken.grid.Copyable;
 import com.googlecode.blacken.grid.ResetGridCell;
 import com.googlecode.blacken.terminal.CellWalls;
 
-public class AwtCell extends Copyable {
+public class AwtCell implements Copyable {
     public class ResetCell implements ResetGridCell<AwtCell> {
 
         @Override
@@ -23,7 +25,7 @@ public class AwtCell extends Copyable {
         }
 
     }
-    private String glyph;
+    private String sequence;
     private boolean dirty;
     private Map<TextAttribute, Object> attributes = 
         new HashMap<TextAttribute, Object>();
@@ -37,11 +39,11 @@ public class AwtCell extends Copyable {
     @Override 
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        if (glyph == null) {
+        if (sequence == null) {
             buf.append("null");
         } else {
             buf.append('"');
-            for (char c : glyph.toCharArray()) {
+            for (char c : sequence.toCharArray()) {
                 if (c < ' ' || c > 127) {
                     buf.append(String.format("\\u04x", c));
                 } else {
@@ -50,13 +52,13 @@ public class AwtCell extends Copyable {
             }
             buf.append('"');
         }
-        Color clr = getForeground();
+        Color clr = getForegroundColor();
         if (clr == null) {
             buf.append(", null");
         } else {
             buf.append(String.format(", 0x%08x", clr.getRGB()));
         }
-        clr = getBackground();
+        clr = getBackgroundColor();
         if (clr == null) {
             buf.append(", null");
         } else {
@@ -264,11 +266,11 @@ public class AwtCell extends Copyable {
         setCell(source);
     }
     public void addGlyph(int glyph) {
-        this.glyph += String.copyValueOf(Character.toChars(glyph));
+        this.sequence += String.copyValueOf(Character.toChars(glyph));
         dirty = true;
     }
     public void addGlyph(String glyph) {
-        this.glyph += glyph;
+        this.sequence += glyph;
         dirty = true;
     }
 
@@ -277,7 +279,7 @@ public class AwtCell extends Copyable {
      * simply attributes, this function avoids clearing them. This allows
      * us to hope that the character has a better chance of remaining visible.
      */
-    public void clearAttributes() {
+    public void clearTextAttributes() {
         Color background = (Color)attributes.get(TextAttribute.BACKGROUND);
         Color foreground = (Color)attributes.get(TextAttribute.FOREGROUND);
         Font f = (Font)attributes.get(TextAttribute.FONT);
@@ -293,20 +295,25 @@ public class AwtCell extends Copyable {
 
     @Override
     public AwtCell clone() {
-        AwtCell ret = (AwtCell)super.clone();
+        AwtCell ret;
+        try {
+            ret = (AwtCell)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("unexpected clone failure", e);
+        }
         ret.cellWalls = EnumSet.copyOf(this.cellWalls);
         ret.attributes = new HashMap<TextAttribute, Object>(this.attributes);
         return ret;
     }
-    public AttributedString getAttributedGlyph() {
-        AttributedString ret = new AttributedString(glyph, attributes);
+    public AttributedString getAttributedString() {
+        AttributedString ret = new AttributedString(sequence, attributes);
         return ret;
     }
     public Map<TextAttribute, Object> getAttributes() {
-        return attributes;
+        return Collections.unmodifiableMap(attributes);
     }
 
-    public Color getBackground() {
+    public Color getBackgroundColor() {
         return (Color)attributes.get(TextAttribute.BACKGROUND);
     }
 
@@ -314,18 +321,18 @@ public class AwtCell extends Copyable {
     public AwtCell getCell() {
         return this;
     }
-    public EnumSet<CellWalls> getCellWalls() {
-        return cellWalls;
+    public Set<CellWalls> getCellWalls() {
+        return Collections.unmodifiableSet(cellWalls);
     }
     public Font getFont() {
         return (Font)attributes.get(TextAttribute.FONT);
     }
-    public Color getForeground() {
+    public Color getForegroundColor() {
         return (Color)attributes.get(TextAttribute.FOREGROUND);
     }
  
     public String getGlyph() {
-        return glyph;
+        return sequence;
     }
     public boolean isDirty() {
         return dirty;
@@ -337,7 +344,7 @@ public class AwtCell extends Copyable {
         }
         return null;
     }
-    public Object setAttribute(TextAttribute key, 
+    public Object setTextAttribute(TextAttribute key, 
                                Object value) {
         dirty = true;
         if (value == null) {
@@ -346,14 +353,14 @@ public class AwtCell extends Copyable {
             return attributes.put(key, value);
         }
     }
-    public void setAttributes(Map<TextAttribute, Object> attributes) {
+    public void setTextAttributes(Map<TextAttribute, Object> attributes) {
         if (attributes != null && !attributes.equals(this.attributes)) {
-            clearAttributes();
+            clearTextAttributes();
             dirty = true;
             attributes.putAll(attributes);
         }
     }
-    public void setBackground(Color background) {
+    public void setBackgroundColor(Color background) {
         if (background != null) {
             if (!background.equals(attributes.get(TextAttribute.BACKGROUND))) {
                 attributes.put(TextAttribute.BACKGROUND, background);
@@ -364,42 +371,42 @@ public class AwtCell extends Copyable {
     public void setCell(AwtCell cell) {
         if (cell == null) {
             setCell("\u0000", Color.BLACK, Color.WHITE);
-            clearAttributes();
+            clearTextAttributes();
             clearCellWalls();
         } else {
-            this.glyph = cell.glyph;
-            setAttributes(cell.attributes);
+            this.sequence = cell.sequence;
+            setTextAttributes(cell.attributes);
             setCellWalls(cell.cellWalls);
         }
         dirty = true;
     }
     
     public void setCell(int glyph, Color background, Color foreground) {
-        setGlyph(glyph);
-        setForeground(foreground);
-        setBackground(background);
+        setSequence(glyph);
+        setForegroundColor(foreground);
+        setBackgroundColor(background);
     }
     public void setCell(int glyph, Map<TextAttribute, Object> attributes) {
-        setGlyph(glyph);
+        setSequence(glyph);
         if (attributes != null) {
-            setAttributes(attributes);
+            setTextAttributes(attributes);
         }
     }
     public void setCell(String glyph, Color background, Color foreground) {
-        setGlyph(glyph);
-        setForeground(foreground);
-        setBackground(background);
+        setSequence(glyph);
+        setForegroundColor(foreground);
+        setBackgroundColor(background);
     }
     
     public void setCell(String glyph, Map<TextAttribute, Object> attributes) {
-        this.glyph = glyph;
-        setAttributes(attributes);
+        this.sequence = glyph;
+        setTextAttributes(attributes);
     }
     
     public void setCell(String glyph, Map<TextAttribute, Object> attributes, 
                         EnumSet<CellWalls> walls) {
-        setGlyph(glyph);
-        setAttributes(attributes);
+        setSequence(glyph);
+        setTextAttributes(attributes);
         setCellWalls(walls);
     }
     public void setCellWalls(CellWalls walls) {
@@ -408,7 +415,7 @@ public class AwtCell extends Copyable {
             dirty = true;
         }
     }
-    public void setCellWalls(EnumSet<CellWalls> walls) {
+    public void setCellWalls(Set<CellWalls> walls) {
         if (walls != null && !walls.equals(this.cellWalls)) {
             cellWalls = EnumSet.copyOf(walls);
             dirty = true;
@@ -423,26 +430,31 @@ public class AwtCell extends Copyable {
             dirty = true;
         }
     }
-    public void setForeground(Color foreground) {
+    public void setForegroundColor(Color foreground) {
         if (foreground != null) {
             attributes.put(TextAttribute.FOREGROUND, foreground);
             dirty = true;
         }
     }
-    public void setGlyph(int glyph) {
-        this.glyph = String.copyValueOf(Character.toChars(glyph));
+    public void setSequence(int sequence) {
+        this.sequence = String.copyValueOf(Character.toChars(sequence));
         dirty = true;
     }
-    public void setGlyph(String glyph) {
-        if (glyph == null || glyph.length() == 0) {
-            glyph = "\u0000";
+    public void setSequence(String sequence) {
+        if (sequence == null || sequence.length() == 0) {
+            sequence = "\u0000";
         }
-        if (this.glyph == null) {
-            this.glyph = glyph;
-        } else if (!this.glyph.equals(glyph)) {
-            this.glyph = glyph;
+        if (this.sequence == null) {
+            this.sequence = sequence;
+        } else if (!this.sequence.equals(sequence)) {
+            this.sequence = sequence;
             dirty = true;
         }
+    }
+
+    @Override
+    public AwtCell copy() {
+        return this.clone();
     }
 
 }

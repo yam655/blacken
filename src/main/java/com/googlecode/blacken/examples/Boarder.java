@@ -11,6 +11,7 @@ import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.CellWalls;
 import com.googlecode.blacken.terminal.TerminalCell;
+import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
 
 public class Boarder {
@@ -45,8 +46,8 @@ public class Boarder {
         int y = loc.y;
         int x = loc.x;
         String what = loc.name;
-        TerminalCell tcell = term.get(y, x);
-        if (tcell.getGlyph().equals("\u0000") || tcell.getGlyph().equals(" ")) {
+        TerminalCellLike tcell = term.get(y, x);
+        if (tcell.getSequence().equals("\u0000") || tcell.getSequence().equals(" ")) {
             int back = this.palette.get(1);
             int fore = ColorHelper.makeVisible(back);
             int i = 0;
@@ -64,7 +65,7 @@ public class Boarder {
                 if (i == what.codePointCount(0, what.length()) -1) {
                     tcell.addCellWalls(CellWalls.RIGHT);
                 }
-                tcell.setGlyph(what.codePointAt(i));
+                tcell.setSequence(what.codePointAt(i));
                 term.set(y, x, tcell);
                 tcell = term.get(y, ++x);
                 i++;
@@ -202,8 +203,32 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 term.puts(BlackenModifier.getModifierString(ch).toString());
             } else if (BlackenKeys.isKeyCode(ch)) {
                 if (ch == BlackenKeys.KEY_F02) {
+                    TerminalCell empty = new TerminalCell(null, 
+                                                          0xFF000000, 0xFFaaaaaa,
+                                                          null, false);
+                    term.clear(empty);
                     showKeys();
                     continue;
+                }
+                if (ch == BlackenKeys.KEY_F03) {
+                    TerminalCell empty = new TerminalCell("c\u0327", 
+                                                         0xFF000000, 0xFFaaaaaa,
+                                                         null, false);
+                    term.clear(empty);
+                    continue;
+                }
+                if (ch == BlackenKeys.KEY_F04) {
+                    TerminalCell empty = new TerminalCell("o\u0327", 
+                                                         0xFF000000, 0xFFaaaaaa,
+                                                         null, false);
+                    term.clear(empty);
+                    continue;
+                }
+                if (ch == BlackenKeys.KEY_F09) {
+                    TerminalCell empty = new TerminalCell(null, 
+                                                          0xFF000000, 0xFFaaaaaa,
+                                                          null, false);
+                    term.clear(empty);
                 }
                 if (ch == BlackenKeys.KEY_F10) {
                     this.quit = true;
@@ -224,7 +249,16 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 term.puts("\n>");
                 
             } else {
-                term.puts(BlackenKeys.toString(ch));
+                switch (Character.getType(ch)) {
+                case Character.COMBINING_SPACING_MARK:
+                case Character.ENCLOSING_MARK:
+                case Character.NON_SPACING_MARK:
+                    term.addch('\u25cc');
+                    term.overlaych(ch);
+                    break;
+                default:
+                    term.puts(BlackenKeys.toString(ch));
+                }
                 term.puts("\n>");
             }
         }

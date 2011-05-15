@@ -2,10 +2,10 @@ package com.googlecode.blacken.exceptions;
 
 public class UnrecoverableException extends RuntimeException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4239679840891572306L;
 
 	public UnrecoverableException() {
 		super("No way to recover.");

@@ -296,6 +296,49 @@ public class BlackenKeys {
 
     static final public int CODEPOINT_NBSP = 0xa0;
 
+    static final public int CODEPOINT_COMBINING_GRAVE_ACCENT = '\u0300';
+    static final public int CODEPOINT_COMBINING_ACUTE_ACCENT = '\u0301';
+    static final public int CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT = '\u0302';
+    static final public int CODEPOINT_COMBINING_TILDE = '\u0303';
+    static final public int CODEPOINT_COMBINING_MACRON = '\u0304';
+    static final public int CODEPOINT_COMBINING_OVERLINE = '\u0305';
+    static final public int CODEPOINT_COMBINING_BREVE = '\u0306';
+    static final public int CODEPOINT_COMBINING_DOT_ABOVE = '\u0307';
+    static final public int CODEPOINT_COMBINING_DIAERESIS = '\u0308';
+    static final public int CODEPOINT_COMBINING_HOOK_ABOVE = '\u0309';
+    static final public int CODEPOINT_COMBINING_RING_ABOVE = '\u030A';
+    static final public int CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT = '\u030B';
+    static final public int CODEPOINT_COMBINING_CARON = '\u030C';
+    static final public int CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE = '\u030D';
+    static final public int CODEPOINT_COMBINING_DOUBLE_VERTICAL_LINE_ABOVE = '\u030E';
+    static final public int CODEPOINT_COMBINING_DOUBLE_GRAVE_ACCENT = '\u030F';
+    static final public int CODEPOINT_COMBINING_CANDRABINDU = '\u0310';
+    static final public int CODEPOINT_COMBINING_INVERTED_BREVE = '\u0311';
+    static final public int CODEPOINT_COMBINING_TURNED_COMMA_ABOVE = '\u0312';
+    static final public int CODEPOINT_COMBINING_COMMA_ABOVE = '\u0313';
+    static final public int CODEPOINT_COMBINING_REVERSED_COMMA_ABOVE = '\u0314';
+    static final public int CODEPOINT_COMBINING_COMMA_ABOVE_RIGHT = '\u0315';
+    static final public int CODEPOINT_COMBINING_GRAVE_ACCENT_BELOW = '\u0316';
+    static final public int CODEPOINT_COMBINING_ACUTE_ACCENT_BELOW = '\u0317';
+    static final public int CODEPOINT_COMBINING_LEFT_TACK_BELOW = '\u0318';
+    static final public int CODEPOINT_COMBINING_RIGHT_TACK_BELOW = '\u0319';
+    static final public int CODEPOINT_COMBINING_LEFT_ANGLE_ABOVE = '\u031A';
+    static final public int CODEPOINT_COMBINING_HORN = '\u031B';
+    static final public int CODEPOINT_COMBINING_LEFT_HALF_RING_BELOW = '\u031C';
+    static final public int CODEPOINT_COMBINING_UP_TACK_BELOW = '\u031D';
+    static final public int CODEPOINT_COMBINING_DOWN_TACK_BELOW = '\u031E';
+    static final public int CODEPOINT_COMBINING_PLUS_SIGN_BELOW = '\u031F';
+    static final public int CODEPOINT_COMBINING_MINUS_SIGN_BELOW = '\u0320';
+    static final public int CODEPOINT_COMBINING_PALATALIZED_HOOK_BELOW = '\u0321';
+    static final public int CODEPOINT_COMBINING_RETROFLEX_HOOK_BELOW = '\u0322';
+    static final public int CODEPOINT_COMBINING_DOT_BELOW = '\u0323';
+    static final public int CODEPOINT_COMBINING_DIAERESIS_BELOW = '\u0324';
+    static final public int CODEPOINT_COMBINING_RING_BELOW = '\u0325';
+    static final public int CODEPOINT_COMBINING_COMMA_BELOW = '\u0326';
+    static final public int CODEPOINT_COMBINING_CEDILLA = '\u0327';
+    static final public int CODEPOINT_COMBINING_OGONEK = '\u0328';
+
+    static final public int CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI = '\u0345';
     /**
      * Find the plane that a codepoint is on.
      * 

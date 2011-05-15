@@ -2,12 +2,12 @@ package com.googlecode.blacken.exceptions;
 
 public class NotComplexCharacterException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3051266593008304578L;
 
-	public NotComplexCharacterException() {
+    public NotComplexCharacterException() {
 		super();
 	}
 

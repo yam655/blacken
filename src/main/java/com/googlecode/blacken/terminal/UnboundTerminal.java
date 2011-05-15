@@ -54,8 +54,8 @@ public class UnboundTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void set(int y, int x, TerminalCell tcell) {
-        Grid<TerminalCell> grid = getGrid();
+    public void set(int y, int x, TerminalCellLike tcell) {
+        Grid<TerminalCellLike> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
         

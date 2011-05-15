@@ -2,11 +2,11 @@ package com.googlecode.blacken.grid;
 
 /** Create and manage two-dimensional maps
  *
- * Copyright © 2010, Steven Black. All Rights Reserved.
+ * Copyright ï¿½ 2010, Steven Black. All Rights Reserved.
  * You may distribute under the terms of the LGPL v3 or newer.
  *
  * Adapted from Python code to do the same thing, 
- * which was Copyright © 2004-2010 Steven Black.
+ * which was Copyright ï¿½ 2004-2010 Steven Black.
  */
 
 import java.io.Serializable;
@@ -319,7 +319,7 @@ implements Regionlike, Serializable{
      * @return the current empty cell
      */
     public Z getEmpty() {
-        return Copyable.copy(empty);
+        return AbstractCopyable.copy(empty);
     }
     @Override
     public int getHeight() {
@@ -419,7 +419,7 @@ implements Regionlike, Serializable{
             for (int x = start_x; x < start_x + size_x; x++) {
                 Z c = get(y, x);
                 if (c == null) {
-                    set(y, x, Copyable.copy(filler));
+                    set(y, x, AbstractCopyable.copy(filler));
                 }
             }
         }
@@ -441,7 +441,7 @@ implements Regionlike, Serializable{
      */
     public void reset(int ysize, int xsize, Z empty) {
         if (empty != null) {
-            this.empty = Copyable.copy(empty);
+            this.empty = AbstractCopyable.copy(empty);
         }
         resize(ysize, xsize, true);
     }
@@ -475,7 +475,7 @@ implements Regionlike, Serializable{
                         if (old_grid.get(y).get(x) == null) {
                             grid_line.add(null);
                         } else {
-                            grid_line.add(Copyable.copy(empty));
+                            grid_line.add(AbstractCopyable.copy(empty));
                         }
                     }
                 } else if (!wipe && old_grid != null) {
@@ -484,7 +484,7 @@ implements Regionlike, Serializable{
             }
             int x1 = grid_line.size();
             for (int x = x1; x < xsize; x++) {
-                grid_line.add(Copyable.copy(empty));
+                grid_line.add(AbstractCopyable.copy(empty));
             }
             new_grid.add(grid_line);
         }
@@ -544,7 +544,7 @@ implements Regionlike, Serializable{
         } else {
             int y1 = y - start_y;
             int x1 = x - start_x;
-            return grid.get(y1).set(x1, Copyable.copy(value));
+            return grid.get(y1).set(x1, AbstractCopyable.copy(value));
         }
     }
 
@@ -557,7 +557,7 @@ implements Regionlike, Serializable{
                                                       null); 
         } else {
             return grid.get(pos.getY() - start_y).set(pos.getX() - start_x, 
-                                                      Copyable.copy(value)); 
+                                                 AbstractCopyable.copy(value)); 
         }
     }
 
@@ -739,7 +739,8 @@ implements Regionlike, Serializable{
         for (int y = y1; y < y1 + height; y++) {
             for (int x = x1; x < x1 + width; x++) {
                 if (grid.get(y - this.start_y).get(x - this.start_x) != null) {
-                    grid.get(y - this.start_y).set(x - this.start_x, Copyable.copy(empty));
+                    grid.get(y - this.start_y).set(x - this.start_x, 
+                                                   AbstractCopyable.copy(empty));
                 }
             }
         }

@@ -10,7 +10,7 @@ package com.googlecode.blacken.grid;
  * @author Steven Black
  * @param <T> type of data
  */
-public class CopyableData <T> extends Copyable {
+public class CopyableData <T> extends AbstractCopyable {
     @SuppressWarnings("unchecked")
     public static <U extends CopyableData<?>> U copy(U source) {
         return (U) source.clone();

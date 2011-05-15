@@ -247,7 +247,7 @@ public class ColorPalette extends ListMap<String, Integer> {
         }
         for (final String color : colors) {
             final String s[] = color.split("[ \t]+->[ \t]+", 1);
-            final String names[] = s[0].split("[ \t]+/[ \t]+", 1);
+            final String names[] = s[0].split("[ \t]+/[ \t]+");
             final Integer colr = new Integer(s[1]);
             this.add(colr);
             for (final String n : names) {
