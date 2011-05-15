@@ -3,8 +3,6 @@ package com.googlecode.blacken.colors;
 
 /**
  *
- * @author Santiago Zapata
- * @author Eben Howard
  * @author Steven Black
  */
 public final class ColorNames {
