@@ -331,7 +331,7 @@ public class AwtCell implements Copyable {
         return (Color)attributes.get(TextAttribute.FOREGROUND);
     }
  
-    public String getGlyph() {
+    public String getSequence() {
         return sequence;
     }
     public boolean isDirty() {

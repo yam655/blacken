@@ -257,4 +257,14 @@ public class ColorPalette extends ListMap<String, Integer> {
         return true;
     }
 
+    public int getColor(int indexOrColor) {
+        int ret = 0;
+        if (indexOrColor < size() && indexOrColor >= 0) {
+            // This is near guaranteed correct.
+            ret = get(indexOrColor);
+        } else {
+            ret = indexOrColor;
+        }
+        return ret;
+    }
 }

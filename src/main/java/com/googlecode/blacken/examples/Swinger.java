@@ -44,7 +44,7 @@ public class Swinger {
                 term.puts(BlackenModifier.getModifierString(ch).toString());
             } else if (BlackenKeys.isKeyCode(ch)) {
                 term.puts(BlackenKeys.getKeyName(ch));
-                if (ch == BlackenKeys.RESIZED_EVENT) {
+                if (ch == BlackenKeys.RESIZE_EVENT) {
                     term.puts("\nYummy window resize!");
                 }
                 if (ch == BlackenKeys.MOUSE_EVENT) {

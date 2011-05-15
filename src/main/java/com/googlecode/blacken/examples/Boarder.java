@@ -25,6 +25,7 @@ public class Boarder {
         term.init("Boarder", 25, 80);
         palette = ColorNames.addXtermColors(null, 256);
         ColorNames.addSvgColors(palette);
+        term.setPalette(palette);
         loop();
         term.quit();
     }
@@ -48,8 +49,8 @@ public class Boarder {
         String what = loc.name;
         TerminalCellLike tcell = term.get(y, x);
         if (tcell.getSequence().equals("\u0000") || tcell.getSequence().equals(" ")) {
-            int back = this.palette.get(1);
-            int fore = ColorHelper.makeVisible(back);
+            int back = 1;
+            int fore = ColorHelper.makeVisible(this.palette.get(back));
             int i = 0;
             term.setCurBackground(back);
             term.setCurForeground(fore);
@@ -71,10 +72,9 @@ public class Boarder {
                 i++;
             }
         } else if (!loading){
-            int c = palette.indexOf(tcell.getBackground()) + 1;
-            if (c == palette.size()) c = 0;
-            int back = this.palette.get(c);
-            int fore = ColorHelper.makeVisible(back);
+            int back = tcell.getBackground() + 1;
+            if (back >= palette.size()) back = 0;
+            int fore = ColorHelper.makeVisible(this.palette.get(back));
             int i = 0;
             while (i < what.codePointCount(0, what.length())) {
                 tcell.setBackground(back);
@@ -103,7 +103,7 @@ public class Boarder {
 ESC F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12   Ins  Del    Nm // ** --    #0
 `~ 1! 2@ 3# 4$ 5% 6^ 7& 8* 9( 0) -_ =+ BkSp  Home End    77 88 99 ++    #2
 Tab Qq Ww Ee Rr Tt Yy Uu Ii Oo Pp [{ ]} \|   PgUp PgDn   44 55 66       #4
-Cap  Aa Ss Dd Ff Gg Hh Jj Kk Ll ;: '" Enter       Up     11 22 33 En    #6
+Caps Aa Ss Dd Ff Gg Hh Jj Kk Ll ;: '" Enter       Up     11 22 33 En    #6
 Shift Zz Xx Cc Vv Bb Nn Mm ,< .> /?           Lft Dn Rt  00    ..       #8
 Ctrl Logo Alt     Space     Meta AltGr Menu                             #10
 WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
@@ -112,7 +112,135 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                         CapsLock               PrtScr    Ed Dn PD       #18
                         KanaLock                         Ins  Del
          */
+        keys.put(BlackenKeys.WINDOW_EVENT, new KeyLocation(12, 0, "WindowEvent"));
+        keys.put(BlackenKeys.MOUSE_EVENT, new KeyLocation(12, 12, "MouseEvent"));
+        keys.put(BlackenKeys.KEY_UNKNOWN, new KeyLocation(12, 23, "UnknownKey"));
+        keys.put(BlackenKeys.RESIZE_EVENT, new KeyLocation(12, 34, "ResizeEvent"));
 
+        keys.put(BlackenModifier.MODIFIER_KEY_CTRL.getAsCodepoint(), new KeyLocation(10, 0, "Ctrl"));
+        keys.put(BlackenKeys.KEY_LOGO, new KeyLocation(10, 5, "Logo"));
+        keys.put(BlackenModifier.MODIFIER_KEY_ALT.getAsCodepoint(), new KeyLocation(10, 10, "Alt"));
+        keys.put(Character.codePointAt(" ", 0), new KeyLocation(10, 18, "Space"));
+        keys.put(BlackenModifier.MODIFIER_KEY_META.getAsCodepoint(), new KeyLocation(10, 28, "Meta"));
+        keys.put(BlackenModifier.MODIFIER_KEY_ALTGR.getAsCodepoint(), new KeyLocation(10, 33, "AltGr"));
+        keys.put(BlackenKeys.KEY_CONTEXT_MENU, new KeyLocation(10, 39, "Menu"));
+
+        keys.put(BlackenModifier.MODIFIER_KEY_SHIFT.getAsCodepoint(), new KeyLocation(8, 0, "Shift"));
+        keys.put(Character.codePointAt("Z", 0), new KeyLocation(8, 6, "Z"));
+        keys.put(Character.codePointAt("z", 0), new KeyLocation(8, 7, "z"));
+        keys.put(Character.codePointAt("X", 0), new KeyLocation(8, 9, "X"));
+        keys.put(Character.codePointAt("x", 0), new KeyLocation(8, 10, "x"));
+        keys.put(Character.codePointAt("C", 0), new KeyLocation(8, 12, "C"));
+        keys.put(Character.codePointAt("c", 0), new KeyLocation(8, 13, "c"));
+        keys.put(Character.codePointAt("V", 0), new KeyLocation(8, 15, "V"));
+        keys.put(Character.codePointAt("v", 0), new KeyLocation(8, 16, "v"));
+        keys.put(Character.codePointAt("B", 0), new KeyLocation(8, 18, "B"));
+        keys.put(Character.codePointAt("b", 0), new KeyLocation(8, 19, "b"));
+        keys.put(Character.codePointAt("N", 0), new KeyLocation(8, 21, "N"));
+        keys.put(Character.codePointAt("n", 0), new KeyLocation(8, 22, "n"));
+        keys.put(Character.codePointAt("M", 0), new KeyLocation(8, 24, "M"));
+        keys.put(Character.codePointAt("m", 0), new KeyLocation(8, 25, "m"));
+        keys.put(Character.codePointAt(",", 0), new KeyLocation(8, 27, ","));
+        keys.put(Character.codePointAt("<", 0), new KeyLocation(8, 28, "<"));
+        keys.put(Character.codePointAt(".", 0), new KeyLocation(8, 30, "."));
+        keys.put(Character.codePointAt(">", 0), new KeyLocation(8, 31, ">"));
+        keys.put(Character.codePointAt("/", 0), new KeyLocation(8, 33, "/"));
+        keys.put(Character.codePointAt("?", 0), new KeyLocation(8, 34, "?"));
+
+        keys.put(BlackenKeys.KEY_CAPS_LOCK, new KeyLocation(6, 0, "Caps"));
+        keys.put(Character.codePointAt("A", 0), new KeyLocation(6, 5, "A"));
+        keys.put(Character.codePointAt("a", 0), new KeyLocation(6, 6, "a"));
+        keys.put(Character.codePointAt("S", 0), new KeyLocation(6, 8, "S"));
+        keys.put(Character.codePointAt("s", 0), new KeyLocation(6, 9, "s"));
+        keys.put(Character.codePointAt("D", 0), new KeyLocation(6, 11, "D"));
+        keys.put(Character.codePointAt("d", 0), new KeyLocation(6, 12, "d"));
+        keys.put(Character.codePointAt("F", 0), new KeyLocation(6, 14, "F"));
+        keys.put(Character.codePointAt("f", 0), new KeyLocation(6, 15, "f"));
+        keys.put(Character.codePointAt("G", 0), new KeyLocation(6, 17, "G"));
+        keys.put(Character.codePointAt("g", 0), new KeyLocation(6, 18, "g"));
+        keys.put(Character.codePointAt("H", 0), new KeyLocation(6, 20, "H"));
+        keys.put(Character.codePointAt("h", 0), new KeyLocation(6, 21, "h"));
+        keys.put(Character.codePointAt("J", 0), new KeyLocation(6, 23, "J"));
+        keys.put(Character.codePointAt("j", 0), new KeyLocation(6, 24, "j"));
+        keys.put(Character.codePointAt("K", 0), new KeyLocation(6, 26, "K"));
+        keys.put(Character.codePointAt("k", 0), new KeyLocation(6, 27, "k"));
+        keys.put(Character.codePointAt("L", 0), new KeyLocation(6, 29, "L"));
+        keys.put(Character.codePointAt("l", 0), new KeyLocation(6, 30, "l"));
+        keys.put(Character.codePointAt(";", 0), new KeyLocation(6, 32, ";"));
+        keys.put(Character.codePointAt(":", 0), new KeyLocation(6, 33, ":"));
+        keys.put(Character.codePointAt("'", 0), new KeyLocation(6, 35, "'"));
+        keys.put(Character.codePointAt("\"", 0), new KeyLocation(6, 36, "\""));
+        keys.put(BlackenKeys.KEY_ENTER, new KeyLocation(6, 38, "Enter"));
+
+        keys.put(BlackenKeys.KEY_TAB, new KeyLocation(4, 0, "Tab"));
+        keys.put(Character.codePointAt("Q", 0), new KeyLocation(4, 4, "Q"));
+        keys.put(Character.codePointAt("q", 0), new KeyLocation(4, 5, "q"));
+        keys.put(Character.codePointAt("W", 0), new KeyLocation(4, 7, "W"));
+        keys.put(Character.codePointAt("w", 0), new KeyLocation(4, 8, "w"));
+        keys.put(Character.codePointAt("E", 0), new KeyLocation(4, 10, "E"));
+        keys.put(Character.codePointAt("e", 0), new KeyLocation(4, 11, "e"));
+        keys.put(Character.codePointAt("R", 0), new KeyLocation(4, 13, "R"));
+        keys.put(Character.codePointAt("r", 0), new KeyLocation(4, 14, "r"));
+        keys.put(Character.codePointAt("T", 0), new KeyLocation(4, 16, "T"));
+        keys.put(Character.codePointAt("t", 0), new KeyLocation(4, 17, "t"));
+        keys.put(Character.codePointAt("Y", 0), new KeyLocation(4, 19, "Y"));
+        keys.put(Character.codePointAt("y", 0), new KeyLocation(4, 20, "y"));
+        keys.put(Character.codePointAt("U", 0), new KeyLocation(4, 22, "U"));
+        keys.put(Character.codePointAt("u", 0), new KeyLocation(4, 23, "u"));
+        keys.put(Character.codePointAt("I", 0), new KeyLocation(4, 25, "I"));
+        keys.put(Character.codePointAt("i", 0), new KeyLocation(4, 26, "i"));
+        keys.put(Character.codePointAt("O", 0), new KeyLocation(4, 28, "O"));
+        keys.put(Character.codePointAt("o", 0), new KeyLocation(4, 29, "o"));
+        keys.put(Character.codePointAt("P", 0), new KeyLocation(4, 31, "P"));
+        keys.put(Character.codePointAt("p", 0), new KeyLocation(4, 32, "p"));
+        keys.put(Character.codePointAt("[", 0), new KeyLocation(4, 34, "{"));
+        keys.put(Character.codePointAt("{", 0), new KeyLocation(4, 35, "["));
+        keys.put(Character.codePointAt("]", 0), new KeyLocation(4, 37, "]"));
+        keys.put(Character.codePointAt("}", 0), new KeyLocation(4, 38, "}"));
+        keys.put(Character.codePointAt("\\", 0), new KeyLocation(4, 40, "\\"));
+        keys.put(Character.codePointAt("|", 0), new KeyLocation(4, 41, "|"));
+        
+        keys.put(Character.codePointAt("`", 0), new KeyLocation(2, 0, "`"));
+        keys.put(Character.codePointAt("~", 0), new KeyLocation(2, 1, "~"));
+        keys.put(Character.codePointAt("1", 0), new KeyLocation(2, 3, "1"));
+        keys.put(Character.codePointAt("!", 0), new KeyLocation(2, 4, "!"));
+        keys.put(Character.codePointAt("2", 0), new KeyLocation(2, 6, "2"));
+        keys.put(Character.codePointAt("@", 0), new KeyLocation(2, 7, "@"));
+        keys.put(Character.codePointAt("3", 0), new KeyLocation(2, 9, "3"));
+        keys.put(Character.codePointAt("#", 0), new KeyLocation(2, 10, "#"));
+        keys.put(Character.codePointAt("4", 0), new KeyLocation(2, 12, "4"));
+        keys.put(Character.codePointAt("$", 0), new KeyLocation(2, 13, "$"));
+        keys.put(Character.codePointAt("5", 0), new KeyLocation(2, 15, "5"));
+        keys.put(Character.codePointAt("%", 0), new KeyLocation(2, 16, "%"));
+        keys.put(Character.codePointAt("6", 0), new KeyLocation(2, 18, "6"));
+        keys.put(Character.codePointAt("^", 0), new KeyLocation(2, 19, "^"));
+        keys.put(Character.codePointAt("7", 0), new KeyLocation(2, 21, "7"));
+        keys.put(Character.codePointAt("&", 0), new KeyLocation(2, 22, "&"));
+        keys.put(Character.codePointAt("8", 0), new KeyLocation(2, 24, "8"));
+        keys.put(Character.codePointAt("*", 0), new KeyLocation(2, 25, "*"));
+        keys.put(Character.codePointAt("9", 0), new KeyLocation(2, 27, "9"));
+        keys.put(Character.codePointAt("(", 0), new KeyLocation(2, 28, "("));
+        keys.put(Character.codePointAt("0", 0), new KeyLocation(2, 30, "0"));
+        keys.put(Character.codePointAt(")", 0), new KeyLocation(2, 31, ")"));
+        keys.put(Character.codePointAt("-", 0), new KeyLocation(2, 33, "-"));
+        keys.put(Character.codePointAt("_", 0), new KeyLocation(2, 34, "_"));
+        keys.put(Character.codePointAt("=", 0), new KeyLocation(2, 36, "="));
+        keys.put(Character.codePointAt("+", 0), new KeyLocation(2, 37, "+"));
+        keys.put(BlackenKeys.KEY_BACKSPACE, new KeyLocation(2, 39, "BkSp"));
+
+        keys.put(BlackenKeys.KEY_ESCAPE, new KeyLocation(0, 0, "ESC"));
+        keys.put(BlackenKeys.KEY_F01, new KeyLocation(0, 4, "F1"));
+        keys.put(BlackenKeys.KEY_F02, new KeyLocation(0, 7, "F2"));
+        keys.put(BlackenKeys.KEY_F03, new KeyLocation(0, 10, "F3"));
+        keys.put(BlackenKeys.KEY_F04, new KeyLocation(0, 13, "F4"));
+        keys.put(BlackenKeys.KEY_F05, new KeyLocation(0, 16, "F5"));
+        keys.put(BlackenKeys.KEY_F06, new KeyLocation(0, 19, "F6"));
+        keys.put(BlackenKeys.KEY_F07, new KeyLocation(0, 22, "F7"));
+        keys.put(BlackenKeys.KEY_F08, new KeyLocation(0, 25, "F8"));
+        keys.put(BlackenKeys.KEY_F09, new KeyLocation(0, 28, "F9"));
+        keys.put(BlackenKeys.KEY_F10, new KeyLocation(0, 31, "F10"));
+        keys.put(BlackenKeys.KEY_F11, new KeyLocation(0, 35, "F11"));
+        keys.put(BlackenKeys.KEY_F12, new KeyLocation(0, 39, "F12"));
 
         // keys.put(BlackenKeys.KEY_NP_DIVIDE, new KeyLocation(12, 61, "//"));
         // keys.put(BlackenKeys.KEY_NP_MULTIPLY, new KeyLocation(12, 64, "**"));
@@ -132,7 +260,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         keys.put(BlackenKeys.KEY_KP_DELETE, new KeyLocation(20, 63, "Del"));
         
         keys.put(BlackenKeys.KEY_SCROLL_LOCK, new KeyLocation(18, 48, "ScrlLk"));
-        keys.put(BlackenKeys.KEY_PRINT_SCREEN, new KeyLocation(18, 48, "PrtScr"));
+        keys.put(BlackenKeys.KEY_PRINT_SCREEN, new KeyLocation(19, 48, "PrtScr"));
 
         keys.put(BlackenKeys.KEY_INSERT, new KeyLocation(0, 46, "Ins"));
         keys.put(BlackenKeys.KEY_DELETE, new KeyLocation(0, 51, "Del"));
@@ -235,7 +363,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                     continue;
                 }
                 term.puts(BlackenKeys.getKeyName(ch));
-                if (ch == BlackenKeys.RESIZED_EVENT) {
+                if (ch == BlackenKeys.RESIZE_EVENT) {
                     term.puts("\nYummy window resize!");
                 }
                 if (ch == BlackenKeys.MOUSE_EVENT) {

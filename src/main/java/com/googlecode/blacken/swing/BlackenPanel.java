@@ -309,7 +309,7 @@ public class BlackenPanel extends JPanel {
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
                     if (c.isDirty() || refresh_all) {
-                        String cs = c.getGlyph();
+                        String cs = c.getSequence();
                         c.setFont(this.font);
                         // For double-wide characters, we can safely put a NUL
                         // byte in the second slot and it will never be displayed.

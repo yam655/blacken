@@ -57,8 +57,8 @@ public class BlackenKeys {
     /**
      * A window resize event has occurred.
      */
-    static final public int RESIZED_EVENT = KEY_FIRST + 2;
-    static final public int KEY_RESIZED_EVENT = RESIZED_EVENT;
+    static final public int RESIZE_EVENT = KEY_FIRST + 2;
+    static final public int KEY_RESIZED_EVENT = RESIZE_EVENT;
 
     static final public int KEY_UNKNOWN = KEY_FIRST + 3;
     static final public int KEY_MODIFIER_NOTICE = KEY_FIRST + 4;
@@ -131,7 +131,7 @@ public class BlackenKeys {
     static public int KEY_ESCAPE = KEY_FIRST + 64;
     static public int KEY_ENTER = KEY_FIRST + 65;
     static final public int KEY_PAUSE = KEY_FIRST + 66;
-    static final public int KEY_WINDOWS = KEY_FIRST + 67;
+    static final public int KEY_LOGO = KEY_FIRST + 67;
     static final public int KEY_PRINT_SCREEN = KEY_FIRST + 68;
     static final public int KEY_TAB = KEY_FIRST + 69;
 

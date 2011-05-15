@@ -69,7 +69,7 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void componentResized(ComponentEvent e) {
-        listener.loadKey(BlackenKeys.RESIZED_EVENT);
+        listener.loadKey(BlackenKeys.RESIZE_EVENT);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class SwingTerminal extends AbstractTerminal
                 ch = BlackenKeys.NO_KEY;
             }
         }
-        if (ch == BlackenKeys.RESIZED_EVENT) {
+        if (ch == BlackenKeys.RESIZE_EVENT) {
             gui.windowResized();
             getGrid().setSize(gui.getGridSize());
         }
@@ -162,9 +162,8 @@ public class SwingTerminal extends AbstractTerminal
     protected Color getSwingColor(int c) {
         Color clr;
         ColorPalette palette = getPalette();
-        if (palette != null && c < palette.size() && c >= 0) {
-            // This is near guaranteed correct.
-            c = palette.get(c);
+        if (palette != null) {
+            c = palette.getColor(c);
         }
         if (swingColor.containsKey(c)) {
             clr = swingColor.get(c);

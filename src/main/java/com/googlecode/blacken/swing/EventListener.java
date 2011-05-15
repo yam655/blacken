@@ -397,7 +397,7 @@ public class EventListener implements WindowListener, KeyListener,
             break;
         case KeyEvent.VK_WINDOWS: 
             // Constant for the Microsoft Windows "Windows" key. 
-            loadKey(e, BlackenKeys.KEY_WINDOWS);
+            loadKey(e, BlackenKeys.KEY_LOGO);
             break;
         case KeyEvent.VK_PRINTSCREEN:
             loadKey(e, BlackenKeys.KEY_PRINT_SCREEN);
