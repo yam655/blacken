@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.colors;
 
 import java.util.HashMap;
@@ -14,22 +30,32 @@ import com.googlecode.blacken.exceptions.NoSuchColorException;
 
 
 
+/**
+ * Access colors stored as properties.
+ * 
+ * <p>This file can be used with the bundled {@link ColorPalette} or it can be
+ * used independently.</p>
+ * 
+ * @author yam655
+ */
 public class ColorProperties extends Properties {
 
     /**
-     * 
+     * generated serial number
      */
     private static final long serialVersionUID = 1617188851302820170L;
 
     /**
-     * If you call loadNameMap(), it will process the entire properties file
+     * An optional map containing all color names.
+     * 
+     * <p>If you call loadNameMap(), it will process the entire properties file
      * (including defaults) to read in all the color names and cache them in
      * to the <code>completeNamesMap</code> private variable which is then used 
      * to perform all future name to color lookups. Additionally, all 
      * <code>ColorPalette</code>s that are created will get a common map,
      * which is especially handy as otherwise even though they came from the
      * same properties file they would only contain the names of the colors
-     * that they use.
+     * that they use.</p>
      */
     private HashMap<String, Integer> completeNameMap = null;
 
@@ -52,35 +78,34 @@ public class ColorProperties extends Properties {
     /**
      * A private function to actually perform the loading of a set of palettes.
      * 
-     * This loads a set of palettes.
+     * <p>This loads a set of palettes.</p>
      * 
-     * @param start the starting property
+     * @param start the starting property (defaults to "__palettes__" in null)
      * @param palettes A map of the names of the palettes and the palettes
      */
     private void extendPalettes(String start, 
                                 LinkedHashMap<String, ColorPalette> palettes) {
         if (start == null) {
-            start = "__palettes__";
+            start = "__palettes__"; //$NON-NLS-1$
         }
         String found = getProperty(start);
-        if (!found.startsWith("{")) {
+        if (!found.startsWith("{")) { //$NON-NLS-1$
             return;
         }
         if (palettes.containsKey(start)) {
             return;
-        } else {
-            palettes.put(start, null);
         }
+        palettes.put(start, null);
         found = found.substring(1, found.length() -1);
-        String[] allNames = found.split("[,; ]*");
+        String[] allNames = found.split("[,; ]*"); //$NON-NLS-1$
         for(String key1 : allNames) {
             if (key1 == null || key1.isEmpty()) continue;
             found = getProperty(key1);
             if (found == null) {
                 continue;
-            } else if (found.startsWith("{")) {
+            } else if (found.startsWith("{")) { //$NON-NLS-1$
                 extendPalettes(key1, palettes);
-            } else if (found.startsWith("[")) {
+            } else if (found.startsWith("[")) { //$NON-NLS-1$
                 if (!palettes.containsKey(key1)) {
                     palettes.put(key1, getColorPalette(key1));
                 }
@@ -96,7 +121,7 @@ public class ColorProperties extends Properties {
      * 
      * @param key property key for the color
      * @return color value
-     * @throws NoSuchColorException 
+     * @throws NoSuchColorException invalid color name or definition
      */
     public int getColor(String key) throws NoSuchColorException{
         if (completeNameMap != null) {
@@ -112,7 +137,8 @@ public class ColorProperties extends Properties {
         do{
             key = ret;
             ret = getProperty(key);
-            if (ret == null || ret.startsWith("[") || ret.startsWith("{")) {
+            if (ret == null || ret.startsWith("[") ||  //$NON-NLS-1$
+                    ret.startsWith("{")) {  //$NON-NLS-1$
                 if (ret != null){
                     ret = null;
                 }
@@ -135,6 +161,12 @@ public class ColorProperties extends Properties {
         return color;
     }
 
+    /**
+     * Get the color list for a palette.
+     * 
+     * @param key palette name
+     * @return list of color values
+     */
     public ArrayList<Integer> getColorList(String key) {
         ArrayList<Integer> ret = new ArrayList<Integer>();
         HashSet<String> refs = new HashSet<String>();
@@ -159,7 +191,7 @@ public class ColorProperties extends Properties {
      */
     public LinkedHashMap<String, Integer> getColorMap(String key) {
         if (key == null) {
-            key = "__default_palette__";
+            key = "__default_palette__"; //$NON-NLS-1$
         }
         LinkedHashMap<String, Integer> map = new LinkedHashMap<String, Integer>();
         HashSet<String> refs = new HashSet<String>();
@@ -177,12 +209,11 @@ public class ColorProperties extends Properties {
         if (completeNameMap == null){
             LinkedHashMap<String, Integer> map = getColorMap(key);
             return new ColorPalette(map);
-        } else {
-            HashSet<String> refs = new HashSet<String>();
-            ColorPalette pal = new ColorPalette();
-            referenceColorList(pal, refs, key);
-            return pal;
         }
+        HashSet<String> refs = new HashSet<String>();
+        ColorPalette pal = new ColorPalette();
+        referenceColorList(pal, refs, key);
+        return pal;
     }
 
     /**
@@ -210,6 +241,11 @@ public class ColorProperties extends Properties {
         return palettes;
     }
 
+    /**
+     * Load a properties-universal color name mapping
+     * 
+     * @return a map containing all color names in the file
+     */
     public HashMap<String, Integer> loadNameMap(){
         completeNameMap = null;
         HashMap<String, Integer> newCompleteNameMap = new HashMap<String, Integer>();
@@ -231,11 +267,35 @@ public class ColorProperties extends Properties {
         return completeNameMap;
     }
 
+    /**
+     * Recursively process new palettes.
+     * 
+     * See {@link #referenceColorList(ColorPalette, List, HashSet, String, Map)}
+     * 
+     * <p>This is a short-cut when we will be using a {@link ColorPalette}.</p>
+     * 
+     * @param pal The palette to store the colors
+     * @param processed indicator for whether we've processed a palette
+     * @param key The name of the palette in the file
+     */
     private void referenceColorList(ColorPalette pal,  
                                     HashSet<String> processed, 
                                     String key) {
         referenceColorList(pal, null, processed, key, null);
     }
+    /**
+     * Recursively process new palettes.
+     * 
+     * <p>See {@link #referenceColorList(ColorPalette, List, HashSet, String, Map)}</p>
+     * 
+     * <p>This is a short-cut when we want to return the data as the list 
+     * and/or map.</p>
+     * 
+     * @param list A place to store the ordered list of colors
+     * @param processed indicator for whether we've processed a palette
+     * @param key The name of the palette in the file
+     * @param map A place to store the color names.
+     */
     private void referenceColorList(List<Integer> list, 
                                     HashSet<String> processed, 
                                     String key, Map<String, Integer> map) {
@@ -244,12 +304,20 @@ public class ColorProperties extends Properties {
 
     
     /**
-     * Private function to recursively process new palettes.
+     * Recursively process new palettes.
      * 
-     * @param list The ordered list of colors
-     * @param processed indicator for whether we've processed an palette
+     * <p>This function has three ways to return data:
+     * <code>pal</code> a ColorPalette, <code>list</code> a list of
+     * color values, and <code>map</code> a color name to value map.</p>
+     * 
+     * <p>If a ColorPalette is specified it will be used exclusively. While
+     * the List and Map can be used together, the ColorPalette is used alone.</p>
+     * 
+     * @param pal The palette to store the colors
+     * @param list A place to store the ordered list of colors
+     * @param processed indicator for whether we've processed a palette
      * @param key The name of the palette in the file
-     * @param map The nameMap for the color names.
+     * @param map A place to store the color names.
      */
     private void referenceColorList(ColorPalette pal, List<Integer> list, 
                                     HashSet<String> processed, 
@@ -266,17 +334,17 @@ public class ColorProperties extends Properties {
             // with all of the values coming from the completeNameMap.
             map = null;
         }
-        if (found.startsWith("[")) {
+        if (found.startsWith("[")) { //$NON-NLS-1$
             found = found.substring(1, found.length() -1);
-            allNames = found.split("[,; ]*");
+            allNames = found.split("[,; ]*"); //$NON-NLS-1$
         }
         int color;
         for(String key1 : allNames) {
             if (key1 == null || key1.isEmpty()) continue;
             found = getProperty(key1);
-            if (found == null || found.startsWith("{")) {
+            if (found == null || found.startsWith("{")) { //$NON-NLS-1$
                 continue;
-            } else if (found.startsWith("[")) {
+            } else if (found.startsWith("[")) { //$NON-NLS-1$
                 if (!processed.contains(key1)){
                     referenceColorList(pal, list, processed, key1, map);
                 }

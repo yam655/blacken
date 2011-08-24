@@ -8,54 +8,81 @@ import org.junit.*;
  * CopyableData is designed for simple data types that already support the
  * Cloneable interface. As such, the tests included here should all pass.
  * 
- * @author Steven Black
+ * @author yam655
  *
  */
 public class CopyableDataIntegerTest {
     CopyableData<Integer> sample = null;
     
+    /**
+     * test
+     */
     @Before
     public void setUp() {
         sample = new CopyableData<Integer>(1);
     }
     
+    /**
+     * test
+     */
     @Test
     public void testDirectAccess() {
         assertTrue(sample.data == 1);
     }
     
+    /**
+     * test
+     */
     @Test
     public void testGetDataNE() {
         assertFalse(sample.getData() == 2);
     }
     
+    /**
+     * test
+     */
     @Test
     public void testDataEqualsT() {
         CopyableData<Integer> sample2 = new CopyableData<Integer>(1);
-        assertTrue(sample.getData().equals(sample2));
+        assertEquals(sample.getData(), sample2.getData());
     }
     
+    /**
+     * test
+     */
     @Test
     public void testDataEqualsI() {
         assertTrue(sample.getData().equals(1));
     }
 
+    /**
+     * test
+     */
     @Test
     public void testNotDataEqualsT() {
         CopyableData<Integer> sample2 = new CopyableData<Integer>(2);
         assertTrue(!sample.equals(sample2));
     }
 
+    /**
+     * test
+     */
     @Test
     public void testNotDataEqualsI() {
         assertTrue(!sample.equals(2));
     }
 
+    /**
+     * test
+     */
     @Test
     public void testGetDataEQ() {
         assertTrue(sample.getData() == 1);
     }
     
+    /**
+     * test
+     */
     @Test
     public void testSetData() {
         assertTrue(sample.getData() == 1);
@@ -63,6 +90,9 @@ public class CopyableDataIntegerTest {
         assertTrue(sample.getData() == 2);
     }
     
+    /**
+     * test
+     */
     @Test
     public void setData_null() {
         assertTrue(sample.getData() == 1);
@@ -70,6 +100,9 @@ public class CopyableDataIntegerTest {
         assertSame(sample.getData(), null);
     }
 
+    /**
+     * test
+     */
     @Test
     public void testStaticCopy() {
         CopyableData<Integer> newSample = null;
@@ -93,6 +126,9 @@ public class CopyableDataIntegerTest {
         assertTrue(newSample.getData() == 3);
     }
 
+    /**
+     * test
+     */
     @Test
     public void testCopy() {
         CopyableData<Integer> newSample = null;
@@ -116,6 +152,9 @@ public class CopyableDataIntegerTest {
         assertTrue(newSample.getData() == 3);
     }
 
+    /**
+     * test
+     */
     @Test
     public void testClone() {
         CopyableData<Integer> newSample = null;

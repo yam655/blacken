@@ -1,11 +1,27 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.colors;
 
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
- * A container class for a number of convenience functions.
+ * A container class for a number of color-related convenience functions.
  * 
- * @author Steven Black
+ * @author yam655
  */
 public class ColorHelper {
     /**
@@ -37,9 +53,10 @@ public class ColorHelper {
     /**
      * For a given color value, decide whether black or white is visible
      * 
-     * Same as calling makevisible with a threshold of 66.
+     * Same as calling {@link #makeVisible(int, int)} with a 
+     * <code>threshold</code> of 66.
      * 
-     * @param value
+     * @param value color value (alpha dropped, only 0xRRGGBB used)
      * @see ColorHelper#makeVisible(int, int)
      * @return black or white, expressed as 0xAARRGGBB
      */
@@ -53,7 +70,7 @@ public class ColorHelper {
      * <p>The provided threshold is used to determine whether to go black or
      * white.</p>
      * 
-     * @param value color value as 0xAARRRGGBB (or 0xRRGGBB)
+     * @param value color value (alpha dropped, only 0xRRGGBB used)
      * @param threshold number between 0 and 100 (smaller results in more black)
      * @return black or white, expressed as 0xAARRGGBB
      */
@@ -75,11 +92,9 @@ public class ColorHelper {
         int g = (parts[0] * 20 + parts[1] * 69 + parts[2] * 11) / 255;
         if (g < threshold) {
             return white;
-        } else {
-            return black;
         }
+        return black;
     }
-    
     
     /**
      * Make a color opaque. (Need not have valid alpha data.)
@@ -108,7 +123,7 @@ public class ColorHelper {
      * @param color either RGB or RGBA data
      * @return valid RGBA data, with alpha channel never zero
      */
-    static int neverTransparent(int color) {
+    static public int neverTransparent(int color) {
         if (isTransparent(color)) {
             color = makeOpaque(color);
         }
@@ -128,8 +143,9 @@ public class ColorHelper {
     public static boolean isColorDefinition(String color) {
         boolean ret = false;
         if (color == null) return false;
-        if (color.startsWith("#") || color.startsWith("0x") || 
-                                     color.startsWith("0X")) {
+        if (color.startsWith("#") ||  //$NON-NLS-1$
+                color.startsWith("0x") ||  //$NON-NLS-1$
+                color.startsWith("0X")) { //$NON-NLS-1$
             ret = true;
         }
         return ret;
@@ -153,11 +169,12 @@ public class ColorHelper {
      * 
      * @param color the color we are referencing
      * @return new color
-     * @throws InvalidStringFormatException
+     * @throws InvalidStringFormatException 
+     *            specified <code>color</code> definition was invalid
      */
     public static int makeColor(String color)
             throws InvalidStringFormatException {
-        if (color.startsWith("#")) {
+        if (color.startsWith("#")) { //$NON-NLS-1$
             color = color.substring(1);
             int c = Integer.parseInt(color, 16);
             if (color.length() == 3) {
@@ -170,7 +187,8 @@ public class ColorHelper {
                 // This may be disappearing or changing
                 return c;
             }
-        } else if (color.startsWith("0x") || color.startsWith("0X")) {
+        } else if (color.startsWith("0x") || //$NON-NLS-1$ 
+                color.startsWith("0X")) { //$NON-NLS-1$
             color = color.substring(2);
             int c = Integer.parseInt(color, 16);
             if (color.length() == 6) {
@@ -345,7 +363,7 @@ public class ColorHelper {
      */
     public static int increaseAlpha(final int color, final double amount) {
         int alpha = getAlpha(color);
-        int c = (int) Math.floor((double)alpha * amount) + alpha;
+        int c = (int) Math.floor(alpha * amount) + alpha;
         if (c > 255) {
             c = 255;
         } else if (c < 0) {

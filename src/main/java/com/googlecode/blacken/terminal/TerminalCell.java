@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.terminal;
 
 import java.util.Collections;
@@ -7,10 +23,25 @@ import java.util.Set;
 import com.googlecode.blacken.grid.Copyable;
 import com.googlecode.blacken.grid.ResetGridCell;
 
-
+/**
+ * A concrete terminal cell.
+ * 
+ * @author yam655
+ *
+ */
 public class TerminalCell implements Copyable, TerminalCellLike {
 
+    /**
+     * Helper class to reset the cell to known-good values.
+     * 
+     * @author yam655
+     *
+     */
     public class ResetCell implements ResetGridCell<TerminalCellLike> {
+        /*
+         * (non-Javadoc)
+         * @see com.googlecode.blacken.grid.ResetGridCell#reset(com.googlecode.blacken.grid.Copyable)
+         */
         @Override
         public void reset(TerminalCellLike cell) {
             cell.setDirty(true);
@@ -23,16 +54,27 @@ public class TerminalCell implements Copyable, TerminalCellLike {
     private Set<CellWalls> walls;
     private boolean dirty;
 
+    /**
+     * Create a new terminal cell with default settings.
+     */
     public TerminalCell() {
         super();
         clearStyle();
         fg_color = 0xFFAAAAAA;
         bg_color = 0xFF000000;
-        sequence = "\u0000";
+        sequence = "\u0000"; //$NON-NLS-1$
         clearCellWalls();
         dirty = true;
     }
-    
+    /**
+     * Create a new TerminalCell, setting important things.
+     * 
+     * @param sequence visible character sequence
+     * @param foreground foreground color
+     * @param background background color
+     * @param style terminal cell style
+     * @param dirty dirty status
+     */
     public TerminalCell(String sequence, int foreground, int background, 
                         Set<TerminalStyle> style, boolean dirty) {
         setStyle(style);
@@ -40,9 +82,17 @@ public class TerminalCell implements Copyable, TerminalCellLike {
         setBackground(background);
         setSequence(sequence);
         setDirty(dirty);
+        clearCellWalls();
     }
+    /**
+     * Create a new cell.
+     * 
+     * @param cell cell to base this one off of
+     */
     public TerminalCell(TerminalCellLike cell) {
-        // TODO Auto-generated constructor stub
+        clearStyle();
+        clearCellWalls();
+        set(cell);
     }
 
     /* (non-Javadoc)
@@ -61,8 +111,8 @@ public class TerminalCell implements Copyable, TerminalCellLike {
      */
     @Override
     public void addSequence(int glyph) {
-        if (this.sequence.equals("\u0000")) {
-            this.sequence = "\u25cc";
+        if (this.sequence.equals("\u0000")) { //$NON-NLS-1$
+            this.sequence = "\u25cc"; //$NON-NLS-1$
         }
         this.sequence = this.sequence + String.copyValueOf(Character.toChars(glyph));
         dirty = true;
@@ -73,8 +123,8 @@ public class TerminalCell implements Copyable, TerminalCellLike {
      */
     @Override
     public void addSequence(String glyph) {
-        if (this.sequence.equals("\u0000")) {
-            this.sequence = "\u25cc";
+        if (this.sequence.equals("\u0000")) { //$NON-NLS-1$
+            this.sequence = "\u25cc"; //$NON-NLS-1$
         }
         this.sequence = this.sequence + glyph;
         dirty = true;
@@ -104,7 +154,7 @@ public class TerminalCell implements Copyable, TerminalCellLike {
         try {
             ret = (TerminalCell)super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Unexpected CloneNotSupportedException", e);
+            throw new RuntimeException("Unexpected CloneNotSupportedException", e); //$NON-NLS-1$
         }
         return ret;
     }
@@ -247,7 +297,7 @@ public class TerminalCell implements Copyable, TerminalCellLike {
     @Override
     public void setSequence(String sequence) {
         if (sequence == null) {
-            this.sequence = "\u0000";
+            this.sequence = "\u0000"; //$NON-NLS-1$
         } else {
             this.sequence = sequence;
         }
@@ -285,44 +335,44 @@ public class TerminalCell implements Copyable, TerminalCellLike {
     public String toString() {
         StringBuffer buf = new StringBuffer();
         if (sequence == null) {
-            buf.append("null");
+            buf.append("null"); //$NON-NLS-1$
         } else {
             buf.append('"');
             for (char c : sequence.toCharArray()) {
                 if (c < ' ' || c > 127) {
-                    buf.append(String.format("\\u04x", c));
+                    buf.append(String.format("\\u04x", c)); //$NON-NLS-1$
                 } else {
                     buf.append(c);
                 }
             }
             buf.append('"');
         }
-        buf.append(String.format(", 0x%08x", fg_color));
-        buf.append(String.format(", 0x%08x", bg_color));
+        buf.append(String.format(", 0x%08x", fg_color)); //$NON-NLS-1$
+        buf.append(String.format(", 0x%08x", bg_color)); //$NON-NLS-1$
         if (dirty) {
-            buf.append(", DIRTY");
+            buf.append(", DIRTY"); //$NON-NLS-1$
         } else {
-            buf.append(", clean");
+            buf.append(", clean"); //$NON-NLS-1$
         }
         if (style == null || style.isEmpty()) {
-            buf.append(", {}");
+            buf.append(", {}"); //$NON-NLS-1$
         } else {
-            buf.append(", {");
+            buf.append(", {"); //$NON-NLS-1$
             for (TerminalStyle sty : style) {
                 buf.append(sty.name());
-                buf.append(", ");
+                buf.append(", "); //$NON-NLS-1$
             }
-            buf.append("}");
+            buf.append("}"); //$NON-NLS-1$
         }
         if (walls == null || walls.isEmpty()) {
-            buf.append(", {}");
+            buf.append(", {}"); //$NON-NLS-1$
         } else {
-            buf.append(", {");
+            buf.append(", {"); //$NON-NLS-1$
             for (CellWalls wall : walls) {
                 buf.append(wall.name());
-                buf.append(", ");
+                buf.append(", "); //$NON-NLS-1$
             }
-            buf.append("}");
+            buf.append("}"); //$NON-NLS-1$
             
         }
         return buf.toString();

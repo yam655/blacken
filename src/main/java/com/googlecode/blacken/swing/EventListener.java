@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.swing;
 
 import java.awt.Frame;
@@ -26,6 +42,11 @@ import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.BlackenWindowState;
 
+/**
+ * Listen to Swing/AWT events and process them.
+ * 
+ * @author yam655
+ */
 public class EventListener implements WindowListener, KeyListener,
         MouseListener, MouseMotionListener, MouseWheelListener, 
         WindowFocusListener, InputMethodListener {
@@ -43,30 +64,48 @@ public class EventListener implements WindowListener, KeyListener,
     private BlackenPanel gui;
     private boolean variantKeyMode = true;
 
+    /**
+     * Get the set of enabled events.
+     * @return events enabled
+     */
     public EnumSet<BlackenEventType> getEnabled() {
         return enabled;
     }
 
+    /**
+     * Clear the enabled events.
+     */
     public void clearEnabled() {
         this.enabled = EnumSet.noneOf(BlackenEventType.class);
     }
 
+    /**
+     * Unset specific events
+     * @param disabled events to disable
+     */
     public void unsetEnabled(BlackenEventType disabled) {
         if (enabled == null) {
             return;
-        } else {
-            this.enabled.remove(disabled);
         }
+        this.enabled.remove(disabled);
     }
 
+    /**
+     * Enable specific events.
+     * @param enabled events to enable.
+     */
     public void setEnabled(BlackenEventType enabled) {
         if (enabled == null) {
             return;
-        } else {
-            this.enabled.add(enabled);
         }
+        this.enabled.add(enabled);
     }
 
+    /**
+     * Set the enabled events to a specific set
+     * 
+     * @param enabled events to exclusively enable
+     */
     public void setEnabled(EnumSet<BlackenEventType> enabled) {
         if (enabled == null) {
             clearEnabled();
@@ -75,14 +114,27 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * Create the listener.
+     * @param gui panel to use
+     */
     public EventListener(BlackenPanel gui) {
         this.gui = gui;
     }
 
+    /**
+     * Take the next key event
+     * @return next key event
+     * @throws InterruptedException we were interrupted
+     */
     public int blockingPopKey() throws InterruptedException {
         return keyEvents.take();
     }
 
+    /**
+     * Pop the next key event
+     * @return the next key event; NO_KEY if no key
+     */
     public int popKey() {
         try {
             return keyEvents.remove();
@@ -91,9 +143,18 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * Pop the next mouse event
+     * @return the next mouse event
+     * @throws InterruptedException we were interrupted
+     */
     public BlackenMouseEvent blockingPopMouse() throws InterruptedException {
         return mouseEvents.take();
     }
+    /**
+     * Pop the next mouse event
+     * @return the next mouse event; null of none available
+     */
     public BlackenMouseEvent popMouse() {
         try {
             return mouseEvents.remove();
@@ -102,9 +163,18 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * Pop the next window event
+     * @return the next window event
+     * @throws InterruptedException an interruption occured
+     */
     public BlackenWindowEvent blockingPopWindow() throws InterruptedException {
         return windowEvents.take();
     }
+    /**
+     * Pop the next window event
+     * @return the next window event; null of none available
+     */
     public BlackenWindowEvent popWindow() {
         try {
             return windowEvents.remove();
@@ -113,10 +183,19 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * get locking modifiers
+     * @return locking modifiers
+     */
     public EnumSet<BlackenModifier> getLockingModifiers() {
         return getLockingModifiers(null);
     }
 
+    /**
+     * Get the locking modifiers
+     * @param set an existing set to use
+     * @return locking modifiers
+     */
     public EnumSet<BlackenModifier> getLockingModifiers(EnumSet<BlackenModifier> set) {
         if (set == null) {
             set = EnumSet.noneOf(BlackenModifier.class);
@@ -634,10 +713,19 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
     @Override
     public void keyReleased(KeyEvent e) {
+        // do nothing
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
     @Override
     public void keyTyped(KeyEvent e) {
         if (this.variantKeyMode) {
@@ -662,6 +750,10 @@ public class EventListener implements WindowListener, KeyListener,
     
     }
 
+    /**
+     * Add a key to the event queue
+     * @param key key to add
+     */
     public void loadKey(int key) {
         try {
             keyEvents.add(key);
@@ -669,6 +761,10 @@ public class EventListener implements WindowListener, KeyListener,
             // XXX log this
         }
     }
+    /**
+     * Push a key in to the the front of the queue
+     * @param key key to add
+     */
     public synchronized void pushKey(int key) {
         ArrayBlockingQueue<Integer> oldQueue = keyEvents;
         keyEvents = new ArrayBlockingQueue<Integer>(NUMBER_OF_KEY_EVENTS);
@@ -681,6 +777,11 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * Load a key with the modifier state.
+     * @param e modifier state
+     * @param keycode key code
+     */
     protected void loadKey(KeyEvent e, int keycode) {
         int k = keycode;
         if (BlackenKeys.isModifier(k)) {
@@ -695,6 +796,11 @@ public class EventListener implements WindowListener, KeyListener,
         loadKey(k);
     }
 
+    /**
+     * Load the mouse event
+     * @param e native event
+     * @param m Blacken event
+     */
     protected void loadMouse(MouseEvent e, BlackenMouseEvent m) {
         int[] p = gui.findPositionForWindow(e.getY(), e.getX());
         m.setPosition(p[0], p[1]);
@@ -729,6 +835,11 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
     
+    /**
+     * Create the modifier notice codepoint
+     * @param e input event
+     * @return modifier notice codepoint
+     */
     protected int makeModifierNotice(InputEvent e) {
         int mods = e.getModifiersEx();
         EnumSet<BlackenModifier> mod = EnumSet.noneOf(BlackenModifier.class);
@@ -751,6 +862,10 @@ public class EventListener implements WindowListener, KeyListener,
         return BlackenModifier.getAsCodepoint(mod);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_CLICKED)){
@@ -760,6 +875,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseDragged(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_DRAGGED)) {
@@ -769,6 +888,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_ENTERED)) {
@@ -778,6 +901,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseExited(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_EXITED)) {
@@ -787,6 +914,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseMoved(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_MOVED)) {
@@ -796,6 +927,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_PRESSED)) {
@@ -805,6 +940,10 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
         if (enabled.contains(BlackenEventType.MOUSE_RELEASED)) {
@@ -814,6 +953,11 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
+    /**
+     * Load the blacken window event from the native event
+     * @param e native event
+     * @param w Blacken window event
+     */
     private void loadWindow(WindowEvent e, BlackenWindowEvent w) {
         int newState = e.getNewState();
         int oldState = e.getOldState();

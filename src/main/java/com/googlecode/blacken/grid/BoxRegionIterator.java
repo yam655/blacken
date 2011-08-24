@@ -1,6 +1,28 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.grid;
 
-
+/**
+ * An iterator for box regions.
+ * 
+ * See {@link BoxRegion} for the region this goes to.
+ * 
+ * @author yam655
+ */
 public class BoxRegionIterator extends RegionIterator {
 
     private Regionlike box;
@@ -22,11 +44,19 @@ public class BoxRegionIterator extends RegionIterator {
         this.segment = 0;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.grid.RegionIterator#currentPattern()
+     */
     @Override
     public boolean[] currentPattern() {
         return null;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.grid.RegionIterator#currentSegment(int[])
+     */
     @Override
     public int currentSegment(int[] coords) {
         if (segment == -1) {
@@ -82,11 +112,19 @@ public class BoxRegionIterator extends RegionIterator {
         return ret;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.grid.RegionIterator#isDone()
+     */
     @Override
     public boolean isDone() {
         return segment == -1;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.grid.RegionIterator#next()
+     */
     @Override
     public void next() {
         int y1;

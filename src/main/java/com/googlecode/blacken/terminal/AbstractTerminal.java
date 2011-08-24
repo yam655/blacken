@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.terminal;
 
 import java.util.EnumSet;
@@ -5,8 +21,14 @@ import java.util.HashMap;
 
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import com.googlecode.blacken.grid.Grid;
 
+/**
+ * An abstract terminal to handle common termainal functions.
+ * 
+ * @author yam655
+ */
 public abstract class AbstractTerminal implements TerminalInterface {
 
     private ColorPalette palette = null;
@@ -21,10 +43,17 @@ public abstract class AbstractTerminal implements TerminalInterface {
     private int curBackground = 0xff000000;
     private boolean separateCursor = false;
 
+    /**
+     * Create a new abstract terminal
+     */
     public AbstractTerminal() {
         super();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#addch(int)
+     */
     @Override
     public void addch(int what) {
         if (grid == null) {
@@ -46,7 +75,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         } else if (what == '\b' || what == BlackenKeys.KEY_BACKSPACE) {
             if (updateX > 0) updateX --;
             cell = this.get(updateY, updateX);
-            cell.setSequence("\u0000");
+            cell.setSequence("\u0000"); //$NON-NLS-1$
             this.set(updateY, updateX, cell);
         } else if (what == '\t' || what == BlackenKeys.KEY_TAB) {
             updateX = updateX + 8;
@@ -71,11 +100,19 @@ public abstract class AbstractTerminal implements TerminalInterface {
         if (!separateCursor) setCursorLocation(updateY, updateX);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#init()
+     */
     @Override
     public void init() {
-        init("Java", 25, 80);
+        init("Java", 25, 80); //$NON-NLS-1$
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#clear()
+     */
     @Override
     public void clear() {
         cursorX = 0; cursorY = 0;
@@ -85,12 +122,20 @@ public abstract class AbstractTerminal implements TerminalInterface {
         empty.setDirty(true);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#clear(com.googlecode.blacken.terminal.TerminalCell)
+     */
     @Override
     public void clear(TerminalCell empty) {
         this.empty.set(empty);
         clear();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#copyFrom(com.googlecode.blacken.terminal.TerminalInterface, int, int, int, int, int, int)
+     */
     @Override
     public void copyFrom(TerminalInterface oterm, int numRows, int numCols, int startY,
                             int startX, int destY, int destX) {
@@ -99,51 +144,102 @@ public abstract class AbstractTerminal implements TerminalInterface {
                             
                             }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#disableEventNotice(com.googlecode.blacken.terminal.BlackenEventType)
+     */
     @Override
     public abstract void disableEventNotice(BlackenEventType event);
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#disableEventNotices()
+     */
     @Override
     public abstract void disableEventNotices();
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#enableEventNotice(com.googlecode.blacken.terminal.BlackenEventType)
+     */
     @Override
     public abstract void enableEventNotice(BlackenEventType event);
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#enableEventNotices(java.util.EnumSet)
+     */
     @Override
     public abstract void enableEventNotices(EnumSet<BlackenEventType> events);
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#get(int, int)
+     */
     @Override
     public TerminalCellLike get(int y, int x) {
         return grid.get(y, x).copy();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getch()
+     */
     @Override
     public abstract int getch();
 
+    /**
+     * Get the current background
+     * @return the current background
+     */
     public int getCurBackground() {
         return curBackground;
     }
 
+    /**
+     * get the current foreground
+     * @return the current foreground
+     */
     public int getCurForeground() {
         return curForeground;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getGrid()
+     */
     @Override
     public Grid<TerminalCellLike> getGrid() {
         return this.grid;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getLockingStates()
+     */
     @Override
     public abstract EnumSet<BlackenModifier> getLockingStates();
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getmouse()
+     */
     @Override
     public abstract BlackenMouseEvent getmouse();
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getPalette()
+     */
     @Override
     public ColorPalette getPalette() {
         return palette;
     }
 
-
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gets(int)
+     */
     @Override
     public String gets(final int length) {
         int cp = -1;
@@ -182,21 +278,37 @@ public abstract class AbstractTerminal implements TerminalInterface {
         return out.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getwindow()
+     */
     @Override
     public abstract BlackenWindowEvent getwindow();
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gridMaxX()
+     */
     @Override
     public int gridMaxX() {
         if (grid == null) return 0;
         return grid.getWidth();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gridMaxY()
+     */
     @Override
     public int gridMaxY() {
         if (grid == null) return 0;
         return grid.getHeight();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#init(java.lang.String, int, int)
+     */
     @Override
     public void init(String name, int rows, int cols) {
         if (grid == null) {
@@ -209,20 +321,29 @@ public abstract class AbstractTerminal implements TerminalInterface {
         move(0, 0);
     }
 
-    /**
-     * @return the separateCursor
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#isSeparateCursor()
      */
     @Override
     public boolean isSeparateCursor() {
         return separateCursor;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#move(int, int)
+     */
     @Override
     public void move(int y, int x) {
         updateX = x; updateY = y;
         if (!separateCursor) setCursorLocation(y, x);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#moveBlock(int, int, int, int, int, int)
+     */
     @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX) {
@@ -230,44 +351,76 @@ public abstract class AbstractTerminal implements TerminalInterface {
                        new TerminalCell().new ResetCell());
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorLocation()
+     */
     @Override
     public int[] getCursorLocation() {
         int[] ret = {cursorY, cursorX};
         return ret;
     }
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorX()
+     */
     @Override
     public int getCursorX() {
         return cursorX;
     }
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorY()
+     */
     @Override
     public int getCursorY() {
         return cursorY;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#mvaddch(int, int, int)
+     */
     @Override
     public void mvaddch(int y, int x, int what) {
         move(y, x);
         addch(what);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#mvgetch(int, int)
+     */
     @Override
     public int mvgetch(int y, int x) {
         setCursorLocation(y, x);
         return getch();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#mvoverlaych(int, int, int)
+     */
     @Override
     public void mvoverlaych(int y, int x, int what) {
         TerminalCellLike c = grid.get(y, x);
         c.addSequence(what);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#mvputs(int, int, java.lang.String)
+     */
     @Override
     public void mvputs(int y, int x, String str) {
         move(y, x);
         puts(str);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#overlaych(int)
+     */
     @Override
     public void overlaych(int what) {
         if (updateX > 0) {
@@ -275,6 +428,10 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#puts(java.lang.String)
+     */
     @Override
     public void puts(String what) {
         int cp;
@@ -296,16 +453,28 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#quit()
+     */
     @Override
     public void quit() {
         /* do nothing */;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#refresh()
+     */
     @Override
     public void refresh() {
         /* do nothing */;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#set(int, int, java.lang.String, java.lang.Integer, java.lang.Integer, java.util.EnumSet, java.util.EnumSet)
+     */
     @Override
     public void set(int y, int x, String glyph, 
                     Integer foreground, Integer background, 
@@ -329,22 +498,74 @@ public abstract class AbstractTerminal implements TerminalInterface {
         tcell.setDirty(true);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCursorLocation(int, int)
+     */
     @Override
     public void setCursorLocation(int y, int x) {
         cursorX = x; cursorY = y;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCurBackground(int)
+     */
+    @Override
     public void setCurBackground(int c) {
         this.curBackground = c;
     }
 
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCurBackground(java.lang.String)
+     */
+    @Override
+    public void setCurBackground(String c) {
+        if (this.palette == null) {
+            try {
+                this.curBackground = ColorHelper.neverTransparent(ColorHelper.makeColor(c));
+            } catch (InvalidStringFormatException e) {
+                throw new NullPointerException(
+                           String.format("palette is null, and color was invalid: %s",  //$NON-NLS-1$
+                                         e.getMessage()));
+            }
+        } else {
+            this.curBackground = this.palette.indexOfKey(c);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCurForeground(int)
+     */
+    @Override
     public void setCurForeground(int c) {
         this.curForeground = c;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCurForeground(java.lang.String)
+     */
+    @Override
+    public void setCurForeground(String c) {
+        if (this.palette == null) {
+            try {
+                this.curForeground = ColorHelper.neverTransparent(ColorHelper.makeColor(c));
+            } catch (InvalidStringFormatException e) {
+                throw new NullPointerException(
+                           String.format("palette is null, and color was invalid: %s",  //$NON-NLS-1$
+                                         e.getMessage()));
+            }
+        } else {
+            this.curForeground = this.palette.indexOfKey(c);
+        }
+    }
+
     /**
-     * This sets the internal palette to use for the functions using an
-     * index (and for referencing colors by name).
+     * Set the palette to use for the colors
      * 
      * <p>If the passed in palette is null, it does not clear out the palette,
      * but instead reparses the existing palette for changes. Implementations
@@ -364,6 +585,10 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
         return this.setPalette(palette, white, black);
     }
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setPalette(com.googlecode.blacken.colors.ColorPalette, int, int)
+     */
     @Override
     public ColorPalette setPalette(ColorPalette palette, int white, int black) {
         boolean updateGrid = false;
@@ -446,7 +671,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
                     int b = cell.getBackground();
                     int f = cell.getForeground();
                     if (b >= psize && f >= psize) {
-                        
+                        // FIXME this should have something?
                     }
                 }
             }
@@ -454,19 +679,28 @@ public abstract class AbstractTerminal implements TerminalInterface {
         return oldPalette;
     }
 
-    /**
-     * @param separateCursor the separateCursor to set
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setSeparateCursor(boolean)
      */
     @Override
     public void setSeparateCursor(boolean separateCursor) {
         this.separateCursor = separateCursor;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getEmpty()
+     */
     @Override
     public TerminalCellLike getEmpty() {
         return empty;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setEmpty(com.googlecode.blacken.terminal.TerminalCellLike)
+     */
     @Override
     public void setEmpty(TerminalCellLike empty) {
         this.empty = empty;

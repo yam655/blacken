@@ -14,7 +14,7 @@ import org.junit.*;
  * Specifically, we perform shallow copies (like clone). If functions don't
  * explicitly do something different this is what we expect.
  * 
- * @author Steven Black
+ * @author yam655
  *
  */
 public class CopyableDataArrayListTest {
@@ -23,6 +23,9 @@ public class CopyableDataArrayListTest {
     ArrayList<Integer> dataN1 = null;
     CopyableData<ArrayList<Integer>> sample = null;
     
+    /**
+     * test
+     */
     @Before
     public void setUp() {
         data1 = new ArrayList<Integer>();
@@ -34,49 +37,77 @@ public class CopyableDataArrayListTest {
         sample = new CopyableData<ArrayList<Integer>>(data1);
     }
     
+    /**
+     * test
+     */
     @Test
     public void data_DirectAccess() {
         assertSame(sample.data, data1);
     }
     
+    /**
+     * test
+     */
     @Test
     public void getData_Same() {
         assertSame(sample.getData(), data1);
     }
 
+    /**
+     * test
+     */
     @Test
     public void dataEquals_CopyableData_SameData() {
         CopyableData<ArrayList<Integer>> sample2 = new CopyableData<ArrayList<Integer>>(data1);
-        assertTrue(sample.getData().equals(sample2));
+        assertEquals(sample.getData(),sample2.getData());
     }
     
+    /**
+     * test
+     */
     @Test
     public void dataEquals_T_SameData() {
         assertTrue(sample.getData().equals(data1));
     }
     
+    /**
+     * test
+     */
     @Test
     public void dataEquals_CopyableData_SameDataDifferentList() {
         assertTrue(sample.getData().equals(dataN1));
     }
 
+    /**
+     * test
+     */
     @Test
     public void dataEquals_T_SameDataDifferentList() {
         CopyableData<ArrayList<Integer>> sample2 = new CopyableData<ArrayList<Integer>>(dataN1);
-        assertTrue(sample.getData().equals(sample2));
+        assertTrue(sample.equals(sample2));
+        assertTrue(sample.getData().equals(sample2.getData()));
     }
     
+    /**
+     * test
+     */
     @Test
     public void dataEquals_CopyableData_DifferentData() {
         CopyableData<ArrayList<Integer>> sample2 = new CopyableData<ArrayList<Integer>>(data2);
         assertFalse(sample.getData().equals(sample2));
     }
 
+    /**
+     * test
+     */
     @Test
     public void dataEquals_T_DifferentData() {
         assertFalse(sample.getData().equals(data2));
     }
     
+    /**
+     * test
+     */
     @Test
     public void setData() {
         assertSame(sample.getData(), data1);
@@ -84,6 +115,9 @@ public class CopyableDataArrayListTest {
         assertSame(sample.getData(), data2);
     }
     
+    /**
+     * test
+     */
     @Test
     public void setData_null() {
         assertSame(sample.getData(), data1);
@@ -91,6 +125,9 @@ public class CopyableDataArrayListTest {
         assertSame(sample.getData(), null);
     }
 
+    /**
+     * test
+     */
     @Test
     public void copy_static_CopyableData() {
         CopyableData<ArrayList<Integer>> newSample = null;
@@ -116,6 +153,9 @@ public class CopyableDataArrayListTest {
         assertSame(newSample.getData(), data3);
     }
 
+    /**
+     * test
+     */
     @Test
     public void copy() {
         CopyableData<ArrayList<Integer>> newSample = null;
@@ -141,6 +181,9 @@ public class CopyableDataArrayListTest {
         assertSame(newSample.getData(), data3);
     }
 
+    /**
+     * test
+     */
     @Test
     public void testClone() {
         CopyableData<ArrayList<Integer>> newSample = null;

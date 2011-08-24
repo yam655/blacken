@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.colors;
 
 import java.util.Collection;
@@ -9,20 +25,23 @@ import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
- * Track a list of Integer items with some extra features. Added features:
- * <ul>
- * <li>capacity to keep track of named colors as well
- * <li>support for loading colors from a number of sources.
- * </ul>
+ * A named and indexed color palette.
  * 
- * @author Steven Black
+ * <p>This leverages {@link ListMap} to create a color palette that supports 
+ * both the common use-cases of index-based access as well as name-based 
+ * access. See {@link ColorNames} for standard palettes to use with this.</p>
+ * 
+ * <p>The greatest flexibility is found in the {@link #addMapping(String[])}
+ * and {@link #putMapping(String[])} functions.<p>
+ * 
+ * @author yam655
  */
 public class ColorPalette extends ListMap<String, Integer> {
 
     /**
      * serial ID
      */
-    private static final long serialVersionUID = -8266572442676381801L;
+    private static final long serialVersionUID = 3453955962929981683L;
 
     /**
      * Create a new empty palette.
@@ -32,7 +51,7 @@ public class ColorPalette extends ListMap<String, Integer> {
     }
 
     /**
-     * Create a new color palette based upon an existing color list.
+     * Create a new color palette based upon an collection of color values.
      * 
      * @param c simple color list
      */
@@ -43,16 +62,19 @@ public class ColorPalette extends ListMap<String, Integer> {
     /**
      * Create a palette based upon an existing palette and an explicit order.
      * 
+     * <p>This is used to change the order of a palette.</p>
+     * 
+     * <p>Note that due to the use of {@link #putAll(ListMap, String[])}
+     * items in the <code>existingPalette</code> which do not exist in the
+     * <code>order</code> will not exist in the returning palette.</p> 
+     * 
      * @param existingPalette existing palette
      * @param order explicit order
      */
-    public ColorPalette(ColorPalette existingPalette, String[] order) {
+    public ColorPalette(ListMap<String, Integer> existingPalette, 
+                        String[] order) {
         super(order.length);
-        if (order != null && order.length > 0) {
-            putAll(existingPalette, order);
-        } else {
-            addAll(existingPalette);
-        }
+        putAll(existingPalette, order);
     }
 
     /**
@@ -67,7 +89,7 @@ public class ColorPalette extends ListMap<String, Integer> {
     /**
      * Create a palette based upon an existing ListMap/palette.
      * 
-     * @param colors
+     * @param colors previous ColorPalette-like ListMap
      */
     public ColorPalette(ListMap<String, Integer> colors) {
         super(colors.size());
@@ -75,22 +97,31 @@ public class ColorPalette extends ListMap<String, Integer> {
     }
 
     /**
-     * Create a palette based upon a LinkedHashMap.
+     * Create a palette based upon a simple Map.
      * 
-     * @param colors
+     * <p>The index will be inconsistent if the Map does not have a known 
+     * order, such as by use of {@link LinkedHashMap}.</p>
+     * 
+     * @param colors name to color value mapping
      */
-    public ColorPalette(LinkedHashMap<String, Integer> colors) {
+    public ColorPalette(Map<String, Integer> colors) {
         super(colors.size());
         addAll(colors.entrySet());
     }
 
     /**
-     * Create a palette with the given named colors. (No index created.)
+     * Create a palette with the given named colors.
      * 
-     * @param colors
+     * @param colors name to color value mapping
+     * @param order order of the palette
      */
-    public ColorPalette(Map<String, Integer> colors) {
-        this.putAll(colors);
+    public ColorPalette(Map<String, Integer> colors, String[] order) {
+        super(order.length);
+        if (order.length > 0) {
+            putAll(colors, order);
+        } else {
+            putAll(colors);
+        }
     }
 
     /**
@@ -123,7 +154,7 @@ public class ColorPalette extends ListMap<String, Integer> {
             rgba = ColorHelper.neverTransparent(rgba);
         }
         int idx = this.size();
-        this.add(rgba);
+        this.add(name, rgba);
         put(name, rgba);
         return idx;
     }
@@ -137,6 +168,7 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @param colordef The text color definition (#RRGGBB, 0xAARRGGBB, etc)
      * @return true on success
      * @throws InvalidStringFormatException 
+     *          <code>colordef</code> provided was illegal.
      */
     public int add(String name, String colordef) 
     throws InvalidStringFormatException {
@@ -160,7 +192,6 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @param colors an array colors stored as ints (0xRRGGBB or 0xAARRGGBB)
      * @param has_alpha indicates whether a valid alpha channel is present
      * @return true if the Collection was modified
-     * @throws NullPointerException
      */
     public boolean addAll(int[] colors, boolean has_alpha) {
         if (colors.length == 0) {
@@ -206,8 +237,8 @@ public class ColorPalette extends ListMap<String, Integer> {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+#", 2);
-            final String names[] = s[0].split("[ \t]+/[ \t]+");
+            final String s[] = color.split("[ \t]+->[ \t]+#", 2); //$NON-NLS-1$
+            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
             if (s.length < 2) continue;
             final Integer colr = Integer.valueOf(s[1], 16);
             add(colr);
@@ -246,8 +277,8 @@ public class ColorPalette extends ListMap<String, Integer> {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 1);
-            final String names[] = s[0].split("[ \t]+/[ \t]+");
+            final String s[] = color.split("[ \t]+->[ \t]+", 1); //$NON-NLS-1$
+            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
             final Integer colr = new Integer(s[1]);
             this.add(colr);
             for (final String n : names) {
@@ -257,6 +288,22 @@ public class ColorPalette extends ListMap<String, Integer> {
         return true;
     }
 
+    /**
+     * Helper function to bypass the palette if it wasn't used.
+     * 
+     * <p>To support environments where setting a palette is optional,
+     * we use this function to check to see if a color value is a valid
+     * color index -- if it is not we consider it a 0xAARRGGBB color.<p>
+     * 
+     * <p>Note: Due to the implementation of this function, and the fact that
+     * is performs an educated guess, if you use fully transparent colors
+     * (with an Alpha of 0) this can make a wrong guess, particularly for dark
+     * blue colors or if index zero is not black. The work-around is to use an 
+     * Alpha of 1.</p>
+     * 
+     * @param indexOrColor an index in the palette or 0xAARRGGBB color
+     * @return a 0xAARRGGBB color
+     */
     public int getColor(int indexOrColor) {
         int ret = 0;
         if (indexOrColor < size() && indexOrColor >= 0) {

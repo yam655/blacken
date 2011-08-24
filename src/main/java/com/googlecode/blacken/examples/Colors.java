@@ -1,55 +1,57 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.examples;
 
 import com.googlecode.blacken.colors.ColorHelper;
-import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.colors.ColorNames;
-import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.TerminalInterface;
 
-public class Colors {
-
-    TerminalInterface term = null;
-    ColorPalette palette = null;
-    private boolean quit;
+/**
+ * Test the color system.
+ * 
+ * @author yam655
+ */
+public class Colors extends AbstractExample {
     
-    Colors() {
-        init(null, null);
-        loop();
-        term.quit();
-    }
-    Colors(TerminalInterface term, ColorPalette palette) {
-        init(term, palette);
+    /**
+     * Create a new, uninitialized instance
+     */
+    public Colors() {
+        // do nothing
     }
 
-    protected void init(TerminalInterface term, ColorPalette palette) {
-        if (term == null) {
-            this.term = new SwingTerminal();
-            this.term.init("Colors", 25, 80);
-        } else {
-            this.term = term;
-        }
-        if (palette == null) {
-            palette = ColorNames.addXtermColors(null, 256);
-            ColorNames.addSvgColors(palette);
-        } 
-        this.palette = palette;
-        this.term.setPalette(palette);
-    }
-    protected void help() {
-        term.puts("Terminal Interface\n");
-        term.puts("Command keys include:\n");
-        term.puts("F1  - this help text\n");
-        term.puts("F2  - show the color grid\n");
-        term.puts("F3  - next foreground\n");
-        term.puts("F4  - prev foreground\n");
-        term.puts("F5  - next background\n");
-        term.puts("F6  - prev background\n");
-        term.puts("F7  - print information\n");
-        term.puts("F8  - show size grid\n");
-        term.puts("F9  - clear screen\n");
-        term.puts("F10 - quit\n");
-        term.puts("\nPress F10 to quit.\n");
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.examples.AbstractExample#help()
+     */
+    @Override
+    public void help() {
+        term.puts("Terminal Interface\n"); //$NON-NLS-1$
+        term.puts("Command keys include:\n"); //$NON-NLS-1$
+        term.puts("F1  - this help text\n"); //$NON-NLS-1$
+        term.puts("F2  - show the color grid\n"); //$NON-NLS-1$
+        term.puts("F3  - next foreground\n"); //$NON-NLS-1$
+        term.puts("F4  - prev foreground\n"); //$NON-NLS-1$
+        term.puts("F5  - next background\n"); //$NON-NLS-1$
+        term.puts("F6  - prev background\n"); //$NON-NLS-1$
+        term.puts("F7  - print information\n"); //$NON-NLS-1$
+        term.puts("F8  - show size grid\n"); //$NON-NLS-1$
+        term.puts("F9  - clear screen\n"); //$NON-NLS-1$
+        term.puts("F10 - quit\n"); //$NON-NLS-1$
+        term.puts("\nPress F10 to quit.\n"); //$NON-NLS-1$
     }
     /**
      * Show the interactive color display.
@@ -69,11 +71,11 @@ public class Colors {
                     int bx = b % palette.size();
                     term.setCurBackground(palette.get(bx));
                     term.setCurForeground(ColorHelper.makeVisible(palette.get(bx)));
-                    term.puts(String.format("%-3x", bx));
+                    term.puts(String.format("%-3x", bx)); //$NON-NLS-1$
                     for (int f = start_f; f < start_f + 16; f++) {
                         int fx = f % palette.size();
                         term.setCurForeground(palette.get(fx));
-                        term.puts(String.format("%-3x", fx));
+                        term.puts(String.format("%-3x", fx)); //$NON-NLS-1$
                     }
                     term.addch('\n');
                 }
@@ -88,7 +90,7 @@ public class Colors {
                         } else {
                             term.setCurForeground(palette.get(start_f));
                         }
-                        term.puts(String.format("%-3x", bx));
+                        term.puts(String.format("%-3x", bx)); //$NON-NLS-1$
                     }
                     term.addch('\n');
                 }
@@ -103,33 +105,33 @@ public class Colors {
                         } else {
                             term.setCurBackground(palette.get(start_b));
                         }
-                        term.puts(String.format("%-3x", fx));
+                        term.puts(String.format("%-3x", fx)); //$NON-NLS-1$
                     }
                     term.addch('\n');
                 }
             }
             term.setCurForeground(palette.get(7));
             term.setCurBackground(palette.get(0));
-            term.puts("Use arrow keys to browse grid or period (.) to end.\n");
-            term.puts("Use +/- to change mode.  Current mode:\n        ");
+            term.puts("Use arrow keys to browse grid or period (.) to end.\n"); //$NON-NLS-1$
+            term.puts("Use +/- to change mode.  Current mode:\n        "); //$NON-NLS-1$
             switch(mode) {
             case 0: 
-                term.puts("background: CHANGING; foreground: variable"); 
+                term.puts("background: CHANGING; foreground: variable");  //$NON-NLS-1$
                 break;
             case 1: 
-                term.puts("background: variable; foreground: CHANGING"); 
+                term.puts("background: variable; foreground: CHANGING");  //$NON-NLS-1$
                 break;
             case 2: 
-                term.puts("background: CHANGING; foreground: visible"); 
+                term.puts("background: CHANGING; foreground: visible");  //$NON-NLS-1$
                 break;
             case 3: 
-                term.puts("background: visible; foreground: CHANGING"); 
+                term.puts("background: visible; foreground: CHANGING");  //$NON-NLS-1$
                 break;
             case 4: 
-                term.puts("background: CHANGING; foreground: single"); 
+                term.puts("background: CHANGING; foreground: single");  //$NON-NLS-1$
                 break;
             case 5:
-                term.puts("background: single; foreground: CHANGING"); 
+                term.puts("background: single; foreground: CHANGING");  //$NON-NLS-1$
                 break;
             }
             term.refresh();
@@ -245,7 +247,12 @@ public class Colors {
         }
         return this.quit;
     }
-    public void loop() {
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.examples.AbstractExample#loop()
+     */
+    @Override
+    public boolean loop() {
         int ch = BlackenKeys.NO_KEY;
         int fore = 7;
         int back = 0;
@@ -254,105 +261,114 @@ public class Colors {
         help();
         quit = false;
         while (!quit) {
-            term.puts(">");
+            term.puts(">"); //$NON-NLS-1$
             term.refresh();
             ch = term.getch();
             switch(ch) {
             case BlackenKeys.KEY_F01:
-                term.puts("<F1 / HELP>\n");
+                term.puts("<F1 / HELP>\n"); //$NON-NLS-1$
                 help();
                 break;
             case BlackenKeys.KEY_F02:
-                term.puts("<F2 / SHOW COLORS>\n");
+                term.puts("<F2 / SHOW COLORS>\n"); //$NON-NLS-1$
                 showColors();
                 term.setCurForeground(palette.get(fore));
                 term.setCurBackground(palette.get(back));
                 break;
 
             case BlackenKeys.KEY_F03:
-                term.puts("<F3 / NEXT FORE>\n");
+                term.puts("<F3 / NEXT FORE>\n"); //$NON-NLS-1$
                 fore ++;
                 if (fore == palette.size()) fore = 0;
                 term.setCurForeground(palette.get(fore));
                 break;
             case BlackenKeys.KEY_F04:
-                term.puts("<F4 / PREV FORE>\n");
+                term.puts("<F4 / PREV FORE>\n"); //$NON-NLS-1$
                 fore --;
                 if (fore < 0) fore = palette.size() - 1;
                 term.setCurForeground(palette.get(fore));
                 break;
             case BlackenKeys.KEY_F05:
-                term.puts("<F5 / NEXT BACK>\n");
+                term.puts("<F5 / NEXT BACK>\n"); //$NON-NLS-1$
                 back ++;
                 if (back == palette.size()) back = 0;
                 term.setCurBackground(palette.get(back));
                 break;
             case BlackenKeys.KEY_F06:
-                term.puts("<F6 / PREV BACK>\n");
+                term.puts("<F6 / PREV BACK>\n"); //$NON-NLS-1$
                 back --;
                 if (back < 0) back = palette.size() - 1;
                 term.setCurBackground(palette.get(back));
                 break;
             case BlackenKeys.KEY_F07:
-                term.puts("<F7 / SHOW INFO>\n");
+                term.puts("<F7 / SHOW INFO>\n"); //$NON-NLS-1$
                 show_info();
                 break;
             case BlackenKeys.KEY_F08:
-                term.puts("<F8 / SHOW GRID>\n");
+                term.puts("<F8 / SHOW GRID>\n"); //$NON-NLS-1$
                 show_grid();
                 break;
             case BlackenKeys.KEY_F09:
-                term.puts("<F9 / CLEAR>\n");
+                term.puts("<F9 / CLEAR>\n"); //$NON-NLS-1$
                 term.clear();
                 term.move(0, 0);
                 break;
             case BlackenKeys.KEY_F10:
-                term.puts("<F10 / QUIT>\n");
+                term.puts("<F10 / QUIT>\n"); //$NON-NLS-1$
                 quit = true;
                 continue;
             default:
                 term.puts(BlackenKeys.toString(ch));
-                term.puts("\n");
+                term.puts("\n"); //$NON-NLS-1$
             }
         }
+        return quit;
     }
     
-    private void show_grid() {
+    /**
+     * Show the screen-size grid
+     */
+    public void show_grid() {
         term.clear();
         term.setCurBackground(palette.get(0));
         term.setCurForeground(palette.get(7));
         term.move(0, 0);
         for (int x = 0; x < term.gridMaxX(); x++) {
-            term.mvputs(0, x, String.format("%1d", x % 10));
+            term.mvputs(0, x, String.format("%1d", x % 10)); //$NON-NLS-1$
         }
         for (int x = 10; x < term.gridMaxX(); x+=5) {
-            term.mvputs(1, x, String.format("%1d", x / 10 % 10));
+            term.mvputs(1, x, String.format("%1d", x / 10 % 10)); //$NON-NLS-1$
         }
         if (term.gridMaxX() >= 100) {
             for (int x = 100; x < term.gridMaxX(); x+=5) {
-                term.mvputs(1, x, String.format("%1d", x / 100));
+                term.mvputs(1, x, String.format("%1d", x / 100)); //$NON-NLS-1$
             }
         }
         for (int y = 2; y < term.gridMaxY(); y++) {
-            term.mvputs(y, 10, String.format("%d", y));
+            term.mvputs(y, 10, String.format("%d", y)); //$NON-NLS-1$
         }
         term.move(term.gridMaxY()-2, 0);
     }
 
-    private void show_info() {
+    /**
+     * Show the screen dimensions (and maybe other info)
+     */
+    public void show_info() {
         term.clear();
         // term.setCurBackground(palette.getIndex(0));
         // term.setCurForeground(palette.getIndex(7));
         term.move(0, 0);
-        term.puts(String.format("Screen Dimensions: %d x %d\n", 
+        term.puts(String.format("Screen Dimensions: %d x %d\n",  //$NON-NLS-1$
                                 term.gridMaxY(), term.gridMaxX()));
     }
 
     /**
-     * @param args
+     * Start the application.
+     * 
+     * @param args command-line arguments
      */
     public static void main(String[] args) {
-        new Colors();
+        AbstractExample.main(args, new Colors());
     }
 
 }

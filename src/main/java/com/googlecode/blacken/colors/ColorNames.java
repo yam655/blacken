@@ -1,334 +1,378 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.googlecode.blacken.colors;
 
-
 /**
- *
- * @author Steven Black
+ * Container class to help create standard color palettes. 
+ * 
+ * <p>The functions here are used with the {@link ColorPalette} class to get
+ * standard color sets.</p>
+ * 
+ * @author yam655
  */
 public final class ColorNames {
     /**
-     * HTML 3/4 official color names (from VGA color palette)
-     * Described on http://en.wikipedia.org/wiki/Web_colors
-     * This includes the "grey" spelling, which is not in the HTML standard.
-     * This includes the 'orange' defined in CSS 2.1
+     * HTML 3/4 official colors
+     * 
+     * <p>The first 16 colors are standard VGA colors.</p>
+     * 
+     * <p>Additions to the standard VGA colors and HTML 3/4 color names
+     * include the <code>grey</code> spelling, and the <code>orange</code> 
+     * defined in CSS 2.1</p>
+     * 
+     * <p>Described on http://en.wikipedia.org/wiki/Web_colors</p>
      */
-    static private String[] HtmlColorsDef = {
-                                             "black -> #000000",
-                                             "maroon -> #800000",
-                                             "green -> #008000",
-                                             "olive -> #808000",
-                                             "navy -> #000080",
-                                             "purple -> #800080",
-                                             "teal -> #008080",
-                                             "silver -> #c0c0c0",
-                                             "gray / grey -> #808080",
-                                             "red -> #ff0000",
-                                             "lime -> #00ff00",
-                                             "yellow -> #ffff00",
-                                             "blue -> #0000ff",
-                                             "fuchsia / magenta -> #ff00ff",
-                                             "aqua / cyan -> #00ffff",
-                                             "white -> #ffffff",
-                                             "orange -> #ffa500",
+    @SuppressWarnings("nls")
+    static private String[] HtmlColorsDef = 
+    {
+     "black -> #000000",
+     "maroon -> #800000",
+     "green -> #008000",
+     "olive -> #808000",
+     "navy -> #000080",
+     "purple -> #800080",
+     "teal -> #008080",
+     "silver -> #c0c0c0",
+     "gray / grey -> #808080",
+     "red -> #ff0000",
+     "lime -> #00ff00",
+     "yellow -> #ffff00",
+     "blue -> #0000ff",
+     "fuchsia / magenta -> #ff00ff",
+     "aqua / cyan -> #00ffff",
+     "white -> #ffffff",
+     "orange -> #ffa500",
     };
 
     /**
-     * from http://www.w3schools.com/HTML/html_colornames.asp -- 
-     * <p>Same values as svg_colors, except for 'MediumPurple' and 
-     * 'PaleVioletRed'
-     * <p>Note: These colors are in <i>no</i> standard -- unlike the SVG colors.
+     * The commonly used colors on the web. Originally from X11.
+     * 
+     * <p>These are the same values as svg_colors, except for 'MediumPurple' 
+     * and 'PaleVioletRed'.</p>
+     * 
+     * <p>Note: These colors are in <i>no</i> standard -- unlike the SVG 
+     * colors.</p>
+     * 
+     * <p>These come from http://www.w3schools.com/HTML/html_colornames.asp</p> 
      */
-    static private String[] WebColorsDef = {
-                                            "AliceBlue -> #f0f8ff",
-                                            "AntiqueWhite -> #faebd7",
-                                            "Aqua / Cyan -> #00ffff",
-                                            "Aquamarine -> #7fffd4",
-                                            "Azure -> #f0ffff",
-                                            "Beige -> #f5f5dc",
-                                            "Bisque -> #ffe4c4",
-                                            "Black -> #000000",
-                                            "BlanchedAlmond -> #ffebcd",
-                                            "Blue -> #0000ff",
-                                            "BlueViolet -> #8a2be2",
-                                            "Brown -> #a52a2a",
-                                            "BurlyWood -> #deb887",
-                                            "CadetBlue -> #5f9ea0",
-                                            "Chartreuse -> #7fff00",
-                                            "Chocolate -> #d2691e",
-                                            "Coral -> #ff7f50",
-                                            "CornflowerBlue -> #6495ed",
-                                            "Cornsilk -> #fff8dc",
-                                            "Crimson -> #dc143c",
-                                            "DarkBlue -> #00008b",
-                                            "DarkCyan -> #008b8b",
-                                            "DarkGoldenrod / DarkGoldenRod -> #b8860b",
-                                            "DarkGray / DarkGrey -> #a9a9a9",
-                                            "DarkGreen -> #006400",
-                                            "DarkKhaki -> #bdb76b",
-                                            "DarkMagenta -> #8b008b",
-                                            "DarkOliveGreen -> #556b2f",
-                                            "DarkOrange -> #ff8c00",
-                                            "DarkOrchid -> #9932cc",
-                                            "DarkRed -> #8b0000",
-                                            "DarkSalmon -> #e9967a",
-                                            "DarkSeaGreen -> #8fbc8f",
-                                            "DarkSlateBlue -> #483d8b",
-                                            "DarkSlateGray / DarkSlateGrey -> #2f4f4f",
-                                            "DarkTurquoise -> #00ced1",
-                                            "DarkViolet -> #9400d3",
-                                            "Deeppink -> #ff1493",
-                                            "Deepskyblue -> #00bfff",
-                                            "DimGray / DimGrey -> #696969",
-                                            "DodgerBlue -> #1e90ff",
-                                            "Firebrick / FireBrick -> #b22222",
-                                            "FloralWhite -> #fffaf0",
-                                            "ForestGreen -> #228b22",
-                                            "Fuchsia -> #ff00ff",
-                                            "Gainsboro -> #dcdcdc",
-                                            "GhostWhite -> #f8f8ff",
-                                            "Gold -> #ffd700",
-                                            "Goldenrod / GoldenRod -> #daa520",
-                                            "Gray / Grey -> #808080",
-                                            "Green -> #008000",
-                                            "GreenYellow -> #adff2f",
-                                            "Honeydew / HoneyDew -> #f0fff0",
-                                            "HotPink -> #ff69b4",
-                                            "IndianRed -> #cd5c5c",
-                                            "Indigo -> #4b0082",
-                                            "Ivory -> #fffff0",
-                                            "Khaki -> #f0e68c",
-                                            "Lavender -> #e6e6fa",
-                                            "LavenderBlush -> #fff0f5",
-                                            "LawnGreen -> #7cfc00",
-                                            "LemonChiffon -> #fffacd",
-                                            "LightBlue -> #add8e6",
-                                            "LightCoral -> #f08080",
-                                            "LightCyan -> #e0ffff",
-                                            "LightGoldenrodYellow / LightGoldenRodYellow -> #fafad2",
-                                            "LightGray / LightGrey -> #d3d3d3",
-                                            "LightGreen -> #90ee90",
-                                            "LightPink -> #ffb6c1",
-                                            "LightSalmon -> #ffa07a",
-                                            "LightSeaGreen -> #20b2aa",
-                                            "LightSkyBlue -> #87cefa",
-                                            "LightSlateGray / LightSlateGrey -> #778899",
-                                            "LightSteelBlue -> #b0c4de",
-                                            "LightYellow -> #ffffe0",
-                                            "Lime -> #00ff00",
-                                            "LimeGreen -> #32cd32",
-                                            "Linen -> #faf0e6",
-                                            "Magenta -> #ff00ff",
-                                            "Maroon -> #800000",
-                                            "MediumAquaMarine -> #66cdaa",
-                                            "MediumBlue -> #0000cd",
-                                            "MediumOrchid -> #ba55d3",
-                                            "MediumPurple -> #9370d8",
-                                            "MediumSeagreen -> #3cb371",
-                                            "MediumSlateBlue -> #7b68ee",
-                                            "MediumSpringGreen -> #00fa9a",
-                                            "MediumTurquoise -> #48d1cc",
-                                            "MediumVioletRed -> #c71585",
-                                            "MidnightBlue -> #191970",
-                                            "MintCream -> #f5fffa",
-                                            "MistyRose -> #ffe4e1",
-                                            "Moccasin -> #ffe4b5",
-                                            "NavajoWhite -> #ffdead",
-                                            "Navy -> #000080",
-                                            "OldLace -> #fdf5e6",
-                                            "Olive -> #808000",
-                                            "OliveDrab -> #6b8e23",
-                                            "Orange -> #ffa500",
-                                            "OrangeRed -> #ff4500",
-                                            "Orchid -> #da70d6",
-                                            "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
-                                            "PaleGreen -> #98fb98",
-                                            "PaleTurquoise -> #afeeee",
-                                            "PaleVioletRed -> #d87093",
-                                            "PapayaWhip -> #ffefd5",
-                                            "PeachPuff -> #ffdab9",
-                                            "Peru -> #cd853f",
-                                            "Pink -> #ffc0cb",
-                                            "Plum -> #dda0dd",
-                                            "PowderBlue -> #b0e0e6",
-                                            "Purple -> #800080",
-                                            "Red -> #ff0000",
-                                            "RosyBrown -> #bc8f8f",
-                                            "RoyalBlue -> #4169e1",
-                                            "SaddleBrown -> #8b4513",
-                                            "Salmon -> #fa8072",
-                                            "SandyBrown -> #f4a460",
-                                            "SeaGreen -> #2e8b57",
-                                            "SeaShell / Seashell -> #fff5ee",
-                                            "Sienna -> #a0522d",
-                                            "Silver -> #c0c0c0",
-                                            "SkyBlue -> #87ceeb",
-                                            "SlateBlue -> #6a5acd",
-                                            "SlateGray / SlateGrey -> #708090",
-                                            "Snow -> #fffafa",
-                                            "SpringGreen -> #00ff7f",
-                                            "SteelBlue -> #4682b4",
-                                            "Tan -> #d2b48c",
-                                            "Teal -> #008080",
-                                            "Thistle -> #d8bfd8",
-                                            "Tomato -> #ff6347",
-                                            "Turquoise -> #40e0d0",
-                                            "Violet -> #ee82ee",
-                                            "Wheat -> #f5deb3",
-                                            "White -> #ffffff",
-                                            "WhiteSmoke -> #f5f5f5",
-                                            "Yellow -> #ffff00",
-                                            "YellowGreen -> #9acd32",
+    @SuppressWarnings("nls")
+    static private String[] WebColorsDef = 
+    {
+        "AliceBlue -> #f0f8ff",
+        "AntiqueWhite -> #faebd7",
+        "Aqua / Cyan -> #00ffff",
+        "Aquamarine -> #7fffd4",
+        "Azure -> #f0ffff",
+        "Beige -> #f5f5dc",
+        "Bisque -> #ffe4c4",
+        "Black -> #000000",
+        "BlanchedAlmond -> #ffebcd",
+        "Blue -> #0000ff",
+        "BlueViolet -> #8a2be2",
+        "Brown -> #a52a2a",
+        "BurlyWood -> #deb887",
+        "CadetBlue -> #5f9ea0",
+        "Chartreuse -> #7fff00",
+        "Chocolate -> #d2691e",
+        "Coral -> #ff7f50",
+        "CornflowerBlue -> #6495ed",
+        "Cornsilk -> #fff8dc",
+        "Crimson -> #dc143c",
+        "DarkBlue -> #00008b",
+        "DarkCyan -> #008b8b",
+        "DarkGoldenrod / DarkGoldenRod -> #b8860b",
+        "DarkGray / DarkGrey -> #a9a9a9",
+        "DarkGreen -> #006400",
+        "DarkKhaki -> #bdb76b",
+        "DarkMagenta -> #8b008b",
+        "DarkOliveGreen -> #556b2f",
+        "DarkOrange -> #ff8c00",
+        "DarkOrchid -> #9932cc",
+        "DarkRed -> #8b0000",
+        "DarkSalmon -> #e9967a",
+        "DarkSeaGreen -> #8fbc8f",
+        "DarkSlateBlue -> #483d8b",
+        "DarkSlateGray / DarkSlateGrey -> #2f4f4f",
+        "DarkTurquoise -> #00ced1",
+        "DarkViolet -> #9400d3",
+        "Deeppink -> #ff1493",
+        "Deepskyblue -> #00bfff",
+        "DimGray / DimGrey -> #696969",
+        "DodgerBlue -> #1e90ff",
+        "Firebrick / FireBrick -> #b22222",
+        "FloralWhite -> #fffaf0",
+        "ForestGreen -> #228b22",
+        "Fuchsia -> #ff00ff",
+        "Gainsboro -> #dcdcdc",
+        "GhostWhite -> #f8f8ff",
+        "Gold -> #ffd700",
+        "Goldenrod / GoldenRod -> #daa520",
+        "Gray / Grey -> #808080",
+        "Green -> #008000",
+        "GreenYellow -> #adff2f",
+        "Honeydew / HoneyDew -> #f0fff0",
+        "HotPink -> #ff69b4",
+        "IndianRed -> #cd5c5c",
+        "Indigo -> #4b0082",
+        "Ivory -> #fffff0",
+        "Khaki -> #f0e68c",
+        "Lavender -> #e6e6fa",
+        "LavenderBlush -> #fff0f5",
+        "LawnGreen -> #7cfc00",
+        "LemonChiffon -> #fffacd",
+        "LightBlue -> #add8e6",
+        "LightCoral -> #f08080",
+        "LightCyan -> #e0ffff",
+        "LightGoldenrodYellow / LightGoldenRodYellow -> #fafad2",
+        "LightGray / LightGrey -> #d3d3d3",
+        "LightGreen -> #90ee90",
+        "LightPink -> #ffb6c1",
+        "LightSalmon -> #ffa07a",
+        "LightSeaGreen -> #20b2aa",
+        "LightSkyBlue -> #87cefa",
+        "LightSlateGray / LightSlateGrey -> #778899",
+        "LightSteelBlue -> #b0c4de",
+        "LightYellow -> #ffffe0",
+        "Lime -> #00ff00",
+        "LimeGreen -> #32cd32",
+        "Linen -> #faf0e6",
+        "Magenta -> #ff00ff",
+        "Maroon -> #800000",
+        "MediumAquaMarine -> #66cdaa",
+        "MediumBlue -> #0000cd",
+        "MediumOrchid -> #ba55d3",
+        "MediumPurple -> #9370d8",
+        "MediumSeagreen -> #3cb371",
+        "MediumSlateBlue -> #7b68ee",
+        "MediumSpringGreen -> #00fa9a",
+        "MediumTurquoise -> #48d1cc",
+        "MediumVioletRed -> #c71585",
+        "MidnightBlue -> #191970",
+        "MintCream -> #f5fffa",
+        "MistyRose -> #ffe4e1",
+        "Moccasin -> #ffe4b5",
+        "NavajoWhite -> #ffdead",
+        "Navy -> #000080",
+        "OldLace -> #fdf5e6",
+        "Olive -> #808000",
+        "OliveDrab -> #6b8e23",
+        "Orange -> #ffa500",
+        "OrangeRed -> #ff4500",
+        "Orchid -> #da70d6",
+        "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
+        "PaleGreen -> #98fb98",
+        "PaleTurquoise -> #afeeee",
+        "PaleVioletRed -> #d87093",
+        "PapayaWhip -> #ffefd5",
+        "PeachPuff -> #ffdab9",
+        "Peru -> #cd853f",
+        "Pink -> #ffc0cb",
+        "Plum -> #dda0dd",
+        "PowderBlue -> #b0e0e6",
+        "Purple -> #800080",
+        "Red -> #ff0000",
+        "RosyBrown -> #bc8f8f",
+        "RoyalBlue -> #4169e1",
+        "SaddleBrown -> #8b4513",
+        "Salmon -> #fa8072",
+        "SandyBrown -> #f4a460",
+        "SeaGreen -> #2e8b57",
+        "SeaShell / Seashell -> #fff5ee",
+        "Sienna -> #a0522d",
+        "Silver -> #c0c0c0",
+        "SkyBlue -> #87ceeb",
+        "SlateBlue -> #6a5acd",
+        "SlateGray / SlateGrey -> #708090",
+        "Snow -> #fffafa",
+        "SpringGreen -> #00ff7f",
+        "SteelBlue -> #4682b4",
+        "Tan -> #d2b48c",
+        "Teal -> #008080",
+        "Thistle -> #d8bfd8",
+        "Tomato -> #ff6347",
+        "Turquoise -> #40e0d0",
+        "Violet -> #ee82ee",
+        "Wheat -> #f5deb3",
+        "White -> #ffffff",
+        "WhiteSmoke -> #f5f5f5",
+        "Yellow -> #ffff00",
+        "YellowGreen -> #9acd32",
     };
 
     /**
-     * from http://www.w3.org/TR/SVG/types.html
-     *  Same values as html_colors, except for 'mediumpurple' and 'palevioletred'
-     * These color names and values are part of the SVG standard.
+     * The colors defined for the 'SVG' XML-based vector image format.</p>
+     * 
+     * <p>These are the same values as web_colors, except for 'MediumPurple' 
+     * and 'PaleVioletRed'.</p>
+     * 
+     * <p>Note: These color names and values are part of the SVG standard.</p>
+     * 
+     * <p>These come from http://www.w3.org/TR/SVG/types.html</p> 
+     * 
      */
-    static private String[] SvgColorsDef = {
-                                            "AliceBlue -> #f0f8ff",
-                                            "AntiqueWhite -> #faebd7",
-                                            "Aqua / Cyan -> #00ffff",
-                                            "Aquamarine -> #7fffd4",
-                                            "Azure -> #f0ffff",
-                                            "Beige -> #f5f5dc",
-                                            "Bisque -> #ffe4c4",
-                                            "Black -> #000000",
-                                            "BlanchedAlmond -> #ffebcd",
-                                            "Blue -> #0000ff",
-                                            "BlueViolet -> #8a2be2",
-                                            "Brown -> #a52a2a",
-                                            "BurlyWood -> #deb887",
-                                            "CadetBlue -> #5f9ea0",
-                                            "Chartreuse -> #7fff00",
-                                            "Chocolate -> #d2691e",
-                                            "Coral -> #ff7f50",
-                                            "CornflowerBlue -> #6495ed",
-                                            "Cornsilk -> #fff8dc",
-                                            "Crimson -> #dc143c",
-                                            "DarkBlue -> #00008b",
-                                            "DarkCyan -> #008b8b",
-                                            "DarkGoldenrod / DarkGoldenRod -> #b8860b",
-                                            "DarkGray / DarkGrey -> #a9a9a9",
-                                            "DarkGreen -> #006400",
-                                            "DarkKhaki -> #bdb76b",
-                                            "DarkMagenta -> #8b008b",
-                                            "DarkOliveGreen -> #556b2f",
-                                            "DarkOrange -> #ff8c00",
-                                            "DarkOrchid -> #9932cc",
-                                            "DarkRed -> #8b0000",
-                                            "DarkSalmon -> #e9967a",
-                                            "DarkSeaGreen -> #8fbc8f",
-                                            "DarkSlateBlue -> #483d8b",
-                                            "DarkSlateGray / DarkSlateGrey -> #2f4f4f",
-                                            "DarkTurquoise -> #00ced1",
-                                            "DarkViolet -> #9400d3",
-                                            "Deeppink -> #ff1493",
-                                            "Deepskyblue -> #00bfff",
-                                            "DimGray / DimGrey -> #696969",
-                                            "DodgerBlue -> #1e90ff",
-                                            "Firebrick / FireBrick -> #b22222",
-                                            "FloralWhite -> #fffaf0",
-                                            "ForestGreen -> #228b22",
-                                            "Fuchsia -> #ff00ff",
-                                            "Gainsboro -> #dcdcdc",
-                                            "GhostWhite -> #f8f8ff",
-                                            "Gold -> #ffd700",
-                                            "Goldenrod / GoldenRod -> #daa520",
-                                            "Gray / Grey -> #808080",
-                                            "Green -> #008000",
-                                            "GreenYellow -> #adff2f",
-                                            "Honeydew / HoneyDew -> #f0fff0",
-                                            "HotPink -> #ff69b4",
-                                            "IndianRed -> #cd5c5c",
-                                            "Indigo -> #4b0082",
-                                            "Ivory -> #fffff0",
-                                            "Khaki -> #f0e68c",
-                                            "Lavender -> #e6e6fa",
-                                            "LavenderBlush -> #fff0f5",
-                                            "LawnGreen -> #7cfc00",
-                                            "LemonChiffon -> #fffacd",
-                                            "LightBlue -> #add8e6",
-                                            "LightCoral -> #f08080",
-                                            "LightCyan -> #e0ffff",
-                                            "LightGoldenrodYellow / LightGoldenRodYellow -> #fafad2",
-                                            "LightGray / LightGrey -> #d3d3d3",
-                                            "LightGreen -> #90ee90",
-                                            "LightPink -> #ffb6c1",
-                                            "LightSalmon -> #ffa07a",
-                                            "LightSeaGreen -> #20b2aa",
-                                            "LightSkyBlue -> #87cefa",
-                                            "LightSlateGray / LightSlateGrey -> #778899",
-                                            "LightSteelBlue -> #b0c4de",
-                                            "LightYellow -> #ffffe0",
-                                            "Lime -> #00ff00",
-                                            "LimeGreen -> #32cd32",
-                                            "Linen -> #faf0e6",
-                                            "Magenta -> #ff00ff",
-                                            "Maroon -> #800000",
-                                            "MediumAquaMarine -> #66cdaa",
-                                            "MediumBlue -> #0000cd",
-                                            "MediumOrchid -> #ba55d3",
-                                            "MediumPurple -> #9370db",
-                                            "MediumSeagreen -> #3cb371",
-                                            "MediumSlateBlue -> #7b68ee",
-                                            "MediumSpringGreen -> #00fa9a",
-                                            "MediumTurquoise -> #48d1cc",
-                                            "MediumVioletRed -> #c71585",
-                                            "MidnightBlue -> #191970",
-                                            "MintCream -> #f5fffa",
-                                            "MistyRose -> #ffe4e1",
-                                            "Moccasin -> #ffe4b5",
-                                            "NavajoWhite -> #ffdead",
-                                            "Navy -> #000080",
-                                            "OldLace -> #fdf5e6",
-                                            "Olive -> #808000",
-                                            "OliveDrab -> #6b8e23",
-                                            "Orange -> #ffa500",
-                                            "OrangeRed -> #ff4500",
-                                            "Orchid -> #da70d6",
-                                            "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
-                                            "PaleGreen -> #98fb98",
-                                            "PaleTurquoise -> #afeeee",
-                                            "PaleVioletRed -> #db7093",
-                                            "PapayaWhip -> #ffefd5",
-                                            "PeachPuff -> #ffdab9",
-                                            "Peru -> #cd853f",
-                                            "Pink -> #ffc0cb",
-                                            "Plum -> #dda0dd",
-                                            "PowderBlue -> #b0e0e6",
-                                            "Purple -> #800080",
-                                            "Red -> #ff0000",
-                                            "RosyBrown -> #bc8f8f",
-                                            "RoyalBlue -> #4169e1",
-                                            "SaddleBrown -> #8b4513",
-                                            "Salmon -> #fa8072",
-                                            "SandyBrown -> #f4a460",
-                                            "SeaGreen -> #2e8b57",
-                                            "SeaShell / Seashell -> #fff5ee",
-                                            "Sienna -> #a0522d",
-                                            "Silver -> #c0c0c0",
-                                            "SkyBlue -> #87ceeb",
-                                            "SlateBlue -> #6a5acd",
-                                            "SlateGray / SlateGrey -> #708090",
-                                            "Snow -> #fffafa",
-                                            "SpringGreen -> #00ff7f",
-                                            "SteelBlue -> #4682b4",
-                                            "Tan -> #d2b48c",
-                                            "Teal -> #008080",
-                                            "Thistle -> #d8bfd8",
-                                            "Tomato -> #ff6347",
-                                            "Turquoise -> #40e0d0",
-                                            "Violet -> #ee82ee",
-                                            "Wheat -> #f5deb3",
-                                            "White -> #ffffff",
-                                            "WhiteSmoke -> #f5f5f5",
-                                            "Yellow -> #ffff00",
-                                            "YellowGreen -> #9acd32",
+    @SuppressWarnings("nls")
+    static private String[] SvgColorsDef = 
+    {
+        "AliceBlue -> #f0f8ff",
+        "AntiqueWhite -> #faebd7",
+        "Aqua / Cyan -> #00ffff",
+        "Aquamarine -> #7fffd4",
+        "Azure -> #f0ffff",
+        "Beige -> #f5f5dc",
+        "Bisque -> #ffe4c4",
+        "Black -> #000000",
+        "BlanchedAlmond -> #ffebcd",
+        "Blue -> #0000ff",
+        "BlueViolet -> #8a2be2",
+        "Brown -> #a52a2a",
+        "BurlyWood -> #deb887",
+        "CadetBlue -> #5f9ea0",
+        "Chartreuse -> #7fff00",
+        "Chocolate -> #d2691e",
+        "Coral -> #ff7f50",
+        "CornflowerBlue -> #6495ed",
+        "Cornsilk -> #fff8dc",
+        "Crimson -> #dc143c",
+        "DarkBlue -> #00008b",
+        "DarkCyan -> #008b8b",
+        "DarkGoldenrod / DarkGoldenRod -> #b8860b",
+        "DarkGray / DarkGrey -> #a9a9a9",
+        "DarkGreen -> #006400",
+        "DarkKhaki -> #bdb76b",
+        "DarkMagenta -> #8b008b",
+        "DarkOliveGreen -> #556b2f",
+        "DarkOrange -> #ff8c00",
+        "DarkOrchid -> #9932cc",
+        "DarkRed -> #8b0000",
+        "DarkSalmon -> #e9967a",
+        "DarkSeaGreen -> #8fbc8f",
+        "DarkSlateBlue -> #483d8b",
+        "DarkSlateGray / DarkSlateGrey -> #2f4f4f",
+        "DarkTurquoise -> #00ced1",
+        "DarkViolet -> #9400d3",
+        "Deeppink -> #ff1493",
+        "Deepskyblue -> #00bfff",
+        "DimGray / DimGrey -> #696969",
+        "DodgerBlue -> #1e90ff",
+        "Firebrick / FireBrick -> #b22222",
+        "FloralWhite -> #fffaf0",
+        "ForestGreen -> #228b22",
+        "Fuchsia -> #ff00ff",
+        "Gainsboro -> #dcdcdc",
+        "GhostWhite -> #f8f8ff",
+        "Gold -> #ffd700",
+        "Goldenrod / GoldenRod -> #daa520",
+        "Gray / Grey -> #808080",
+        "Green -> #008000",
+        "GreenYellow -> #adff2f",
+        "Honeydew / HoneyDew -> #f0fff0",
+        "HotPink -> #ff69b4",
+        "IndianRed -> #cd5c5c",
+        "Indigo -> #4b0082",
+        "Ivory -> #fffff0",
+        "Khaki -> #f0e68c",
+        "Lavender -> #e6e6fa",
+        "LavenderBlush -> #fff0f5",
+        "LawnGreen -> #7cfc00",
+        "LemonChiffon -> #fffacd",
+        "LightBlue -> #add8e6",
+        "LightCoral -> #f08080",
+        "LightCyan -> #e0ffff",
+        "LightGoldenrodYellow / LightGoldenRodYellow -> #fafad2",
+        "LightGray / LightGrey -> #d3d3d3",
+        "LightGreen -> #90ee90",
+        "LightPink -> #ffb6c1",
+        "LightSalmon -> #ffa07a",
+        "LightSeaGreen -> #20b2aa",
+        "LightSkyBlue -> #87cefa",
+        "LightSlateGray / LightSlateGrey -> #778899",
+        "LightSteelBlue -> #b0c4de",
+        "LightYellow -> #ffffe0",
+        "Lime -> #00ff00",
+        "LimeGreen -> #32cd32",
+        "Linen -> #faf0e6",
+        "Magenta -> #ff00ff",
+        "Maroon -> #800000",
+        "MediumAquaMarine -> #66cdaa",
+        "MediumBlue -> #0000cd",
+        "MediumOrchid -> #ba55d3",
+        "MediumPurple -> #9370db",
+        "MediumSeagreen -> #3cb371",
+        "MediumSlateBlue -> #7b68ee",
+        "MediumSpringGreen -> #00fa9a",
+        "MediumTurquoise -> #48d1cc",
+        "MediumVioletRed -> #c71585",
+        "MidnightBlue -> #191970",
+        "MintCream -> #f5fffa",
+        "MistyRose -> #ffe4e1",
+        "Moccasin -> #ffe4b5",
+        "NavajoWhite -> #ffdead",
+        "Navy -> #000080",
+        "OldLace -> #fdf5e6",
+        "Olive -> #808000",
+        "OliveDrab -> #6b8e23",
+        "Orange -> #ffa500",
+        "OrangeRed -> #ff4500",
+        "Orchid -> #da70d6",
+        "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
+        "PaleGreen -> #98fb98",
+        "PaleTurquoise -> #afeeee",
+        "PaleVioletRed -> #db7093",
+        "PapayaWhip -> #ffefd5",
+        "PeachPuff -> #ffdab9",
+        "Peru -> #cd853f",
+        "Pink -> #ffc0cb",
+        "Plum -> #dda0dd",
+        "PowderBlue -> #b0e0e6",
+        "Purple -> #800080",
+        "Red -> #ff0000",
+        "RosyBrown -> #bc8f8f",
+        "RoyalBlue -> #4169e1",
+        "SaddleBrown -> #8b4513",
+        "Salmon -> #fa8072",
+        "SandyBrown -> #f4a460",
+        "SeaGreen -> #2e8b57",
+        "SeaShell / Seashell -> #fff5ee",
+        "Sienna -> #a0522d",
+        "Silver -> #c0c0c0",
+        "SkyBlue -> #87ceeb",
+        "SlateBlue -> #6a5acd",
+        "SlateGray / SlateGrey -> #708090",
+        "Snow -> #fffafa",
+        "SpringGreen -> #00ff7f",
+        "SteelBlue -> #4682b4",
+        "Tan -> #d2b48c",
+        "Teal -> #008080",
+        "Thistle -> #d8bfd8",
+        "Tomato -> #ff6347",
+        "Turquoise -> #40e0d0",
+        "Violet -> #ee82ee",
+        "Wheat -> #f5deb3",
+        "White -> #ffffff",
+        "WhiteSmoke -> #f5f5f5",
+        "Yellow -> #ffff00",
+        "YellowGreen -> #9acd32",
     };
 
     /**
-     * From xterm, these are defined as:
+     * Standard Xterm 16-color definitions.
+     * 
+     * <p>From xterm, these are defined as:
      * <ol>
      *  <li>black
      *  <li>red3
@@ -357,9 +401,11 @@ public final class ColorNames {
     };
 
     /**
-     * From xterm, the first 16 colors are all the same.
+     * Standard xterm 88-color definitions.
+     * 
+     * <p>The first 16 colors are all the same.
      * However the later colors are computed by a formula.
-     * (They define a color cube, then a gradiant.)
+     * (They define a color cube, then a gradient.)</p>
      */
     static private int[] Xterm88ColorDef = 
     {
@@ -379,9 +425,11 @@ public final class ColorNames {
     };
 
     /**
-     * From xterm, the first 16 colors are all the same.
+     * Standard xterm 88-color definitions.
+     * 
+     * <p>The first 16 colors are all the same.
      * However the later colors are computed by a formula.
-     * (They define a color cube, then a gradiant.)
+     * (They define a color cube, then a gradient.)</p>
      */
     static private int[] Xterm256ColorDef = 
     {
@@ -424,7 +472,21 @@ public final class ColorNames {
      0xd0d0d0, 0xdadada, 0xe4e4e4, 0xeeeeee,
     };
 
-
+    /**
+     * The standard VGA 16-color palette, with a number of useful names.
+     * 
+     * <p>While a number of names are supported, the order is the Curses/xterm
+     * order.</p>
+     * 
+     * <p>Name formats include:
+     *  <ul>
+     *    <li>Curses-style: COLOR_BLUE, COLOR_GREEN|A_BOLD, etc.
+     *    <li>Traditional VGA color names: light blue, dark red, etc.
+     *    <li>HTML 3/4 color names: maroon, lime, etc.
+     *  </ul>
+     *  
+     */
+    @SuppressWarnings("nls")
     static private String[] standard16def = 
     {
      "COLOR_BLACK / black -> #000000",
@@ -446,12 +508,41 @@ public final class ColorNames {
     };
 
     /**
+     * The standard CGA color palette.
+     * 
+     * <p>This has the standard CGA ordering but instead of just having
+     * the CGA names, it also includes the Curses names.</p>
+     * 
+     * <p>It does not include the HTML names as it doesn't use the same 
+     * colors.</p>
+     */
+    @SuppressWarnings("nls")
+    static private String[] cga16def = 
+    {
+     "COLOR_BLACK / black -> #000000",
+     "COLOR_BLUE / blue / dark blue -> #0000AA",
+     "COLOR_GREEN / green / dark green -> #00AA00",
+     "COLOR_CYAN / cyan / dark cyan -> #00AAAA",
+     "COLOR_RED / red / dark red -> #AA0000",
+     "COLOR_MAGENTA / magenta / dark magenta -> #AA00AA",
+     "COLOR_YELLOW / brown -> #AA5500",
+     "COLOR_WHITE / light grey / light gray -> #AAAAAA",
+     "COLOR_BLACK|A_BOLD / grey / gray / dark grey / dark gray -> #555555",
+     "COLOR_BLUE|A_BOLD / light blue -> #5555FF",
+     "COLOR_GREEN|A_BOLD / light green -> #55FF55",
+     "COLOR_CYAN|A_BOLD / light cyan -> #55FFFF",
+     "COLOR_RED|A_BOLD / light red -> #FF5555",
+     "COLOR_MAGENTA|A_BOLD / light magenta -> #FF55FF",
+     "COLOR_YELLOW|A_BOLD / yellow -> #FFFF55",
+     "COLOR_WHITE|A_BOLD / white -> #FFFFFF",
+    };
+        
+    /**
      * Add the xterm colors to a palette.
      * 
      * @param palette Palette to modify (null to create new palette)
      * @param count either 16, 88, or 256 indicating group of colors
-     * @return true on success, false on failure
-     * @throws NullPointerException
+     * @return the new or updated Color Palette
      */
     public static ColorPalette addXtermColors(ColorPalette palette, int count) {
         if (palette == null) {
@@ -476,7 +567,7 @@ public final class ColorNames {
      * 
      * @param palette Palette to modify (null to create new palette)
      * @see #addWebColors(ColorPalette)
-     * @return Returns the palette argument (or the new palette)
+     * @return the new or updated Color Palette
      */
     public static ColorPalette addSvgColors(ColorPalette palette) {
         if(palette == null) palette = new ColorPalette(SvgColorsDef.length);
@@ -491,10 +582,11 @@ public final class ColorNames {
      * however two of the colors have slightly different values.</p>
      * 
      * <p>Since these colors do not conform to a standard, this list of
-     * colors could be expanded to include non-standard color names.</p>
+     * colors could be expanded to include additional color names.</p>
      * 
      * @param palette Palette to modify (null to create new palette)
-     * @return the modified ColorPalette object
+     * @see #addSvgColors(ColorPalette)
+     * @return the new or updated Color Palette
      */
     public static ColorPalette addWebColors(ColorPalette palette) {
         if(palette == null) palette = new ColorPalette(WebColorsDef.length);
@@ -509,7 +601,7 @@ public final class ColorNames {
      * standard HTML4 color names.</p>
      * 
      * @param palette Palette to modify (null to create new palette)
-     * @return the new Color Palette
+     * @return the new or updated Color Palette
      */
     public static ColorPalette addHtmlPalette(ColorPalette palette) {
         if (palette == null) palette = new ColorPalette(HtmlColorsDef.length);
@@ -525,12 +617,63 @@ public final class ColorNames {
      * 	<li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
      * </ul>
      * 
+     * <p>The VGA color names all require "light" or "dark" as otherwise they
+     * would conflict with HTML color names. This makes them not quite 
+     * traditional, but close to it.<p>
+     * 
+     * <p>The order of the values is the same as Curses/HTML/Windows (red is
+     * at index 1), but is different than CGA/EGA/VGA (where blue is at index 
+     * 1). If you want these colors and names with the CGA/EGA/VGA color order,
+     * use {@code new ColorPalette(addStandard16Palette(null), ["black",
+     *      "dark blue", "dark green", "dark cyan", "dark red", "dark magenta",
+     *      "brown", "light gray", "dark gray", "light blue", "light green",
+     *      "light cyan", "light red", "light magenta", "yellow", "white"])}
+     * </p>
+     * 
      * @param palette Palette to modify (null to create new palette)
-     * @return the new Color Palette
+     * @return the new or updated Color Palette
      */
     public static ColorPalette addStandard16Palette(ColorPalette palette) {
         if (palette == null) palette = new ColorPalette(standard16def.length);
         palette.addMapping(standard16def);
+        return palette;
+    }
+
+    /**
+     * The CGA 16 color palette
+     * 
+     * We support two naming formats:
+     * <ul>
+     *  <li>traditional VGA names - 8 color names with light/dark variations
+     *  <li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
+     * </ul>
+     * 
+     * <p><em>Important</em> This does not use the same color definitions as
+     * the {@link #addStandard16Palette(ColorPalette)} function. Specifically:
+     * <ul> 
+     *   <li> It uses the same name for totally different color values. (Ex. 
+     *     CGA "magenta" is a dark color, while HTML "magenta" is a bright 
+     *     color.)</li>
+     *   <li> It never uses the same color values. (Ex. While "green"
+     *     is a dark green in both palettes, the CGA "green" uses 0x00AA00 and
+     *     the HTML "green" uses 0x008000)</li>
+     *   <li> It uses a different index ordering. (Ex. index 1 is "dark red"
+     *     for HTML/Standard/xterm palettes and is "dark blue" for CGA.)</li>
+     * </ul></p>
+     * 
+     * <p>It case it wasn't clear earlier, while the 
+     * {@link #addStandard16Palette(ColorPalette)} function needs
+     * the traditional names to have "light"/"dark" prefixes to not conflict
+     * with HTML color names, this function does not set HTML color names so
+     * there is no way it can conflict and the "dark" prefix is normally 
+     * optional.</p>
+     * 
+     * @param palette Palette to modify (null to create new palette)
+     * @return the new or updated Color Palette
+     */
+    public static ColorPalette addCga16Palette(ColorPalette palette) {
+        if (palette == null) palette = new ColorPalette(cga16def.length);
+        palette.addMapping(cga16def);
         return palette;
     }
 }

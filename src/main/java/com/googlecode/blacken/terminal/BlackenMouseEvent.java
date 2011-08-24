@@ -1,7 +1,28 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.terminal;
 
 import java.util.EnumSet;
 
+/**
+ * The Blacken mouse event.
+ * 
+ * @author yam655
+ */
 public class BlackenMouseEvent {
     private BlackenEventType type;
     private int y = -1;
@@ -10,6 +31,11 @@ public class BlackenMouseEvent {
     private EnumSet<BlackenModifier> modifiers;
     private int button;
     
+    /**
+     * Check for equality
+     * @param e event to check against
+     * @return true on success; false on failure
+     */
     public boolean equals(BlackenMouseEvent e) {
         if (e == null) return false;
         if (!this.type.equals(e.type)) return false;
@@ -22,59 +48,112 @@ public class BlackenMouseEvent {
         
     }
     
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        return String.format("Mouse: %s %d, %d, %s%d x%d", type.name(), y, x,  
+        return String.format("Mouse: %s %d, %d, %s%d x%d", type.name(), y, x,   //$NON-NLS-1$
                       BlackenModifier.getModifierString(modifiers), button, 
                       clickCount);
     }
     
+    /**
+     * Get the type of the event
+     * @return the event type
+     */
     public BlackenEventType getType() {
         return type;
     }
 
+    /**
+     * Set the event type
+     * @param type the event type
+     */
     public void setType(BlackenEventType type) {
         this.type = type;
     }
 
+    /**
+     * Get the Y coordinate
+     * @return the coordinate
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     * Set the Y coordinate
+     * @param y coordinate
+     */
     public void setY(int y) {
         this.y = y;
     }
 
+    /**
+     * Get the X coordinate
+     * @return the coordinate
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Set the X coordinate
+     * @param x coordinate
+     */
     public void setX(int x) {
         this.x = x;
     }
 
+    /**
+     * Get the click count
+     * @return click count
+     */
     public int getClickCount() {
         return clickCount;
     }
 
+    /**
+     * Set the click count
+     * @param clickCount click count
+     */
     public void setClickCount(int clickCount) {
         this.clickCount = clickCount;
     }
     
+    /**
+     * Create a new mouse event
+     * @param type event type
+     */
     public BlackenMouseEvent(BlackenEventType type) {
         this.type = type;
     }
     
+    /**
+     * Get the position
+     * @return {y, x}
+     */
     public int[] getPosition() {
         int[] ret = {y, x};
         return ret;
     }
     
+    /**
+     * Set the position
+     * @param y coordinate
+     * @param x coordinate
+     */
     public void setPosition(int y, int x) {
         this.y = y;
         this.x = x;
     }
 
+    /**
+     * Set the modifiers
+     * @param modifiers set of modifiers
+     */
     public void setModifiers(EnumSet<BlackenModifier> modifiers) {
         if (modifiers == null) {
             this.modifiers = EnumSet.noneOf(BlackenModifier.class);
@@ -83,10 +162,18 @@ public class BlackenMouseEvent {
         }
     }
 
+    /**
+     * Get the modifiers
+     * @return the modifiers
+     */
     public EnumSet<BlackenModifier> getModifiers() {
         return modifiers;
     }
 
+    /**
+     * Set the button
+     * @param button the button
+     */
     public void setButton(int button) {
         this.button = button;
     }

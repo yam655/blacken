@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.swing;
 
 import java.awt.BorderLayout;
@@ -30,6 +46,11 @@ import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalStyle;
 
+/**
+ * Create a new Terminal using Swing.
+ * 
+ * @author yam655
+ */
 public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener {
 
@@ -40,6 +61,9 @@ public class SwingTerminal extends AbstractTerminal
     protected HashMap<String, GraphicAttribute> replacement = null;
     protected DropTarget dropTarget;
     
+    /**
+     * Create a new terminal
+     */
     public SwingTerminal() {
         super();
     }
@@ -304,6 +328,9 @@ public class SwingTerminal extends AbstractTerminal
         } else {
             awt.setFont(gui.getEmpty().getFont());
         }
+        if (term == null) {
+            throw new NullPointerException();
+        }
         awt.setSequence(term.getSequence());
         awt.setCellWalls(term.getCellWalls());
         awt.clearTextAttributes();
@@ -383,10 +410,10 @@ public class SwingTerminal extends AbstractTerminal
             // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
     
             case STYLE_INVISIBLE:
-                awt.setSequence("\u0000");
+                awt.setSequence("\u0000"); //$NON-NLS-1$
                 break;
             case STYLE_REPLACEMENT:
-                awt.setSequence("\uFFFC");
+                awt.setSequence("\uFFFC"); //$NON-NLS-1$
                 String s = term.getSequence();
                 if (replacement != null && replacement.containsKey(s)) {
                     attrs.put(TextAttribute.CHAR_REPLACEMENT, replacement.get(s));
@@ -409,6 +436,9 @@ public class SwingTerminal extends AbstractTerminal
             case STYLE_REVERSE: // SWAP_COLORS_ON
                 attrs.put(TextAttribute.SWAP_COLORS, 
                           TextAttribute.SWAP_COLORS_ON);
+                break;
+            case STYLE_DIM:
+                /* handled elsewhere */
                 break;
             }
         }

@@ -1,89 +1,64 @@
-/**
- * Copyright © 2004-2011, Steven Black. All Rights Reserved.
+/* blacken - a library for Roguelike games
+ * Copyright Â© 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.googlecode.blacken.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.regex.*;
 
 /**
- * @author Steven Black
+ * An extended random class
+ * 
+ * @author yam655
  */
 public class ExtRandom extends java.util.Random {
     
-    /**
-     * serial UID
-     */
     private static final long serialVersionUID = 3049695947451276476L;
-    /**
-     * @param args
-     * @return number of errors
-     */
-    public static int main(String[] args) {
-        int errs = 0;
-        if ("--help".equals(args[1]) || "-h".equals(args[1])) {
-            System.out.printf("%s [args]\n", args[0]);
-            System.out.printf("    Simple test program for ExtRandom\n");
-            System.out.printf("Arguments may be:\n");
-            System.out.printf("    -h | --help : this help text\n");
-            System.out.printf("    {random statement} : ministatement used to generate random number\n");
-            System.out.printf("Random statement may be:\n");
-            System.out.printf("    (\\d+)?(([:])(\\d+))??(([db:])(\\d+))?(([+-/*])(\\d+))");
-        }
-        ExtRandom r = new ExtRandom();
-        if (args.length == 1) {
-            int got = r.guess(args[1]);
-            System.out.printf("%d\n", got);
-        } else {
-            if (r.nextBoolean()) {
-                System.out.printf("true\n");
-            } else {
-                System.out.printf("false\n");
-            }
-        }
-        return errs;
-    }
-
-
-    
+        
     private final Pattern guessPattern = 
-        Pattern.compile("\\s*(\\d+)?\\s*(?:([:])\\s*(\\d+))??\\s*(?:([db:])\\s*(\\d+))?\\s*(?:([+-/*])\\s*(\\d+))?\\s*");
+        Pattern.compile("\\s*(\\d+)?\\s*(?:([:])\\s*(\\d+))??\\s*(?:([d:])\\s*(\\d+))?\\s*(?:([+-/*])\\s*(\\d+))?\\s*"); //$NON-NLS-1$
     /**
-     * 
+     * Create a new random number generator
      */
     public ExtRandom() {
+        // empty
     }
 
     /**
-     * @param arg0
+     * @param arg0 random number seed
      */
     public ExtRandom(long arg0) {
         super(arg0);
     }
 
-    public int bell(int mean, int var) {
-        // produce a bell curve with a `mean` and +/- `var`.
-        int a = mean - var;
-        int b = mean + var;
-        int t = 0;
-        final int count = 3;
-        for (int d = 0; d < count; d++) {
-            t += nextInt(a, b+1);
-        }
-        return t / count;
-    }
-    public List<Integer> bellList(int count, int mean, int var) {
-        List<Integer> ret = new ArrayList<Integer>(count);
-        for (int c = 0; c < count; c++) {
-            ret.add(bell(mean, var));
-        }
-        return ret;
-    }
-
+    /**
+     * Find best <code>num</code> out of <code>outof</code> dice with 
+     * <code>sides</code>.
+     * 
+     * @param num best number of dice to use
+     * @param outof total number of dice to use
+     * @param sides number of sides on the dice
+     * @return sum of best <code>num</code> out of <em>outof</em><b>d</b><em>sides</em>
+     */
     public int bestOf(int num, int outof, int sides) {
-        // Find best `num` out of `outof` dice with `sides`.
+        // 
         if (num > outof) {
             int t = num;
             num = outof;
@@ -102,6 +77,13 @@ public class ExtRandom extends java.util.Random {
         }
         return ret;
     }
+    /**
+     * Find the best <code>num</code> numbers in the <code>group</code>
+     * 
+     * @param num number of integers to use
+     * @param group group of integers to use
+     * @return sum of best <code>num</code> integers in <code>group</code>
+     */
     public int bestOf(int num, List<Integer> group) {
         int outof = group.size();
         if (num > outof) {
@@ -117,8 +99,16 @@ public class ExtRandom extends java.util.Random {
         return ret;
     }
     
+    /**
+     * Find the best <code>num</code> out of <code>outof</code> using the
+     * guessed string <code>g</code>.
+     * 
+     * @param num number of integers to use
+     * @param outof number of integers to check
+     * @param g random string parsed using {@link #guess(String)}
+     * @return sum of best <code>num</code> out of <code>outof</code> runs of <code>g</code>
+     */
     public int bestOf(int num, int outof, String g) {
-        // Find best `num` out of `outof` dice with `g`.
         if (num > outof) {
             int t = num;
             num = outof;
@@ -137,13 +127,52 @@ public class ExtRandom extends java.util.Random {
         }
         return ret;
     }
-    public <T> T choice(List<T> list) {
-        T ret = list.get((int)(nextFloat() * list.size()));
+    
+    /**
+     * Get a random choice from a List
+     * 
+     * <p>If the List does not support RandomAccess, it ends up calling
+     * {@link #choice(Collection)}.</p>
+     * 
+     * @param <T> type contained in the List
+     * @param c List from which to pull a random item
+     * @return random item from List
+     */
+    public <T> T choice(List<T> c) {
+        for (Class<?> cls : c.getClass().getInterfaces()) {
+            if (cls.equals(RandomAccess.class)) {
+                T ret = c.get((int)(nextFloat() * c.size()));
+                return ret;
+            }
+        }
+        return choice((Collection<T>)c);
+    }
+    
+    /**
+     * Get a random choice from a Collection
+     * 
+     * <p>This calls {@link Collection#toArray()} so if that is slow, this will
+     * be slow.</p>
+     * 
+     * @param <T> type contained in the Collection
+     * @param c Set from which to pull a random item
+     * @return random item from Collection
+     */
+    public <T> T choice(Collection<T> c) {
+        Object[] a = c.toArray();
+        @SuppressWarnings("unchecked")
+        T ret = (T)a[(int)(nextFloat() * a.length)];
         return ret;
     }
 
+    /**
+     * Emulate a dice roll and return the sum.
+     * 
+     * @param num number of dice to sum
+     * @param sides number of sides on the dice
+     * @return sum of dice
+     */
     public int dice(int num, int sides) {
-        // """ produce a result of `num` dice, each with `sides` sides. """
         int ret = 0;
         while(num > 0){
             ret += nextInt(sides) + 1;
@@ -151,6 +180,14 @@ public class ExtRandom extends java.util.Random {
         }
         return ret;
     }
+    
+    /**
+     * Get all possible results from a set of dice rolls.
+     * 
+     * @param num number of dice used
+     * @param sides number of sides on each die
+     * @return list of results
+     */
     public List<Integer> diceList(int num, int sides) {
         List<Integer> ret = new ArrayList<Integer>(num);
         for (int c = 0; c < num; c++) {
@@ -158,27 +195,30 @@ public class ExtRandom extends java.util.Random {
         }
         return ret;
     }
+    /**
+     * Guess the way to turn the string to a randomized number.
+     * 
+     * <p>We support the following types of strings:
+     * <ul>
+     *   <li>"42": simple absolute string</li>
+     *   <li>"10:20": simple random range (inclusive between 10 and 20)</li>
+     *   <li>"d6": synonym for "1d6"</li>
+     *   <li>"3d6": sum of 3 6-sided dice</li>
+     *   <li>"3:4d6": best 3 of 4 6-sided dice</li>
+     * </ul></p>
+     * 
+     * <p>We support the following suffixes for the supported types:
+     * <ul>
+     *   <li> "+4": add 4 to the value
+     *   <li> "-3": subtract 3 from the value
+     *   <li> "*100": multiply value by 100
+     *   <li> "/8": divide value by 8
+     * </ul></p>
+     * 
+     * @param str string to guess
+     * @return random number
+     */
     public int guess(String str) {
-        /* Guess the way to turn the string to a randomized number
-
-        We support the following types of strings:
-
-        - "42": simple absolute string
-        - "10:20": simple random range (inclusive between 10 and 20)
-        - "d6": synonym for "1d6"
-        - "3d6": sum of 3 6-sided dice
-        - "3:4d6": best 3 of 4 6-sided dice
-        - "42b12": possible values are on a bell curve
-            with 42 being the median, and the edges being +/- 12
-
-        We support the following suffixes for the supported types:
-
-        <li> "+4": add 4 to the value
-        <li> "-3": subtract 3 from the value
-        <li> "*100": multiply value by 100
-        <li> "/8": divide value by 8
-
-        */
 
         Matcher mat = guessPattern.matcher(str);
         int ret = 0;
@@ -197,46 +237,40 @@ public class ExtRandom extends java.util.Random {
             p = pnum == null ? 0 : Integer.parseInt(pnum);
             if (num1 != null && num2 != null) {
                 if (wnum != null) {
-                    if (":".equals(wmode)) {
-                        if ("d".equals(mode)) {
+                    if (":".equals(wmode)) { //$NON-NLS-1$
+                        if ("d".equals(mode)) { //$NON-NLS-1$
                             ret = bestOf(a, w, b);
-                        } else if ("b".equals(mode)) {
-                            // XXX this is bogus, need another arg
-                            //ret = bestOf(a, bellList(w, w, b));
-                            ret = 0;
                         }
                     }
-                } else if ("d".equals(mode)) {
+                } else if ("d".equals(mode)) { //$NON-NLS-1$
                     ret = dice(a, b);
-                } else if ("b".equals(mode)) {
-                    ret = bell(a, b);
-                } else if (":".equals(mode)) {
+                } else if (":".equals(mode)) { //$NON-NLS-1$
                     ret = nextInt(a, b+1);
                 }
             } else if (num1 != null) {
-                if (":".equals(wmode)) {
+                if (":".equals(wmode)) { //$NON-NLS-1$
                     ret = nextInt(a, w+1);
                 } else {
                     ret = a;
                 }
             } else if (num2 != null) {
-                if ("d".equals(mode)) {
+                if ("d".equals(mode)) { //$NON-NLS-1$
                     ret = dice(1, b);
-                } else if (":".equals(mode)) {
+                } else if (":".equals(mode)) { //$NON-NLS-1$
                     ret = nextInt(0, b+1);
                 }
             } else {
-                if (":".equals(wmode)) {
+                if (":".equals(wmode)) { //$NON-NLS-1$
                     ret = nextInt(0, w+1);
                 }
             }
-            if ("+".equals(pmode)) {
+            if ("+".equals(pmode)) { //$NON-NLS-1$
                 ret += p;
-            } else if ("-".equals(pmode)) {
+            } else if ("-".equals(pmode)) { //$NON-NLS-1$
                 ret -= p;
-            } else if ("*".equals(pmode)) {
+            } else if ("*".equals(pmode)) { //$NON-NLS-1$
                 ret *= p;
-            } else if ("/".equals(pmode)) {
+            } else if ("/".equals(pmode)) { //$NON-NLS-1$
                 ret /= p;
             }
         }
@@ -254,6 +288,14 @@ public class ExtRandom extends java.util.Random {
         return bottom + nextInt(diff);
     }
 
+    /**
+     * Shuffle a List in-place.
+     * 
+     * <p>This just calls {@link Collections#shuffle(List, java.util.Random)}.</p>
+     * 
+     * @param <T> type contained in the List
+     * @param list list to shuffle
+     */
     public <T> void shuffle(List<T> list) {
         Collections.shuffle(list, this);
     }

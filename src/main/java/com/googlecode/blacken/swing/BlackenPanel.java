@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.swing;
 
 import java.awt.Color;
@@ -22,6 +38,11 @@ import javax.swing.JPanel;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.terminal.CellWalls;
 
+/**
+ * A JPanel implementation supporting Blacken.
+ * 
+ * @author yam655
+ */
 public class BlackenPanel extends JPanel {
     private static final long serialVersionUID = 4608415642377103276L;
     private AwtCell empty = new AwtCell();
@@ -84,24 +105,42 @@ public class BlackenPanel extends JPanel {
      */
     private boolean changed;
     
+    /**
+     * Create a new panel.
+     */
     public BlackenPanel() {
         super(true);
     }
     
+    /**
+     * Create a new panel with a layout manager.
+     * @param layout layout manager
+     */
     public BlackenPanel(LayoutManager layout) {
         super(layout, true);
     }
 
+    /**
+     * Clear the screen.
+     */
     public void clear() {
         this.maybeRepaint();
         grid.clear(this.empty);
         this.moveCursor(0, 0);
     }
     
+    /**
+     * Perform a window update.
+     */
     public void doUpdate() {
         paintImage();
     }
     
+    /**
+     * Find the column number for the window coordinate
+     * @param x window coordinate
+     * @return column
+     */
     public int findColForWindow(int x) {
         this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
@@ -109,6 +148,13 @@ public class BlackenPanel extends JPanel {
         int ret = x / this.fontSglAdvance;
         return ret;
     }
+    /**
+     * Find the grid position for a window position.
+     * 
+     * @param y window coordinate
+     * @param x window coordinate
+     * @return {row, col}
+     */
     public int[] findPositionForWindow(int y, int x) {
         this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
@@ -119,6 +165,11 @@ public class BlackenPanel extends JPanel {
         int[] ret = {retY, retX};
         return ret;
     }
+    /**
+     * Find the row number for the window coordinate
+     * @param y window coordinate
+     * @return row
+     */
     public int findRowForWindow(int y) {
         this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
@@ -126,11 +177,19 @@ public class BlackenPanel extends JPanel {
         int ret = y / this.fontHeight;
         return ret;
     }
+    /**
+     * Get an AWT cell for a position.
+     * 
+     * @param y coordinate
+     * @param x coordinate
+     * @return the AWT cell
+     */
     public AwtCell get(int y, int x) {
         this.maybeRepaint();
         return grid.get(y, x);
     }
     /**
+     * Get the best window size.
      * 
      * @return int[] {ysize, xsize}
      */
@@ -144,10 +203,18 @@ public class BlackenPanel extends JPanel {
         int[] ret = {ysize, xsize};
         return ret;
     }
+    /**
+     * Get the empty/template cell
+     * @return the empty/template
+     */
     public AwtCell getEmpty() {
         this.maybeRepaint();
         return empty;
     }
+    /*
+     * (non-Javadoc)
+     * @see java.awt.Component#getFont()
+     */
     @Override
     public Font getFont() {
         this.maybeRepaint();
@@ -156,14 +223,29 @@ public class BlackenPanel extends JPanel {
         }
         return empty.getFont();
     }
+    /**
+     * Get the grid size
+     * @return {ySize, xSize}
+     */
     public int[] getGridSize() {
         this.maybeRepaint();
         return grid.getSize();
     }
+    /**
+     * Hide the cursor.
+     */
     public void hideCursor() {
         this.maybeRepaint();
         moveCursor(-1, -1, null);
     }
+    /**
+     * Initialize the terminal window.
+     * 
+     * @param font the font to use
+     * @param rows the number of rows to use
+     * @param cols the columns to use
+     * @param empty the template/empty cell
+     */
     public void init(Font font, int rows, int cols, AwtCell empty) {
         setCursor(null);
         int width = Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -179,6 +261,12 @@ public class BlackenPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Maybe repaint the screen.
+     * 
+     * <p>We can skip the updates if we need to. As such, we try to find places
+     * to perform the repaint if needed.</p>
+     */
     private void maybeRepaint() {
         if (this.updates != 0) {
             paintImage();
@@ -188,6 +276,16 @@ public class BlackenPanel extends JPanel {
         }
     }
 
+    /**
+     * Move a block of cells.
+     * 
+     * @param numRows number of rows to move
+     * @param numCols number of columns to move
+     * @param origY orignal Y coordinate
+     * @param origX orignal X coordinate
+     * @param newY new Y coordinate
+     * @param newX new X coordinate
+     */
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
         this.maybeRepaint();
@@ -195,10 +293,23 @@ public class BlackenPanel extends JPanel {
                        new AwtCell().new ResetCell());
     }
     
+    /**
+     * Move the cursor.
+     * 
+     * @param y coordinate
+     * @param x coordinate
+     */
     public void moveCursor(int y, int x) {
         moveCursor(y, x, null);
     }
     
+    /**
+     * Move the cursor, and set a new cursor color.
+     * 
+     * @param y coordinate
+     * @param x coordinate
+     * @param cursorColor new cursor color
+     */
     public void moveCursor(int y, int x, Paint cursorColor) {
         this.maybeRepaint();
         if (cursorColor != null) {
@@ -208,6 +319,10 @@ public class BlackenPanel extends JPanel {
         cursorY = y;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
     @Override
     public void paintComponent(Graphics g) {
         try {
@@ -313,7 +428,7 @@ public class BlackenPanel extends JPanel {
                         c.setFont(this.font);
                         // For double-wide characters, we can safely put a NUL
                         // byte in the second slot and it will never be displayed.
-                        if (cs != null && !"\u0000".equals(cs)) {
+                        if (cs != null && !"\u0000".equals(cs)) { //$NON-NLS-1$
                             int w = metrics.stringWidth(cs);
                             w = fontSglAdvance - w;
                             if (w < 0) w = 0;
@@ -378,19 +493,21 @@ public class BlackenPanel extends JPanel {
     }
     
     /**
-     * The logic this uses totally breaks down if a variable-width font is 
-     * used. 
-     * <p>
-     * For a variable-width font, you'd need to walk every character you
+     * Recalculate the font bits.
+     * 
+     * <p>The logic this uses totally breaks down if a variable-width font is 
+     * used.</p>
+     * 
+     * <p>For a variable-width font, you'd need to walk every character you
      * plan to use, track the width, then use the max double-wide width or 2x 
      * the max single-wide width... That is, if you plan to do the 
-     * single-width / double-width logic traditionally found on terminals. 
-     * <p>
-     * If you want variable width fonts, it is probably best not to treat it 
+     * single-width / double-width logic traditionally found on terminals.</p>
+     *  
+     * <p>If you want variable width fonts, it is probably best not to treat it 
      * as a traditional double-wide character and to instead treat it as a 
      * large single-width character -- so that <code>fontDblAdvance</code> and 
      * <code>fontSglAdvance</code> are the same and <code>fontHasDouble</code>
-     * is false. 
+     * is false.</p> 
      */
     protected void recalculateFontBits() {
         if (this.getGraphics() == null) {
@@ -458,10 +575,17 @@ public class BlackenPanel extends JPanel {
         //                                    + metrics.getLeading();
         fontHeight = metrics.getHeight() +2;
     }
+    /**
+     * Refresh the window.
+     */
     public void refresh() {
         refresh_all = true;
         paintImage();
     }
+    /**
+     * Refresh a row/line.
+     * @param y the line to refresh
+     */
     public void refreshLine(int y) {
         this.maybeRepaint();
         if (y < 0) { y = 0; }
@@ -471,6 +595,14 @@ public class BlackenPanel extends JPanel {
         }
     }
 
+    /**
+     * Refresh a box on the screen.
+     * 
+     * @param height height of the box
+     * @param width width of the box
+     * @param y1 coordinate of the box
+     * @param x1 coordinate of the box
+     */
     public void refreshRegion(int height, int width, int y1, int x1) {
         this.maybeRepaint();
         if (y1 < 0) y1 = 0;
@@ -530,13 +662,19 @@ public class BlackenPanel extends JPanel {
         //System.out.printf("DEBUG(font2fit): grid: ys:%d; xs:%d\n", newRows, newCols);
     }
     
+    /**
+     * Resize the frame.
+     * 
+     * @param frame frame to resize
+     * @param fontSize font size to use
+     */
     public void resizeFrame(JFrame frame, int fontSize) {
         this.maybeRepaint();
         Font f = null;
         if (fontSize > 0) {
             f = this.font;
             if (f == null) {
-                f = new Font("Monospace", Font.PLAIN, fontSize);
+                f = new Font("Monospace", Font.PLAIN, fontSize); //$NON-NLS-1$
             } else {
                 f = f.deriveFont(fontSize);
             }
@@ -558,11 +696,20 @@ public class BlackenPanel extends JPanel {
         //frame.setSize(sizes[1] + (yo > 0 ? yo : 0), 
         //              sizes[0] + (xo > 0 ? xo : 0));
     }
+    /**
+     * Resize the grid
+     * 
+     * @param rows new rows
+     * @param cols new columns
+     */
     public void resizeGrid(int rows, int cols) {
         this.maybeRepaint();
         grid.setSize(rows, cols);
     }
     
+    /**
+     * Resize the grid to the window.
+     */
     protected void resizeGridToWindow() {
         this.maybeRepaint();
         int xsize, ysize;
@@ -574,8 +721,8 @@ public class BlackenPanel extends JPanel {
     
     /**
      * Set a cell.
-     * <p>
-     * Note: This does nothing to ease the issues inherent in double-wide
+     * 
+     * <p>Note: This does nothing to ease the issues inherent in double-wide
      * characters. The background of a double-wide character needs to be set
      * individually, and the second half of the character needs the glyph
      * cleared or it will overwrite. -- This has particular implications
@@ -593,29 +740,59 @@ public class BlackenPanel extends JPanel {
         c.setDirty(true);
     }
     
+    /**
+     * Set a cell to some common values.
+     * 
+     * @param y row
+     * @param x column
+     * @param glyph sequence
+     * @param back background color
+     * @param fore foreground color
+     */
     public void set(int y, int x, int glyph, Color back, Color fore) {
         this.maybeRepaint();
         grid.get(y, x).setCell(glyph, back, fore);
     }
 
+    /**
+     * Set a cell to some things.
+     * 
+     * @param y row
+     * @param x column
+     * @param glyph sequence
+     * @param attributes text attributes
+     */
     public void set(int y, int x, int glyph, 
                     Map<TextAttribute, Object> attributes) {
         this.maybeRepaint();
         grid.get(y, x).setCell(glyph, attributes);
     }
 
+    /**
+     * Set the empty/template cell
+     * @param empty new empty cell
+     */
     public void setEmpty(AwtCell empty) {
         this.maybeRepaint();
         if (this.empty != empty) {
             this.empty.setCell(empty);
         }
     }
+    /*
+     * (non-Javadoc)
+     * @see javax.swing.JComponent#setFont(java.awt.Font)
+     */
     @Override
     public void setFont(Font font) {
         this.maybeRepaint();
         setFont(font, true);
     }
 
+    /**
+     * Set the font.
+     * @param font font to use
+     * @param recalc true to recalculate
+     */
     private void setFont(Font font, boolean recalc) {
         this.maybeRepaint();
         setFontNoUpdate(font);
@@ -634,6 +811,11 @@ public class BlackenPanel extends JPanel {
             }
         }
     }
+
+    /**
+     * Set the font and do not update
+     * @param font new font
+     */
     private void setFontNoUpdate(Font font) {
         this.maybeRepaint();
         if (font != null) {
@@ -647,6 +829,9 @@ public class BlackenPanel extends JPanel {
         recalculateFontBits();
     }
 
+    /**
+     * Process a window resize event.
+     */
     public void windowResized() {
         this.maybeRepaint();
         resizeFontToFit();

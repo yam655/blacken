@@ -1,3 +1,19 @@
+/* blacken - a library for Roguelike games
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.googlecode.blacken.terminal;
 
 import java.util.ArrayList;
@@ -15,23 +31,54 @@ import java.util.List;
  * Note that the _LOCK modifier states are not normally included. They need
  * to be explicitly requested.
  * 
- * @author Steven Black
- *
+ * @author yam655
  */
 public enum BlackenModifier {
-    MODIFIER_KEY_ALT(0x0001, "Alt"),
-    MODIFIER_KEY_ALTGR(0x0002, "AltGr"), 
-    MODIFIER_KEY_CTRL(0x0004, "Ctrl"), 
-    MODIFIER_KEY_META(0x0008, "Meta"), 
-    MODIFIER_KEY_SHIFT(0x0010, "Shift"),
-    MODIFIER_KEY_CAPS_LOCK(0x0020, "CapsLock"),
-    MODIFIER_KEY_KANA_LOCK(0x0040, "KanaLock"),
-    MODIFIER_KEY_NUM_LOCK(0x0080, "NumLock"),
-    MODIFIER_KEY_SCROLL_LOCK(0x0100, "ScrollLock");
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_ALT(0x0001, "Alt"), //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_ALTGR(0x0002, "AltGr"),  //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_CTRL(0x0004, "Ctrl"),  //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_META(0x0008, "Meta"),  //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_SHIFT(0x0010, "Shift"), //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_CAPS_LOCK(0x0020, "CapsLock"), //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_KANA_LOCK(0x0040, "KanaLock"), //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_NUM_LOCK(0x0080, "NumLock"), //$NON-NLS-1$
+    /**
+     * Create new modifier state
+     */
+    MODIFIER_KEY_SCROLL_LOCK(0x0100, "ScrollLock"); //$NON-NLS-1$
     
     private final int bit;
     private String keyname;
 
+    /**
+     * Create a modifier
+     * @param bit bit to set
+     * @param keyname keyname to set
+     */
     BlackenModifier(int bit, String keyname) {
         this.bit = bit;
         this.keyname = keyname;
@@ -71,6 +118,13 @@ public enum BlackenModifier {
         return BlackenModifier.setFlag(current, this);
     }
 
+    /**
+     * Is the bit flag set?
+     * 
+     * @param current current integer
+     * @param mod modifier to check
+     * @return true on success; false on failure
+     */
     public static boolean hasFlag(int current, BlackenModifier mod) {
         if (BlackenKeys.findPlane(current) != BlackenKeys.PLANE_MODIFIER_NOTICES) {
             return false;
@@ -81,6 +135,11 @@ public enum BlackenModifier {
         return false;
     }
 
+    /**
+     * Does <code>current</code> have <code>this</code> set?
+     * @param current integer to check
+     * @return true on success; false on failure
+     */
     public boolean hasFlag(int current) {
         return BlackenModifier.hasFlag(current, this);
     }
@@ -124,7 +183,7 @@ public enum BlackenModifier {
     /**
      * Encode the modifiers as a unicode codepoint.
      * 
-     * @param set
+     * @param set set to check
      * @return NO_KEY if set was null, otherwise valid unicode codepoint.
      */
     public static int getAsCodepoint(EnumSet<BlackenModifier> set) {
@@ -157,6 +216,12 @@ public enum BlackenModifier {
         }
         return ret;
     }
+
+    /**
+     * Get the modifier strings
+     * @param set modifier set
+     * @return string containing modifiers
+     */
     public static List<String> getModifierStrings(EnumSet<BlackenModifier> set) {
         List<String> ret = new ArrayList<String>();
         for (BlackenModifier m : set) {
@@ -164,6 +229,11 @@ public enum BlackenModifier {
         }
         return ret;
     }
+    /**
+     * Get the modifier strings
+     * @param keycode codepoint with modifiers set
+     * @return string containing modifiers
+     */
     public static List<String> getModifierStrings(int keycode) {
         if (BlackenKeys.findPlane(keycode) != 
             BlackenKeys.PLANE_MODIFIER_NOTICES) {
@@ -171,6 +241,11 @@ public enum BlackenModifier {
         }
         return getModifierStrings(BlackenModifier.getAsSet(keycode));
     }
+    /**
+     * Get the modifier strings
+     * @param keycode codepoint with modifiers set
+     * @return string buffer containing modifiers
+     */
     public static StringBuffer getModifierString(int keycode) {
         List<String> base = getModifierStrings(keycode);
         StringBuffer keybuf = new StringBuffer();
@@ -184,6 +259,11 @@ public enum BlackenModifier {
         return keybuf;
     }
 
+    /**
+     * Get the modifier string
+     * @param set set of modifiers that are enabled
+     * @return string buffer containing modifiers
+     */
     public static StringBuffer getModifierString(EnumSet<BlackenModifier> set) {
         List<String> base = getModifierStrings(set);
         if (base == null) {
