@@ -143,10 +143,23 @@ public class ColorHelper {
     public static boolean isColorDefinition(String color) {
         boolean ret = false;
         if (color == null) return false;
-        if (color.startsWith("#") ||  //$NON-NLS-1$
-                color.startsWith("0x") ||  //$NON-NLS-1$
+        if (color.startsWith("#")) {  //$NON-NLS-1$
+            color = color.substring(1);
+            try {
+                Integer.parseInt(color, 16);
+                ret = true;
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+        } else if (color.startsWith("0x") ||  //$NON-NLS-1$
                 color.startsWith("0X")) { //$NON-NLS-1$
-            ret = true;
+            color = color.substring(2);
+            try {
+                Integer.parseInt(color, 16);
+                ret = true;
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
         }
         return ret;
     }
@@ -176,7 +189,12 @@ public class ColorHelper {
             throws InvalidStringFormatException {
         if (color.startsWith("#")) { //$NON-NLS-1$
             color = color.substring(1);
-            int c = Integer.parseInt(color, 16);
+            int c;
+            try {
+                c = Integer.parseInt(color, 16);
+            } catch(NumberFormatException e) {
+                throw new InvalidStringFormatException(e);
+            }
             if (color.length() == 3) {
                 // web shorthand #RGB == #RRGGBB
                 return makeColor((c & 0xf00) >> 8, (c & 0x0f0) >> 4,
@@ -190,7 +208,12 @@ public class ColorHelper {
         } else if (color.startsWith("0x") || //$NON-NLS-1$ 
                 color.startsWith("0X")) { //$NON-NLS-1$
             color = color.substring(2);
-            int c = Integer.parseInt(color, 16);
+            int c;
+            try {
+                c = Integer.parseInt(color, 16);
+            } catch(NumberFormatException e) {
+                throw new InvalidStringFormatException(e);
+            }
             if (color.length() == 6) {
                 return makeOpaque(c);
             } else if (color.length() == 8) {
@@ -244,8 +267,8 @@ public class ColorHelper {
         blue = blue * 255.0;
         green = green * 255.0;
         alpha = alpha * 255.0;
-        return makeColor(Math.floor(red), Math.floor(green), Math.floor(blue),
-                         Math.floor(alpha));
+        return makeColor((int)Math.floor(red), (int)Math.floor(green), 
+                         (int)Math.floor(blue), (int)Math.floor(alpha));
     }
 
     /**
@@ -273,7 +296,9 @@ public class ColorHelper {
     public static int makeColor(final int red, final int green, final int blue, 
                                 final int alpha, final int top) {
         int r, g, b, a;
-        if (top == 255) {
+        if (top == 0) {
+            return 0;
+        } else if (top == 255) {
             r = red;
             g = green;
             b = blue;
@@ -283,7 +308,7 @@ public class ColorHelper {
             g = (green << 4) | green;
             b = (blue << 4) | blue;
             a = (alpha << 4) | alpha;
-        } else if (top < 0xfffffff) {
+        } else if (top <= 0xffffff) {
             r = red * 255 / top;
             b = blue * 255 / top;
             g = green * 255 / top;
@@ -363,7 +388,7 @@ public class ColorHelper {
      */
     public static int increaseAlpha(final int color, final double amount) {
         int alpha = getAlpha(color);
-        int c = (int) Math.floor(alpha * amount) + alpha;
+        int c = (int) Math.floor(alpha * amount / 100) + alpha;
         if (c > 255) {
             c = 255;
         } else if (c < 0) {
