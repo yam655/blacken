@@ -38,195 +38,37 @@ public final class ColorNames {
      * <p>Described on http://en.wikipedia.org/wiki/Web_colors</p>
      */
     @SuppressWarnings("nls")
-    static private String[] HtmlColorsDef = 
+    static public String[] HTML_COLORS = 
     {
-     "black -> #000000",
-     "maroon -> #800000",
-     "green -> #008000",
-     "olive -> #808000",
-     "navy -> #000080",
-     "purple -> #800080",
-     "teal -> #008080",
-     "silver -> #c0c0c0",
-     "gray / grey -> #808080",
-     "red -> #ff0000",
-     "lime -> #00ff00",
-     "yellow -> #ffff00",
-     "blue -> #0000ff",
-     "fuchsia / magenta -> #ff00ff",
-     "aqua / cyan -> #00ffff",
-     "white -> #ffffff",
-     "orange -> #ffa500",
+     "Black / black -> #000000",
+     "Maroon / maroon -> #800000",
+     "Green / green -> #008000",
+     "Olive / olive -> #808000",
+     "Navy / navy -> #000080",
+     "Purple / purple -> #800080",
+     "Teal / teal -> #008080",
+     "Silver / silver -> #c0c0c0",
+     "Gray / Grey / gray / grey -> #808080",
+     "Red / red -> #ff0000",
+     "Lime / lime -> #00ff00",
+     "Yellow / yellow -> #ffff00",
+     "Blue / blue -> #0000ff",
+     "Fuchsia / Magenta / fuchsia / magenta -> #ff00ff",
+     "Aqua / Cyan / aqua / cyan -> #00ffff",
+     "White / white -> #ffffff",
+     "Orange / orange -> #ffa500",
     };
 
     /**
-     * The commonly used colors on the web. Originally from X11.
+     * The color names defined for the SVG (and HTML5 legacy)
      * 
-     * <p>These are the same values as svg_colors, except for 'MediumPurple' 
-     * and 'PaleVioletRed'.</p>
-     * 
-     * <p>Note: These colors are in <i>no</i> standard -- unlike the SVG 
-     * colors.</p>
-     * 
-     * <p>These come from http://www.w3schools.com/HTML/html_colornames.asp</p> 
-     */
-    @SuppressWarnings("nls")
-    static private String[] WebColorsDef = 
-    {
-        "AliceBlue -> #f0f8ff",
-        "AntiqueWhite -> #faebd7",
-        "Aqua / Cyan -> #00ffff",
-        "Aquamarine -> #7fffd4",
-        "Azure -> #f0ffff",
-        "Beige -> #f5f5dc",
-        "Bisque -> #ffe4c4",
-        "Black -> #000000",
-        "BlanchedAlmond -> #ffebcd",
-        "Blue -> #0000ff",
-        "BlueViolet -> #8a2be2",
-        "Brown -> #a52a2a",
-        "BurlyWood -> #deb887",
-        "CadetBlue -> #5f9ea0",
-        "Chartreuse -> #7fff00",
-        "Chocolate -> #d2691e",
-        "Coral -> #ff7f50",
-        "CornflowerBlue -> #6495ed",
-        "Cornsilk -> #fff8dc",
-        "Crimson -> #dc143c",
-        "DarkBlue -> #00008b",
-        "DarkCyan -> #008b8b",
-        "DarkGoldenrod / DarkGoldenRod -> #b8860b",
-        "DarkGray / DarkGrey -> #a9a9a9",
-        "DarkGreen -> #006400",
-        "DarkKhaki -> #bdb76b",
-        "DarkMagenta -> #8b008b",
-        "DarkOliveGreen -> #556b2f",
-        "DarkOrange -> #ff8c00",
-        "DarkOrchid -> #9932cc",
-        "DarkRed -> #8b0000",
-        "DarkSalmon -> #e9967a",
-        "DarkSeaGreen -> #8fbc8f",
-        "DarkSlateBlue -> #483d8b",
-        "DarkSlateGray / DarkSlateGrey -> #2f4f4f",
-        "DarkTurquoise -> #00ced1",
-        "DarkViolet -> #9400d3",
-        "Deeppink -> #ff1493",
-        "Deepskyblue -> #00bfff",
-        "DimGray / DimGrey -> #696969",
-        "DodgerBlue -> #1e90ff",
-        "Firebrick / FireBrick -> #b22222",
-        "FloralWhite -> #fffaf0",
-        "ForestGreen -> #228b22",
-        "Fuchsia -> #ff00ff",
-        "Gainsboro -> #dcdcdc",
-        "GhostWhite -> #f8f8ff",
-        "Gold -> #ffd700",
-        "Goldenrod / GoldenRod -> #daa520",
-        "Gray / Grey -> #808080",
-        "Green -> #008000",
-        "GreenYellow -> #adff2f",
-        "Honeydew / HoneyDew -> #f0fff0",
-        "HotPink -> #ff69b4",
-        "IndianRed -> #cd5c5c",
-        "Indigo -> #4b0082",
-        "Ivory -> #fffff0",
-        "Khaki -> #f0e68c",
-        "Lavender -> #e6e6fa",
-        "LavenderBlush -> #fff0f5",
-        "LawnGreen -> #7cfc00",
-        "LemonChiffon -> #fffacd",
-        "LightBlue -> #add8e6",
-        "LightCoral -> #f08080",
-        "LightCyan -> #e0ffff",
-        "LightGoldenrodYellow / LightGoldenRodYellow -> #fafad2",
-        "LightGray / LightGrey -> #d3d3d3",
-        "LightGreen -> #90ee90",
-        "LightPink -> #ffb6c1",
-        "LightSalmon -> #ffa07a",
-        "LightSeaGreen -> #20b2aa",
-        "LightSkyBlue -> #87cefa",
-        "LightSlateGray / LightSlateGrey -> #778899",
-        "LightSteelBlue -> #b0c4de",
-        "LightYellow -> #ffffe0",
-        "Lime -> #00ff00",
-        "LimeGreen -> #32cd32",
-        "Linen -> #faf0e6",
-        "Magenta -> #ff00ff",
-        "Maroon -> #800000",
-        "MediumAquaMarine -> #66cdaa",
-        "MediumBlue -> #0000cd",
-        "MediumOrchid -> #ba55d3",
-        "MediumPurple -> #9370d8",
-        "MediumSeagreen -> #3cb371",
-        "MediumSlateBlue -> #7b68ee",
-        "MediumSpringGreen -> #00fa9a",
-        "MediumTurquoise -> #48d1cc",
-        "MediumVioletRed -> #c71585",
-        "MidnightBlue -> #191970",
-        "MintCream -> #f5fffa",
-        "MistyRose -> #ffe4e1",
-        "Moccasin -> #ffe4b5",
-        "NavajoWhite -> #ffdead",
-        "Navy -> #000080",
-        "OldLace -> #fdf5e6",
-        "Olive -> #808000",
-        "OliveDrab -> #6b8e23",
-        "Orange -> #ffa500",
-        "OrangeRed -> #ff4500",
-        "Orchid -> #da70d6",
-        "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
-        "PaleGreen -> #98fb98",
-        "PaleTurquoise -> #afeeee",
-        "PaleVioletRed -> #d87093",
-        "PapayaWhip -> #ffefd5",
-        "PeachPuff -> #ffdab9",
-        "Peru -> #cd853f",
-        "Pink -> #ffc0cb",
-        "Plum -> #dda0dd",
-        "PowderBlue -> #b0e0e6",
-        "Purple -> #800080",
-        "Red -> #ff0000",
-        "RosyBrown -> #bc8f8f",
-        "RoyalBlue -> #4169e1",
-        "SaddleBrown -> #8b4513",
-        "Salmon -> #fa8072",
-        "SandyBrown -> #f4a460",
-        "SeaGreen -> #2e8b57",
-        "SeaShell / Seashell -> #fff5ee",
-        "Sienna -> #a0522d",
-        "Silver -> #c0c0c0",
-        "SkyBlue -> #87ceeb",
-        "SlateBlue -> #6a5acd",
-        "SlateGray / SlateGrey -> #708090",
-        "Snow -> #fffafa",
-        "SpringGreen -> #00ff7f",
-        "SteelBlue -> #4682b4",
-        "Tan -> #d2b48c",
-        "Teal -> #008080",
-        "Thistle -> #d8bfd8",
-        "Tomato -> #ff6347",
-        "Turquoise -> #40e0d0",
-        "Violet -> #ee82ee",
-        "Wheat -> #f5deb3",
-        "White -> #ffffff",
-        "WhiteSmoke -> #f5f5f5",
-        "Yellow -> #ffff00",
-        "YellowGreen -> #9acd32",
-    };
-
-    /**
-     * The colors defined for the 'SVG' XML-based vector image format.</p>
-     * 
-     * <p>These are the same values as web_colors, except for 'MediumPurple' 
-     * and 'PaleVioletRed'.</p>
-     * 
-     * <p>Note: These color names and values are part of the SVG standard.</p>
+     * <p>Prior to HTML5 there was no HTML standard for named colors. HTML5 
+     * specifies the named colors come from the SVG named colors.</p>
      * 
      * <p>These come from http://www.w3.org/TR/SVG/types.html</p> 
-     * 
      */
     @SuppressWarnings("nls")
-    static private String[] SvgColorsDef = 
+    static public String[] SVG_COLORS = 
     {
         "AliceBlue -> #f0f8ff",
         "AntiqueWhite -> #faebd7",
@@ -372,6 +214,11 @@ public final class ColorNames {
     /**
      * Standard Xterm 16-color definitions.
      * 
+     * <p>To use:
+     * <pre>
+     *       palette.addAll(XTERM_16_COLORS, false);
+     * </pre></p>
+     * 
      * <p>From xterm, these are defined as:
      * <ol>
      *  <li>black
@@ -392,7 +239,7 @@ public final class ColorNames {
      *  <li>white
      * </ol>
      */
-    static private int[] Xterm16ColorDef = 
+    static public int[] XTERM_16_COLORS = 
     {
      0x000000, 0xcd0000, 0x00cd00, 0xcdcd00,
      0x0000ee, 0xcd00cd, 0x00cdcd, 0xe5e5e5,
@@ -403,11 +250,16 @@ public final class ColorNames {
     /**
      * Standard xterm 88-color definitions.
      * 
+     * <p>To use:
+     * <pre>
+     *       palette.addAll(XTERM_88_COLORS, false);
+     * </pre></p>
+     * 
      * <p>The first 16 colors are all the same.
      * However the later colors are computed by a formula.
      * (They define a color cube, then a gradient.)</p>
      */
-    static private int[] Xterm88ColorDef = 
+    static public int[] XTERM_88_COLORS = 
     {
      0x000000, 0xcd0000, 0x00cd00, 0xcdcd00, 0x0000ee, 0xcd00cd, 0x00cdcd,
      0xe5e5e5, 0x7f7f7f, 0xff0000, 0x00ff00, 0xffff00, 0x5c5cff, 0xff00ff,
@@ -425,13 +277,18 @@ public final class ColorNames {
     };
 
     /**
-     * Standard xterm 88-color definitions.
+     * Standard xterm 256-color definitions.
+     * 
+     * <p>To use:
+     * <pre>
+     *       palette.addAll(XTERM_256_COLORS, false);
+     * </pre></p>
      * 
      * <p>The first 16 colors are all the same.
      * However the later colors are computed by a formula.
      * (They define a color cube, then a gradient.)</p>
      */
-    static private int[] Xterm256ColorDef = 
+    static public int[] XTERM_256_COLORS = 
     {
      0x000000, 0xcd0000, 0x00cd00, 0xcdcd00, 0x0000ee, 0xcd00cd, 0x00cdcd,
      0xe5e5e5, 0x7f7f7f, 0xff0000, 0x00ff00, 0xffff00, 0x5c5cff, 0xff00ff,
@@ -480,14 +337,26 @@ public final class ColorNames {
      * 
      * <p>Name formats include:
      *  <ul>
-     *    <li>Curses-style: COLOR_BLUE, COLOR_GREEN|A_BOLD, etc.
-     *    <li>Traditional VGA color names: light blue, dark red, etc.
-     *    <li>HTML 3/4 color names: maroon, lime, etc.
+     *    <li>HTML 3/4 color names: maroon, lime, etc. (including alternates)
+     *    <li>old fashioned VGA names - 8 color names with light/dark variations
+     *    <li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
      *  </ul>
+     * 
+     * <p>The VGA color names all require "light" or "dark" as otherwise they
+     * would conflict with HTML color names. This makes them not quite 
+     * traditional, but close to it.<p>
+     *  
+     * <p>The order of the values is the same as Curses/HTML/Windows (red is
+     * at index 1), but is different than CGA/EGA/VGA (where blue is at index 
+     * 1). If you want these colors and names with the CGA/EGA/VGA color order,
+     * use {@code new ColorPalette(addStandard16Palette(null), 
+     *     [0,  4,  2,  6,  1,  5,  3,  7, 
+     *      8, 12, 10, 14,  9, 13, 11, 15])}
+     * </p>
      *  
      */
     @SuppressWarnings("nls")
-    static private String[] standard16def = 
+    static public String[] STANDARD_16_COLORS = 
     {
      "COLOR_BLACK / black -> #000000",
      "COLOR_RED / dark red / maroon -> #800000",
@@ -510,14 +379,35 @@ public final class ColorNames {
     /**
      * The standard CGA color palette.
      * 
-     * <p>This has the standard CGA ordering but instead of just having
-     * the CGA names, it also includes the Curses names.</p>
+     * <p>We support two naming formats:
+     * <ul>
+     *  <li>traditional VGA names - 8 color names with light/dark variations
+     *  <li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
+     * </ul></p>
      * 
-     * <p>It does not include the HTML names as it doesn't use the same 
-     * colors.</p>
+     * <p><em>Important</em> This does not use the same color definitions as
+     * {@link #STANDARD_16_COLORS}. Specifically:
+     * <ul> 
+     *   <li> It uses the same name for totally different color values. (Ex. 
+     *     CGA "magenta" is a dark color, while HTML "magenta" is a bright 
+     *     color.)</li>
+     *   <li> It never uses the same color values. (Ex. While "green"
+     *     is a dark green in both palettes, the CGA "green" uses 0x00AA00 and
+     *     the HTML "green" uses 0x008000)</li>
+     *   <li> It uses a different index ordering. (Ex. index 1 is "dark red"
+     *     for HTML/Standard/xterm palettes and is "dark blue" for CGA.)</li>
+     * </ul></p>
+     * 
+     * <p>It case it wasn't clear earlier, while the 
+     * {@link #STANDARD_16_COLORS} needs
+     * the traditional names to have "light"/"dark" prefixes to not conflict
+     * with HTML color names, this function does not set HTML color names so
+     * there is no way it can conflict and the "dark" prefix is normally 
+     * optional.</p>
+     * 
      */
     @SuppressWarnings("nls")
-    static private String[] cga16def = 
+    static public String[] CGA_16_COLORS = 
     {
      "COLOR_BLACK / black -> #000000",
      "COLOR_BLUE / blue / dark blue -> #0000AA",
@@ -536,144 +426,5 @@ public final class ColorNames {
      "COLOR_YELLOW|A_BOLD / yellow -> #FFFF55",
      "COLOR_WHITE|A_BOLD / white -> #FFFFFF",
     };
-        
-    /**
-     * Add the xterm colors to a palette.
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @param count either 16, 88, or 256 indicating group of colors
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addXtermColors(ColorPalette palette, int count) {
-        if (palette == null) {
-            palette = new ColorPalette();
-        }
-        if (count <= 16) {
-            palette.addAll(Xterm16ColorDef, false);
-        } else if (count <= 88) {
-            palette.addAll(Xterm88ColorDef, false);
-        } else {
-            palette.addAll(Xterm256ColorDef, false);
-        }
-        return palette;
-    }
 
-    /**
-     * Add the SVG color names to a palette.
-     * 
-     * <p>The names overlap the names of the common cross-platform web color 
-     * names, however two of the colors have slightly different values.
-     * As this set follows a standard, it is preferred.</p>
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @see #addWebColors(ColorPalette)
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addSvgColors(ColorPalette palette) {
-        if(palette == null) palette = new ColorPalette(SvgColorsDef.length);
-        palette.addMapping(SvgColorsDef);
-        return palette;
-    }
-
-    /**
-     * Add names for the common web color names to the palette.
-     * 
-     * <p>Currently the names overlap the names of SVG color names,
-     * however two of the colors have slightly different values.</p>
-     * 
-     * <p>Since these colors do not conform to a standard, this list of
-     * colors could be expanded to include additional color names.</p>
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @see #addSvgColors(ColorPalette)
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addWebColors(ColorPalette palette) {
-        if(palette == null) palette = new ColorPalette(WebColorsDef.length);
-        palette.addMapping(WebColorsDef);
-        return palette;
-    }
-    /**
-     * Load the 17 color HTML4 named palette. 
-     * 
-     * <p>The first 16 are the standard HTML names with their normal alternate 
-     * names. The 17th is the orange included with CSS2.1. These are the only 
-     * standard HTML4 color names.</p>
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addHtmlPalette(ColorPalette palette) {
-        if (palette == null) palette = new ColorPalette(HtmlColorsDef.length);
-        palette.addMapping(HtmlColorsDef);
-        return palette;
-    }
-
-    /**
-     * The standard 16 colors. We combine a number of name options:
-     * <ul>
-     * 	<li>HTML 3/4 colors - including alternate names
-     * 	<li>old fashioned VGA names - 8 color names with light/dark variations
-     * 	<li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
-     * </ul>
-     * 
-     * <p>The VGA color names all require "light" or "dark" as otherwise they
-     * would conflict with HTML color names. This makes them not quite 
-     * traditional, but close to it.<p>
-     * 
-     * <p>The order of the values is the same as Curses/HTML/Windows (red is
-     * at index 1), but is different than CGA/EGA/VGA (where blue is at index 
-     * 1). If you want these colors and names with the CGA/EGA/VGA color order,
-     * use {@code new ColorPalette(addStandard16Palette(null), ["black",
-     *      "dark blue", "dark green", "dark cyan", "dark red", "dark magenta",
-     *      "brown", "light gray", "dark gray", "light blue", "light green",
-     *      "light cyan", "light red", "light magenta", "yellow", "white"])}
-     * </p>
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addStandard16Palette(ColorPalette palette) {
-        if (palette == null) palette = new ColorPalette(standard16def.length);
-        palette.addMapping(standard16def);
-        return palette;
-    }
-
-    /**
-     * The CGA 16 color palette
-     * 
-     * We support two naming formats:
-     * <ul>
-     *  <li>traditional VGA names - 8 color names with light/dark variations
-     *  <li>CURSES-throwback - COLOR_-prefixed; bright with |A_BOLD suffixed  
-     * </ul>
-     * 
-     * <p><em>Important</em> This does not use the same color definitions as
-     * the {@link #addStandard16Palette(ColorPalette)} function. Specifically:
-     * <ul> 
-     *   <li> It uses the same name for totally different color values. (Ex. 
-     *     CGA "magenta" is a dark color, while HTML "magenta" is a bright 
-     *     color.)</li>
-     *   <li> It never uses the same color values. (Ex. While "green"
-     *     is a dark green in both palettes, the CGA "green" uses 0x00AA00 and
-     *     the HTML "green" uses 0x008000)</li>
-     *   <li> It uses a different index ordering. (Ex. index 1 is "dark red"
-     *     for HTML/Standard/xterm palettes and is "dark blue" for CGA.)</li>
-     * </ul></p>
-     * 
-     * <p>It case it wasn't clear earlier, while the 
-     * {@link #addStandard16Palette(ColorPalette)} function needs
-     * the traditional names to have "light"/"dark" prefixes to not conflict
-     * with HTML color names, this function does not set HTML color names so
-     * there is no way it can conflict and the "dark" prefix is normally 
-     * optional.</p>
-     * 
-     * @param palette Palette to modify (null to create new palette)
-     * @return the new or updated Color Palette
-     */
-    public static ColorPalette addCga16Palette(ColorPalette palette) {
-        if (palette == null) palette = new ColorPalette(cga16def.length);
-        palette.addMapping(cga16def);
-        return palette;
-    }
 }

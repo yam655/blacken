@@ -239,12 +239,13 @@ public class ColorPalette extends ListMap<String, Integer> {
         for (final String color : colors) {
             final String s[] = color.split("[ \t]+->[ \t]+#", 2); //$NON-NLS-1$
             final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
-            if (s.length < 2) continue;
-            final Integer colr = Integer.valueOf(s[1], 16);
-            add(colr);
-            for (final String n : names) {
-                put(n, colr);
+            if (s.length == 1) {
+                throw new RuntimeException(String.format
+                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                            color));
             }
+            final Integer colr = Integer.valueOf(s[1], 16);
+            add(names, colr);
         }
         return true;
     }
@@ -272,17 +273,34 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @return true if the colors were set, false otherwise
      */
     public boolean putMapping(String[] colors) {
-        clear();
         if (colors == null || colors.length == 0) {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 1); //$NON-NLS-1$
+            final String s[] = color.split("[ \t]+->[ \t]+#", 2); //$NON-NLS-1$
             final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
-            final Integer colr = new Integer(s[1]);
-            this.add(colr);
+            if (s.length == 1) {
+                throw new RuntimeException(String.format
+                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                            color));
+            }
+            final Integer colr = Integer.valueOf(s[1], 16);
+            Integer idx = -1;
             for (final String n : names) {
-                put(n, colr);
+                // fast and (possibly) common
+                if (this.containsKey(n)) {
+                    idx = this.indexOfKey(n);
+                    break;
+                }
+            }
+            if (idx == -1) {
+                // slow
+                idx = this.indexOf(colr);
+            }
+            if (idx == -1) {
+                this.add(names, colr);
+            } else {
+                putKey(names, idx);
             }
         }
         return true;

@@ -436,8 +436,9 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
     public static void main(String[] args) {
         SwingTerminal term = new SwingTerminal();
         term.init("Boarder", 25, 80); //$NON-NLS-1$
-        ColorPalette palette = ColorNames.addXtermColors(null, 256);
-        ColorNames.addSvgColors(palette);
+        ColorPalette palette = new ColorPalette();
+        palette.addAll(ColorNames.XTERM_256_COLORS, false);
+        palette.putMapping(ColorNames.SVG_COLORS);
         term.setPalette(palette);
         Boarder cmd = new Boarder(term, palette);
         cmd.loop();

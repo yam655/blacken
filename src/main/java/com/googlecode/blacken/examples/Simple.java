@@ -79,8 +79,9 @@ public class Simple {
             this.term = term;
         }
         if (palette == null) {
-            palette = ColorNames.addXtermColors(null, 256);
-            ColorNames.addSvgColors(palette);
+            palette = new ColorPalette();
+            palette.addAll(ColorNames.XTERM_256_COLORS, false);
+            palette.putMapping(ColorNames.SVG_COLORS);
         } 
         this.palette = palette;
         this.term.setPalette(palette);
