@@ -17,7 +17,7 @@
 
 package com.googlecode.blacken.examples;
 
-import com.googlecode.blacken.core.ExtRandom;
+import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.examples.Messages;
 
 /**
@@ -48,7 +48,7 @@ public class Randy {
             System.out.println("    (\\d+)?(([:])(\\d+))??(([d:])(\\d+))?(([+-/*])(\\d+))"); //$NON-NLS-1$
             System.exit(args.length == 0 ? 1 : 0);
         }
-        ExtRandom r = new ExtRandom();
+        Random r = new Random();
         if (args.length == 1) {
             int got = r.guess(args[1]);
             System.out.printf("%d\n", got); //$NON-NLS-1$
@@ -66,7 +66,7 @@ public class Randy {
      * 
      */
     public Randy() {
-        // TODO Auto-generated constructor stub
+        // do nothing
     }
 
 }

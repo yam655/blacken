@@ -28,7 +28,7 @@ import java.util.regex.*;
  * 
  * @author yam655
  */
-public class ExtRandom extends java.util.Random {
+public class Random extends java.util.Random {
     
     private static final long serialVersionUID = 3049695947451276476L;
         
@@ -37,14 +37,14 @@ public class ExtRandom extends java.util.Random {
     /**
      * Create a new random number generator
      */
-    public ExtRandom() {
+    public Random() {
         // empty
     }
 
     /**
      * @param arg0 random number seed
      */
-    public ExtRandom(long arg0) {
+    public Random(long arg0) {
         super(arg0);
     }
 

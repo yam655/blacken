@@ -7,15 +7,15 @@ import org.junit.*;
 /**
  * test
  */
-public class TestExtRandom {
-    ExtRandom r;
+public class TestRandom {
+    Random r;
     
     /**
      * test
      */
     @Before
     public void setUp() {
-        r = new ExtRandom(0);
+        r = new Random(0);
     }
 
     /**

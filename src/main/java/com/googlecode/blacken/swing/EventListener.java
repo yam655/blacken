@@ -65,56 +65,6 @@ public class EventListener implements WindowListener, KeyListener,
     private boolean variantKeyMode = true;
 
     /**
-     * Get the set of enabled events.
-     * @return events enabled
-     */
-    public EnumSet<BlackenEventType> getEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Clear the enabled events.
-     */
-    public void clearEnabled() {
-        this.enabled = EnumSet.noneOf(BlackenEventType.class);
-    }
-
-    /**
-     * Unset specific events
-     * @param disabled events to disable
-     */
-    public void unsetEnabled(BlackenEventType disabled) {
-        if (enabled == null) {
-            return;
-        }
-        this.enabled.remove(disabled);
-    }
-
-    /**
-     * Enable specific events.
-     * @param enabled events to enable.
-     */
-    public void setEnabled(BlackenEventType enabled) {
-        if (enabled == null) {
-            return;
-        }
-        this.enabled.add(enabled);
-    }
-
-    /**
-     * Set the enabled events to a specific set
-     * 
-     * @param enabled events to exclusively enable
-     */
-    public void setEnabled(EnumSet<BlackenEventType> enabled) {
-        if (enabled == null) {
-            clearEnabled();
-        } else {
-            this.enabled = enabled.clone();
-        }
-    }
-
-    /**
      * Create the listener.
      * @param gui panel to use
      */
@@ -132,35 +82,12 @@ public class EventListener implements WindowListener, KeyListener,
     }
 
     /**
-     * Pop the next key event
-     * @return the next key event; NO_KEY if no key
-     */
-    public int popKey() {
-        try {
-            return keyEvents.remove();
-        } catch (NoSuchElementException e) {
-            return BlackenKeys.NO_KEY;
-        }
-    }
-
-    /**
      * Pop the next mouse event
      * @return the next mouse event
      * @throws InterruptedException we were interrupted
      */
     public BlackenMouseEvent blockingPopMouse() throws InterruptedException {
         return mouseEvents.take();
-    }
-    /**
-     * Pop the next mouse event
-     * @return the next mouse event; null of none available
-     */
-    public BlackenMouseEvent popMouse() {
-        try {
-            return mouseEvents.remove();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
     }
 
     /**
@@ -171,16 +98,25 @@ public class EventListener implements WindowListener, KeyListener,
     public BlackenWindowEvent blockingPopWindow() throws InterruptedException {
         return windowEvents.take();
     }
+
+    @Override
+    public void caretPositionChanged(InputMethodEvent e) {
+        // not sure if this is needed.
+    }
+
     /**
-     * Pop the next window event
-     * @return the next window event; null of none available
+     * Clear the enabled events.
      */
-    public BlackenWindowEvent popWindow() {
-        try {
-            return windowEvents.remove();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+    public void clearEnabled() {
+        this.enabled = EnumSet.noneOf(BlackenEventType.class);
+    }
+
+    /**
+     * Get the set of enabled events.
+     * @return events enabled
+     */
+    public EnumSet<BlackenEventType> getEnabled() {
+        return enabled;
     }
 
     /**
@@ -239,7 +175,17 @@ public class EventListener implements WindowListener, KeyListener,
         }
         return set;
     }
-    
+    @Override
+    public void inputMethodTextChanged(InputMethodEvent e) {
+        // not sure if this is needed.
+    }
+
+    /**
+     * @return the variant key mode state
+     */
+    public boolean isVariantKeyMode() {
+        return variantKeyMode;
+    }
     @Override
     public void keyPressed(KeyEvent e) {
         // in variantKeyMode all keys are handled here.
@@ -749,7 +695,7 @@ public class EventListener implements WindowListener, KeyListener,
         }
     
     }
-
+    
     /**
      * Add a key to the event queue
      * @param key key to add
@@ -758,21 +704,6 @@ public class EventListener implements WindowListener, KeyListener,
         try {
             keyEvents.add(key);
         } catch(IllegalStateException err) {
-            // XXX log this
-        }
-    }
-    /**
-     * Push a key in to the the front of the queue
-     * @param key key to add
-     */
-    public synchronized void pushKey(int key) {
-        ArrayBlockingQueue<Integer> oldQueue = keyEvents;
-        keyEvents = new ArrayBlockingQueue<Integer>(NUMBER_OF_KEY_EVENTS);
-        try {
-            keyEvents.add(key);
-            keyEvents.addAll(oldQueue);
-        } catch(IllegalStateException err) {
-            keyEvents.addAll(oldQueue);
             // XXX log this
         }
     }
@@ -834,7 +765,63 @@ public class EventListener implements WindowListener, KeyListener,
             mouseEvents.remove(m);
         }
     }
-    
+
+    /**
+     * Load the blacken window event from the native event
+     * @param e native event
+     * @param w Blacken window event
+     */
+    private void loadWindow(WindowEvent e, BlackenWindowEvent w) {
+        int newState = e.getNewState();
+        int oldState = e.getOldState();
+        Window win = e.getWindow();
+        String name = null;
+        if (win != null) {
+            name = win.getName();
+        }
+        win = e.getOppositeWindow();
+        String oppositeName = null;
+        if (win != null) {
+            oppositeName = e.getOppositeWindow().getName();
+        }
+        w.setName(name);
+        w.setOppositeName(oppositeName);
+        EnumSet<BlackenWindowState> set; 
+        set = EnumSet.noneOf(BlackenWindowState.class);
+        if ((newState & Frame.ICONIFIED) != 0) {
+            set.add(BlackenWindowState.ICONIFIED);
+        } 
+        if ((newState & Frame.MAXIMIZED_HORIZ) != 0) {
+            set.add(BlackenWindowState.MAXIMIZED_HORIZ);
+        } 
+        if ((newState & Frame.MAXIMIZED_VERT) != 0) {
+            set.add(BlackenWindowState.MAXIMIZED_VERT);
+        }
+        w.setNewState(set);
+        set = EnumSet.noneOf(BlackenWindowState.class);
+        if ((oldState & Frame.ICONIFIED) != 0) {
+            set.add(BlackenWindowState.ICONIFIED);
+        } 
+        if ((oldState & Frame.MAXIMIZED_HORIZ) != 0) {
+            set.add(BlackenWindowState.MAXIMIZED_HORIZ);
+        } 
+        if ((oldState & Frame.MAXIMIZED_VERT) != 0) {
+            set.add(BlackenWindowState.MAXIMIZED_VERT);
+        }
+        w.setOldState(set);
+        try {
+            windowEvents.add(w);
+        } catch(IllegalStateException err) {
+            // XXX log this
+            return;
+        }
+        try {
+            keyEvents.add(BlackenKeys.WINDOW_EVENT);
+        } catch(IllegalStateException err) {
+            // XXX log this
+            mouseEvents.remove(w);
+        }
+    }
     /**
      * Create the modifier notice codepoint
      * @param e input event
@@ -887,7 +874,7 @@ public class EventListener implements WindowListener, KeyListener,
             loadMouse(e, m);
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
@@ -953,63 +940,156 @@ public class EventListener implements WindowListener, KeyListener,
         }
     }
 
-    /**
-     * Load the blacken window event from the native event
-     * @param e native event
-     * @param w Blacken window event
-     */
-    private void loadWindow(WindowEvent e, BlackenWindowEvent w) {
-        int newState = e.getNewState();
-        int oldState = e.getOldState();
-        Window win = e.getWindow();
-        String name = null;
-        if (win != null) {
-            name = win.getName();
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        BlackenMouseEvent m = 
+            new BlackenMouseEvent(BlackenEventType.MOUSE_WHEEL);
+        int rot = e.getWheelRotation();
+        if (rot < 0) {
+            m.setButton(4);
+            rot *= -1;
+        } else {
+            m.setButton(5);
         }
-        win = e.getOppositeWindow();
-        String oppositeName = null;
-        if (win != null) {
-            oppositeName = e.getOppositeWindow().getName();
-        }
-        w.setName(name);
-        w.setOppositeName(oppositeName);
-        EnumSet<BlackenWindowState> set; 
-        set = EnumSet.noneOf(BlackenWindowState.class);
-        if ((newState & Frame.ICONIFIED) != 0) {
-            set.add(BlackenWindowState.ICONIFIED);
-        } 
-        if ((newState & Frame.MAXIMIZED_HORIZ) != 0) {
-            set.add(BlackenWindowState.MAXIMIZED_HORIZ);
-        } 
-        if ((newState & Frame.MAXIMIZED_VERT) != 0) {
-            set.add(BlackenWindowState.MAXIMIZED_VERT);
-        }
-        w.setNewState(set);
-        set = EnumSet.noneOf(BlackenWindowState.class);
-        if ((oldState & Frame.ICONIFIED) != 0) {
-            set.add(BlackenWindowState.ICONIFIED);
-        } 
-        if ((oldState & Frame.MAXIMIZED_HORIZ) != 0) {
-            set.add(BlackenWindowState.MAXIMIZED_HORIZ);
-        } 
-        if ((oldState & Frame.MAXIMIZED_VERT) != 0) {
-            set.add(BlackenWindowState.MAXIMIZED_VERT);
-        }
-        w.setOldState(set);
+        int[] p = gui.findPositionForWindow(e.getY(), e.getX());
+        m.setPosition(p[0], p[1]);
+        m.setClickCount(rot);
+        m.setModifiers(BlackenModifier.getAsSet(makeModifierNotice(e)));
         try {
-            windowEvents.add(w);
+            mouseEvents.add(m);
         } catch(IllegalStateException err) {
             // XXX log this
             return;
         }
         try {
-            keyEvents.add(BlackenKeys.WINDOW_EVENT);
+            keyEvents.add(BlackenKeys.MOUSE_EVENT);
         } catch(IllegalStateException err) {
             // XXX log this
-            mouseEvents.remove(w);
+            mouseEvents.remove(m);
+        }
+    }
+
+    /**
+     * Pop the next key event
+     * @return the next key event; NO_KEY if no key
+     */
+    public int popKey() {
+        try {
+            return keyEvents.remove();
+        } catch (NoSuchElementException e) {
+            return BlackenKeys.NO_KEY;
+        }
+    }
+
+    /**
+     * Pop the next mouse event
+     * @return the next mouse event; null of none available
+     */
+    public BlackenMouseEvent popMouse() {
+        try {
+            return mouseEvents.remove();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Pop the next window event
+     * @return the next window event; null of none available
+     */
+    public BlackenWindowEvent popWindow() {
+        try {
+            return windowEvents.remove();
+        } catch (NoSuchElementException e) {
+            return null;
         }
     }
     
+    /**
+     * Push a key in to the the front of the queue
+     * @param key key to add
+     */
+    public synchronized void pushKey(int key) {
+        ArrayBlockingQueue<Integer> oldQueue = keyEvents;
+        keyEvents = new ArrayBlockingQueue<Integer>(NUMBER_OF_KEY_EVENTS);
+        try {
+            keyEvents.add(key);
+            keyEvents.addAll(oldQueue);
+        } catch(IllegalStateException err) {
+            keyEvents.addAll(oldQueue);
+            // XXX log this
+        }
+    }
+
+    /**
+     * Enable specific events.
+     * @param enabled events to enable.
+     */
+    public void setEnabled(BlackenEventType enabled) {
+        if (enabled == null) {
+            return;
+        }
+        this.enabled.add(enabled);
+    }
+
+    /**
+     * Set the enabled events to a specific set
+     * 
+     * @param enabled events to exclusively enable
+     */
+    public void setEnabled(EnumSet<BlackenEventType> enabled) {
+        if (enabled == null) {
+            clearEnabled();
+        } else {
+            this.enabled = enabled.clone();
+        }
+    }
+
+    /**
+     * Switch between two modes of processing incoming keys.
+     * 
+     * In Java you can't have right/left variant keys and use Unicode.
+     * 
+     * <p>The issue is there are two different types of key events, the
+     * low-level "keyPressed" and the higher-level "keyTyped" events.
+     * The keyTyped events don't get action keys and can't tell key
+     * locations. The keyPressed events don't get the full processing to get
+     * the full-set of characters (particularly some of the Unicode characters).
+     * </p>
+     * 
+     * <p>It would be nice if we could process the action keys in keyPressed
+     * and the keys that generate good, solid Unicode in keyTyped. 
+     * Unfortunately, Java makes that hard. We're stuck with one set of two
+     * bad options:</p>
+     * <ul>
+     * <li>We get no knowledge of keyboard variations for a number of
+     *     important keys (like those around the number pad). (When the
+     *     variantKeyMode is disabled.)</li>
+     * <li>We can't get full unicode processing done automatically. (When the
+     *     variantKeyMode is enabled, and the default.)</li>
+     * </ul>
+     * 
+     * <p>For the general Rogue-like use-case, we rarely care about full
+     * Unicode support. We need the option, of course, so that we can more
+     * easily support native non-English Roguelikes.
+     * 
+     * @param variantKeyMode the when true limit Unicode characters
+     */
+    public void setVariantKeyMode(boolean variantKeyMode) {
+        this.variantKeyMode = variantKeyMode;
+    }
+
+    /**
+     * Unset specific events
+     * @param disabled events to disable
+     */
+    public void unsetEnabled(BlackenEventType disabled) {
+        if (enabled == null) {
+            return;
+        }
+        this.enabled.remove(disabled);
+    }
+
     @Override
     public void windowActivated(WindowEvent e) {
         if (enabled.contains(BlackenEventType.WINDOW_ACTIVATED)) {
@@ -1056,28 +1136,19 @@ public class EventListener implements WindowListener, KeyListener,
     }
 
     @Override
-    public void windowIconified(WindowEvent e) {
-        if (enabled.contains(BlackenEventType.WINDOW_ICONIFIED)) {
-            BlackenWindowEvent w =
-                new BlackenWindowEvent(BlackenEventType.WINDOW_ICONIFIED);
-            loadWindow(e, w);
-        }
-    }
-
-    @Override
-    public void windowOpened(WindowEvent e) {
-        if (enabled.contains(BlackenEventType.WINDOW_OPENED)) {
-            BlackenWindowEvent w =
-                new BlackenWindowEvent(BlackenEventType.WINDOW_OPENED);
-            loadWindow(e, w);
-        }
-    }
-
-    @Override
     public void windowGainedFocus(WindowEvent e) {
         if (enabled.contains(BlackenEventType.WINDOW_GAINED_FOCUS)) {
             BlackenWindowEvent w =
                 new BlackenWindowEvent(BlackenEventType.WINDOW_GAINED_FOCUS);
+            loadWindow(e, w);
+        }
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+        if (enabled.contains(BlackenEventType.WINDOW_ICONIFIED)) {
+            BlackenWindowEvent w =
+                new BlackenWindowEvent(BlackenEventType.WINDOW_ICONIFIED);
             loadWindow(e, w);
         }
     }
@@ -1092,84 +1163,12 @@ public class EventListener implements WindowListener, KeyListener,
     }
 
     @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        BlackenMouseEvent m = 
-            new BlackenMouseEvent(BlackenEventType.MOUSE_WHEEL);
-        int rot = e.getWheelRotation();
-        if (rot < 0) {
-            m.setButton(4);
-            rot *= -1;
-        } else {
-            m.setButton(5);
+    public void windowOpened(WindowEvent e) {
+        if (enabled.contains(BlackenEventType.WINDOW_OPENED)) {
+            BlackenWindowEvent w =
+                new BlackenWindowEvent(BlackenEventType.WINDOW_OPENED);
+            loadWindow(e, w);
         }
-        int[] p = gui.findPositionForWindow(e.getY(), e.getX());
-        m.setPosition(p[0], p[1]);
-        m.setClickCount(rot);
-        m.setModifiers(BlackenModifier.getAsSet(makeModifierNotice(e)));
-        try {
-            mouseEvents.add(m);
-        } catch(IllegalStateException err) {
-            // XXX log this
-            return;
-        }
-        try {
-            keyEvents.add(BlackenKeys.MOUSE_EVENT);
-        } catch(IllegalStateException err) {
-            // XXX log this
-            mouseEvents.remove(m);
-        }
-    }
-
-    @Override
-    public void caretPositionChanged(InputMethodEvent e) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void inputMethodTextChanged(InputMethodEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /**
-     * Switch between two modes of processing incoming keys.
-     * 
-     * In Java you can't have right/left variant keys and use Unicode.
-     * 
-     * <p>The issue is there are two different types of key events, the
-     * low-level "keyPressed" and the higher-level "keyTyped" events.
-     * The keyTyped events don't get action keys and can't tell key
-     * locations. The keyPressed events don't get the full processing to get
-     * the full-set of characters (particularly some of the Unicode characters).
-     * </p>
-     * 
-     * <p>It would be nice if we could process the action keys in keyPressed
-     * and the keys that generate good, solid Unicode in keyTyped. 
-     * Unfortunately, Java makes that hard. We're stuck with one set of two
-     * bad options:</p>
-     * <ul>
-     * <li>We get no knowledge of keyboard variations for a number of
-     *     important keys (like those around the number pad). (When the
-     *     variantKeyMode is disabled.)</li>
-     * <li>We can't get full unicode processing done automatically. (When the
-     *     variantKeyMode is enabled, and the default.)</li>
-     * </ul>
-     * 
-     * <p>For the general Rogue-like use-case, we rarely care about full
-     * Unicode support. We need the option, of course, so that we can more
-     * easily support native non-English Roguelikes.
-     * 
-     * @param variantKeyMode the when true limit Unicode characters
-     */
-    public void setVariantKeyMode(boolean variantKeyMode) {
-        this.variantKeyMode = variantKeyMode;
-    }
-
-    /**
-     * @return the variant key mode state
-     */
-    public boolean isVariantKeyMode() {
-        return variantKeyMode;
     }
 
 }

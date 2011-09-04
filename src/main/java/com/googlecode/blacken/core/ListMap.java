@@ -50,7 +50,7 @@ import java.util.Set;
  * The List can have entries which are unlabeled, but a Map entry always has an
  * entry in the List. (Though it need not be 1:1.)</p>
  * 
- * @author Steven Black
+ * @author yam655
  * @param <K> Key
  * @param <V> Value
  *
@@ -84,6 +84,10 @@ implements List<V>, Cloneable, Serializable {
         public W getValue() { return value; }
         public void setIndex(int index) { this.index = index; }
         public void setValue(W value) { this.value = value; }
+        @Override
+        public String toString() {
+            return String.format("%d: %s", index, value); //$NON-NLS-1$
+        }
     }
 
     /**
@@ -160,7 +164,7 @@ implements List<V>, Cloneable, Serializable {
     /**
      * A List view in of the ListMap.
      * 
-     * @author Steven Black
+     * @author yam655
      */
     protected class ListMapView implements List<V>{
         private List<V> backing;
@@ -427,6 +431,10 @@ implements List<V>, Cloneable, Serializable {
         }
         public void setEntry(ListMapEntry<W> entry) {
             this.entry = new ListMapEntry<W>(entry);
+        }
+        @Override
+        public String toString() {
+            return String.format("%s -> %s", keys, entry); //$NON-NLS-1$
         }
     }
     
@@ -817,9 +825,7 @@ implements List<V>, Cloneable, Serializable {
         if (keyMap.containsKey(key)) {
             return keyMap.get(key).getValue();
         }
-        throw new IndexOutOfBoundsException(String.format
-                                            ("Key not found: %s",  //$NON-NLS-1$
-                                             key));
+        return null;
     }
     
     /**
@@ -1019,15 +1025,13 @@ implements List<V>, Cloneable, Serializable {
     
     protected void 
     consolidateEntries(Map<Integer, ConsolidatedListMapEntry<K, V>> map) {
-        // Map<Integer, ConsolidatedListMapEntry<K, V>> map;
-        map = new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
+        // map = new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
         ConsolidatedListMapEntry<K, V> clme;
         for (K key : keyMap.keySet()) {
             ListMapEntry<V> entry = keyMap.get(key);
             Integer idx = entry.getIndex();
-            if (map.containsKey(idx)) {
-                clme = map.get(key);
-            } else {
+            clme = map.get(idx);
+            if (clme == null) {
                 clme = new ConsolidatedListMapEntry<K, V>();
                 clme.setEntry(entry);
                 map.put(idx, clme);
@@ -1035,7 +1039,6 @@ implements List<V>, Cloneable, Serializable {
             clme.addKey(key);
             
         }
-        // return map;
     }
     
     /**
@@ -1059,10 +1062,22 @@ implements List<V>, Cloneable, Serializable {
             if (!clmes.containsKey(idx)) {
                 throw new IndexOutOfBoundsException(String.format(
                  "requested index out of bounds: %d requested; size is only %d", //$NON-NLS-1$
-                 idx, this.size()));
+                 idx, clmes.size()));
             }
-            this.add((K[])clmes.get(idx).getKeys().toArray(),
-                     clmes.get(idx).getValue());
+            Integer oldidx = null;
+            for (K key : clmes.get(idx).getKeys()) {
+                if (this.containsKey(key)) {
+                    oldidx = this.indexOfKey(key);
+                    break;
+                }
+            }
+            if (oldidx == null) {
+                this.add((K[])clmes.get(idx).getKeys().toArray(),
+                         clmes.get(idx).getValue());
+            } else {
+                set(oldidx, clmes.get(idx).getValue());
+                putKey((K[])clmes.get(idx).getKeys().toArray(), oldidx);
+            }
         }
     }
     
@@ -1154,8 +1169,11 @@ implements List<V>, Cloneable, Serializable {
         Iterator<Entry<K, ListMapEntry<V>>> i = entries.iterator();
         while(i.hasNext()) {
             Entry<K, ListMapEntry<V>> entry = i.next();
-            if (entry == null || entry.getValue() == null) {
+            if (entry == null) {
+                // should never happen
                 i.remove();
+            } else if (entry.getValue() == null) {
+                continue;
             } else if (entry.getValue().getIndex() == index) {
                 i.remove();
             }
@@ -1167,15 +1185,23 @@ implements List<V>, Cloneable, Serializable {
         if (old == null) return null;
         return old.getValue();
     }
+    /*
+     * (non-Javadoc)
+     * @see java.util.List#remove(java.lang.Object)
+     */
     @Override
     public boolean remove(Object value) {
         int origSize = this.size();
-        int index = valueList.indexOf(value);
+        int index = indexOf(value);
         if (index == -1) return false;
         remove(index);
         return this.size() != origSize;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see java.util.List#removeAll(java.util.Collection)
+     */
     @Override
     public boolean removeAll(Collection<?> values) {
         int origSize = this.size();
@@ -1192,7 +1218,7 @@ implements List<V>, Cloneable, Serializable {
      * any other keys or aliases using the same index.</p>
      * 
      * <p>To perform a complete removal, you can call {@link #remove(int)} on
-     * the results of this function safely. (It will ignore indexes of -1.)</p>
+     * the results of this function. (It will ignore indexes of -1.)</p>
      * 
      * @param key key to remove
      * @return index value used by the key or -1 if not found
@@ -1285,6 +1311,14 @@ implements List<V>, Cloneable, Serializable {
     @Override
     public <T> T[] toArray(T[] a) {
         T[] ret;
+        if (size() == 0) {
+            return a;
+        }
+        V sample = get(0);
+        if (!a.getClass().getComponentType()
+                .isAssignableFrom(sample.getClass())) {
+            throw new ArrayStoreException();
+        }
         if (a.length >= this.size()) {
             ret = a;
         } else {
