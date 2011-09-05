@@ -62,6 +62,8 @@ implements List<V>, Cloneable, Serializable {
      * ListMaps.
      * 
      * @author yam655
+     * @param <L> Key type
+     * @param <W> Value type
      */
     protected static class ConsolidatedListMapEntry<L, W> {
         private Set<L> keys;
@@ -73,9 +75,17 @@ implements List<V>, Cloneable, Serializable {
             this.keys = new HashSet<L>();
             this.entry = new ListMapEntry<W>();
         }
+        /**
+         * Add a new key to the entry
+         * @param key the key to add
+         */
         public void addKey(L key) {
             keys.add(key);
         }
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
         @Override
         public boolean equals(Object other) {
             if (this == other) {
@@ -87,9 +97,17 @@ implements List<V>, Cloneable, Serializable {
             ConsolidatedListMapEntry<?,?> othr = (ConsolidatedListMapEntry<?,?>)other;
             return keys.equals(othr.keys) && entry.equals(entry);
         }
+        /**
+         * Get the ListMapEntry
+         * @return the ListMapEntry
+         */
         public ListMapEntry<W> getEntry() {
             return entry;
         }
+        /**
+         * Get the index from the entry
+         * @return the index
+         */
         public int getIndex() {
             return entry.getIndex();
         }
@@ -100,9 +118,17 @@ implements List<V>, Cloneable, Serializable {
         public Collection<L> getKeys() {
             return keys;
         }
+        /**
+         * Get the value from the entry
+         * @return the value
+         */
         public W getValue() {
             return entry.getValue();
         }
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Object#hashCode()
+         */
         @Override
         public int hashCode() {
             int ret = 1;
@@ -110,18 +136,38 @@ implements List<V>, Cloneable, Serializable {
             ret = ret * 31 + entry.hashCode();
             return ret;
         }
+        /**
+         * Set the ListMapEntry
+         * @param entry the entry
+         */
         public void setEntry(ListMapEntry<W> entry) {
             this.entry = new ListMapEntry<W>(entry);
         }
+        /**
+         * Set the index on the entry
+         * @param index the index
+         */
         public void setIndex(int index) {
             this.entry.setIndex(index);
         }
+        /**
+         * Set the entire set of keys
+         * @param keys the entire set of keys
+         */
         public void setKeys(Collection<L> keys) {
             this.keys = new HashSet<L>(keys);
         }
+        /**
+         * Set the value on the entry
+         * @param value the value
+         */
         public void setValue(W value) {
             this.entry.setValue(value);
         }
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         @Override
         public String toString() {
             return String.format("%s -> %s", keys, entry); //$NON-NLS-1$

@@ -16,6 +16,7 @@
  */
 package com.googlecode.blacken.colors;
 
+
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
@@ -270,11 +271,13 @@ public class ColorHelper {
                 color.startsWith("0X")) { //$NON-NLS-1$
             color = color.substring(2);
             int c;
+            long trialC;
             try {
-                c = Integer.parseInt(color, 16);
+                trialC = Long.parseLong(color, 16);
             } catch(NumberFormatException e) {
                 throw new InvalidStringFormatException(e);
             }
+            c = (int)(trialC & 0xffffffffL);
             if (color.length() == 6) {
                 return makeOpaque(c);
             } else if (color.length() == 8) {
@@ -396,4 +399,5 @@ public class ColorHelper {
         ret = ret | (color & 0x00ffffff);
         return ret;
     }
+    
 }

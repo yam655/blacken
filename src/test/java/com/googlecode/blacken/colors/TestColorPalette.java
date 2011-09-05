@@ -146,6 +146,55 @@ public class TestColorPalette {
         assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand")); //$NON-NLS-1$
     }
 
+
+    /**
+     * This command accepts an array of strings and turns them as additional
+     * names in a color palette.
+     */
+    @Test
+    public void getMapping_StringArray() {
+        String[] origMapping = {
+                    "black / Black -> #000", //$NON-NLS-1$
+                    "white / White -> #fff", //$NON-NLS-1$
+                    "name with spaces -> #00aa22", //$NON-NLS-1$
+                    "name / alternate name -> #ffffff", //$NON-NLS-1$
+                    "Name / Case Sensitive -> #a98765", //$NON-NLS-1$
+                    "remember hex works, too -> 0x12ab9f", //$NON-NLS-1$
+                    "hex supports alpha -> 0x11335577", //$NON-NLS-1$
+                    "space/is->needed -> #098abd", //$NON-NLS-1$
+                    "web shorthand -> #39f" //$NON-NLS-1$
+        };
+        String[] expectedMapping = {
+                                "Black / black -> 0xff000000", //$NON-NLS-1$
+                                "White / white -> 0xffffffff", //$NON-NLS-1$
+                                "name with spaces -> 0xff00aa22", //$NON-NLS-1$
+                                "alternate name / name -> 0xffffffff", //$NON-NLS-1$
+                                "Case Sensitive / Name -> 0xffa98765", //$NON-NLS-1$
+                                "remember hex works, too -> 0xff12ab9f", //$NON-NLS-1$
+                                "hex supports alpha -> 0x11335577", //$NON-NLS-1$
+                                "space/is->needed -> 0xff098abd", //$NON-NLS-1$
+                                "web shorthand -> 0xff3399ff" //$NON-NLS-1$
+                    };
+        ColorPalette cp2 = new ColorPalette();
+        cp2.addMapping(origMapping);
+        String[] gotMapping = cp2.getMapping();
+        ColorPalette cp1 = new ColorPalette();
+        cp1.addMapping(gotMapping);
+        assertEquals(expectedMapping.length, cp1.size());
+        assertEquals(new Integer(0xff000000), cp1.get("black")); //$NON-NLS-1$
+        assertEquals(cp1.indexOf("Black"), cp1.indexOf("black"));  //$NON-NLS-1$//$NON-NLS-2$
+        assertEquals(new Integer(0xffffffff), cp1.get("white")); //$NON-NLS-1$
+        assertEquals(cp1.indexOf("White"), cp1.indexOf("white"));  //$NON-NLS-1$//$NON-NLS-2$
+        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces")); //$NON-NLS-1$
+        assertEquals(new Integer(0xffffffff), cp1.get("name")); //$NON-NLS-1$
+        assertEquals(new Integer(0xffa98765), cp1.get("Name")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too")); //$NON-NLS-1$
+        assertEquals(new Integer(0x11335577), cp1.get(6));
+        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand")); //$NON-NLS-1$
+        assertArrayEquals(expectedMapping, gotMapping);
+    }
+
     /**
      * Create a new empty palette.
      */

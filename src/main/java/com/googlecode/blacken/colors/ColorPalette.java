@@ -16,8 +16,12 @@
  */
 package com.googlecode.blacken.colors;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.googlecode.blacken.core.ListMap;
@@ -241,28 +245,8 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @return true if the colors were set, false otherwise
      */
     public boolean addMapping(String[] colors) {
-        if (colors == null || colors.length == 0) {
-            return false;
-        }
-        for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
-            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
-            if (s.length == 1) {
-                throw new RuntimeException(String.format
-                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
-                                            color));
-            }
-            Integer colr;
-            try {
-                colr = ColorHelper.makeColor(s[1]);
-            } catch (InvalidStringFormatException e) {
-                throw new RuntimeException(e);
-            }
-            add(names, colr);
-        }
-        return true;
+        return processMapping(colors, true);
     }
-
     /**
      * Helper function to bypass the palette if it wasn't used.
      * 
@@ -291,6 +275,92 @@ public class ColorPalette extends ListMap<String, Integer> {
     }
 
     /**
+     * Create a mapping array from the palette
+     * 
+     * @return mapping array
+     */
+    public String[] getMapping() {
+        List<String> ret = new ArrayList<String>(size());
+        Map<Integer, ConsolidatedListMapEntry<String, Integer>> ce = 
+            new HashMap<Integer, ConsolidatedListMapEntry<String, Integer>>();
+        this.consolidateEntries(ce );
+        for (Integer i = 0; i < ce.size(); i++) {
+            ConsolidatedListMapEntry<String, Integer> e = ce.get(i);
+            StringBuffer buf = new StringBuffer();
+            List<String> sortKeys = new ArrayList<String>(e.getKeys());
+            Collections.sort(sortKeys);
+            for (String key : sortKeys) {
+                if (buf.length() > 0) {
+                    buf.append(" / "); //$NON-NLS-1$
+                }
+                buf.append(key);
+            }
+            if (buf.length() > 0) {
+                buf.append(" -> "); //$NON-NLS-1$
+            }
+            buf.append(String.format("%#08x", e.getValue())); //$NON-NLS-1$
+            ret.add(buf.toString());
+        }
+        return ret.toArray(new String[0]);
+    }
+
+    /**
+     * Process both the add and put mapping commands
+     * @param colors color mapping array
+     * @param onlyAdd true: only do add; false: do put or add
+     * @return true if change, false otherwise
+     */
+    private boolean processMapping(String[] colors, boolean onlyAdd) {
+        if (colors == null || colors.length == 0) {
+            return false;
+        }
+        for (final String color : colors) {
+            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
+            final String names[];
+            final String colorDef;
+            if (s.length == 1) {
+                if (ColorHelper.isColorDefinition(s[0])) {
+                    colorDef = s[0];
+                    names = new String[0];
+                } else {
+                    throw new RuntimeException(String.format
+                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                            color));
+                }
+            } else {
+                names = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
+                colorDef = s[1];
+            }
+            Integer colr;
+            try {
+                colr = ColorHelper.makeColor(colorDef);
+            } catch (InvalidStringFormatException e) {
+                throw new RuntimeException(e);
+            }
+            Integer idx = -1;
+            if (!onlyAdd) {
+                for (final String n : names) {
+                    if (this.containsKey(n)) {
+                        idx = this.indexOfKey(n);
+                        break;
+                    }
+                }
+            }
+            if (idx == -1) {
+                if (names.length == 0) {
+                    add(colr);
+                } else {
+                    add(names, colr);
+                }
+            } else {
+                this.set(idx, colr);
+                putKey(names, idx);
+            }
+        }
+        return true;
+    }
+
+    /**
      * Update both an indexed color, as well as a name for the color. This will
      * overwrite an existing value.
      * 
@@ -309,7 +379,7 @@ public class ColorPalette extends ListMap<String, Integer> {
         this.put(name, color);
         return indexOfKey(name);
     }
-
+    
     /**
      * This command accepts an array of strings and turns them in to a color
      * palette. The format of the strings are as follows:
@@ -341,39 +411,6 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @return true if the colors were set, false otherwise
      */
     public boolean putMapping(String[] colors) {
-        if (colors == null || colors.length == 0) {
-            return false;
-        }
-        for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
-            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
-            if (s.length == 1) {
-                throw new RuntimeException(String.format
-                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
-                                            color));
-            }
-            Integer colr;
-            try {
-                colr = ColorHelper.makeColor(s[1]);
-            } catch (InvalidStringFormatException e) {
-                throw new RuntimeException(e);
-            }
-
-            Integer idx = -1;
-            for (final String n : names) {
-                // fast and (possibly) common
-                if (this.containsKey(n)) {
-                    idx = this.indexOfKey(n);
-                    break;
-                }
-            }
-            if (idx == -1) {
-                this.add(names, colr);
-            } else {
-                this.set(idx, colr);
-                putKey(names, idx);
-            }
-        }
-        return true;
+        return processMapping(colors, false);
     }
 }
