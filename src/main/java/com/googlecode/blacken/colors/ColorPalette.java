@@ -60,24 +60,6 @@ public class ColorPalette extends ListMap<String, Integer> {
     }
 
     /**
-     * Create a palette based upon an existing palette and an explicit order.
-     * 
-     * <p>This is used to change the order of a palette.</p>
-     * 
-     * <p>Note that due to the use of {@link #putAll(ListMap, String[])}
-     * items in the <code>existingPalette</code> which do not exist in the
-     * <code>order</code> will not exist in the returning palette.</p> 
-     * 
-     * @param existingPalette existing palette
-     * @param order explicit order
-     */
-    public ColorPalette(ListMap<String, Integer> existingPalette, 
-                        String[] order) {
-        super(order.length);
-        putAll(existingPalette, order);
-    }
-
-    /**
      * Create a new empty palette.
      * 
      * @param initialCapacity initial capacity
@@ -93,7 +75,25 @@ public class ColorPalette extends ListMap<String, Integer> {
      */
     public ColorPalette(ListMap<String, Integer> colors) {
         super(colors.size());
-        addAll(colors.entrySet());
+        addAll(colors);
+    }
+
+    /**
+     * Create a palette based upon an existing palette and an explicit order.
+     * 
+     * <p>This is used to change the order of a palette.</p>
+     * 
+     * <p>Note that due to the use of {@link #putAll(ListMap, String[])}
+     * items in the <code>existingPalette</code> which do not exist in the
+     * <code>order</code> will not exist in the returning palette.</p> 
+     * 
+     * @param existingPalette existing palette
+     * @param order explicit order
+     */
+    public ColorPalette(ListMap<String, Integer> existingPalette, 
+                        String[] order) {
+        super(order.length);
+        putAll(existingPalette, order);
     }
 
     /**
@@ -154,7 +154,7 @@ public class ColorPalette extends ListMap<String, Integer> {
             rgba = ColorHelper.neverTransparent(rgba);
         }
         int idx = this.size();
-        this.add(name, rgba);
+        this.add(name, new Integer(rgba));
         put(name, rgba);
         return idx;
     }
@@ -163,6 +163,9 @@ public class ColorPalette extends ListMap<String, Integer> {
      * Add both an indexed color, as well as a name for the color. This makes
      * no attempt to prevent duplication in the index or in overwriting the
      * existing value in the nameMap.
+     * 
+     * <p>This includes a call to {@link ColorHelper#neverTransparent(int)} so
+     * \#112233 will show the same as 0xFF112233 -- as you would expect.</p>
      * 
      * @param name The name of the color
      * @param colordef The text color definition (#RRGGBB, 0xAARRGGBB, etc)
@@ -173,21 +176,18 @@ public class ColorPalette extends ListMap<String, Integer> {
     public int add(String name, String colordef) 
     throws InvalidStringFormatException {
         final Integer color = ColorHelper.makeColor(colordef);
-        int idx = this.size();
-        this.add(color);
-        put(name, color);
-        return idx;
+        this.add(name, color);
+        return indexOfKey(name);
     }
 
     /**
      * This is designed as a helper to load a palette based upon color
-     * values. It does not wipe the existing palette, if you want the new
-     * indexes to start at 0 you should call <code>unindex()</code> first.
-     * <p>
-     * It is optimized for reuse of the Integer objects, if available. This
+     * values. It does not wipe the existing palette.
+     * 
+     * <p>It is optimized for reuse of the Integer objects, if available. This
      * means it will walk your indexed palette as well as your nameMap, as
      * there is never any guarantee that they will have the same colors.
-     * (However it walks these only once.)
+     * (However it walks these only once.)</p>
      * 
      * @param colors an array colors stored as ints (0xRRGGBB or 0xAARRGGBB)
      * @param has_alpha indicates whether a valid alpha channel is present
@@ -215,18 +215,26 @@ public class ColorPalette extends ListMap<String, Integer> {
      * color -> #RRGGBB
      * name with spaces -> #00aa22
      * name / alternate name -> #ffffff
+     * Name / Case Sensitive -> #a98765
      * remember hex works, too -> 0x12ab9f
+     * hex supports alpha -> 0x11335577
      * space/is->needed -> #098abd
+     * web shorthand -> #39f
      * </pre>
      * 
-     * All the above are valid (except #RRGGBB is not -- it only indicates
+     * <p>All the above are valid (except #RRGGBB is not -- it only indicates
      * these are standard red-green-blue hex values), but only
      * "name / alternate name" produced more than one name mapping. (It
      * produces two names for the same color.) The spaces are required
      * before/after the "->" and the "/" for them to have meaning. The
      * behavior is very much like the load(Strings[]) function, except this
      * does not clear the palette, and it does not put the colors on the list
-     * of colors available by index position.
+     * of colors available by index position.</p>
+     * 
+     * <p>Note that hex has full support for alpha -- if you specify 8 hex 
+     * digits it will allow you to set zero (0) alpha making it fully 
+     * transparent. If you only specify 6 digits it performs the standard
+     * {@link ColorHelper#neverTransparent(int)} logic.</p>
      * 
      * @param colors
      *            array of strings containing color mapping information
@@ -237,71 +245,20 @@ public class ColorPalette extends ListMap<String, Integer> {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+#", 2); //$NON-NLS-1$
+            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
             final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
             if (s.length == 1) {
                 throw new RuntimeException(String.format
                                            ("Color format lacked '->': %s",  //$NON-NLS-1$
                                             color));
             }
-            final Integer colr = Integer.valueOf(s[1], 16);
+            Integer colr;
+            try {
+                colr = ColorHelper.makeColor(s[1]);
+            } catch (InvalidStringFormatException e) {
+                throw new RuntimeException(e);
+            }
             add(names, colr);
-        }
-        return true;
-    }
-
-    /**
-     * This command accepts an array of strings and turns them in to a color
-     * palette. The format of the strings are as follows:
-     * 
-     * <pre>
-     * color -> #RRGGBB
-     * name with spaces -> #00aa22
-     * name / alternate name -> #ffffff
-     * remember hex works, too -> 0x12ab9f
-     * space/is->needed -> #098abd
-     * </pre>
-     * 
-     * All the above are valid (except #RRGGBB is not -- it only indicates
-     * these are standard red-green-blue hex values), but only
-     * "name / alternate name" produced more than one name mapping. (It
-     * produces two names for the same color.) The spaces are required
-     * before/after the "->" and the "/" for them to have meaning.
-     * 
-     * @param colors
-     *            array of strings containing color mapping information
-     * @return true if the colors were set, false otherwise
-     */
-    public boolean putMapping(String[] colors) {
-        if (colors == null || colors.length == 0) {
-            return false;
-        }
-        for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+#", 2); //$NON-NLS-1$
-            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
-            if (s.length == 1) {
-                throw new RuntimeException(String.format
-                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
-                                            color));
-            }
-            final Integer colr = Integer.valueOf(s[1], 16);
-            Integer idx = -1;
-            for (final String n : names) {
-                // fast and (possibly) common
-                if (this.containsKey(n)) {
-                    idx = this.indexOfKey(n);
-                    break;
-                }
-            }
-            if (idx == -1) {
-                // slow
-                idx = this.indexOf(colr);
-            }
-            if (idx == -1) {
-                this.add(names, colr);
-            } else {
-                putKey(names, idx);
-            }
         }
         return true;
     }
@@ -331,5 +288,92 @@ public class ColorPalette extends ListMap<String, Integer> {
             ret = indexOrColor;
         }
         return ret;
+    }
+
+    /**
+     * Update both an indexed color, as well as a name for the color. This will
+     * overwrite an existing value.
+     * 
+     * <p>This includes a call to {@link ColorHelper#neverTransparent(int)} so
+     * \#112233 will show the same as 0xFF112233 -- as you would expect.</p>
+     * 
+     * @param name The name of the color
+     * @param colordef The text color definition (#RRGGBB, 0xAARRGGBB, etc)
+     * @return true on success
+     * @throws InvalidStringFormatException 
+     *          <code>colordef</code> provided was illegal.
+     */
+    public int put(String name, String colordef) 
+    throws InvalidStringFormatException {
+        final Integer color = ColorHelper.makeColor(colordef);
+        this.put(name, color);
+        return indexOfKey(name);
+    }
+
+    /**
+     * This command accepts an array of strings and turns them in to a color
+     * palette. The format of the strings are as follows:
+     * 
+     * <pre>
+     * color -> #RRGGBB
+     * name with spaces -> #00aa22
+     * name / alternate name -> #ffffff
+     * Name / Case Sensitive -> #a98765
+     * remember hex works, too -> 0x12ab9f
+     * hex supports alpha -> 0x11335577
+     * space/is->needed -> #098abd
+     * web shorthand -> #39f
+     * </pre>
+     * 
+     * <p>All the above are valid (except #RRGGBB is not -- it only indicates
+     * these are standard red-green-blue hex values), but only
+     * "name / alternate name" produced more than one name mapping. (It
+     * produces two names for the same color.) The spaces are required
+     * before/after the "->" and the "/" for them to have meaning.</p>
+     * 
+     * <p>Note that hex has full support for alpha -- if you specify 8 hex 
+     * digits it will allow you to set zero (0) alpha making it fully 
+     * transparent. If you only specify 6 digits it performs the standard
+     * {@link ColorHelper#neverTransparent(int)} logic.</p>
+     * 
+     * @param colors
+     *            array of strings containing color mapping information
+     * @return true if the colors were set, false otherwise
+     */
+    public boolean putMapping(String[] colors) {
+        if (colors == null || colors.length == 0) {
+            return false;
+        }
+        for (final String color : colors) {
+            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
+            final String names[] = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
+            if (s.length == 1) {
+                throw new RuntimeException(String.format
+                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                            color));
+            }
+            Integer colr;
+            try {
+                colr = ColorHelper.makeColor(s[1]);
+            } catch (InvalidStringFormatException e) {
+                throw new RuntimeException(e);
+            }
+
+            Integer idx = -1;
+            for (final String n : names) {
+                // fast and (possibly) common
+                if (this.containsKey(n)) {
+                    idx = this.indexOfKey(n);
+                    break;
+                }
+            }
+            if (idx == -1) {
+                this.add(names, colr);
+            } else {
+                this.set(idx, colr);
+                putKey(names, idx);
+            }
+        }
+        return true;
     }
 }

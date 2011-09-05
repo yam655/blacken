@@ -58,9 +58,75 @@ import java.util.Set;
 public class ListMap<K, V> 
 implements List<V>, Cloneable, Serializable {
     /**
-     * serialization ID
+     * The Consolidated List Map entry allows for easier copying between 
+     * ListMaps.
+     * 
+     * @author yam655
      */
-    private static final long serialVersionUID = -7653656645601041720L;
+    protected static class ConsolidatedListMapEntry<L, W> {
+        private Set<L> keys;
+        private ListMapEntry<W> entry;
+        /**
+         * Create new consolidated list map entry.
+         */
+        public ConsolidatedListMapEntry() {
+            this.keys = new HashSet<L>();
+            this.entry = new ListMapEntry<W>();
+        }
+        public void addKey(L key) {
+            keys.add(key);
+        }
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof ConsolidatedListMapEntry)) {
+                return false;
+            }
+            ConsolidatedListMapEntry<?,?> othr = (ConsolidatedListMapEntry<?,?>)other;
+            return keys.equals(othr.keys) && entry.equals(entry);
+        }
+        public ListMapEntry<W> getEntry() {
+            return entry;
+        }
+        public int getIndex() {
+            return entry.getIndex();
+        }
+        /**
+         * Get the list of keys
+         * @return the key list
+         */
+        public Collection<L> getKeys() {
+            return keys;
+        }
+        public W getValue() {
+            return entry.getValue();
+        }
+        @Override
+        public int hashCode() {
+            int ret = 1;
+            ret = ret * 31 + keys.hashCode();
+            ret = ret * 31 + entry.hashCode();
+            return ret;
+        }
+        public void setEntry(ListMapEntry<W> entry) {
+            this.entry = new ListMapEntry<W>(entry);
+        }
+        public void setIndex(int index) {
+            this.entry.setIndex(index);
+        }
+        public void setKeys(Collection<L> keys) {
+            this.keys = new HashSet<L>(keys);
+        }
+        public void setValue(W value) {
+            this.entry.setValue(value);
+        }
+        @Override
+        public String toString() {
+            return String.format("%s -> %s", keys, entry); //$NON-NLS-1$
+        }
+    }
 
     protected static class ListMapEntry<W> {
         private W value;
@@ -69,10 +135,6 @@ implements List<V>, Cloneable, Serializable {
             setValue(null);
             setIndex(-1);
         }
-        public ListMapEntry(W value, int index) {
-            setValue(value);
-            setIndex(index);
-        }
         /**
          * @param entry an existing list-map entry
          */
@@ -80,8 +142,30 @@ implements List<V>, Cloneable, Serializable {
             setValue(entry.value);
             setIndex(entry.index);
         }
+        public ListMapEntry(W value, int index) {
+            setValue(value);
+            setIndex(index);
+        }
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof ListMapEntry)) {
+                return false;
+            }
+            ListMapEntry<?> othr = (ListMapEntry<?>)other;
+            return index == othr.index && value.equals(othr.value);
+        }
         public int getIndex() { return index; }
         public W getValue() { return value; }
+        @Override
+        public int hashCode() {
+            int ret = 1;
+            ret = ret * 31 + (value == null ? 0 : value.hashCode());
+            ret = ret * 31 + new Integer(index).hashCode();
+            return ret;
+        }
         public void setIndex(int index) { this.index = index; }
         public void setValue(W value) { this.value = value; }
         @Override
@@ -386,57 +470,9 @@ implements List<V>, Cloneable, Serializable {
     }
     
     /**
-     * The Consolidated List Map entry allows for easier copying between 
-     * ListMaps.
-     * 
-     * @author yam655
+     * serialization ID
      */
-    protected static class ConsolidatedListMapEntry<L, W> {
-        private Set<L> keys;
-        private ListMapEntry<W> entry;
-        /**
-         * Create new consolidated list map entry.
-         */
-        public ConsolidatedListMapEntry() {
-            this.keys = new HashSet<L>();
-            this.entry = new ListMapEntry<W>();
-        }
-        /**
-         * Get the list of keys
-         * @return the key list
-         */
-        public Collection<L> getKeys() {
-            return keys;
-        }
-        public void addKey(L key) {
-            keys.add(key);
-        }
-        public void setKeys(Collection<L> keys) {
-            this.keys = new HashSet<L>(keys);
-        }
-        public void setValue(W value) {
-            this.entry.setValue(value);
-        }
-        public void setIndex(int index) {
-            this.entry.setIndex(index);
-        }
-        public W getValue() {
-            return entry.getValue();
-        }
-        public int getIndex() {
-            return entry.getIndex();
-        }
-        public ListMapEntry<W> getEntry() {
-            return entry;
-        }
-        public void setEntry(ListMapEntry<W> entry) {
-            this.entry = new ListMapEntry<W>(entry);
-        }
-        @Override
-        public String toString() {
-            return String.format("%s -> %s", keys, entry); //$NON-NLS-1$
-        }
-    }
+    private static final long serialVersionUID = 8849864398418605556L;
     
     private List<ListMapEntry<V>> valueList = null;
     private Map<K, ListMapEntry<V>> keyMap = new HashMap<K, ListMapEntry<V>>();
@@ -449,15 +485,6 @@ implements List<V>, Cloneable, Serializable {
         keyMap = new HashMap<K, ListMapEntry<V>>();
     }
     /**
-     * Create a ListMap expecting a particular size
-     * 
-     * @param size expected size
-     */
-    public ListMap(int size) {
-        valueList = new ArrayList<ListMapEntry<V>>(size);
-        keyMap = new HashMap<K, ListMapEntry<V>>(size);
-    }
-    /**
      * Create a ListMap based upon an ordered Collection
      * 
      * @param collection base collection
@@ -466,6 +493,15 @@ implements List<V>, Cloneable, Serializable {
         valueList = new ArrayList<ListMapEntry<V>>(collection.size());
         keyMap = new HashMap<K, ListMapEntry<V>>();
         this.addAll(collection);
+    }
+    /**
+     * Create a ListMap expecting a particular size
+     * 
+     * @param size expected size
+     */
+    public ListMap(int size) {
+        valueList = new ArrayList<ListMapEntry<V>>(size);
+        keyMap = new HashMap<K, ListMapEntry<V>>(size);
     }
     /**
      * Create a ListMap based upon an existing ListMap
@@ -547,43 +583,10 @@ implements List<V>, Cloneable, Serializable {
         }
         return true;
     }
-    /**
-     * A version of {@link #add(Object[], Object)} that will work with varargs.
-     * 
-     * @param value value to assign to the keys
-     * @param keys array of keys
-     * @return true on change
-     */
-    public boolean addAndLabel(V value, K... keys) {
-        return add(keys, value);
-    }
     @Override
     public boolean add(V value) {
         ListMapEntry<V> e = new ListMapEntry<V>(value, valueList.size());
         return this.valueList.add(e);
-    }
-    /**
-     * Add an existing ListMap to the end of this one.
-     * 
-     * <p>This first copies all of the indexed entries, then goes through
-     * and adds or updates the names to point to the newly added indexed 
-     * entries. This always adds all of the indexes to the end of the current
-     * ListMap, and the new/updated keys always only point to the new 
-     * entries.</p>
-     * 
-     * @param old the old ListMap
-     * @return true
-     */
-    public boolean addAll(ListMap<K, V> old) {
-        if (old.size() == 0) return false;
-        int add = this.size();
-        for (V value : old) {
-            add(value);
-        }
-        for (Entry<K, ListMapEntry<V>> entry : old.keyMap.entrySet()) {
-            putKey(entry.getKey(), entry.getValue().getIndex() + add);
-        }
-        return true;
     }
     /**
      * Add the indexed <code>values</code> to the end of this list.
@@ -614,7 +617,6 @@ implements List<V>, Cloneable, Serializable {
         reindex(index);
         return ret;
     }
-
     /**
      * Add a set of values at a particular index position.
      * 
@@ -654,6 +656,7 @@ implements List<V>, Cloneable, Serializable {
         }
         return;
     }
+
     /**
      * Add a synchronized pair of key and item Lists.
      * 
@@ -674,7 +677,29 @@ implements List<V>, Cloneable, Serializable {
         }
         return;
     }
-    
+    /**
+     * Add an existing ListMap to the end of this one.
+     * 
+     * <p>This first copies all of the indexed entries, then goes through
+     * and adds or updates the names to point to the newly added indexed 
+     * entries. This always adds all of the indexes to the end of the current
+     * ListMap, and the new/updated keys always only point to the new 
+     * entries.</p>
+     * 
+     * @param old the old ListMap
+     * @return true
+     */
+    public boolean addAll(ListMap<K, V> old) {
+        if (old.size() == 0) return false;
+        int add = this.size();
+        for (V value : old) {
+            add(value);
+        }
+        for (Entry<K, ListMapEntry<V>> entry : old.keyMap.entrySet()) {
+            putKey(entry.getKey(), entry.getValue().getIndex() + add);
+        }
+        return true;
+    }
     /**
      * Add a set of keys from an existing ListMap in a particular order.
      * 
@@ -688,6 +713,7 @@ implements List<V>, Cloneable, Serializable {
             this.add(key, old.get(key));
         }
     }
+    
     /**
      * @param list set of entries to add
      */
@@ -697,7 +723,6 @@ implements List<V>, Cloneable, Serializable {
         }
         return;
     }
-
     /**
      * Add an array of values.
      * 
@@ -715,6 +740,17 @@ implements List<V>, Cloneable, Serializable {
     }
 
     /**
+     * A version of {@link #add(Object[], Object)} that will work with varargs.
+     * 
+     * @param value value to assign to the keys
+     * @param keys array of keys
+     * @return true on change
+     */
+    public boolean addAndLabel(V value, K... keys) {
+        return add(keys, value);
+    }
+
+    /**
      * Clear both the index as well as the name map.
      */
     @Override
@@ -728,6 +764,24 @@ implements List<V>, Cloneable, Serializable {
      */
     public void clearKeys() {
         keyMap.clear();
+    }
+
+    protected void 
+    consolidateEntries(Map<Integer, ConsolidatedListMapEntry<K, V>> map) {
+        // map = new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
+        ConsolidatedListMapEntry<K, V> clme;
+        for (K key : keyMap.keySet()) {
+            ListMapEntry<V> entry = keyMap.get(key);
+            Integer idx = entry.getIndex();
+            clme = map.get(idx);
+            if (clme == null) {
+                clme = new ConsolidatedListMapEntry<K, V>();
+                clme.setEntry(entry);
+                map.put(idx, clme);
+            }
+            clme.addKey(key);
+            
+        }
     }
 
     /**
@@ -805,7 +859,42 @@ implements List<V>, Cloneable, Serializable {
         }
         return set;
     }
-
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ListMap)) {
+            return false;
+        }
+        ListMap<?, ?> othr = (ListMap<?, ?>)other;
+        if (othr.size() != this.size()) return false;
+        if (othr.keyMap.size() != this.keyMap.size()) return false;
+        if (this.keyMap.size() != 0) {
+            if (!othr.keyMap.keySet().iterator().next().getClass()
+                    .isAssignableFrom(this.keyMap.keySet().iterator()
+                                      .next().getClass())) {
+                return false;
+            }
+        }
+        for (int i = 0; i < size(); i++) {
+            if (!this.get(i).equals(othr.get(i))) {
+                return false;
+            }
+        }
+        for (Object key : othr.keySet()) {
+            if (!this.containsKey((K) key))  {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /**
      * Get the value for an index
      */
@@ -813,6 +902,7 @@ implements List<V>, Cloneable, Serializable {
     public V get(int index) {
         return valueList.get(index).getValue();
     }
+
     /**
      * Get the value for a key
      * 
@@ -827,7 +917,6 @@ implements List<V>, Cloneable, Serializable {
         }
         return null;
     }
-    
     /**
      * Walk the entries to find the key related to a value.
      * 
@@ -848,6 +937,22 @@ implements List<V>, Cloneable, Serializable {
             }
         }
         return found;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        int ret = 1;
+        Map<Integer, ConsolidatedListMapEntry<K, V>> c = 
+            new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
+        consolidateEntries(c);
+        for (Integer i = 0; i < c.size(); i++) {
+            ret = ret * 31 + c.get(i).hashCode();
+        }
+        return ret;
     }
 
     /**
@@ -880,7 +985,6 @@ implements List<V>, Cloneable, Serializable {
     public int indexOfKey(K key) {
         return keyMap.get(key).getIndex();
     }
-
     /*
      * (non-Javadoc)
      * @see java.util.List#isEmpty()
@@ -889,7 +993,6 @@ implements List<V>, Cloneable, Serializable {
     public boolean isEmpty() {
         return valueList.isEmpty();
     }
-
     /*
      * (non-Javadoc)
      * @see java.util.List#iterator()
@@ -977,6 +1080,7 @@ implements List<V>, Cloneable, Serializable {
         }
         return this.set(old.getIndex(), value);
     }
+    
     /**
      * Put all the values from an existing list map in a new order.
      * 
@@ -991,53 +1095,6 @@ implements List<V>, Cloneable, Serializable {
     public void putAll(ListMap<K, ? extends V> old, K[] newOrder) {
         for (K key : newOrder) {
             this.put(key, old.get(key));
-        }
-    }
-    /**
-     * Put all entries from an existing map into this one.
-     * 
-     * This is similar to {@link Map#putAll(Map)}
-     * 
-     * @param m the existing map
-     */
-    public void putAll(Map<? extends K, ? extends V> m) {
-        for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
-            this.put(entry.getKey(), entry.getValue());
-        }
-    }
-    /**
-     * Put all entries from an existing map, using an explicit order.
-     * 
-     * <p>
-     * Note that entries which are not in the <code>order</code> are not copied
-     * to the new map. Also, this doesn't work with key aliases, as each item
-     * in <code>order</code> gets a new entry in to index -- aliases are copied.
-     * </p>
-     * 
-     * @param m existing map
-     * @param order new order
-     */
-    public void putAll(Map<K, ? extends V> m, K[] order) {
-        for (K key : order) {
-            this.put(key, m.get(key));
-        }
-    }
-    
-    protected void 
-    consolidateEntries(Map<Integer, ConsolidatedListMapEntry<K, V>> map) {
-        // map = new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
-        ConsolidatedListMapEntry<K, V> clme;
-        for (K key : keyMap.keySet()) {
-            ListMapEntry<V> entry = keyMap.get(key);
-            Integer idx = entry.getIndex();
-            clme = map.get(idx);
-            if (clme == null) {
-                clme = new ConsolidatedListMapEntry<K, V>();
-                clme.setEntry(entry);
-                map.put(idx, clme);
-            }
-            clme.addKey(key);
-            
         }
     }
     
@@ -1082,6 +1139,37 @@ implements List<V>, Cloneable, Serializable {
     }
     
     /**
+     * Put all entries from an existing map into this one.
+     * 
+     * This is similar to {@link Map#putAll(Map)}
+     * 
+     * @param m the existing map
+     */
+    public void putAll(Map<? extends K, ? extends V> m) {
+        for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
+            this.put(entry.getKey(), entry.getValue());
+        }
+    }
+    
+    /**
+     * Put all entries from an existing map, using an explicit order.
+     * 
+     * <p>
+     * Note that entries which are not in the <code>order</code> are not copied
+     * to the new map. Also, this doesn't work with key aliases, as each item
+     * in <code>order</code> gets a new entry in to index -- aliases are copied.
+     * </p>
+     * 
+     * @param m existing map
+     * @param order new order
+     */
+    public void putAll(Map<K, ? extends V> m, K[] order) {
+        for (K key : order) {
+            this.put(key, m.get(key));
+        }
+    }
+    
+    /**
      * Add a (possibly additional) key for an index.
      * 
      * @param key key to use
@@ -1093,30 +1181,6 @@ implements List<V>, Cloneable, Serializable {
         ListMapEntry<V> old = keyMap.put(key, cur);
         if (old == null) return -1;
         return old.getIndex();
-    }
-    
-    /**
-     * Add a (possibly additional) key for an index.
-     * 
-     * @param keys keys to use
-     * @param index index to use
-     * @return true if change; false is not
-     */
-    public boolean putKey(K[] keys, int index) {
-        if (keys.length == 0) {
-            return false;
-        }
-        boolean changed = false;
-        ListMapEntry<V> cur;
-        ListMapEntry<V> old;
-        cur = valueList.get(index);
-        for (K key : keys) {
-            old = keyMap.put(key, cur);
-            if (old == null || old.getIndex() != index) {
-                changed = true;
-            }
-        }
-        return changed;
     }
     
     /**
@@ -1143,7 +1207,29 @@ implements List<V>, Cloneable, Serializable {
         }
         return old.getIndex();
     }
-    
+    /**
+     * Add a (possibly additional) key for an index.
+     * 
+     * @param keys keys to use
+     * @param index index to use
+     * @return true if change; false is not
+     */
+    public boolean putKey(K[] keys, int index) {
+        if (keys.length == 0) {
+            return false;
+        }
+        boolean changed = false;
+        ListMapEntry<V> cur;
+        ListMapEntry<V> old;
+        cur = valueList.get(index);
+        for (K key : keys) {
+            old = keyMap.put(key, cur);
+            if (old == null || old.getIndex() != index) {
+                changed = true;
+            }
+        }
+        return changed;
+    }
     /**
      * Update the index used by the label system to match what is in place.
      * @param start starting index position
@@ -1153,6 +1239,7 @@ implements List<V>, Cloneable, Serializable {
             this.valueList.get(i).setIndex(i);
         }
     }
+    
     /**
      * Entirely remove an index entry
      * 
@@ -1185,6 +1272,7 @@ implements List<V>, Cloneable, Serializable {
         if (old == null) return null;
         return old.getValue();
     }
+
     /*
      * (non-Javadoc)
      * @see java.util.List#remove(java.lang.Object)
@@ -1197,7 +1285,6 @@ implements List<V>, Cloneable, Serializable {
         remove(index);
         return this.size() != origSize;
     }
-    
     /*
      * (non-Javadoc)
      * @see java.util.List#removeAll(java.util.Collection)
@@ -1210,7 +1297,7 @@ implements List<V>, Cloneable, Serializable {
         }
         return this.size() != origSize;
     }
-
+    
     /**
      * Remove a key.
      * 
@@ -1249,7 +1336,6 @@ implements List<V>, Cloneable, Serializable {
         }
         return oldSize != this.size();
     }
-    
     /**
      * Set the value of an index to a new value.
      * 
@@ -1281,6 +1367,7 @@ implements List<V>, Cloneable, Serializable {
     public int size() {
         return this.valueList.size();
     }
+
     /*
      * (non-Javadoc)
      * @see java.util.List#subList(int, int)
@@ -1294,6 +1381,7 @@ implements List<V>, Cloneable, Serializable {
         }
         return ret;
     }
+
     /*
      * (non-Javadoc)
      * @see java.util.List#toArray()
@@ -1302,7 +1390,6 @@ implements List<V>, Cloneable, Serializable {
     public Object[] toArray() {
         return this.toArray(new Object[0]);
     }
-
     /*
      * (non-Javadoc)
      * @see java.util.List#toArray(T[])
@@ -1329,7 +1416,6 @@ implements List<V>, Cloneable, Serializable {
         }
         return ret;
     }
-
     /**
      * Return a collection of just the values.
      * 

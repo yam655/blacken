@@ -71,14 +71,13 @@ public class TestListMap {
      */
     @Test
     public void ListMap_ListMap() {
-        Collection<Boolean> col = new ArrayList<Boolean>();
-        col.add(true);
-        col.add(false);
-        ListMap<Integer, Boolean> lm = new ListMap<Integer, Boolean>(col);
+        ListMap<String, Boolean> lm = new ListMap<String, Boolean>();
+        lm.addAndLabel(true, "true", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+        lm.addAndLabel(false, "false", "no"); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals(lm.size(), 2);
         assertTrue(lm.get(0));
         assertFalse(lm.get(1));
-        ListMap<Integer, Boolean> lm1 = new ListMap<Integer, Boolean>(lm);
+        ListMap<String, Boolean> lm1 = new ListMap<String, Boolean>(lm);
         assertEquals(lm1.size(), 2);
         assertTrue(lm1.get(0));
         assertFalse(lm1.get(1));
