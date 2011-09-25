@@ -341,6 +341,7 @@ implements Regionlike, Serializable{
      * 
      * @param y row offset
      * @param x column offset
+     * @throws IndexOutOfBoundsException x or y out of bounds
      * @return the Z at the given grid location
      */
     public Z get(int y, int x) {

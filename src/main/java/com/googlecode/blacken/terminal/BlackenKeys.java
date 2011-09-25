@@ -309,11 +309,11 @@ public class BlackenKeys {
     /**
      * key
      */
-    static public int KEY_ESCAPE = KEY_FIRST + 64;
+    static final public int KEY_ESCAPE = KEY_FIRST + 64;
     /**
      * key
      */
-    static public int KEY_ENTER = KEY_FIRST + 65;
+    static final public int KEY_ENTER = KEY_FIRST + 65;
     /**
      * key
      */
@@ -363,43 +363,43 @@ public class BlackenKeys {
     /**
      * key
      */
-    static public int KEY_NP_0 = KEY_FIRST + 80;
+    static final public int KEY_NP_0 = KEY_FIRST + 80;
     /**
      * key
      */
-    static public int KEY_NP_1 = KEY_FIRST + 81;
+    static final public int KEY_NP_1 = KEY_FIRST + 81;
     /**
      * key
      */
-    static public int KEY_NP_2 = KEY_FIRST + 82;
+    static final public int KEY_NP_2 = KEY_FIRST + 82;
     /**
      * key
      */
-    static public int KEY_NP_3 = KEY_FIRST + 83;
+    static final public int KEY_NP_3 = KEY_FIRST + 83;
     /**
      * key
      */
-    static public int KEY_NP_4 = KEY_FIRST + 84;
+    static final public int KEY_NP_4 = KEY_FIRST + 84;
     /**
      * key
      */
-    static public int KEY_NP_5 = KEY_FIRST + 85;
+    static final public int KEY_NP_5 = KEY_FIRST + 85;
     /**
      * key
      */
-    static public int KEY_NP_6 = KEY_FIRST + 86;
+    static final public int KEY_NP_6 = KEY_FIRST + 86;
     /**
      * key
      */
-    static public int KEY_NP_7 = KEY_FIRST + 87;
+    static final public int KEY_NP_7 = KEY_FIRST + 87;
     /**
      * key
      */
-    static public int KEY_NP_8 = KEY_FIRST + 88;
+    static final public int KEY_NP_8 = KEY_FIRST + 88;
     /**
      * key
      */
-    static public int KEY_NP_9 = KEY_FIRST + 89;
+    static final public int KEY_NP_9 = KEY_FIRST + 89;
 
     /**
      * key

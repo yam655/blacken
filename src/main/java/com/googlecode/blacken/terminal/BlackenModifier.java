@@ -200,15 +200,21 @@ public enum BlackenModifier {
     /**
      * Extract the modifiers from an integer in to an EnumSet.
      * 
+     * <p>This returns an empty set for BlackenKeys.NO_KEY and <code>null</code>
+     * for all other keys outside {@link BlackenKeys#PLANE_MODIFIER_NOTICES}.
+     * 
      * @param keycode a unicode codepoint for the modifier set
      * @return null if not modifier codepoint, otherwise EnumSet.
      */
     public static EnumSet<BlackenModifier> getAsSet(int keycode) {
-        if (BlackenKeys.findPlane(keycode) != 
-            BlackenKeys.PLANE_MODIFIER_NOTICES) {
+        EnumSet<BlackenModifier> ret = EnumSet.noneOf(BlackenModifier.class);
+        if (keycode == BlackenKeys.NO_KEY) {
+            return ret;
+        }
+        if (BlackenKeys.findPlane(keycode) !=  
+                BlackenKeys.PLANE_MODIFIER_NOTICES) {
             return null;
         }
-        EnumSet<BlackenModifier> ret = EnumSet.noneOf(BlackenModifier.class);
         for (BlackenModifier m : EnumSet.allOf(BlackenModifier.class)) {
             if ((keycode & m.bit) != 0) {
                 ret.add(m);

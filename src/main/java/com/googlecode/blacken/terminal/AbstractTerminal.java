@@ -287,20 +287,20 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#gridMaxX()
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gridWidth()
      */
     @Override
-    public int gridMaxX() {
+    public int gridWidth() {
         if (grid == null) return 0;
         return grid.getWidth();
     }
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#gridMaxY()
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gridHeight()
      */
     @Override
-    public int gridMaxY() {
+    public int gridHeight() {
         if (grid == null) return 0;
         return grid.getHeight();
     }

@@ -460,12 +460,12 @@ public class BlackenPanel extends JPanel {
                                                   x1 + fontSglAdvance-1, 
                                                   y1 + fontHeight -1);
                             }
-                            if (c.getCellWalls().contains(CellWalls.CELL_WALLS_HORIZONTAL)) {
+                            if (c.getCellWalls().contains(CellWalls.HORIZONTAL)) {
                                 graphics.drawLine(x1, y1 + fontHeightD2, 
                                                   x1 + fontSglAdvance -1, 
                                                   y1 + fontHeightD2);
                             }
-                            if (c.getCellWalls().contains(CellWalls.CELL_WALLS_VERTICAL)) {
+                            if (c.getCellWalls().contains(CellWalls.VERTICAL)) {
                                 graphics.drawLine(x1 + fontSglAdvanceD2, y1, 
                                                   x1 + fontSglAdvanceD2, 
                                                   y1 + fontHeight -1);

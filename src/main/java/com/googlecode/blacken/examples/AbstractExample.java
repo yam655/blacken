@@ -66,7 +66,7 @@ public abstract class AbstractExample {
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
             this.term = new SwingTerminal();
-            this.term.init("Colors", 25, 80); //$NON-NLS-1$
+            this.term.init("Example Program", 25, 80); //$NON-NLS-1$
         } else {
             this.term = term;
         }

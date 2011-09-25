@@ -333,21 +333,21 @@ public class Colors extends AbstractExample {
         term.setCurBackground(palette.get(0));
         term.setCurForeground(palette.get(7));
         term.move(0, 0);
-        for (int x = 0; x < term.gridMaxX(); x++) {
+        for (int x = 0; x < term.gridWidth(); x++) {
             term.mvputs(0, x, String.format("%1d", x % 10)); //$NON-NLS-1$
         }
-        for (int x = 10; x < term.gridMaxX(); x+=5) {
+        for (int x = 10; x < term.gridWidth(); x+=5) {
             term.mvputs(1, x, String.format("%1d", x / 10 % 10)); //$NON-NLS-1$
         }
-        if (term.gridMaxX() >= 100) {
-            for (int x = 100; x < term.gridMaxX(); x+=5) {
+        if (term.gridWidth() >= 100) {
+            for (int x = 100; x < term.gridWidth(); x+=5) {
                 term.mvputs(1, x, String.format("%1d", x / 100)); //$NON-NLS-1$
             }
         }
-        for (int y = 2; y < term.gridMaxY(); y++) {
+        for (int y = 2; y < term.gridHeight(); y++) {
             term.mvputs(y, 10, String.format("%d", y)); //$NON-NLS-1$
         }
-        term.move(term.gridMaxY()-2, 0);
+        term.move(term.gridHeight()-2, 0);
     }
 
     /**
@@ -359,7 +359,7 @@ public class Colors extends AbstractExample {
         // term.setCurForeground(palette.getIndex(7));
         term.move(0, 0);
         term.puts(String.format("Screen Dimensions: %d x %d\n",  //$NON-NLS-1$
-                                term.gridMaxY(), term.gridMaxX()));
+                                term.gridHeight(), term.gridWidth()));
     }
 
     /**

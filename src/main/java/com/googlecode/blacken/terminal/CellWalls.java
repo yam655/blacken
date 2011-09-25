@@ -25,45 +25,50 @@ import java.util.EnumSet;
  */
 public enum CellWalls {
     /**
-     * Cell wall
+     * The top cell wall
      */
     TOP,
     /**
-     * Cell wall
+     * the left cell wall
      */
     LEFT,
     /**
-     * Cell wall
+     * The bottom cell wall
      */
     BOTTOM,
     /**
-     * Cell wall
+     * The right cell wall
      */
     RIGHT,
     /**
      * Cell wall
      */
-    CELL_WALLS_CENTER_TOP,
+    CENTER_TO_TOP,
     /**
      * Cell wall
      */
-    CELL_WALLS_CENTER_LEFT,
+    CENTER_TO_LEFT,
     /**
      * Cell wall
      */
-    CELL_WALLS_CENTER_BOTTOM,
+    CENTER_TO_BOTTOM,
     /**
      * Cell wall
      */
-    CELL_WALLS_CENTER_RIGHT;
+    CENTER_TO_RIGHT;
     /**
      * Cell wall
      */
-    public static final EnumSet<CellWalls> CELL_WALLS_HORIZONTAL = 
-        EnumSet.of(CELL_WALLS_CENTER_LEFT, CELL_WALLS_CENTER_RIGHT);
+    public static final EnumSet<CellWalls> HORIZONTAL = 
+        EnumSet.of(CENTER_TO_LEFT, CENTER_TO_RIGHT);
     /**
      * Cell wall
      */
-    public static final EnumSet<CellWalls> CELL_WALLS_VERTICAL = 
-        EnumSet.of(CELL_WALLS_CENTER_TOP, CELL_WALLS_CENTER_BOTTOM);
+    public static final EnumSet<CellWalls> VERTICAL = 
+        EnumSet.of(CENTER_TO_TOP, CENTER_TO_BOTTOM);
+    /**
+     * Box a cell completely
+     */
+    public static final EnumSet<CellWalls> BOX =
+        EnumSet.of(TOP, LEFT, BOTTOM, RIGHT);
 }

@@ -183,13 +183,13 @@ public interface TerminalInterface {
      * 
      * @return terminal's max X size
      */
-    public int gridMaxX();
+    public int gridWidth();
     /**
      * Get the current terminal max Y size
      * 
      * @return terminal's max Y size
      */
-    public int gridMaxY();
+    public int gridHeight();
 
     /**
      * Initialize the terminal

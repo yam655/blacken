@@ -475,7 +475,7 @@ public class AwtCell implements Copyable {
         if (attributes != null && !attributes.equals(this.attributes)) {
             clearTextAttributes();
             dirty = true;
-            attributes.putAll(attributes);
+            this.attributes.putAll(attributes);
         }
     }
     /**
