@@ -178,7 +178,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
      */
     @Override
     public TerminalCellLike get(int y, int x) {
-        return grid.get(y, x).copy();
+        return grid.get(y, x);
     }
 
     /*

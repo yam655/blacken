@@ -188,15 +188,6 @@ public class UnmodifiableTerminalCell implements TerminalCellLike {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#copy()
-     */
-    @Override
-    public TerminalCellLike copy() {
-        return this.clone();
-    }
-
-    /*
-     * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalCellLike#getBackground()
      */
     @Override

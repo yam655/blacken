@@ -21,7 +21,6 @@ import java.util.EnumSet;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Random;
-import com.googlecode.blacken.grid.CopyableData;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.swing.SwingTerminal;
@@ -49,7 +48,7 @@ public class Stumble {
      * Whether to quit the loop or not
      */
     protected boolean quit;
-    private Grid<CopyableData<Integer>> grid;
+    private Grid<Integer> grid;
     private Random rand;
     private int nextLocation;
     private final static int EMPTY_FLOOR = 0x2e; 
@@ -65,7 +64,7 @@ public class Stumble {
      * Create a new instance
      */
     public Stumble() {
-        grid = new Grid<CopyableData<Integer>>(new CopyableData<Integer>(EMPTY_FLOOR),
+        grid = new Grid<Integer>(new Integer(EMPTY_FLOOR),
                 100, 100);
         rand = new Random();
     }
@@ -75,8 +74,8 @@ public class Stumble {
         for (int t=0; t < 10000; t++) {
             int x = rand.nextInt(grid.getWidth());
             int y = rand.nextInt(grid.getHeight());
-            if (grid.get(y, x).getData() == EMPTY_FLOOR) {
-                grid.set(y, x, new CopyableData<Integer>(what));
+            if (grid.get(y, x) == EMPTY_FLOOR) {
+                grid.set(y, x, new Integer(what));
                 placement[0] = y;
                 placement[1] = x;
                 break;
@@ -124,7 +123,7 @@ public class Stumble {
                 int x1 = x + upperLeft.getX() - MAP_START.getX();
                 int what = ' ';
                 if (y1 >= 0 && x1 >= 0 && y1 < grid.getHeight() && x1 < grid.getWidth()) {
-                    what = grid.get(y1, x1).getData();
+                    what = grid.get(y1, x1);
                 }
                 int fclr = 7;
                 int bclr = 0;
@@ -178,7 +177,7 @@ public class Stumble {
         int mod = BlackenKeys.NO_KEY;
         updateStatus();
         movePlayerBy(0,0);
-        this.message = "Welcome to Stumble!";
+        this.message = Messages.getString("Stumble.Welcome"); //$NON-NLS-1$
         term.move(-1, -1);
         term.setSeparateCursor(true);
         while (ch != BlackenKeys.KEY_F10) {
@@ -233,20 +232,20 @@ public class Stumble {
         term.setCurForeground(7);
         dirtyStatus = false;
         for (int x = 0; x < term.gridWidth()-1; x++) {
-            term.mvaddch(0, x, ' ');
+            term.mvaddch(term.gridHeight(), x, ' ');
         }
-        if (nextLocation < '9') {
-            term.mvputs(term.gridHeight(), 0, "Get the ");
+        if (nextLocation <= '9') {
+            term.mvputs(term.gridHeight(), 0, Messages.getString("Stumble.GetThe")); //$NON-NLS-1$
             term.setCurForeground((nextLocation - '0') + 0x4);
             term.addch(nextLocation);
             term.setCurForeground(7);
             if (nextLocation == '9') {
-                term.puts(" to win.");
+                term.puts(Messages.getString("Stumble.ToWin")); //$NON-NLS-1$
             }
         } else {
-            term.mvputs(term.gridHeight(), 0, "You won!");
+            term.mvputs(term.gridHeight(), 0, Messages.getString("Stumble.YouWon")); //$NON-NLS-1$
         }
-        String msg = "F10 to quit.";
+        String msg = Messages.getString("Stumble.F10toQuit"); //$NON-NLS-1$
         term.mvputs(term.gridHeight(), term.gridWidth()-msg.length()-1, msg);
     }
 
@@ -311,14 +310,14 @@ public class Stumble {
         }
         int[] oldPos = player.getPos();
         try {
-            there = grid.get(player.getY() + y, player.getX() + x).getData();
+            there = grid.get(player.getY() + y, player.getX() + x);
         } catch(IndexOutOfBoundsException e) {
             return;
         }
         if (there == EMPTY_FLOOR || there == nextLocation) {
-            grid.get(oldPos[0], oldPos[1]).setData(EMPTY_FLOOR);
+            grid.set(oldPos[0], oldPos[1], EMPTY_FLOOR);
             player.setPos(player.getY() + y, player.getX() + x);
-            grid.get(player.getY(), player.getX()).setData(0x40);
+            grid.set(player.getY(), player.getX(), 0x40);
             int playerScreenY = player.getY() - upperLeft.getY() + MAP_START.getY();  
             int playerScreenX = player.getX() - upperLeft.getX() + MAP_START.getX();
             int ScreenY2 = (MAP_END.getY() <= 0 
@@ -332,12 +331,12 @@ public class Stumble {
             }
             if (there == nextLocation) {
                 StringBuffer buf = new StringBuffer();
-                buf.append("Got it.");
+                buf.append(Messages.getString("Stumble.GotIt")); //$NON-NLS-1$
                 buf.append(' ');
                 if (there == '9') {
-                    buf.append("All done!");
+                    buf.append(Messages.getString("Stumble.AllDone")); //$NON-NLS-1$
                 } else {
-                    buf.append("Next is unlocked.");
+                    buf.append(Messages.getString("Stumble.NextUnlocked")); //$NON-NLS-1$
                 }
                 nextLocation ++;
                 this.message = buf.toString();
@@ -345,7 +344,7 @@ public class Stumble {
                 this.updateMessage(false);
             }
         } else if (there >= '0' && there <= '9') {
-            this.message = "That position is still locked.";
+            this.message = Messages.getString("Stumble.PositionLocked"); //$NON-NLS-1$
             this.updateMessage(false);
         }
     }
@@ -365,7 +364,7 @@ public class Stumble {
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
             this.term = new SwingTerminal();
-            this.term.init("Blacken Example: Stumble", 25, 80);
+            this.term.init(Messages.getString("Stumble.Title"), 25, 80); //$NON-NLS-1$
         } else {
             this.term = term;
         }

@@ -26,6 +26,8 @@ package com.googlecode.blacken.grid;
  */
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.googlecode.blacken.exceptions.IrregularGridException;
@@ -61,9 +63,9 @@ import com.googlecode.blacken.exceptions.IrregularGridException;
  * cells are always reduced.</p>
  * 
  * @author yam655
- * @param <Z> the item to fill the grid with
+ * @param <Z> an object implementing Cloneable or an object copied by reference
  */
-public class Grid <Z extends Copyable> 
+public class Grid <Z> 
 implements Regionlike, Serializable{
     private static final long serialVersionUID = 1L;
     private ArrayList<ArrayList<Z>> grid = null;
@@ -81,7 +83,7 @@ implements Regionlike, Serializable{
      * <p>Because the <code>empty</code> value is set to <code>null</code>
      * it creates an irregular grid. You can safely resize the grid 
      * by calling {@link #setSize(int, int)} -- without
-     * calling {@link #reset(int, int, Copyable)}.</p>
+     * calling {@link #reset(int, int, Object)}.</p>
      */
     public Grid() {
         grid = new ArrayList<ArrayList<Z>>();
@@ -104,7 +106,7 @@ implements Regionlike, Serializable{
      */
     public Grid(Z empty, int numRows, int numCols) {
         grid = new ArrayList<ArrayList<Z>>();
-        this.empty = empty;
+        this.empty = this.copyCell(empty);
         this.size_y = 0;
         this.size_x = 0;
         if (numRows > 0) {
@@ -123,7 +125,7 @@ implements Regionlike, Serializable{
      */
     public Grid(Z empty, int numRows, int numCols, int y, int x) {
         grid = new ArrayList<ArrayList<Z>>();
-        this.empty = empty;
+        this.empty = this.copyCell(empty);
         this.size_x = 0;
         this.size_y = 0;
         this.start_y = y;
@@ -160,7 +162,7 @@ implements Regionlike, Serializable{
         if (irregular) {
             this.empty = null;
         } else {
-            this.empty = empty;
+            this.empty = this.copyCell(empty);
         }
         this.size_x = 0;
         this.size_y = 0;
@@ -170,7 +172,7 @@ implements Regionlike, Serializable{
             setSize(numRows, numCols);
         }
         if (irregular) {
-            this.empty = empty;
+            this.empty = this.copyCell(empty);
         }
     }
 
@@ -382,7 +384,41 @@ implements Regionlike, Serializable{
      * @return the current empty cell
      */
     public Z getEmpty() {
-        return AbstractCopyable.copy(empty);
+        return this.copyCell(empty);
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected Z copyCell(Z cell) {
+        if (cell == null) {
+            return cell;
+        }
+        if (cell.getClass().isPrimitive()) {
+            return cell;
+        }
+        Z ret = null;
+        Method cloneMethod;
+        try {
+            cloneMethod = cell.getClass().getMethod("clone"); //$NON-NLS-1$
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            return cell;
+        }
+        if (cloneMethod != null) {
+            try {
+                ret = (Z) cloneMethod.invoke(cell);
+            } catch (IllegalArgumentException e) {
+                // Should never happen: Shouldn't take arguments
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                // Should never happen: Should have already occured
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                // Should never happen
+                throw new RuntimeException(e);
+            }
+        }
+        return ret;
     }
     
     /*
@@ -520,7 +556,7 @@ implements Regionlike, Serializable{
             for (int x = start_x; x < start_x + size_x; x++) {
                 Z c = get(y, x);
                 if (c == null) {
-                    set(y, x, AbstractCopyable.copy(filler));
+                    set(y, x, copyCell(filler));
                 }
             }
         }
@@ -542,7 +578,7 @@ implements Regionlike, Serializable{
      */
     public void reset(int ysize, int xsize, Z empty) {
         if (empty != null) {
-            this.empty = AbstractCopyable.copy(empty);
+            this.empty = copyCell(empty);
         }
         resize(ysize, xsize, true);
     }
@@ -583,7 +619,7 @@ implements Regionlike, Serializable{
                         if (old_grid != null && old_grid.get(y).get(x) == null) {
                             grid_line.add(null);
                         } else {
-                            grid_line.add(AbstractCopyable.copy(empty));
+                            grid_line.add(copyCell(empty));
                         }
                     }
                 } else if (!wipe && old_grid != null) {
@@ -592,7 +628,7 @@ implements Regionlike, Serializable{
             }
             int x1 = grid_line.size();
             for (int x = x1; x < xsize; x++) {
-                grid_line.add(AbstractCopyable.copy(empty));
+                grid_line.add(copyCell(empty));
             }
             new_grid.add(grid_line);
         }
@@ -660,7 +696,7 @@ implements Regionlike, Serializable{
             }
             return grid.get(y1).set(x1, null);
         }
-        return grid.get(y1).set(x1, AbstractCopyable.copy(value));
+        return grid.get(y1).set(x1, copyCell(value));
     }
 
     /**
@@ -680,7 +716,7 @@ implements Regionlike, Serializable{
             }
             return grid.get(y1).set(x1, null); 
         }
-        return grid.get(y1).set(x1, AbstractCopyable.copy(value));
+        return grid.get(y1).set(x1, copyCell(value));
     }
 
     /*
@@ -890,7 +926,7 @@ implements Regionlike, Serializable{
             for (int x = x1; x < x1 + width; x++) {
                 if (grid.get(y - this.start_y).get(x - this.start_x) != null) {
                     grid.get(y - this.start_y).set(x - this.start_x, 
-                                                   AbstractCopyable.copy(empty));
+                                                   copyCell(empty));
                 }
             }
         }

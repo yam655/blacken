@@ -18,14 +18,12 @@ package com.googlecode.blacken.terminal;
 
 import java.util.Set;
 
-import com.googlecode.blacken.grid.Copyable;
-
 /**
  * A terminal cell-like interface.
  * 
  * @author yam655
  */
-public interface TerminalCellLike extends Copyable {
+public interface TerminalCellLike extends Cloneable {
 
     /**
      * Add cell walls
@@ -57,15 +55,9 @@ public interface TerminalCellLike extends Copyable {
 
     /**
      * Clone the cell
+     * @return new copy
      */
-    @Override
     public TerminalCellLike clone();
-
-    /**
-     * Copy the cell
-     */
-    @Override
-    public TerminalCellLike copy();
 
     /**
      * Get the background

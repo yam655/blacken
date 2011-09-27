@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.googlecode.blacken.grid.Copyable;
 import com.googlecode.blacken.grid.ResetGridCell;
 import com.googlecode.blacken.terminal.CellWalls;
 
@@ -39,7 +38,7 @@ import com.googlecode.blacken.terminal.CellWalls;
  * 
  * @author yam655
  */
-public class AwtCell implements Copyable {
+public class AwtCell implements Cloneable {
     /**
      * Make the AWT cell dirty
      * 
@@ -635,15 +634,6 @@ public class AwtCell implements Copyable {
             this.sequence = sequence;
             dirty = true;
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Copyable#copy()
-     */
-    @Override
-    public AwtCell copy() {
-        return this.clone();
     }
 
 }

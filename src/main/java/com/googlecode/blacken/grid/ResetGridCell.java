@@ -23,7 +23,7 @@ package com.googlecode.blacken.grid;
  *
  * @param <Z> cell type
  */
-public interface ResetGridCell <Z extends Copyable> {
+public interface ResetGridCell <Z> {
     /**
      * Dirty a cell.
      * 

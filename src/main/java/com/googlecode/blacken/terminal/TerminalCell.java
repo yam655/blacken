@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.googlecode.blacken.grid.Copyable;
 import com.googlecode.blacken.grid.ResetGridCell;
 
 /**
@@ -29,7 +28,7 @@ import com.googlecode.blacken.grid.ResetGridCell;
  * @author yam655
  *
  */
-public class TerminalCell implements Copyable, TerminalCellLike {
+public class TerminalCell implements Cloneable, TerminalCellLike {
 
     /**
      * Helper class to reset the cell to known-good values.
@@ -159,13 +158,6 @@ public class TerminalCell implements Copyable, TerminalCellLike {
         return ret;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#copy()
-     */
-    @Override
-    public TerminalCell copy() {
-        return this.clone();
-    }
     /* (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalCellLike#getBackground()
      */
