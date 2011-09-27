@@ -27,14 +27,14 @@ import org.junit.*;
  */
 public class GridTest extends TestRegionlike {
 
-    private CopyableData<Integer> empty = null;
-    private Grid<CopyableData<Integer>> grid = null;
+    private Integer empty = null;
+    private Grid<Integer> grid = null;
     private int size_x;
     private int size_y;
     private int x;
     private int y;
-    Grid<CopyableData<Integer>> emptygrid = null;
-    private CopyableData<Integer> empty2;
+    Grid<Integer> emptygrid = null;
+    private Integer empty2;
     /**
      * test
      */
@@ -50,15 +50,16 @@ public class GridTest extends TestRegionlike {
      * @param y starting Y coord
      * @param x starting X coord
      */
-    public void setUp(Grid<CopyableData<Integer>> grid, Copyable empty, 
+    public void setUp(Grid<Integer> grid, Object empty, 
                       int height, int width, int y, int x) {
         this.grid = grid;
         this.size_x = width;
         this.size_y = height;
         this.x = x;
         this.y = y;
-        empty2 = new CopyableData<Integer>(100);
-        emptygrid = new Grid<CopyableData<Integer>>();
+        // empty2 = new CopyableData<Integer>(100);
+        empty2 = new Integer(100);
+        emptygrid = new Grid<Integer>();
         super.setUp(grid, height, width, y, x);
     }
 
@@ -68,8 +69,8 @@ public class GridTest extends TestRegionlike {
     @Override
     @Before
     public void setUp() {
-        empty = new CopyableData<Integer>(0);
-        grid = new Grid<CopyableData<Integer>>(empty, 25, 80, 5, 10);
+        empty = 0;
+        grid = new Grid<Integer>(empty, 25, 80, 5, 10);
         setUp(grid, empty, 25, 80, 5, 10);
     }
 
@@ -96,7 +97,7 @@ public class GridTest extends TestRegionlike {
      */
     @Test
     public void Grid_EmptyRowsCols() {
-        grid = new Grid<CopyableData<Integer>>(empty, size_y, size_x);
+        grid = new Grid<Integer>(empty, size_y, size_x);
         assertNotNull(grid);
         assertTrue(grid.getHeight() == size_y);
         assertTrue(grid.getWidth() == size_x);
@@ -104,7 +105,7 @@ public class GridTest extends TestRegionlike {
         assertTrue(grid.getY() == 0);
         for (int y = 0; y < grid.getHeight(); y ++) {
             for (int x = 0; x < grid.getWidth(); x++) {
-                grid.get(y, x).getData().equals(empty);
+                grid.get(y, x).equals(empty);
             }
         }
     }
@@ -121,7 +122,7 @@ public class GridTest extends TestRegionlike {
         assertTrue(grid.getY() == this.y);
         for (int y = this.y; y < this.y + grid.getHeight(); y ++) {
             for (int x = this.x; x < this.x + grid.getWidth(); x++) {
-                grid.get(y, x).getData().equals(empty);
+                grid.get(y, x).equals(empty);
             }
         }
     }
@@ -132,40 +133,36 @@ public class GridTest extends TestRegionlike {
     @Test
     public void box_HeightWidthXYLeftRightTopTlTrBlBrI() {
         grid.box(size_y - 2, size_x - 2, y+1, x+1, 
-                 new CopyableData<Integer>(4), new CopyableData<Integer>(6), 
-                 new CopyableData<Integer>(8), new CopyableData<Integer>(2), 
-                 new CopyableData<Integer>(7), new CopyableData<Integer>(9), 
-                 new CopyableData<Integer>(1), new CopyableData<Integer>(3), 
-                 new CopyableData<Integer>(5));
+                 4, 6, 8, 2, 7, 9, 1, 3, 5);
         checkBox();
     }
     
     /**
      * test
      */
-    protected void setPattern(Grid<CopyableData<Integer>> grid, 
+    protected void setPattern(Grid<Integer> grid, 
                               int height, int width, int y1, int x1, 
                               int oy, int ox) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 grid.set(y + y1, x + x1, 
-                         new CopyableData<Integer>(x + ox + y+ oy));
+                         new Integer(x + ox + y+ oy));
             }
         }
     }
     /**
      * test
      */
-    protected void checkPattern(Grid<CopyableData<Integer>> grid, 
+    protected void checkPattern(Grid<Integer> grid, 
                                 int height, int width, int y1, int x1, 
                                 int oy, int ox) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                CopyableData<Integer> d = grid.get(y + y1, x + x1);
+                Integer d = grid.get(y + y1, x + x1);
                 assertNotNull(d);
                 assertTrue(String.format("(%d,%d) Offset:(%d,%d) Expected: %d Found %d", //$NON-NLS-1$
-                                         y, x, oy, ox, y + oy + x + ox, d.data), 
-                                         d.getData().equals(x + y + ox + oy));
+                                         y, x, oy, ox, y + oy + x + ox, d), 
+                                         d.equals(x + y + ox + oy));
             }
         }
     }
@@ -183,7 +180,7 @@ public class GridTest extends TestRegionlike {
      * @param inside
      * @param border
      */
-    protected void checkSolid(Grid<CopyableData<Integer>> grid, 
+    protected void checkSolid(Grid<Integer> grid, 
                               Integer inside, Integer border,
                               int size_y, int size_x,
                               int y, int x) {
@@ -193,37 +190,37 @@ public class GridTest extends TestRegionlike {
         int y5 = y + (size_y / 2);
         
         // compare a sample that should be outside
-        assertTrue(grid.get(y, x).getData().equals(border));
-        assertTrue(grid.get(y2, x2).getData().equals(border));
-        Integer i = grid.get(y, x2).data;
+        assertTrue(grid.get(y, x).equals(border));
+        assertTrue(grid.get(y2, x2).equals(border));
+        Integer i = grid.get(y, x2);
         assertTrue(String.format("(%d,%d) wanted %d; got %d", y, x2, border, i),  //$NON-NLS-1$
                    i.equals(border));
-        assertTrue(grid.get(y2, x).getData().equals(border));
-        assertTrue(grid.get(y5, x).getData().equals(border));
-        assertTrue(grid.get(y, x5).getData().equals(border));
-        assertTrue(grid.get(y5, x2).getData().equals(border));
-        assertTrue(grid.get(y2, x5).getData().equals(border));
+        assertTrue(grid.get(y2, x).equals(border));
+        assertTrue(grid.get(y5, x).equals(border));
+        assertTrue(grid.get(y, x5).equals(border));
+        assertTrue(grid.get(y5, x2).equals(border));
+        assertTrue(grid.get(y2, x5).equals(border));
         
         // compare a sample that should be the box detail
-        assertTrue(grid.get(y + 1, x + 1).getData().equals(inside));
-        assertTrue(grid.get(y2 - 1, x2 - 1).getData().equals(inside));
-        assertTrue(grid.get(y + 1, x2 - 1).getData().equals(inside));
-        assertTrue(grid.get(y2 - 1, x + 1).getData().equals(inside));
-        assertTrue(grid.get(y5, x + 1).getData().equals(inside));
-        assertTrue(grid.get(y + 1, x5).getData().equals(inside));
-        assertTrue(grid.get(y5, x2 - 1).getData().equals(inside));
-        assertTrue(grid.get(y2 - 1, x5).getData().equals(inside));
+        assertTrue(grid.get(y + 1, x + 1).equals(inside));
+        assertTrue(grid.get(y2 - 1, x2 - 1).equals(inside));
+        assertTrue(grid.get(y + 1, x2 - 1).equals(inside));
+        assertTrue(grid.get(y2 - 1, x + 1).equals(inside));
+        assertTrue(grid.get(y5, x + 1).equals(inside));
+        assertTrue(grid.get(y + 1, x5).equals(inside));
+        assertTrue(grid.get(y5, x2 - 1).equals(inside));
+        assertTrue(grid.get(y2 - 1, x5).equals(inside));
 
         // compare a sample that should be the box inside
-        assertTrue(grid.get(y5, x5).getData().equals(inside));
-        assertTrue(grid.get(y + 2, x + 2).getData().equals(inside));
-        assertTrue(grid.get(y2 - 2, x2 - 2).getData().equals(inside));
-        assertTrue(grid.get(y + 2, x2 - 2).getData().equals(inside));
-        assertTrue(grid.get(y2 - 2, x + 2).getData().equals(inside));
-        assertTrue(grid.get(y5, x + 2).getData().equals(inside));
-        assertTrue(grid.get(y + 2, x5).getData().equals(inside));
-        assertTrue(grid.get(y5, x2 - 2).getData().equals(inside));
-        assertTrue(grid.get(y2 - 2, x5).getData().equals(inside));
+        assertTrue(grid.get(y5, x5).equals(inside));
+        assertTrue(grid.get(y + 2, x + 2).equals(inside));
+        assertTrue(grid.get(y2 - 2, x2 - 2).equals(inside));
+        assertTrue(grid.get(y + 2, x2 - 2).equals(inside));
+        assertTrue(grid.get(y2 - 2, x + 2).equals(inside));
+        assertTrue(grid.get(y5, x + 2).equals(inside));
+        assertTrue(grid.get(y + 2, x5).equals(inside));
+        assertTrue(grid.get(y5, x2 - 2).equals(inside));
+        assertTrue(grid.get(y2 - 2, x5).equals(inside));
     }
     
     /**
@@ -236,35 +233,35 @@ public class GridTest extends TestRegionlike {
         int y5 = y + (size_y / 2);
         
         // compare a sample that should be outside
-        assertTrue(grid.get(y, x).data == 0);
-        assertTrue(grid.get(y2, x2).data == 0);
-        assertTrue(grid.get(y, x2).data == 0);
-        assertTrue(grid.get(y2, x).data == 0);
-        assertTrue(grid.get(y5, x).data == 0);
-        assertTrue(grid.get(y, x5).data == 0);
-        assertTrue(grid.get(y5, x2).data == 0);
-        assertTrue(grid.get(y2, x5).data == 0);
+        assertTrue(grid.get(y, x) == 0);
+        assertTrue(grid.get(y2, x2) == 0);
+        assertTrue(grid.get(y, x2) == 0);
+        assertTrue(grid.get(y2, x) == 0);
+        assertTrue(grid.get(y5, x) == 0);
+        assertTrue(grid.get(y, x5) == 0);
+        assertTrue(grid.get(y5, x2) == 0);
+        assertTrue(grid.get(y2, x5) == 0);
         
         // compare a sample that should be the box detail
-        assertTrue(grid.get(y + 1, x + 1).data == 7);
-        assertTrue(grid.get(y2 - 1, x2 - 1).data == 3);
-        assertTrue(grid.get(y + 1, x2 - 1).data == 9);
-        assertTrue(grid.get(y2 - 1, x + 1).data == 1);
-        assertTrue(grid.get(y5, x + 1).data == 4);
-        assertTrue(grid.get(y + 1, x5).data == 8);
-        assertTrue(grid.get(y5, x2 - 1).data == 6);
-        assertTrue(grid.get(y2 - 1, x5).data == 2);
+        assertTrue(grid.get(y + 1, x + 1) == 7);
+        assertTrue(grid.get(y2 - 1, x2 - 1) == 3);
+        assertTrue(grid.get(y + 1, x2 - 1) == 9);
+        assertTrue(grid.get(y2 - 1, x + 1) == 1);
+        assertTrue(grid.get(y5, x + 1) == 4);
+        assertTrue(grid.get(y + 1, x5) == 8);
+        assertTrue(grid.get(y5, x2 - 1) == 6);
+        assertTrue(grid.get(y2 - 1, x5) == 2);
 
         // compare a sample that should be the box inside
-        assertTrue(grid.get(y5, x5).data == 5);
-        assertTrue(grid.get(y + 2, x + 2).data == 5);
-        assertTrue(grid.get(y2 - 2, x2 - 2).data == 5);
-        assertTrue(grid.get(y + 2, x2 - 2).data == 5);
-        assertTrue(grid.get(y2 - 2, x + 2).data == 5);
-        assertTrue(grid.get(y5, x + 2).data == 5);
-        assertTrue(grid.get(y + 2, x5).data == 5);
-        assertTrue(grid.get(y5, x2 - 2).data == 5);
-        assertTrue(grid.get(y2 - 2, x5).data == 5);
+        assertTrue(grid.get(y5, x5) == 5);
+        assertTrue(grid.get(y + 2, x + 2) == 5);
+        assertTrue(grid.get(y2 - 2, x2 - 2) == 5);
+        assertTrue(grid.get(y + 2, x2 - 2) == 5);
+        assertTrue(grid.get(y2 - 2, x + 2) == 5);
+        assertTrue(grid.get(y5, x + 2) == 5);
+        assertTrue(grid.get(y + 2, x5) == 5);
+        assertTrue(grid.get(y5, x2 - 2) == 5);
+        assertTrue(grid.get(y2 - 2, x5) == 5);
     }
     
     /**
@@ -274,11 +271,7 @@ public class GridTest extends TestRegionlike {
     public void box_RegionlikeLeftRightTopBottomTlTrBrBl() {
         BoxRegion b = new BoxRegion(size_y -2, size_x -2, y+1, x+1);
         grid.box(b, 
-                 new CopyableData<Integer>(4), new CopyableData<Integer>(6), 
-                 new CopyableData<Integer>(8), new CopyableData<Integer>(2), 
-                 new CopyableData<Integer>(7), new CopyableData<Integer>(9), 
-                 new CopyableData<Integer>(1), new CopyableData<Integer>(3), 
-                 new CopyableData<Integer>(5));
+                 4, 6, 8, 2, 7, 9, 1, 3, 5);
         checkBox();
     }
 
@@ -290,7 +283,7 @@ public class GridTest extends TestRegionlike {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
         grid.clear();
-        checkSolid(empty.data, empty.data);
+        checkSolid(empty, empty);
     }
 
     /**
@@ -298,10 +291,10 @@ public class GridTest extends TestRegionlike {
      */
     @Test
     public void clear_Empty() {
-        assertTrue(grid.getEmpty().data == empty.data);
-        assertTrue(empty.data != empty2.data);
+        assertTrue(grid.getEmpty() == empty);
+        assertTrue(empty != empty2);
         grid.clear(empty2);
-        checkSolid(empty2.data, empty2.data);
+        checkSolid(empty2, empty2);
     }
     /**
      * test
@@ -359,9 +352,9 @@ public class GridTest extends TestRegionlike {
     @Test
     public void get_YX() {
         assertNotNull(grid.get(y, x));
-        assertTrue(grid.get(y, x).data == empty.data);
+        assertTrue(grid.get(y, x) == empty);
         assertNotNull(grid.get(y + size_y - 1, x + size_x - 1));
-        assertTrue(grid.get(y + size_y - 1, x + size_x - 1).data == empty.data);
+        assertTrue(grid.get(y + size_y - 1, x + size_x - 1) == empty);
     }
     /**
      * test
@@ -386,10 +379,10 @@ public class GridTest extends TestRegionlike {
     public void get_Positionable() {
         Point p = new Point(y, x);
         assertNotNull(grid.get(p));
-        assertTrue(grid.get(p).data == empty.data);
+        assertTrue(grid.get(p) == empty);
         p = new Point(y + size_y - 1, x + size_x - 1);
         assertNotNull(grid.get(p));
-        assertTrue(grid.get(p).data == empty.data);
+        assertTrue(grid.get(p) == empty);
     }
     
     /**
@@ -433,7 +426,7 @@ public class GridTest extends TestRegionlike {
                 for (int y1 = p[0]; y1 <= p[2]; y1++) {
                     for (int x1 = p[1]; x1 <= p[3]; x1++) {
                         assertTrue(grid.contains(y1, x1));
-                        assertTrue(grid.get(y1, x1).data == this.empty.data);
+                        assertTrue(grid.get(y1, x1) == this.empty);
                         grid.set(y1, x1, empty2);
                     }
                 }
@@ -447,7 +440,7 @@ public class GridTest extends TestRegionlike {
                         if (pidx >= pattern.length) pidx = 0;
                         if (!pattern[pidx]) continue;
                         assertTrue(grid.contains(y1, x1));
-                        assertTrue(grid.get(y1, x1).data == this.empty.data);
+                        assertTrue(grid.get(y1, x1) == this.empty);
                         grid.set(y1, x1, empty2);
                     }
                 }
@@ -458,7 +451,7 @@ public class GridTest extends TestRegionlike {
             edge.next();
         }
         
-        checkSolid(empty.data, empty2.data);
+        checkSolid(empty, empty2);
     }
 
     /**
@@ -484,7 +477,7 @@ public class GridTest extends TestRegionlike {
                 for (int y1 = p[0]; y1 <= p[2]; y1++) {
                     for (int x1 = p[1]; x1 <= p[3]; x1++) {
                         assertTrue(grid.contains(y1, x1));
-                        assertTrue(grid.get(y1, x1).data == this.empty.data);
+                        assertTrue(grid.get(y1, x1) == this.empty);
                         grid.set(y1, x1, empty2);
                     }
                 }
@@ -494,7 +487,7 @@ public class GridTest extends TestRegionlike {
             }
             edge.next();
         }
-        checkSolid(empty2.data, empty.data);
+        checkSolid(empty2, empty);
     }
     /**
      * test
@@ -512,7 +505,7 @@ public class GridTest extends TestRegionlike {
                 for (int y1 = p[0]; y1 <= p[2]; y1++) {
                     for (int x1 = p[1]; x1 <= p[3]; x1++) {
                         assertTrue(grid.contains(y1, x1));
-                        assertTrue(grid.get(y1, x1).data == this.empty.data);
+                        assertTrue(grid.get(y1, x1) == this.empty);
                         grid.set(y1, x1, empty2);
                     }
                 }
@@ -522,7 +515,7 @@ public class GridTest extends TestRegionlike {
             }
             edge.next();
         }
-        checkSolid(empty2.data, empty2.data);
+        checkSolid(empty2, empty2);
     }
 
     /**
@@ -602,14 +595,14 @@ public class GridTest extends TestRegionlike {
     @Test
     public void like_test() {
         grid.wipe(size_y, size_x, y, x, empty2);
-        this.checkSolid(empty2.data, empty2.data);
-        Grid<CopyableData<Integer>> g = grid.like();
-        assertTrue(g.getEmpty().data == grid.getEmpty().data);
+        this.checkSolid(empty2, empty2);
+        Grid<Integer> g = grid.like();
+        assertTrue(g.getEmpty() == grid.getEmpty());
         assertTrue(g.getHeight() == grid.getHeight());
         assertTrue(g.getWidth() == grid.getWidth());
         assertTrue(g.getX() == grid.getX());
         assertTrue(g.getY() == grid.getY());
-        Integer e = grid.getEmpty().data;
+        Integer e = grid.getEmpty();
         grid = g;
         this.checkSolid(e, e);
     }
@@ -622,11 +615,11 @@ public class GridTest extends TestRegionlike {
         grid.reset(0, 0, empty2);
         assertTrue(grid.getHeight() == 0);
         assertTrue(grid.getWidth() == 0);
-        assertTrue(grid.getEmpty().data == empty2.data);
+        assertTrue(grid.getEmpty() == empty2);
         grid.reset(0, 0, empty2);
         assertTrue(grid.getHeight() == 0);
         assertTrue(grid.getWidth() == 0);
-        assertTrue(grid.getEmpty().data == empty2.data);
+        assertTrue(grid.getEmpty() == empty2);
     }
 
     /**
@@ -637,11 +630,11 @@ public class GridTest extends TestRegionlike {
         grid.reset(-1, -1, null);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty.data);
+        assertTrue(grid.getEmpty() == empty);
         grid.reset(-1, -1, null);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty.data);
+        assertTrue(grid.getEmpty() == empty);
     }
     /**
      * test
@@ -652,13 +645,13 @@ public class GridTest extends TestRegionlike {
         grid.reset(this.size_y, this.size_x, empty);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty.data);
-        this.checkSolid(empty.data, empty.data);
+        assertTrue(grid.getEmpty() == empty);
+        this.checkSolid(empty, empty);
         grid.reset(this.size_y, this.size_x, empty2);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty2.data);
-        this.checkSolid(empty2.data, empty2.data);
+        assertTrue(grid.getEmpty() == empty2);
+        this.checkSolid(empty2, empty2);
     }
     /**
      * test
@@ -669,13 +662,13 @@ public class GridTest extends TestRegionlike {
         grid.reset(this.size_y, this.size_x, empty2);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty2.data);
-        this.checkSolid(empty2.data, empty2.data);
+        assertTrue(grid.getEmpty() == empty2);
+        this.checkSolid(empty2, empty2);
         grid.reset(this.size_y, this.size_x, empty);
         assertTrue(grid.getHeight() == this.size_y);
         assertTrue(grid.getWidth() == this.size_x);
-        assertTrue(grid.getEmpty().data == empty.data);
-        this.checkSolid(empty.data, empty.data);
+        assertTrue(grid.getEmpty() == empty);
+        this.checkSolid(empty, empty);
     }
 
     /**
@@ -684,9 +677,9 @@ public class GridTest extends TestRegionlike {
     @Test
     public void set_YXZ() {
         grid.set(y, x, empty2);
-        assertTrue(grid.get(y, x).data == empty2.data);
-        empty2.data += 100;
-        assertTrue(grid.get(y, x).data == empty2.data);
+        assertTrue(grid.get(y, x) == empty2);
+        empty2 += 100;
+        assertFalse(grid.get(y, x) == empty2);
     }
 
     /**
@@ -696,9 +689,9 @@ public class GridTest extends TestRegionlike {
     public void set_PositionableZ() {
         Point p = new Point(y, x);
         grid.set(p, empty2);
-        assertTrue(grid.get(p).data == empty2.data);
-        empty2.data += 100;
-        assertTrue(grid.get(p).data == empty2.data);
+        assertTrue(grid.get(p) == empty2);
+        empty2 += 100;
+        assertFalse(grid.get(p) == empty2);
     }
 
     /**
@@ -707,9 +700,9 @@ public class GridTest extends TestRegionlike {
     @Test
     public void setCopy_YXZ() {
         grid.setCopy(y, x, empty2);
-        assertTrue(grid.get(y, x).data == empty2.data);
-        empty2.data += 100;
-        assertFalse(grid.get(y, x).data == empty2.data);
+        assertTrue(grid.get(y, x) == empty2);
+        empty2 += 100;
+        assertFalse(grid.get(y, x) == empty2);
     }
 
     /**
@@ -719,9 +712,9 @@ public class GridTest extends TestRegionlike {
     public void setCopy_PositionableZ() {
         Point p = new Point(y, x);
         grid.setCopy(p, empty2);
-        assertTrue(grid.get(y, x).data == empty2.data);
-        empty2.data += 100;
-        assertFalse(grid.get(y, x).data == empty2.data);
+        assertTrue(grid.get(y, x) == empty2);
+        empty2 += 100;
+        assertFalse(grid.get(y, x) == empty2);
     }
 
     /**
@@ -753,7 +746,7 @@ public class GridTest extends TestRegionlike {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         grid.setHeight(size_y * 2);
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
-        this.checkSolid(grid, empty.data, empty.data, size_y, size_x, 
+        this.checkSolid(grid, empty, empty, size_y, size_x, 
                         y + size_y, x);
     }
 
@@ -862,7 +855,7 @@ public class GridTest extends TestRegionlike {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         grid.setWidth(size_x * 2);
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
-        this.checkSolid(grid, empty.data, empty.data, size_y, size_x, 
+        this.checkSolid(grid, empty, empty, size_y, size_x, 
                         y, x + size_x);
     }
 
@@ -898,7 +891,7 @@ public class GridTest extends TestRegionlike {
     @Test
     public void subGrid_RowsColsYX_Same() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
-        Grid<CopyableData<Integer>> g = grid.subGrid(size_y, size_x, y, x);
+        Grid<Integer> g = grid.subGrid(size_y, size_x, y, x);
         this.checkPattern(g, size_y, size_x, y, x, 0, 0);
     }
 
@@ -910,9 +903,9 @@ public class GridTest extends TestRegionlike {
         int half_x = size_x / 2;
         int half_y = size_y / 2;
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
-        Grid<CopyableData<Integer>> g = grid.subGrid(half_y, half_x, 
-                                                     y + half_y / 2, 
-                                                     x + half_x / 2);
+        Grid<Integer> g = grid.subGrid(half_y, half_x, 
+                                       y + half_y / 2, 
+                                       x + half_x / 2);
         // We want half of the visible grid, so our starting position is
         // +y,x. However the pattern itself is not based upon the position,
         // so the pattern offset doesn't need that.
@@ -928,7 +921,7 @@ public class GridTest extends TestRegionlike {
     public void subGrid_Regionlike_Same() {
         BoxRegion b = new BoxRegion(size_y, size_x, y, x);
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
-        Grid<CopyableData<Integer>> g = grid.subGrid(b);
+        Grid<Integer> g = grid.subGrid(b);
         this.checkPattern(g, size_y, size_x, y, x, 0, 0);
     }
 
@@ -942,7 +935,7 @@ public class GridTest extends TestRegionlike {
         BoxRegion b = new BoxRegion(half_y, half_x, 
                                     y + half_y / 2, x + half_x / 2);
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
-        Grid<CopyableData<Integer>> g = grid.subGrid(b);
+        Grid<Integer> g = grid.subGrid(b);
         // We want half of the visible grid, so our starting position is
         // +y,x. However the pattern itself is not based upon the position,
         // so the pattern offset doesn't need that.
@@ -957,9 +950,9 @@ public class GridTest extends TestRegionlike {
     @Test
     public void unset_YX() {
         grid.wipe(size_y, size_x, y, x, empty2);
-        assertEquals(grid.get(y, x).getData(),empty2.getData());
+        assertEquals(grid.get(y, x),empty2);
         grid.unset(y, x);
-        assertEquals(grid.get(y, x).getData(),empty.getData());
+        assertEquals(grid.get(y, x),empty);
     }
 
     /**
@@ -968,10 +961,10 @@ public class GridTest extends TestRegionlike {
     @Test
     public void unset_Positionable() {
         grid.wipe(size_y, size_x, y, x, empty2);
-        assertEquals(grid.get(y, x).getData(), empty2.getData());
+        assertEquals(grid.get(y, x), empty2);
         Point p = new Point(y, x);
         grid.unset(p);
-        assertEquals(grid.get(y, x).getData(), empty.getData());
+        assertEquals(grid.get(y, x), empty);
     }
 
     /**
@@ -981,7 +974,7 @@ public class GridTest extends TestRegionlike {
     public void wipe_YXYX() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         grid.wipe(size_y, size_x, y, x);
-        this.checkSolid(empty.data, empty.data);
+        this.checkSolid(empty, empty);
     }
 
     /**
@@ -991,7 +984,7 @@ public class GridTest extends TestRegionlike {
     public void wipe_YXYXZ() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         grid.wipe(size_y, size_x, y, x, empty2);
-        this.checkSolid(empty2.data, empty2.data);
+        this.checkSolid(empty2, empty2);
     }
 
 }
