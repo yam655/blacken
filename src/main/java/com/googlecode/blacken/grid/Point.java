@@ -45,6 +45,14 @@ public class Point implements Positionable {
         this.y = y;
     }
     
+    /**
+     * @param point a point to base this one off of
+     */
+    public Point(Point point) {
+        this.x = point.getX();
+        this.y = point.getY();
+    }
+
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.grid.Positionable#getX()
@@ -83,22 +91,21 @@ public class Point implements Positionable {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getPos()
-     */
-    @Override
-    public int[] getPos() {
-        int ret[] = {y, x};
-        return ret;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see com.googlecode.blacken.grid.Positionable#setPos(int, int)
      */
     @Override
-    public void setPos(int y, int x) {
+    public void setPosition(int y, int x) {
         this.setX(x);
         this.setY(y);
+    }
+
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Positionable#setPos(com.googlecode.blacken.grid.Positionable)
+     */
+    @Override
+    public void setPosition(Positionable point) {
+        this.setX(point.getX());
+        this.setY(point.getY());
     }
 
 }

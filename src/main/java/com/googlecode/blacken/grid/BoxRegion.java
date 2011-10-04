@@ -333,15 +333,6 @@ public class BoxRegion implements Regionlike {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getPos()
-     */
-    @Override
-    public int[] getPos() {
-        int[] ret = {start_y, start_x};
-        return ret;
-    }
-    /*
-     * (non-Javadoc)
      * @see com.googlecode.blacken.grid.Regionlike#getWidth()
      */
     @Override
@@ -399,7 +390,7 @@ public class BoxRegion implements Regionlike {
      * @see com.googlecode.blacken.grid.Positionable#setPos(int, int)
      */
     @Override
-    public void setPos(int y, int x) {
+    public void setPosition(int y, int x) {
         setY(y);
         setX(x);
     }
@@ -429,6 +420,14 @@ public class BoxRegion implements Regionlike {
     @Override
     public void setY(int y) {
         start_y = y;
+    }
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Positionable#setPosition(com.googlecode.blacken.grid.Positionable)
+     */
+    @Override
+    public void setPosition(Positionable point) {
+        this.setX(point.getX());
+        this.setY(point.getY());
     }
 
 }

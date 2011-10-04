@@ -23,6 +23,7 @@ import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
+import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
@@ -304,19 +305,19 @@ public class Stumble {
         Integer there;
         if (player.getY() == -1) {
             int[] pos = placeIt('@');
-            player.setPos(pos[0], pos[1]);
+            player.setPosition(pos[0], pos[1]);
             recenterMap();
             return;
         }
-        int[] oldPos = player.getPos();
+        Positionable oldPos = new Point(player);
         try {
             there = grid.get(player.getY() + y, player.getX() + x);
         } catch(IndexOutOfBoundsException e) {
             return;
         }
         if (there == EMPTY_FLOOR || there == nextLocation) {
-            grid.set(oldPos[0], oldPos[1], EMPTY_FLOOR);
-            player.setPos(player.getY() + y, player.getX() + x);
+            grid.set(oldPos.getY(), oldPos.getX(), EMPTY_FLOOR);
+            player.setPosition(player.getY() + y, player.getX() + x);
             grid.set(player.getY(), player.getX(), 0x40);
             int playerScreenY = player.getY() - upperLeft.getY() + MAP_START.getY();  
             int playerScreenX = player.getX() - upperLeft.getX() + MAP_START.getX();

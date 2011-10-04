@@ -22,7 +22,7 @@ package com.googlecode.blacken.grid;
  * @author yam655
  *
  */
-public interface Regionlike extends Positionable {
+public interface Regionlike extends Positionable, Sizable {
     /**
      * Is the coordinate in the region?
      * 
@@ -69,6 +69,7 @@ public interface Regionlike extends Positionable {
      * Get the height
      * @return height
      */
+    @Override
     public int getHeight();
     /**
      * Get the inside iterator
@@ -88,6 +89,7 @@ public interface Regionlike extends Positionable {
      * Get the width.
      * @return width
      */
+    @Override
     public int getWidth();
     /**
      * Does the box intersect with the region?
@@ -112,10 +114,12 @@ public interface Regionlike extends Positionable {
      * Set the height.
      * @param height the height
      */
+    @Override
     public void setHeight(int height);
     /**
      * Set the width.
      * @param width the width
      */
+    @Override
     public void setWidth(int width);
 }

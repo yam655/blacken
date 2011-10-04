@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.googlecode.blacken.grid.ResetGridCell;
+import com.googlecode.blacken.grid.DirtyGridCell;
 
 /**
  * A concrete terminal cell.
@@ -36,14 +36,14 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
      * @author yam655
      *
      */
-    public class ResetCell implements ResetGridCell<TerminalCellLike> {
+    public class ResetCell implements DirtyGridCell<TerminalCellLike> {
         /*
          * (non-Javadoc)
          * @see com.googlecode.blacken.grid.ResetGridCell#reset(com.googlecode.blacken.grid.Copyable)
          */
         @Override
-        public void reset(TerminalCellLike cell) {
-            cell.setDirty(true);
+        public void setDirty(TerminalCellLike cell, boolean isDirty) {
+            cell.setDirty(isDirty);
         }
     }
     private String sequence;

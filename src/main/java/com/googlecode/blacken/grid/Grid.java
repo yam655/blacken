@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.googlecode.blacken.exceptions.IrregularGridException;
+import com.googlecode.blacken.grid.Bresenham.LineIterator;
 
 /**
  * A two-dimensional grid. 
@@ -449,24 +450,13 @@ implements Regionlike, Serializable{
         return ret;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getPos()
-     */
-    @Override
-    public int[] getPos() {
-        int[] ret = {start_y, start_x};
-        return ret;
-    }
-
     /**
      * Get the size of the grid.
      * 
-     * @return int[] {size_y, size_x}
+     * @return int[] the size
      */
-    public int[] getSize() {
-        int[] ret = {size_y, size_x};
-        return ret;
+    public Sizable getSize() {
+        return new SimpleSize(size_y, size_x);
     }
 
     /*
@@ -522,6 +512,34 @@ implements Regionlike, Serializable{
     public Grid<Z> like() {
         // not quite a copy, instead we want a similar map
         return new Grid<Z>(empty, size_y, size_x, start_y, start_x, irregular);
+    }
+    
+    /**
+     * Create a line on a grid
+     * 
+     * @param y0 starting row
+     * @param x0 starting column
+     * @param y1 ending row
+     * @param x1 ending column
+     * @param cell cell contents
+     */
+    public void line(int y0, int x0, int y1, int x1, Z cell) {
+        for (Positionable pos : new LineIterator(y0, x0, y1, x1)) {
+            set(pos, cell);
+        }
+    }
+
+    /**
+     * Create a line on a grid (using Positionables)
+     * 
+     * @param start starting position
+     * @param end ending position
+     * @param cell cell contents
+     */
+    public void line(Positionable start, Positionable end, Z cell) {
+        for (Positionable pos : new LineIterator(start, end)) {
+            set(pos, cell);
+        }
     }
     
     /**
@@ -733,9 +751,19 @@ implements Regionlike, Serializable{
      * @see com.googlecode.blacken.grid.Positionable#setPos(int, int)
      */
     @Override
-    public void setPos(int y, int x) {
+    public void setPosition(int y, int x) {
         this.setX(x);
         this.setY(y);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Positionable#setPos(com.googlecode.blacken.grid.Positionable)
+     */
+    @Override
+    public void setPosition(Positionable point) {
+        this.setX(point.getX());
+        this.setY(point.getY());
     }
     
     /**
@@ -753,10 +781,17 @@ implements Regionlike, Serializable{
      * 
      * @param size new size
      */
-    public void setSize(int[] size) {
-        if (size.length == 2) {
-            setSize(size[0], size[1]);
-        }
+    public void setSize(Sizable size) {
+        setSize(size.getHeight(), size.getWidth());
+    }
+
+    /**
+     * Set the bounds size.
+     * @param bounds the bounds 
+     */
+    public void setBounds(Regionlike bounds) {
+        setPosition(bounds.getY(), bounds.getX());
+        setSize(bounds.getHeight(), bounds.getWidth());
     }
 
     /*
@@ -969,7 +1004,7 @@ implements Regionlike, Serializable{
      * @param resetCell class/function to refresh a cell
      */
     public void moveBlock(int numRows, int numCols, int origY, int origX,
-                          int newY, int newX, ResetGridCell<Z> resetCell) {
+                          int newY, int newX, DirtyGridCell<Z> resetCell) {
         this.copyFrom(this, numRows, numCols, origY, origX, newY, newX, 
                       resetCell);
     }
@@ -988,7 +1023,7 @@ implements Regionlike, Serializable{
      */
     public void copyFrom(Grid<Z> source, int numRows, int numCols, 
                          int startY, int startX, int destY, int destX, 
-                         ResetGridCell<Z> resetCell) {
+                         DirtyGridCell<Z> resetCell) {
         Grid<Z> tgrid = source.subGrid(numRows, numCols, startY, startX);
         if (source == this) {
             this.wipe(numRows, numCols, startY, startX);
@@ -1000,11 +1035,11 @@ implements Regionlike, Serializable{
                     if (cell == null) {
                         continue;
                     }
-                    resetCell.reset(cell);
+                    resetCell.setDirty(cell, true);
                 }
             }
         }
-        tgrid.setPos(destY, destX);
+        tgrid.setPosition(destY, destX);
         this.addGrid(tgrid);
     }
     

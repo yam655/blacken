@@ -31,8 +31,8 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
-import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.colors.ColorHelper;
+import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.terminal.AbstractTerminal;
 import com.googlecode.blacken.terminal.BlackenEventType;
@@ -85,7 +85,7 @@ public class SwingTerminal extends AbstractTerminal
     public void componentHidden(ComponentEvent e) {
         return;
     }
-    
+
     @Override
     public void componentMoved(ComponentEvent e) {
         return;
@@ -100,9 +100,9 @@ public class SwingTerminal extends AbstractTerminal
     public void componentShown(ComponentEvent e) {
         return;
     }
-
+    
     @Override
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols,
+    public void copyFrom(TerminalInterface oterm, int numRows, int numCols, 
                          int startY, int startX, int destY, int destX) {
         if (oterm == this) {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
@@ -112,7 +112,7 @@ public class SwingTerminal extends AbstractTerminal
             forceRefresh(numRows, numCols, destY, destX);
         }
     }
-    
+
     @Override
     public void disableEventNotice(BlackenEventType event) {
         listener.unsetEnabled(event);
@@ -127,7 +127,7 @@ public class SwingTerminal extends AbstractTerminal
     public void enableEventNotice(BlackenEventType event) {
         listener.setEnabled(event);
     }
-    
+
     @Override
     public void enableEventNotices(EnumSet<BlackenEventType> events) {
         if (events == null) {
@@ -135,7 +135,7 @@ public class SwingTerminal extends AbstractTerminal
         }
         listener.setEnabled(events);
     }
-    
+
     private void forceRefresh(int numRows, int numCols, int startY, int startX) {
         Grid<TerminalCellLike> grid = getGrid();
         for (int y = startY; y < numRows + startY; y++) {
@@ -160,7 +160,7 @@ public class SwingTerminal extends AbstractTerminal
         }
         if (ch == BlackenKeys.RESIZE_EVENT) {
             gui.windowResized();
-            getGrid().setSize(gui.getGridSize());
+            getGrid().setBounds(gui.getGridBounds());
         }
         return ch;
     }
@@ -213,12 +213,13 @@ public class SwingTerminal extends AbstractTerminal
         Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
         if (gui == null) {
-            gui = new BlackenPanel();
+            gui = new BlackenPanel();;
         }
         if (listener == null) {
             listener = new EventListener(gui);
         }
-        frame.setSize(480, 640);
+
+        frame.setSize(640, 480);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -230,6 +231,13 @@ public class SwingTerminal extends AbstractTerminal
         gui.init(font, rows, cols, empty);
         getGrid().reset(rows, cols, getEmpty());
 
+        gui.resizeFrame(frame, 0);
+        frame.setLocationRelativeTo(null); // places window in center of screen
+        frame.setResizable(true);
+        move(0, 0);
+
+        frame.setVisible(true);
+                
         frame.addKeyListener(listener);
         frame.addMouseListener(listener);
         frame.addMouseMotionListener(listener);
@@ -238,14 +246,9 @@ public class SwingTerminal extends AbstractTerminal
         frame.addWindowFocusListener(listener);
         frame.addComponentListener(this);
         frame.addInputMethodListener(listener);
-
-        gui.resizeFrame(frame, 0);
-        frame.setLocationRelativeTo(null); // places window in center of screen
-        frame.setResizable(true);
-        move(0, 0);
-
-        frame.setVisible(true);
     }
+
+
 
     /**
      * We do not cache the entire dim palette at palette-load as it isn't
@@ -278,10 +281,8 @@ public class SwingTerminal extends AbstractTerminal
     }
 
     @Override
-    public void set(int y, int x, String glyph, 
-                    Integer foreground, Integer background, 
-                    EnumSet<TerminalStyle> style, 
-                    EnumSet<CellWalls> walls) {
+    public void set(int y, int x, String glyph, Integer foreground,
+                    Integer background, EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
         TerminalCellLike tcell = getGrid().get(y,x);
         if (walls != null) {
             tcell.setCellWalls(walls);
@@ -453,11 +454,7 @@ public class SwingTerminal extends AbstractTerminal
             gui.moveCursor(y, x);
         }
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.core.AbstractTerminal#setPalette(com.googlecode.blacken.colors.ColorPalette)
-     */
+
     @Override
     public ColorPalette setPalette(ColorPalette palette) {
         ColorPalette old = super.setPalette(palette);

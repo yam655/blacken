@@ -22,11 +22,10 @@ import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 
 /**
- * @author Steven Black
+ * @author yam655
  *
  */
 public interface TerminalInterface {
-
     /**
      * Write a character to the current update location
      * @param what codepoint to add to the screen
@@ -106,21 +105,18 @@ public interface TerminalInterface {
      * @return cursor location
      */
     public int[] getCursorLocation();
-
     /**
      * Get the cursor's X location.
      * 
      * @return cursor's X location.
      */
     public int getCursorX();
-
     /**
      * Get the cursor's Y location.
      * 
      * @return cursor's Y location.
      */
     public int getCursorY();
-    
     /**
      * Get the template cell used for new and clear cells.
      * 
@@ -178,6 +174,13 @@ public interface TerminalInterface {
      * @return new window event
      */
     public BlackenWindowEvent getwindow();
+
+    /**
+     * Get the current terminal max Y size
+     * 
+     * @return terminal's max Y size
+     */
+    public int gridHeight();
     /**
      * Get the current terminal max X size
      * 
@@ -185,16 +188,10 @@ public interface TerminalInterface {
      */
     public int gridWidth();
     /**
-     * Get the current terminal max Y size
-     * 
-     * @return terminal's max Y size
-     */
-    public int gridHeight();
-
-    /**
      * Initialize the terminal
      */
     public void init();
+
     /**
      * Initialize the terminal with a specific window name and size.
      * 
@@ -203,6 +200,7 @@ public interface TerminalInterface {
      * @param cols terminal columns
      */
     public void init(String name, int rows, int cols);
+
     /**
      * Are we using a separate cursor?
      * 
@@ -220,7 +218,6 @@ public interface TerminalInterface {
      * @param x column
      */
     public void move(int y, int x);
-    
     /**
      * Move a block of cells
      * 
@@ -234,6 +231,16 @@ public interface TerminalInterface {
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX);
     /**
+     * This is another name for {@link #move(int, int)}.
+     * 
+     * <p>Since this name is required for the TerminalPanel interface, we
+     * also provide the name here.</p>
+     * 
+     * @param y row
+     * @param x column
+     */
+    public void mv(int y, int x);
+    /**
      * Move the update position and write a character.
      * 
      * @param y new Y location
@@ -241,6 +248,7 @@ public interface TerminalInterface {
      * @param what codepoint to write
      */
     public void mvaddch(int y, int x, int what);
+
     /**
      * Move the cursor and get a character
      * 
@@ -275,6 +283,7 @@ public interface TerminalInterface {
      * @param what code point
      */
     public void overlaych(int what);
+    
     /**
      * Write a character sequence to the terminal.
      * 
@@ -303,6 +312,7 @@ public interface TerminalInterface {
     public void set(int y, int x, String sequence, 
                     Integer foreground, Integer background,
                     EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls);
+    
     /**
      * Set a cell to explicit contents, using a CellLike
      * 
@@ -311,7 +321,6 @@ public interface TerminalInterface {
      * @param cell example cell
      */
     public void set(int y, int x, TerminalCellLike cell);
-    
     /**
      * Set the current background color.
      * 
@@ -319,11 +328,24 @@ public interface TerminalInterface {
      */
     public void setCurBackground(int color);
     /**
+     * Set the background based upon the color name.
+     * 
+     * @param string color name
+     */
+    public void setCurBackground(String string);
+    /**
      * Set the current foreground color.
      * 
      * @param color new color index (or value)
      */
     public void setCurForeground(int color);
+    
+    /**
+     * Set the foreground based upon the color name.
+     * 
+     * @param string color name
+     */
+    public void setCurForeground(String string);
     /**
      * Set the cursor location.
      * 
@@ -365,17 +387,5 @@ public interface TerminalInterface {
      * @param separateCursor true to separate; false to join
      */
     public void setSeparateCursor(boolean separateCursor);
-    /**
-     * Set the background based upon the color name.
-     * 
-     * @param string color name
-     */
-    public void setCurBackground(String string);
-    /**
-     * Set the foreground based upon the color name.
-     * 
-     * @param string color name
-     */
-    public void setCurForeground(String string);
 
 }

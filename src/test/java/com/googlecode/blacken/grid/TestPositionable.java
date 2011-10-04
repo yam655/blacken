@@ -92,24 +92,14 @@ public class TestPositionable {
      * test
      */
     @Test
-    public void getPos() {
-        int[] got = data.getPos();
-        int[] ideal = {base_y, base_x};
-        assertArrayEquals(ideal, got);
-    }
-
-    /**
-     * test
-     */
-    @Test
     public void setPos() {
         int[] ideal1 = {base_y, base_x};
         int[] ideal2 = {base_y + 2, base_x + 2};
-        int[] got = data.getPos();
-        assertArrayEquals(ideal1, got);
-        data.setPos(ideal2[0], ideal2[1]);
-        got = data.getPos();
-        assertArrayEquals(ideal2, got);
+        assertEquals(ideal1[0], data.getY());
+        assertEquals(ideal1[1], data.getX());
+        data.setPosition(ideal2[0], ideal2[1]);
+        assertEquals(ideal2[0], data.getY());
+        assertEquals(ideal2[1], data.getX());
     }
 
 }

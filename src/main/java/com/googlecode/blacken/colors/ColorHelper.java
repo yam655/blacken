@@ -16,7 +16,6 @@
  */
 package com.googlecode.blacken.colors;
 
-
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
@@ -133,8 +132,8 @@ public class ColorHelper {
      * @param blue blue value
      * @return valid RGBA color
      */
-    public static int makeColor(double red, double green, double blue) {
-        return makeColor(red, green, blue, 1.0);
+    public static int makeColor(float red, float green, float blue) {
+        return makeColor(red, green, blue, 1.0F);
     }
 
     /**
@@ -146,16 +145,16 @@ public class ColorHelper {
      * @param alpha alpha value
      * @return valid RGBA color
      */
-    public static int makeColor(double red, double green, double blue, 
-                                double alpha) {
-        if (red > 1.0) red = 1.0;
-        if (green > 1.0) green = 1.0;
-        if (blue > 1.0) blue = 1.0;
-        if (alpha > 1.0) alpha = 1.0;
-        red = red * 255.0;
-        blue = blue * 255.0;
-        green = green * 255.0;
-        alpha = alpha * 255.0;
+    public static int makeColor(float red, float green, float blue, 
+                                float alpha) {
+        if (red > 1.0) red = 1.0F;
+        if (green > 1.0) green = 1.0F;
+        if (blue > 1.0) blue = 1.0F;
+        if (alpha > 1.0) alpha = 1.0F;
+        red = red * 255.0F;
+        blue = blue * 255.0F;
+        green = green * 255.0F;
+        alpha = alpha * 255.0F;
         return makeColor((int)Math.floor(red), (int)Math.floor(green), 
                          (int)Math.floor(blue), (int)Math.floor(alpha));
     }
@@ -398,6 +397,108 @@ public class ColorHelper {
         ret <<= 24;
         ret = ret | (color & 0x00ffffff);
         return ret;
+    }
+    
+    /**
+     * @param rgba color value
+     * @return array of {hue, saturation, value, alpha}
+     */
+    public static float[] ColorToHSV(int rgba) {
+        int min, max;
+        float d;
+        int[] comps = makeComponents(rgba);
+        int r = comps[0]; int g = comps[1]; int b = comps[2];
+        int alpha = comps[3];
+        
+        if (r > g) { 
+            min = g; max = r; 
+        } else { 
+            min = r; max = g; 
+        }
+        if (b > max) max = b;
+        if (b < min) min = b;
+        d = max - min;
+
+        float h = 0;
+        if (d != 0F) {
+            if (r == max) {
+                h = ((g - b) / d);
+            } else if (g == max) { 
+                h = (2 + (b - r) / d);
+            } else if (b == max) { 
+                h = (4 + (r - g) / d);
+            }
+        }
+        if (h < 0) h += 6F; // convert from -180:+180 to 0:360
+        return new float[]{ h * 60F, d / 255F, max / 255F, alpha / 255F};
+    }
+
+    /**
+     * Convert color from HSV to RGBA
+     * 
+     * <p>If the alpha component is missing it defaults to 1.0F,
+     * which is fully opaque.</p>
+     * 
+     * @param hsva {hue, saturation, value, (optional) alpha}
+     * @return color value
+     */
+    public static int ColorFromHSV(float[] hsva) {
+        float h = hsva[0]; float s = hsva[1]; float v = hsva[2];
+        float alpha = 1F;
+        if (hsva.length > 3) alpha = hsva[3];
+        float r, g, b;
+        
+        int segment;
+        float f, p, q, t;
+
+        if (s == 0F) {
+            r = g = b = v;
+            return makeColor(r, g, b, alpha);
+        }
+        
+        h /= 60F;
+        segment = (int)Math.floor(h);
+        f = h - segment;
+        p = v * (1 - s);
+        q = v * (1 - s * f);
+        t = v * (1 - s * (1.0F - f));
+
+        switch(segment) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        default: r = v; g = p; b = q; break;
+        }
+        return makeColor(r, g, b, alpha);
+    }
+
+    /**
+     * Saturate/Desaturate a range of a palette.
+     * 
+     * <p>The satStep is added to the current saturation and forced to remain
+     * in the 0.0:1.0 (inclusive) range.</p>
+     * 
+     * @param pal the palette to saturate/desaturate
+     * @param startIdx starting index (inclusive)
+     * @param endIdx ending index (exclusive)
+     * @param satStep offset to modify the saturation (-1.0 to +1.0)
+     */
+    public void saturatePalette(ColorPalette pal, int startIdx, int endIdx, float satStep) {
+        if (startIdx < 0) startIdx = 0;
+        if (endIdx == 0) endIdx = pal.size();
+        else if (endIdx < 0) endIdx += pal.size() +1;
+        for (int idx = startIdx; idx < endIdx; idx++) {
+            float[] hsv = ColorToHSV(pal.get(idx));
+            hsv[1] += satStep;
+            if (hsv[1] < 0F) {
+                hsv[1] = 0F;
+            } else if (hsv[1] > 1.0F) {
+                hsv[1] = 1F;
+            }
+            pal.set(idx, ColorFromHSV(hsv));
+        }
     }
     
 }

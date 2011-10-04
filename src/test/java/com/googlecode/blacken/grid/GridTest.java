@@ -521,19 +521,11 @@ public class GridTest extends TestRegionlike {
     /**
      * test
      */
-    @Override
-    @Test
-    public void getPos() {
-        super.getPos();
-    }
-
-    /**
-     * test
-     */
     @Test
     public void getSize_test() {
-        int[] expecteds = {this.size_y, this.size_x};
-        assertArrayEquals(expecteds, grid.getSize());
+        Sizable size = grid.getSize();
+        assertEquals(this.size_y, size.getHeight());
+        assertEquals(this.size_x, size.getWidth());
     }
 
     /**
@@ -795,10 +787,9 @@ public class GridTest extends TestRegionlike {
      * test
      */
     @Test
-    public void setSize_Size_Same() {
+    public void setSize_Size_SimpleSize() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
-        int[] p = {size_y, size_x};
-        grid.setSize(p);
+        grid.setSize(new SimpleSize(size_y, size_x));
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
     }
 
@@ -809,8 +800,7 @@ public class GridTest extends TestRegionlike {
     public void setSize_Size_Half() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         size_y /= 2; size_x /= 2;
-        int[] p = {size_y, size_x};
-        grid.setSize(p);
+        grid.setSize(new SimpleSize(size_y, size_x));
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
     }
 
@@ -821,8 +811,7 @@ public class GridTest extends TestRegionlike {
     public void setSize_Size_Double() {
         this.setPattern(grid, size_y, size_x, y, x, 0, 0);
         size_y /= 2; size_x /= 2;
-        int[] p = {size_y, size_x};
-        grid.setSize(p);
+        grid.setSize(new SimpleSize(size_y, size_x));
         this.checkPattern(grid, size_y, size_x, y, x, 0, 0);
     }
 

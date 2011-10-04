@@ -43,16 +43,15 @@ public interface Positionable {
      */
     public void setY(int y);
     /**
-     * Returns an array containing the X and Y positions in that order.
-     * 
-     * @return [x, y]
-     */
-    public int[] getPos();
-    /**
      * Set the position.
      * 
      * @param y new coordinate
      * @param x new coordinate
      */
-    public void setPos(int y, int x);
+    public void setPosition(int y, int x);
+    /**
+     * Set the position
+     * @param point new point
+     */
+    public void setPosition(Positionable point);
 }

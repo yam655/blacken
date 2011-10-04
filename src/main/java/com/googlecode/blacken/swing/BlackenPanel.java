@@ -36,6 +36,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.grid.SimpleSize;
+import com.googlecode.blacken.grid.Sizable;
 import com.googlecode.blacken.terminal.CellWalls;
 
 /**
@@ -191,17 +194,15 @@ public class BlackenPanel extends JPanel {
     /**
      * Get the best window size.
      * 
-     * @return int[] {ysize, xsize}
+     * @return window size, as a Positionable
      */
-    protected int[] getBestWindowSize() {
+    protected Sizable getBestWindowSize() {
         this.maybeRepaint();
         int xsize, ysize;
-        int[] gridSize;
-        gridSize = grid.getSize();
-        xsize = fontSglAdvance * gridSize[1];
-        ysize = fontHeight * gridSize[0];
-        int[] ret = {ysize, xsize};
-        return ret;
+        Sizable gridSize = grid.getSize();
+        xsize = fontSglAdvance * gridSize.getHeight();
+        ysize = fontHeight * gridSize.getWidth();
+        return new SimpleSize(ysize, xsize);
     }
     /**
      * Get the empty/template cell
@@ -227,9 +228,9 @@ public class BlackenPanel extends JPanel {
      * Get the grid size
      * @return {ySize, xSize}
      */
-    public int[] getGridSize() {
+    public Regionlike getGridBounds() {
         this.maybeRepaint();
-        return grid.getSize();
+        return grid.getBounds();
     }
     /**
      * Hide the cursor.
@@ -680,21 +681,8 @@ public class BlackenPanel extends JPanel {
             }
             setFont(f, false);
         }
-        int[] sizes = getBestWindowSize();
-        //System.out.println(String.format("DEBUG: X:%d, Y:%d", sizes[1], sizes[0]));
-        //frame.getRootPane().getContentPane().setSize(sizes[1], sizes[0]);
-        frame.setSize(sizes[1], sizes[0]);
-        // Rectangle r = this.getVisibleRect();
-        // Rectangle r = this.getRootPane().getContentPane().getBounds();
-        frame.setSize(sizes[1], 
-                      sizes[0]);
-        //Dimension d = this.getSize();
-        //System.out.println(String.format("DEBUG: w:%d, h:%d", d.width, d.height));
-        //int xo = d.width - sizes[1];
-        //int yo = d.height - sizes[0];
-        //System.out.println(String.format("DEBUG: x:%d, y:%d", xo, yo));
-        //frame.setSize(sizes[1] + (yo > 0 ? yo : 0), 
-        //              sizes[0] + (xo > 0 ? xo : 0));
+        Sizable sizes = getBestWindowSize();
+        frame.setSize(sizes.getWidth(), sizes.getHeight());
     }
     /**
      * Resize the grid

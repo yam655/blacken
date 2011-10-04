@@ -23,7 +23,7 @@ package com.googlecode.blacken.grid;
  *
  * @param <Z> cell type
  */
-public interface ResetGridCell <Z> {
+public interface DirtyGridCell <Z> {
     /**
      * Dirty a cell.
      * 
@@ -31,6 +31,7 @@ public interface ResetGridCell <Z> {
      * to be refreshed.</p>
      * 
      * @param cell cell to dirty
+     * @param dirty true to dirty; false to clean
      */
-    public void reset(Z cell);
+    public void setDirty(Z cell, boolean dirty);
 }

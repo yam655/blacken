@@ -102,15 +102,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#init()
-     */
-    @Override
-    public void init() {
-        init("Java", 25, 80); //$NON-NLS-1$
-    }
-
-    /*
-     * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#clear()
      */
     @Override
@@ -121,7 +112,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         grid.clear(empty);
         empty.setDirty(true);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#clear(com.googlecode.blacken.terminal.TerminalCell)
@@ -131,7 +122,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         this.empty.set(empty);
         clear();
     }
-
+    
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#copyFrom(com.googlecode.blacken.terminal.TerminalInterface, int, int, int, int, int, int)
@@ -202,6 +193,43 @@ public abstract class AbstractTerminal implements TerminalInterface {
      */
     public int getCurForeground() {
         return curForeground;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorLocation()
+     */
+    @Override
+    public int[] getCursorLocation() {
+        int[] ret = {cursorY, cursorX};
+        return ret;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorX()
+     */
+    @Override
+    public int getCursorX() {
+        return cursorX;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorY()
+     */
+    @Override
+    public int getCursorY() {
+        return cursorY;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getEmpty()
+     */
+    @Override
+    public TerminalCellLike getEmpty() {
+        return empty;
     }
 
     /*
@@ -287,6 +315,16 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     /*
      * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#gridHeight()
+     */
+    @Override
+    public int gridHeight() {
+        if (grid == null) return 0;
+        return grid.getHeight();
+    }
+
+    /*
+     * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#gridWidth()
      */
     @Override
@@ -297,14 +335,13 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#gridHeight()
+     * @see com.googlecode.blacken.terminal.TerminalInterface#init()
      */
     @Override
-    public int gridHeight() {
-        if (grid == null) return 0;
-        return grid.getHeight();
+    public void init() {
+        init("Java", 25, 80); //$NON-NLS-1$
     }
-
+    
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#init(java.lang.String, int, int)
@@ -320,7 +357,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
         setCursorLocation(0,0);
         move(0, 0);
     }
-
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#isSeparateCursor()
@@ -329,7 +365,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public boolean isSeparateCursor() {
         return separateCursor;
     }
-
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#move(int, int)
@@ -350,31 +385,14 @@ public abstract class AbstractTerminal implements TerminalInterface {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
                        new TerminalCell().new ResetCell());
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorLocation()
+     * @see com.googlecode.blacken.terminal.TerminalInterface#mv(int, int)
      */
     @Override
-    public int[] getCursorLocation() {
-        int[] ret = {cursorY, cursorX};
-        return ret;
-    }
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorX()
-     */
-    @Override
-    public int getCursorX() {
-        return cursorX;
-    }
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#getCursorY()
-     */
-    @Override
-    public int getCursorY() {
-        return cursorY;
+    public void mv(int y, int x) {
+        move(y, x);
     }
 
     /*
@@ -500,15 +518,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     /*
      * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#setCursorLocation(int, int)
-     */
-    @Override
-    public void setCursorLocation(int y, int x) {
-        cursorX = x; cursorY = y;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#setCurBackground(int)
      */
     @Override
@@ -564,6 +573,23 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setCursorLocation(int, int)
+     */
+    @Override
+    public void setCursorLocation(int y, int x) {
+        cursorX = x; cursorY = y;
+    }
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#setEmpty(com.googlecode.blacken.terminal.TerminalCellLike)
+     */
+    @Override
+    public void setEmpty(TerminalCellLike empty) {
+        this.empty = empty;
+    }
+
     /**
      * Set the palette to use for the colors
      * 
@@ -585,6 +611,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
         return this.setPalette(palette, white, black);
     }
+
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#setPalette(com.googlecode.blacken.colors.ColorPalette, int, int)
@@ -686,24 +713,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void setSeparateCursor(boolean separateCursor) {
         this.separateCursor = separateCursor;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#getEmpty()
-     */
-    @Override
-    public TerminalCellLike getEmpty() {
-        return empty;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#setEmpty(com.googlecode.blacken.terminal.TerminalCellLike)
-     */
-    @Override
-    public void setEmpty(TerminalCellLike empty) {
-        this.empty = empty;
     }
 
 }

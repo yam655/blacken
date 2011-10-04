@@ -230,11 +230,11 @@ public class TestColorHelper {
      */
     @Test
     public void makeColor_red_green_blue_alpha_d() {
-        assertEquals(WHITE, ColorHelper.makeColor(1., 1., 1., 1.));
-        assertEquals(BLACK, ColorHelper.makeColor(0., 0., 0., 1.));
-        assertEquals(RED, ColorHelper.makeColor(1., 0., 0., 1.));
-        assertEquals(NEAR_BLACK, ColorHelper.makeColor(0., 0., 0., 0.003922));
-        assertEquals(TRANSPARENT, ColorHelper.makeColor(0., 0., 0., 0.));
+        assertEquals(WHITE, ColorHelper.makeColor(1.F, 1.F, 1.F, 1.F));
+        assertEquals(BLACK, ColorHelper.makeColor(0.F, 0.F, 0.F, 1.F));
+        assertEquals(RED, ColorHelper.makeColor(1.F, 0.F, 0.F, 1.F));
+        assertEquals(NEAR_BLACK, ColorHelper.makeColor(0.F, 0.F, 0.F, 0.003922F));
+        assertEquals(TRANSPARENT, ColorHelper.makeColor(0.F, 0.F, 0.F, 0.F));
     }
 
     /**
@@ -242,9 +242,9 @@ public class TestColorHelper {
      */
     @Test
     public void makeColor_red_green_blue_d() {
-        assertEquals(WHITE, ColorHelper.makeColor(1., 1., 1.));
-        assertEquals(BLACK, ColorHelper.makeColor(0., 0., 0.));
-        assertEquals(RED, ColorHelper.makeColor(1., 0., 0.));
+        assertEquals(WHITE, ColorHelper.makeColor(1.F, 1.F, 1.F));
+        assertEquals(BLACK, ColorHelper.makeColor(0.F, 0.F, 0.F));
+        assertEquals(RED, ColorHelper.makeColor(1.F, 0.F, 0.F));
     }
 
     /**

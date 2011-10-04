@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.googlecode.blacken.grid.ResetGridCell;
+import com.googlecode.blacken.grid.DirtyGridCell;
 import com.googlecode.blacken.terminal.CellWalls;
 
 /**
@@ -44,14 +44,14 @@ public class AwtCell implements Cloneable {
      * 
      * @author yam655
      */
-    public class ResetCell implements ResetGridCell<AwtCell> {
+    public class ResetCell implements DirtyGridCell<AwtCell> {
 
         /*
          * (non-Javadoc)
          * @see com.googlecode.blacken.grid.ResetGridCell#reset(com.googlecode.blacken.grid.Copyable)
          */
         @Override
-        public void reset(AwtCell cell) {
+        public void setDirty(AwtCell cell, boolean isDirty) {
             cell.setDirty(true);
         }
 
@@ -555,13 +555,13 @@ public class AwtCell implements Cloneable {
     /**
      * Set all of a cell.
      * 
-     * @param glyph the character sequence
+     * @param sequence the character sequence
      * @param attributes the text attributes
      * @param walls the cell walls
      */
-    public void setCell(String glyph, Map<TextAttribute, Object> attributes, 
+    public void setCell(String sequence, Map<TextAttribute, Object> attributes, 
                         EnumSet<CellWalls> walls) {
-        setSequence(glyph);
+        setSequence(sequence);
         setTextAttributes(attributes);
         setCellWalls(walls);
     }

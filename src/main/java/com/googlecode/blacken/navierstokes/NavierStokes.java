@@ -20,10 +20,16 @@ package com.googlecode.blacken.navierstokes;
 import com.googlecode.blacken.grid.Grid;
 
 /**
+ * This code mostly comes from:
+ * http://www.dgp.toronto.edu/people/stam/reality/Research/pub.html
+ * Jos Stam, "Real-Time Fluid Dynamics for Games". 
+ *           Proceedings of the Game Developer Conference, March 2003
+ * http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf
+ * 
  * @author yam655
  *
  */
-public class NaverStokes {
+public class NavierStokes {
     float dt = 10F;
     float diff = 0.5F;
     float visc = 0.5f;
