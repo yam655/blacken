@@ -194,14 +194,13 @@ public class BlackenPanel extends JPanel {
     /**
      * Get the best window size.
      * 
-     * @return window size, as a Positionable
+     * @return window size, as a SimpleSize
      */
     protected Sizable getBestWindowSize() {
-        this.maybeRepaint();
         int xsize, ysize;
         Sizable gridSize = grid.getSize();
-        xsize = fontSglAdvance * gridSize.getHeight();
-        ysize = fontHeight * gridSize.getWidth();
+        xsize = fontSglAdvance * gridSize.getWidth();
+        ysize = fontHeight * gridSize.getHeight();
         return new SimpleSize(ysize, xsize);
     }
     /**
@@ -514,15 +513,15 @@ public class BlackenPanel extends JPanel {
         if (this.getGraphics() == null) {
             return;
         }
-        this.maybeRepaint();
-        metrics = this.getGraphics().getFontMetrics(this.font);
+        metrics = graphics.getFontMetrics(this.font);
         fontAscent = metrics.getMaxAscent()+1;
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
         if (fontDblAdvance == -1) fontDblAdvance = fontSglAdvance;
+        fontHasDouble = false;
         if (fontDblAdvance >= fontSglAdvance + fontSglAdvance) {
             fontHasDouble = true;
-        } else fontHasDouble = false;
+        } 
         if (fontHasDouble) {
             int sa = fontDblAdvance / 2;
             if (sa >= fontSglAdvance) {
@@ -630,7 +629,6 @@ public class BlackenPanel extends JPanel {
     }
 
     protected void resizeFontToFit() {
-        this.maybeRepaint();
         // Rectangle r = this.getRootPane().getContentPane().getBounds();
         Rectangle r = this.getVisibleRect();
         float fsize = 0.5f;
@@ -648,13 +646,13 @@ public class BlackenPanel extends JPanel {
             return;
         }
         Font lastFont = f;
-        // System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", 
+        //System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", 
         //                  fsize, fontSglAdvance, fontHeight);
         while (idealAdvance >= fontSglAdvance && idealHeight >= fontHeight) {
             lastFont = f;
             f = lastFont.deriveFont(fsize += 0.5f); 
             setFontNoUpdate(f);
-            // System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", fsize, fontSglAdvance, fontHeight);
+            //System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", fsize, fontSglAdvance, fontHeight);
         }
         setFont(lastFont, false);
         int newRows = r.height / fontHeight;
@@ -782,7 +780,6 @@ public class BlackenPanel extends JPanel {
      * @param recalc true to recalculate
      */
     private void setFont(Font font, boolean recalc) {
-        this.maybeRepaint();
         setFontNoUpdate(font);
         if (recalc && graphics != null) {
             resizeFontToFit();
@@ -805,7 +802,6 @@ public class BlackenPanel extends JPanel {
      * @param font new font
      */
     private void setFontNoUpdate(Font font) {
-        this.maybeRepaint();
         if (font != null) {
             this.font = font;
         }

@@ -772,6 +772,7 @@ implements Regionlike, Serializable{
      * @param ysize new Y size
      * @param xsize new X size
      */
+    @Override
     public void setSize(int ysize, int xsize) {
         resize(ysize, xsize, false);
     }
@@ -781,6 +782,7 @@ implements Regionlike, Serializable{
      * 
      * @param size new size
      */
+    @Override
     public void setSize(Sizable size) {
         setSize(size.getHeight(), size.getWidth());
     }

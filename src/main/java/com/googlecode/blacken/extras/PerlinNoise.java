@@ -21,14 +21,14 @@ package com.googlecode.blacken.extras;
 /**
  * This is Ken Perlin's third revision of his noise function. It is sometimes
  * referred to as "Simplex Noise". It is significantly faster than his
- * earlier versions.</p>
+ * earlier versions. This particular version was originally from 
+ * Stefan Gustavson.</p>
  * <p>
- * This is much preferred to one of his earlier versions due to the reasons
- * noted in the articles:
+ * This is much preferred to the earlier versions of Perlin Noise due to the 
+ * reasons noted in the articles:
  * <ul>
  * <li>http://www.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf</li>
- * <li>
- * http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/ch02.pdf</li>
+ * <li>http://webstaff.itn.liu.se/~stegu/TNM022-2005/perlinnoiselinks/ch02.pdf</li>
  * </ul>
  * </p>
  */
@@ -93,7 +93,7 @@ public final class PerlinNoise {
     }
     // A lookup table to traverse the simplex around a given point in 4D.
     // Details can be found where this table is used, in the 4D noise method.
-    private static int simplex[][] = 
+    private static final int simplex[][] = 
     { {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 0, 0, 0}, {0, 2, 3, 1},
       {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 2, 3, 0},
       {0, 2, 1, 3}, {0, 0, 0, 0}, {0, 3, 1, 2}, {0, 3, 2, 1},
@@ -343,7 +343,7 @@ public final class PerlinNoise {
      * @param w 4th position
      * @return noise
      */
-    public double noise(double x, double y, double z, double w) {
+    public static double noise(double x, double y, double z, double w) {
         // The skewing and unskewing factors are hairy again for the 4D case
         double n0, n1, n2, n3, n4; // Noise contributions from the five
                                    // corners

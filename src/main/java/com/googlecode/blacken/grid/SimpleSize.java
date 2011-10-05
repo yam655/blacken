@@ -68,4 +68,30 @@ public class SimpleSize implements Sizable {
         this.width = width;
     }
 
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Sizable#setSize(int, int)
+     */
+    @Override
+    public void setSize(int height, int width) {
+        this.height = height;
+        this.width = width;
+    }
+
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Sizable#setSize(com.googlecode.blacken.grid.Sizable)
+     */
+    @Override
+    public void setSize(Sizable size) {
+        this.height = size.getHeight();
+        this.width = size.getWidth();
+    }
+
+    /**
+     * Produce a string representation
+     */
+    @Override
+    public String toString() {
+        return String.format("Size:(h: %s, w: %s)",  //$NON-NLS-1$
+                             height, width);
+    }
 }

@@ -21,6 +21,7 @@ import java.util.EnumSet;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Random;
+import com.googlecode.blacken.extras.PerlinNoise;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
@@ -60,6 +61,7 @@ public class Stumble {
     private boolean dirtyMsg = false;
     private boolean dirtyStatus = false;
     private String message;
+    private float noisePlane;
     
     /**
      * Create a new instance
@@ -68,6 +70,7 @@ public class Stumble {
         grid = new Grid<Integer>(new Integer(EMPTY_FLOOR),
                 100, 100);
         rand = new Random();
+        noisePlane = rand.nextFloat();
     }
 
     int[] placeIt(int what) {
@@ -133,17 +136,14 @@ public class Stumble {
                     bclr = 0xe4;
                     fclr = 0;
                 } else if (what == '.') {
-                    fclr = (y1 * x1) % 10 + 0xee;
+                    fclr = (int)(Math.floor(PerlinNoise.noise(x1, y1, noisePlane) * 10.0F)) + 0xee;
                 } else if (what == '#') {
-                    fclr = (y1 * x1) % 14 + 0x58;
+                    fclr = (int)(Math.floor(PerlinNoise.noise(x1, y1, noisePlane) * 14.0F)) + 0x58;
                 } else if (what == ' ') {
-                    if (y1 < 0) {
-                        y1 *= -1;
+                    fclr = (int)(Math.floor(PerlinNoise.noise(x1, y1, noisePlane) * 38.0F));
+                    if (fclr < 0) {
+                        fclr *= -1;
                     }
-                    if (x1 < 0) {
-                        x1 *= -1;
-                    }
-                    fclr = (y1 * x1) % 38;
                     if (fclr < 28) {
                         if (fclr > 14) {
                             fclr -= 14;

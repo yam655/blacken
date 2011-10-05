@@ -429,5 +429,21 @@ public class BoxRegion implements Regionlike {
         this.setX(point.getX());
         this.setY(point.getY());
     }
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Sizable#setSize(int, int)
+     */
+    @Override
+    public void setSize(int height, int width) {
+        this.setHeight(height);
+        this.setWidth(width);        
+    }
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.grid.Sizable#setSize(com.googlecode.blacken.grid.Sizable)
+     */
+    @Override
+    public void setSize(Sizable size) {
+        this.setHeight(size.getHeight());
+        this.setWidth(size.getWidth());
+    }
 
 }

@@ -246,6 +246,7 @@ public class SwingTerminal extends AbstractTerminal
         frame.addWindowFocusListener(listener);
         frame.addComponentListener(this);
         frame.addInputMethodListener(listener);
+        gui.windowResized();
     }
 
 

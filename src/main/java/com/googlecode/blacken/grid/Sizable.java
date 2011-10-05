@@ -42,5 +42,15 @@ public interface Sizable {
      * @param width the width
      */
     public void setWidth(int width);
-
+    /**
+     * Set the size using a width and a height
+     * @param height the height
+     * @param width the width
+     */
+    public void setSize(int height, int width);
+    /**
+     * Set the size, using another Sizable object
+     * @param size the size
+     */
+    public void setSize(Sizable size);
 }
