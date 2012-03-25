@@ -23,12 +23,7 @@ import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.swing.SwingTerminal;
-import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.BlackenModifier;
-import com.googlecode.blacken.terminal.CellWalls;
-import com.googlecode.blacken.terminal.TerminalCell;
-import com.googlecode.blacken.terminal.TerminalCellLike;
-import com.googlecode.blacken.terminal.TerminalInterface;
+import com.googlecode.blacken.terminal.*;
 
 /**
  * Example program for the keyboard functions.
@@ -354,7 +349,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
      * @return true if we should quit.
      */
     public boolean loop() {
-        int ch = BlackenKeys.NO_KEY;
+        int ch;
         term.enableEventNotices(null);
         term.puts("Terminal Interface\n"); //$NON-NLS-1$
         term.puts("Press F10 to quit.\n"); //$NON-NLS-1$

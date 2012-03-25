@@ -26,11 +26,7 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.swing.SwingTerminal;
-import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.BlackenModifier;
-import com.googlecode.blacken.terminal.CellWalls;
-import com.googlecode.blacken.terminal.TerminalInterface;
-import com.googlecode.blacken.terminal.TerminalStyle;
+import com.googlecode.blacken.terminal.*;
 
 /**
  * A super-simple game
@@ -175,10 +171,10 @@ public class Stumble {
     public boolean loop() {
         makeMap();
         int ch = BlackenKeys.NO_KEY;
-        int mod = BlackenKeys.NO_KEY;
+        int mod;
         updateStatus();
         movePlayerBy(0,0);
-        this.message = Messages.getString("Stumble.Welcome"); //$NON-NLS-1$
+        this.message = "Welcome to Stumble!";
         term.move(-1, -1);
         term.setSeparateCursor(true);
         while (ch != BlackenKeys.KEY_F10) {
@@ -236,17 +232,17 @@ public class Stumble {
             term.mvaddch(term.gridHeight(), x, ' ');
         }
         if (nextLocation <= '9') {
-            term.mvputs(term.gridHeight(), 0, Messages.getString("Stumble.GetThe")); //$NON-NLS-1$
+            term.mvputs(term.gridHeight(), 0, "Get the ");
             term.setCurForeground((nextLocation - '0') + 0x4);
             term.addch(nextLocation);
             term.setCurForeground(7);
             if (nextLocation == '9') {
-                term.puts(Messages.getString("Stumble.ToWin")); //$NON-NLS-1$
+                term.puts(" to win.");
             }
         } else {
-            term.mvputs(term.gridHeight(), 0, Messages.getString("Stumble.YouWon")); //$NON-NLS-1$
+            term.mvputs(term.gridHeight(), 0, "You won!");
         }
-        String msg = Messages.getString("Stumble.F10toQuit"); //$NON-NLS-1$
+        String msg = "F10 to quit.";
         term.mvputs(term.gridHeight(), term.gridWidth()-msg.length()-1, msg);
     }
 
@@ -332,12 +328,12 @@ public class Stumble {
             }
             if (there == nextLocation) {
                 StringBuffer buf = new StringBuffer();
-                buf.append(Messages.getString("Stumble.GotIt")); //$NON-NLS-1$
+                buf.append("Got it.");
                 buf.append(' ');
                 if (there == '9') {
-                    buf.append(Messages.getString("Stumble.AllDone")); //$NON-NLS-1$
+                    buf.append("All done!");
                 } else {
-                    buf.append(Messages.getString("Stumble.NextUnlocked")); //$NON-NLS-1$
+                    buf.append("Next is unlocked.");
                 }
                 nextLocation ++;
                 this.message = buf.toString();
@@ -345,7 +341,7 @@ public class Stumble {
                 this.updateMessage(false);
             }
         } else if (there >= '0' && there <= '9') {
-            this.message = Messages.getString("Stumble.PositionLocked"); //$NON-NLS-1$
+            this.message = "That position is still locked.";
             this.updateMessage(false);
         }
     }
@@ -365,7 +361,7 @@ public class Stumble {
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
             this.term = new SwingTerminal();
-            this.term.init(Messages.getString("Stumble.Title"), 25, 80); //$NON-NLS-1$
+            this.term.init("Blacken Example: Stumble", 25, 80);
         } else {
             this.term = term;
         }

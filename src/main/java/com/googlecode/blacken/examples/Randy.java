@@ -18,7 +18,6 @@
 package com.googlecode.blacken.examples;
 
 import com.googlecode.blacken.core.Random;
-import com.googlecode.blacken.examples.Messages;
 
 /**
  * @author yam655
@@ -31,33 +30,23 @@ public class Randy {
      */
     public static void main(String[] args) {
         int errs = 0;
-        if (args.length == 0 || 
-                Messages.getString("Randy.help_cmd").equals(args[1]) ||  //$NON-NLS-1$
-                "-h".equals(args[1])) { //$NON-NLS-1$
-            System.out.printf("Randy [%s]\n", //$NON-NLS-1$
-                              Messages.getString("Randy.args")); //$NON-NLS-1$
-            System.out.printf("     %s\n",  //$NON-NLS-1$
-                              Messages.getString("Randy.desc")); //$NON-NLS-1$
-            System.out.println(Messages.getString("Randy.args_may_be")); //$NON-NLS-1$
-            System.out.printf("    -h | %s : %s\n",  //$NON-NLS-1$
-                              Messages.getString("Randy.help_cmd"),  //$NON-NLS-1$
-                              Messages.getString("Randy.help_desc")); //$NON-NLS-1$
-            System.out.printf("    %s\n",  //$NON-NLS-1$
-                              Messages.getString("Randy.statement_desc")); //$NON-NLS-1$
-            System.out.println(Messages.getString("Randy.regex_desc")); //$NON-NLS-1$
-            System.out.println("    (\\d+)?(([:])(\\d+))??(([d:])(\\d+))?(([+-/*])(\\d+))"); //$NON-NLS-1$
+        if (args.length == 0 || "--help".equals(args[1]) 
+                || "-h".equals(args[1])) {
+            System.out.println("Randy [args]");
+            System.out.println("     Simple test program for ExtRandom");
+            System.out.println("Arguments may be:");
+            System.out.println("    -h | --help : this help text\n");
+            System.out.println("    {random statement} : ministatement used to "
+                    + "generate random number");
+            System.out.println("Random statement may be:");
+            System.out.println("    (\\d+)?(([:])(\\d+))??(([d:])(\\d+))?(([+-/"
+                    + "*])(\\d+))");
             System.exit(args.length == 0 ? 1 : 0);
         }
         Random r = new Random();
         if (args.length == 1) {
             int got = r.guess(args[1]);
-            System.out.printf("%d\n", got); //$NON-NLS-1$
-        } else {
-            if (r.nextBoolean()) {
-                System.out.println(Messages.getString("Randy.true")); //$NON-NLS-1$
-            } else {
-                System.out.println(Messages.getString("Randy.false")); //$NON-NLS-1$
-            }
+            System.out.printf("%d\n", got);
         }
         System.exit(errs);
     }
