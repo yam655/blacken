@@ -1,0 +1,9 @@
+Blacken was started by Steven Black <yam655@gmail.com> in 2010.
+
+Version 1.0 was released under the GPL version 3 with Steven Black as the only
+contributor.
+
+On 2012-03-26, Blacken switched to the Apache 2.0 license for the development
+of Blacken 1.1. It is hoped that by switching licenses, we can gain 
+contributors.
+
