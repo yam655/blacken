@@ -4,7 +4,7 @@
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <name>blacken</name>
   <url>http://blacken.googlecode.com/</url>
   <description>A Java user-interface library for roguelike games.</description>
@@ -30,6 +30,7 @@
           <source>1.6</source>
           <target>1.6</target>
             <encoding>${project.build.sourceEncoding}</encoding>
+          <showDeprecation>true</showDeprecation>
         </configuration>
       </plugin>
         <plugin>
