@@ -23,7 +23,7 @@ import com.googlecode.blacken.terminal.TerminalInterface;
 /**
  * An abstract example class.
  * 
- * @author yam655
+ * @author Steven Black
  */
 public abstract class AbstractExample {
     /**
@@ -65,7 +65,7 @@ public abstract class AbstractExample {
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
             this.term = new SwingTerminal();
-            this.term.init("Example Program", 25, 80); //$NON-NLS-1$
+            this.term.init("Example Program", 25, 80);
         } else {
             this.term = term;
         }

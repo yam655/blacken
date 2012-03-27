@@ -21,7 +21,7 @@ Any value defined here will override the pom.xml file value but is only applicab
         <org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>80</org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>
         <org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>none</org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStarImport>false</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.allowConvertToStarImport>
-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>java;javax;*</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>
         <org-netbeans-modules-editor-indent.text.x-fortran.CodeStyle.project.text-limit-width>132</org-netbeans-modules-editor-indent.text.x-fortran.CodeStyle.project.text-limit-width>
     </properties>
 </project-shared-configuration>

@@ -21,8 +21,9 @@ import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 
 /**
- * @author yam655
- *
+ * The interface for terminal-like views.
+ * 
+ * @author Steven Black
  */
 public interface TerminalInterface {
     /**
