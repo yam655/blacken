@@ -18,16 +18,15 @@ package com.googlecode.blacken.nativeswing;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.font.GraphicAttribute;
-import java.awt.font.TextAttribute;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.font.GraphicAttribute;
+import java.awt.font.TextAttribute;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +46,7 @@ import com.googlecode.blacken.terminal.CellWalls;
 /**
  * This is (most of) the TerminalInterface that is event agnostic.
  * 
- * <p>It should allow you to impliment a Panel which totally stand-alone, but
+ * <p>It should allow you to implement a Panel which totally stand-alone, but
  * behaves the same as a BlackenPanel.</p>
  * 
  * <p><em>Warning:</em> This doesn't behave <em>exactly</em> like it would if
@@ -64,7 +63,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     private int minY = 25;
     private Grid<AwtCell> grid = new Grid<AwtCell>(empty, minY, minX);
     
-    private transient Image image = null;
+    // private transient Image image = null;
     private transient Graphics2D graphics = null;
 
     private boolean fontHasDouble = true;
@@ -135,7 +134,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         if (updateY >= grid.getHeight()) {
             updateY = grid.getHeight() -1;
         }
-        AwtCell cell = null;
+        AwtCell cell;
 
         if (what == '\n') {
             updateY++;
@@ -145,7 +144,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         } else if (what == '\b') {
             if (updateX > 0) updateX --;
             cell = this.get(updateY, updateX);
-            cell.setSequence("\u0000"); //$NON-NLS-1$
+            cell.setSequence("\u0000");
             this.set(updateY, updateX, cell);
         } else if (what == '\t') {
             updateX = updateX + 8;
@@ -251,7 +250,6 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     
     private void 
     forceRefresh(int numRows, int numCols, int startY, int startX) {
-        Grid<AwtCell> grid = getGrid();
         for (int y = startY; y < numRows + startY; y++) {
             for (int x = startX; x < numCols + startX; x++) {
                 grid.get(y, x).setDirty(true);
@@ -384,8 +382,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         int width = Toolkit.getDefaultToolkit().getScreenSize().width;
         int height = Toolkit.getDefaultToolkit().getScreenSize().height;
         setBounds(0, 0, width, height);
-        image = createImage(width, height);
-        graphics = (Graphics2D) image.getGraphics();
+        graphics = (Graphics2D) getGraphics();
         this.minY = rows;
         this.minX = cols;
         setFont(font, false);
@@ -489,7 +486,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
      */
     @Override
     public void paintComponent(Graphics g) {
-        AwtCell c = null;
+        AwtCell c;
         boolean need_cursor = false;
 
         if (refresh_all) {
@@ -551,7 +548,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
                     c.setFont(this.font);
                     // For double-wide characters, we can safely put a NUL
                     // byte in the second slot and it will never be displayed.
-                    if (cs != null && !"\u0000".equals(cs)) { //$NON-NLS-1$
+                    if (cs != null && !"\u0000".equals(cs)) {
                         int w = metrics.stringWidth(cs);
                         w = fontSglAdvance - w;
                         if (w < 0) w = 0;
@@ -583,12 +580,12 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
                                               x1 + fontSglAdvance-1, 
                                               y1 + fontHeight -1);
                         }
-                        if (c.getCellWalls().contains(CellWalls.HORIZONTAL)) {
+                        if (c.getCellWalls().containsAll(CellWalls.HORIZONTAL)) {
                             graphics.drawLine(x1, y1 + fontHeightD2, 
                                               x1 + fontSglAdvance -1, 
                                               y1 + fontHeightD2);
                         }
-                        if (c.getCellWalls().contains(CellWalls.VERTICAL)) {
+                        if (c.getCellWalls().containsAll(CellWalls.VERTICAL)) {
                             graphics.drawLine(x1 + fontSglAdvanceD2, y1, 
                                               x1 + fontSglAdvanceD2, 
                                               y1 + fontHeight -1);
@@ -610,7 +607,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
                                         fontHeight - fontAscent -1));
         }
         refresh_all = false;
-        g.drawImage(image, 0, 0, null);
+        // g.drawImage(image, 0, 0, null);
     }
 
     /* (non-Javadoc)
@@ -808,11 +805,11 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
      */
     @Override
     public void resizeFrame(JFrame frame, int fontSize) {
-        Font f = null;
+        Font f;
         if (fontSize > 0) {
             f = this.font;
             if (f == null) {
-                f = new Font("Monospace", Font.PLAIN, fontSize); //$NON-NLS-1$
+                f = new Font("Monospace", Font.PLAIN, fontSize);
             } else {
                 f = f.deriveFont(fontSize);
             }

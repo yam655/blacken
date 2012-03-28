@@ -30,7 +30,7 @@ import com.googlecode.blacken.swing.AwtCell;
 import com.googlecode.blacken.terminal.CellWalls;
 
 /**
- * @author yam655
+ * @author Steven Black
  *
  */
 public interface AwtTerminalInterface {
