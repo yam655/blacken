@@ -50,9 +50,6 @@ public class NativeEvents implements KeyListener {
     NativeEvents() {
         palette = new AwtPalette();
         palette.addMapping(ColorNames.SVG_COLORS);
-        init("Native Events", 25, 80); //$NON-NLS-1$
-        frame.addKeyListener(this);
-        help();
     }
 
     /**
@@ -68,7 +65,7 @@ public class NativeEvents implements KeyListener {
         gui = new TerminalPanel();
         frame.setSize(480, 640); // resized later
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.setBackground(palette.get("Black")); //$NON-NLS-1$
+        frame.setBackground(palette.get("Black"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(gui);
         frame.setCursor(null);
@@ -83,6 +80,7 @@ public class NativeEvents implements KeyListener {
         gui.mv(0, 0);
 
         frame.setVisible(true);
+        frame.addKeyListener(this);
     }
 
     /**
@@ -90,18 +88,18 @@ public class NativeEvents implements KeyListener {
      */
     public void help() {
         gui.clear();
-        gui.setCurBackground(palette.get("Black")); //$NON-NLS-1$
-        gui.setCurForeground(palette.get("White")); //$NON-NLS-1$
-        gui.puts("Terminal Interface\n"); //$NON-NLS-1$
-        gui.puts("Press F10 to quit.\n"); //$NON-NLS-1$
-        gui.puts(">"); //$NON-NLS-1$
+        gui.setCurBackground(palette.get("Black"));
+        gui.setCurForeground(palette.get("White"));
+        gui.puts("Terminal Interface\n");
+        gui.puts("Press F10 to quit.\n");
+        gui.puts(">");
         gui.refresh();
     }
 
     private void showSomething(Object obj) {
         gui.puts(obj.toString());
-        gui.puts("\n"); //$NON-NLS-1$
-        gui.puts(">"); //$NON-NLS-1$
+        gui.puts("\n");
+        gui.puts(">");
         gui.refresh();
     }
 
@@ -112,7 +110,9 @@ public class NativeEvents implements KeyListener {
      */
     @SuppressWarnings("unused")
     public static void main(String[] args) {
-        new NativeEvents();
+        NativeEvents that = new NativeEvents();
+        that.init("Native Events", 25, 80);
+        that.help();
     }
     
     @Override
@@ -144,7 +144,7 @@ public class NativeEvents implements KeyListener {
      */
     @Override
     public void keyTyped(KeyEvent e) {
-        return;
+        // do nothing
     }
     /**
      * Quit the frame/app
