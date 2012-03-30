@@ -19,6 +19,7 @@ package com.googlecode.blacken.bsp;
 import com.googlecode.blacken.core.Random;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -50,7 +51,7 @@ public class BSPTree{
 	 *	@param h the tree's height
 	 */
 	 
-	public BSPTree(int x, int y, int w, int h){
+	public BSPTree(int y, int x, int w, int h){
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -215,7 +216,7 @@ public class BSPTree{
 	 *	@return true, if the coordinates lie in the node, false otherwise.
 	 */
 	
-	public boolean contains(int px, int py){
+	public boolean contains(int py, int px){
 		return (px >= x && py >= y && px < x+w && py < y+h);
 	}
 	
@@ -226,7 +227,7 @@ public class BSPTree{
 	 *	@return the leaf containing the coordinates, or null if the tree does not contain the coordinates.
 	 */
 	
-	public BSPTree findNode(int px, int py){
+	public BSPTree findNode(int py, int px){
 		if(!contains(px,py)){
 			return null;
 		}
@@ -251,8 +252,12 @@ public class BSPTree{
 			nodelist = new LinkedList<BSPTree>();
 		}
 		nodelist.add(this);
-		leftChild.traversePreorder(nodelist);
-		rightChild.traversePreorder(nodelist);
+		if(leftChild != null){
+			leftChild.traversePreorder(nodelist);
+		}
+		if(rightChild !=null){
+			rightChild.traversePreorder(nodelist);
+		}
 		return nodelist;
 	}
 	
@@ -266,9 +271,13 @@ public class BSPTree{
 		if(nodelist == null){
 			nodelist = new LinkedList<BSPTree>();
 		}
-		leftChild.traverseInorder(nodelist);
+		if(leftChild != null){
+			leftChild.traverseInorder(nodelist);
+		}
 		nodelist.add(this);
-		rightChild.traverseInorder(nodelist);
+		if(rightChild != null){
+			rightChild.traverseInorder(nodelist);
+		}
 		return nodelist;
 	}
 	
@@ -282,8 +291,12 @@ public class BSPTree{
 		if(nodelist == null){
 			nodelist = new LinkedList<BSPTree>();
 		}
-		leftChild.traversePostorder(nodelist);
-		rightChild.traversePostorder(nodelist);
+		if(leftChild != null){
+			leftChild.traversePostorder(nodelist);
+		}
+		if(rightChild != null){
+			rightChild.traversePostorder(nodelist);
+		}
 		nodelist.add(this);
 		return nodelist;
 	}
@@ -298,14 +311,14 @@ public class BSPTree{
 		if(nodelist == null){
 			nodelist = new LinkedList<BSPTree>();
 		}
-		Stack<BSPTree> nodestack = new Stack<BSPTree>();
-		nodestack.push(this);
-		while(!nodestack.empty()){
-			BSPTree currentNode = nodestack.pop();
+		Queue<BSPTree> nodequeue = new LinkedList<BSPTree>();
+		nodequeue.offer(this);
+		while(nodequeue.peek() != null){
+			BSPTree currentNode = nodequeue.poll();
 			nodelist.add(currentNode);
 			if(!currentNode.isLeaf()){
-				nodestack.push(currentNode.getLeftChild());
-				nodestack.push(currentNode.getRightChild());
+				nodequeue.offer(currentNode.getLeftChild());
+				nodequeue.offer(currentNode.getRightChild());
 			}
 		}
 		return nodelist;
@@ -321,19 +334,19 @@ public class BSPTree{
 		if(nodelist == null){
 			nodelist = new LinkedList<BSPTree>();
 		}
-		Stack<BSPTree> stack1 = new Stack<BSPTree>();
-		Stack<BSPTree> stack2 = new Stack<BSPTree>();
-		stack1.push(this);
-		while(!stack1.empty()){
-			BSPTree currentNode = stack1.pop();
-			stack2.push(currentNode);
+		Queue<BSPTree> queue = new LinkedList<BSPTree>();
+		Stack<BSPTree> stack = new Stack<BSPTree>();
+		queue.offer(this);
+		while(queue.peek() != null){
+			BSPTree currentNode = queue.poll();
+			stack.push(currentNode);
 			if(!currentNode.isLeaf()){
-				stack1.push(currentNode.getLeftChild());
-				stack1.push(currentNode.getRightChild());
+				queue.offer(currentNode.getLeftChild());
+				queue.offer(currentNode.getRightChild());
 			}
 		}
-		while(!stack2.empty()){
-			BSPTree currentNode = stack2.pop();
+		while(!stack.empty()){
+			BSPTree currentNode = stack.pop();
 			nodelist.add(currentNode);
 		}
 		return nodelist;
@@ -408,7 +421,7 @@ public class BSPTree{
 	 *	@param h the tree's new height
 	 */
 	
-	public void resize(int x, int y, int w, int h){
+	public void resize(int y, int x, int w, int h){
 		this.x = x;
 		this.y = y;
 		this.w = w;
