@@ -15,13 +15,17 @@
 */
 package com.googlecode.blacken.grid;
 
-import static org.junit.Assert.*;
-
 import org.junit.*;
+
+import com.googlecode.blacken.core.Coverage;
+import com.googlecode.blacken.core.Covers;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test
- * @author yam655
+ * @author Steven Black
  *
  */
 public class TestPositionable {
@@ -41,56 +45,72 @@ public class TestPositionable {
         this.base_x = x;
     }
 
-    /**
-     * test
-     */
     @Before
     public void setUp() {
         data = new Point(1, 2);
         this.base_y = 1;
         this.base_x = 2;
     }
-    
-    /**
-     * test
-     */
+        
     @Test
+    public void testCoverage() {
+        Coverage.checkCoverage(Point.class, this.getClass());
+    }
+
+    @Test
+    @Covers("public Point(int,int)")
+    public void point_xy() {
+        assertEquals(base_y, data.getY());
+        assertEquals(base_x, data.getX());
+    }
+
+    @Test
+    @Covers("public Point()")
+    public void point_void() {
+        data = new Point();
+        assertEquals(0, data.getY());
+        assertEquals(0, data.getX());
+    }
+
+    @Test
+    @Covers("public Point(Positionable)")
+    public void point_Positionable() {
+        data = new Point(12,34);
+        data = new Point(data);
+        assertEquals(12, data.getY());
+        assertEquals(34, data.getX());
+    }
+    
+    @Test
+    @Covers("public int getX()")
     public void getX() {
         assertTrue(data.getX() == base_x);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public int getY()")
     public void getY() {
         assertTrue(data.getY() == base_y);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public void setX(int)")
     public void setX() {
         assertTrue(data.getX() == base_x);
         data.setX(base_x + 2);
         assertTrue(data.getX() == base_x + 2);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public void setY(int)")
     public void setY() {
         assertTrue(data.getY() == base_y);
         data.setY(base_y + 2);
         assertTrue(data.getY() == base_y + 2);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public void setPosition(int,int)")
     public void setPos() {
         int[] ideal1 = {base_y, base_x};
         int[] ideal2 = {base_y + 2, base_x + 2};
@@ -101,4 +121,23 @@ public class TestPositionable {
         assertEquals(ideal2[1], data.getX());
     }
 
+    @Test
+    @Covers("public void setPosition(Positionable)")
+    public void setPosition_Positionable() {
+        int[] ideal1 = {base_y, base_x};
+        int[] ideal2 = {base_y + 2, base_x + 2};
+        assertEquals(ideal1[0], data.getY());
+        assertEquals(ideal1[1], data.getX());
+        Point p = new Point(ideal2[0], ideal2[1]);
+        data.setPosition(p);
+        assertEquals(ideal2[0], data.getY());
+        assertEquals(ideal2[1], data.getX());
+    }
+
+    @Test
+    @Covers("public String toString()")
+    public void test_toString() {
+        data.setPosition(12, 34);
+        assertEquals("Point:(y=12, x=34)", data.toString());
+    }
 }
