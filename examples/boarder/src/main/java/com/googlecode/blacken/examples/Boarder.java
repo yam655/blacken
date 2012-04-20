@@ -214,8 +214,8 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         keys.put(Character.codePointAt("o", 0), new KeyLocation(4, 29, "o")); //$NON-NLS-1$ //$NON-NLS-2$
         keys.put(Character.codePointAt("P", 0), new KeyLocation(4, 31, "P")); //$NON-NLS-1$ //$NON-NLS-2$
         keys.put(Character.codePointAt("p", 0), new KeyLocation(4, 32, "p")); //$NON-NLS-1$ //$NON-NLS-2$
-        keys.put(Character.codePointAt("[", 0), new KeyLocation(4, 34, "{")); //$NON-NLS-1$ //$NON-NLS-2$
-        keys.put(Character.codePointAt("{", 0), new KeyLocation(4, 35, "[")); //$NON-NLS-1$ //$NON-NLS-2$
+        keys.put(Character.codePointAt("[", 0), new KeyLocation(4, 34, "[")); //$NON-NLS-1$ //$NON-NLS-2$
+        keys.put(Character.codePointAt("{", 0), new KeyLocation(4, 35, "}")); //$NON-NLS-1$ //$NON-NLS-2$
         keys.put(Character.codePointAt("]", 0), new KeyLocation(4, 37, "]")); //$NON-NLS-1$ //$NON-NLS-2$
         keys.put(Character.codePointAt("}", 0), new KeyLocation(4, 38, "}")); //$NON-NLS-1$ //$NON-NLS-2$
         keys.put(Character.codePointAt("\\", 0), new KeyLocation(4, 40, "\\")); //$NON-NLS-1$ //$NON-NLS-2$
