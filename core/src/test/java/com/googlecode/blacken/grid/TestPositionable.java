@@ -75,8 +75,8 @@ public class TestPositionable {
     @Test
     @Covers("public Point(Positionable)")
     public void point_Positionable() {
-        data = new Point(12,34);
-        data = new Point(data);
+        Point data2 = new Point(12,34);
+        data = new Point(data2);
         assertEquals(12, data.getY());
         assertEquals(34, data.getX());
     }
