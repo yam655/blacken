@@ -18,6 +18,7 @@
         <module>colors</module>
         <module>fonty</module>
         <module>nativeevents</module>
+        <module>qanda</module>
         <module>randy</module>
         <module>simple</module>
         <module>stumble</module>
