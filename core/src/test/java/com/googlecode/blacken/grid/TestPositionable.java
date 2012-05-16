@@ -51,11 +51,13 @@ public class TestPositionable {
         this.base_y = 1;
         this.base_x = 2;
     }
-        
+    
+    /*
     @Test
     public void testCoverage() {
         Coverage.checkCoverage(Point.class, this.getClass());
     }
+    */
 
     @Test
     @Covers("public Point(int,int)")

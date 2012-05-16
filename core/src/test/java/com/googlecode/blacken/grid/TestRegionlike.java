@@ -22,13 +22,15 @@ import static org.junit.Assert.*;
  * test
  * @author yam655
  */
-public class TestRegionlike extends TestPositionable {
+public class TestRegionlike {
 
     private Regionlike data;
     private int size_x;
     private int size_y;
     private int x;
     private int y;
+    TestPositionable parent = new TestPositionable();
+
 
     /**
      * test
@@ -44,13 +46,12 @@ public class TestRegionlike extends TestPositionable {
         this.size_y = height;
         this.x = x;
         this.y = y;
-        super.setUp(data, y, x);
+        parent.setUp(data, y, x);
     }
     
     /**
      * test
      */
-    @Override
     @Before
     public void setUp() {
         data = new BoxRegion(10, 20, 100, 200);
@@ -217,6 +218,11 @@ public class TestRegionlike extends TestPositionable {
         assertTrue(data.getWidth() == this.size_x);
         data.setWidth(size_x + 2);
         assertTrue(data.getWidth() == this.size_x + 2);
+    }
+
+    @Test
+    public void setPos() {
+        parent.setPos();
     }
 
 }

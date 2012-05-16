@@ -73,7 +73,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         } else if (what == '\b' || what == BlackenKeys.KEY_BACKSPACE) {
             if (updateX > 0) updateX --;
             cell = this.get(updateY, updateX);
-            cell.setSequence("\u0000"); //$NON-NLS-1$
+            cell.setSequence("\u0000");
             this.set(updateY, updateX, cell);
         } else if (what == '\t' || what == BlackenKeys.KEY_TAB) {
             updateX = updateX + 8;
@@ -268,40 +268,9 @@ public abstract class AbstractTerminal implements TerminalInterface {
      */
     @Override
     public String gets(final int length) {
-        int cp = -1;
-        StringBuffer out;
-        if (length < 0) {
-            out = new StringBuffer();
-        } else {
-            out = new StringBuffer(length);
-        }
-        int i = 0;
-        int lastUpX, lastUpY;
-        lastUpX = -1; lastUpY = -1;
-        while (cp != '\r' && cp != '\t') {
-            cp = getch();
-            if (cp == '\r') continue;
-            if (cp == '\t') continue;
-            // XXX add line-editing capabilities
-            // When the limit is reached, we don't force a return.
-            // We should be able to incorporate some line-editing
-            if (length != -1 && i >= length) continue;
-            if (Character.isValidCodePoint(cp)) {
-                out.append(Character.toChars(cp));
-            }
-            switch (Character.getType(cp)) {
-            case Character.COMBINING_SPACING_MARK:
-            case Character.ENCLOSING_MARK:
-            case Character.NON_SPACING_MARK:
-                mvoverlaych(lastUpY, lastUpX, cp);
-                break;
-            default:
-                lastUpX = updateX; lastUpY = updateY;
-                addch(cp);
-            }
-            i++;
-        }
-        return out.toString();
+        String ret = TerminalUtils.getString(this, updateY, updateX, length, null);
+        if (!separateCursor) setCursorLocation(updateY, updateX);
+        return ret;
     }
 
     /*
@@ -311,14 +280,26 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public abstract BlackenWindowEvent getwindow();
 
+    @Override
+    public int getHeight() {
+        if (grid == null) return 0;
+        return grid.getHeight();
+    }
+
+    @Override
+    public int getWidth() {
+        if (grid == null) return 0;
+        return grid.getWidth();
+    }
+
     /*
      * (non-Javadoc)
      * @see com.googlecode.blacken.terminal.TerminalInterface#gridHeight()
      */
     @Override
+    @Deprecated
     public int gridHeight() {
-        if (grid == null) return 0;
-        return grid.getHeight();
+        return getHeight();
     }
 
     /*
@@ -326,9 +307,9 @@ public abstract class AbstractTerminal implements TerminalInterface {
      * @see com.googlecode.blacken.terminal.TerminalInterface#gridWidth()
      */
     @Override
+    @Deprecated
     public int gridWidth() {
-        if (grid == null) return 0;
-        return grid.getWidth();
+        return getWidth();
     }
 
     /*
@@ -337,7 +318,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
      */
     @Override
     public void init() {
-        init("Java", 25, 80); //$NON-NLS-1$
+        init("Java", 25, 80);
     }
     
     /*
@@ -535,7 +516,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
                 this.curBackground = ColorHelper.neverTransparent(ColorHelper.makeColor(c));
             } catch (InvalidStringFormatException e) {
                 throw new NullPointerException(
-                           String.format("palette is null, and color was invalid: %s",  //$NON-NLS-1$
+                           String.format("palette is null, and color was invalid: %s",
                                          e.getMessage()));
             }
         } else {
@@ -563,7 +544,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
                 this.curForeground = ColorHelper.neverTransparent(ColorHelper.makeColor(c));
             } catch (InvalidStringFormatException e) {
                 throw new NullPointerException(
-                           String.format("palette is null, and color was invalid: %s",  //$NON-NLS-1$
+                           String.format("palette is null, and color was invalid: %s",
                                          e.getMessage()));
             }
         } else {
@@ -571,18 +552,16 @@ public abstract class AbstractTerminal implements TerminalInterface {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#setCursorLocation(int, int)
-     */
     @Override
     public void setCursorLocation(int y, int x) {
         cursorX = x; cursorY = y;
     }
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalInterface#setEmpty(com.googlecode.blacken.terminal.TerminalCellLike)
-     */
+
+    @Override
+    public void setCursorLocation(int[] position) {
+        cursorX = position[1]; cursorY = position[0];
+    }
+
     @Override
     public void setEmpty(TerminalCellLike empty) {
         this.empty = empty;

@@ -112,7 +112,7 @@ public class Point implements Positionable {
      */
     @Override
     public String toString() {
-        return String.format("Point:(y: %s, x: %s)",  //$NON-NLS-1$
+        return String.format("Point:(y=%s, x=%s)",
                              this.getY(), this.getX());
     }
 }

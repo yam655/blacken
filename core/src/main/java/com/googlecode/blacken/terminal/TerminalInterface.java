@@ -180,12 +180,28 @@ public interface TerminalInterface {
      * 
      * @return terminal's max Y size
      */
-    public int gridHeight();
+    public int getHeight();
     /**
      * Get the current terminal max X size
      * 
      * @return terminal's max X size
      */
+    public int getWidth();
+    /**
+     * Get the current terminal max Y size
+     * 
+     * @return terminal's max Y size
+     * @deprecated Use getHeight() instead.
+     */
+    @Deprecated
+    public int gridHeight();
+    /**
+     * Get the current terminal max X size
+     * 
+     * @return terminal's max X size
+     * @deprecated Use getWidth() instead.
+     */
+    @Deprecated
     public int gridWidth();
     /**
      * Initialize the terminal
@@ -353,6 +369,14 @@ public interface TerminalInterface {
      * @param x new X location
      */
     public void setCursorLocation(int y, int x);
+    /**
+     * Set the cursor location.
+     *
+     * <p>This makes setCursorLocation symmetrical with getCursorLocation.</p>
+     *
+     * @param position [y, x]
+     */
+    public void setCursorLocation(int[] position);
     /**
      * Set the template cell used for new and clear cells.
      * 

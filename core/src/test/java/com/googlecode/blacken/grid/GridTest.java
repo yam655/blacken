@@ -24,7 +24,7 @@ import org.junit.*;
  * 
  * @author yam655
  */
-public class GridTest extends TestRegionlike {
+public class GridTest {
 
     private Integer empty = null;
     private Grid<Integer> grid = null;
@@ -34,11 +34,14 @@ public class GridTest extends TestRegionlike {
     private int y;
     Grid<Integer> emptygrid = null;
     private Integer empty2;
+    TestRegionlike parent;
+
     /**
      * test
      */
     public GridTest() {
-        // do nothing
+        parent = new TestRegionlike();
+
     }
     /**
      * test
@@ -59,13 +62,12 @@ public class GridTest extends TestRegionlike {
         // empty2 = new CopyableData<Integer>(100);
         empty2 = new Integer(100);
         emptygrid = new Grid<Integer>();
-        super.setUp(grid, height, width, y, x);
+        parent.setUp(grid, height, width, y, x);
     }
 
     /**
      * test
      */
-    @Override
     @Before
     public void setUp() {
         empty = 0;
@@ -744,10 +746,9 @@ public class GridTest extends TestRegionlike {
     /**
      * test
      */
-    @Override
     @Test
     public void setPos() {
-        super.setPos();
+        parent.setPos();
     }
 
     /**
