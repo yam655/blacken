@@ -61,7 +61,7 @@ public class TerminalUtils {
             int length, EditorCodepointDispatcherInterface cd) {
         int firstX = x;
         // int firstY = y;
-        if (terminal.getWidth() - x - length <= 0) {
+        if (length < 0 || terminal.getWidth() - x - length <= 0) {
             length = terminal.getWidth() - x;
         }
         int[] lastCursor = terminal.getCursorLocation();
