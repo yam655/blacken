@@ -11,10 +11,29 @@ import com.googlecode.blacken.grid.Grid;
  * @author Steven Black
  */
 public class TerminalUtils {
+    public enum EditorCommand {
+        /**
+         * Ignore the key that was pressed.
+         */
+        IGNORE_KEY,
+        /**
+         * Process the key that was just pressed.
+         */
+        PROCESS_KEY,
+        /**
+         * We're done entering the string. If the key is valid, it gets added. 
+         * If it was a keycode or modifier state it is ignored.
+         */
+        RETURN_STRING,
+        /**
+         * Treat the key pressed as if it were a destructive backspace.
+         */
+        PERFORM_BACKSPACE
+    }
     /**
      * Handle generic case of monitoring codepoints entered in another function
      */
-    public interface CodepointDispatcherInterface {
+    public interface EditorCodepointDispatcherInterface {
         /**
          * While processing keys in another function, this function is called
          * first with codepoints so that they can be processed.
@@ -22,7 +41,7 @@ public class TerminalUtils {
          * @param codepoint Unicode codepoint to process
          * @return true to ignore the codepoint; false to process as usual
          */
-        public boolean dispatchCodePoint(int codepoint);
+        public EditorCommand dispatchEditorCodepoint(int codepoint);
     }
     
     /**
@@ -39,7 +58,7 @@ public class TerminalUtils {
      * @return
      */
     static public String getString(TerminalInterface terminal, int y, int x,
-            int length, CodepointDispatcherInterface cd) {
+            int length, EditorCodepointDispatcherInterface cd) {
         int firstX = x;
         // int firstY = y;
         if (terminal.getWidth() - x - length <= 0) {
@@ -56,12 +75,22 @@ public class TerminalUtils {
         int i = 0;
         int lastUpX = -1, lastUpY = -1;
         terminal.setCursorLocation(y, x);
-        while (cp != '\r' && cp != '\t' && cp != BlackenKeys.KEY_ENTER && 
-                 cp != BlackenKeys.KEY_NP_ENTER && cp != BlackenKeys.KEY_TAB) {
+        boolean doQuit = false;
+        while (!doQuit) {
             cp = terminal.getch();
             if (cd != null) {
-                if (cd.dispatchCodePoint(cp)) {
-                    continue;
+                switch (cd.dispatchEditorCodepoint(cp)) {
+                    case IGNORE_KEY:
+                        continue;
+                    case PROCESS_KEY:
+                        // do nothing
+                        break;
+                    case RETURN_STRING:
+                        doQuit = true;
+                        break;
+                    case PERFORM_BACKSPACE:
+                        cp = BlackenKeys.KEY_BACKSPACE;
+                        break;
                 }
             }
             if(cp == BlackenKeys.NO_KEY) {
@@ -69,9 +98,11 @@ public class TerminalUtils {
             }
             if (cp == '\r' || cp == BlackenKeys.KEY_ENTER || 
                     cp == BlackenKeys.KEY_NP_ENTER) {
+                doQuit = true;
                 continue;
             }
             if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
+                doQuit = true;
                 continue;
             }
             TerminalCellLike c;
@@ -95,6 +126,9 @@ public class TerminalUtils {
             }
             if (Character.isValidCodePoint(cp)) {
                 out.append(Character.toChars(cp));
+            }
+            if (doQuit) {
+                continue;
             }
             switch (Character.getType(cp)) {
                 case Character.COMBINING_SPACING_MARK:
