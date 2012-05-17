@@ -1,0 +1,15 @@
+The license of Blacken Version 1.0.0 was the (plain) GPL v3.
+
+The Blacken 1.0 line is the last release of Blacken to use any form of the GPL.
+Future versions are moving toward the Apache 2.0 license.
+
+This is a bug fix release for the 1.0 line, and so will stick with a GPL'ed 
+license, however to facilitate the move toward the future of Blacken, this is
+being released under the LGPL v3.
+
+In accordance with the LGPL, copies of the GPL and LGPL are included named
+COPYING-GPL.txt and COPYING-LGPL.txt. The LGPL builds upon the GPL so both
+apply, but the LGPL provided some exceptions to rules set out in the GPL.
+
+Thank you,
+Steven Black
