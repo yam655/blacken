@@ -4,7 +4,7 @@
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.1</version>
   <name>blacken</name>
   <url>http://blacken.googlecode.com/</url>
   <description>A Java user-interface library for roguelike games.</description>

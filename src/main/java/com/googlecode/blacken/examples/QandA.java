@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
+ * Copyright © 2012 Steven Black <yam655@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,43 +24,51 @@ import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.TerminalInterface;
 
 /**
- * Simple example application.
+ * QandA example application.
  * 
- * <p>Most applications make use of {@link AbstractExample} but this one does
- * not to make it clearer to new developers.</p>
- * 
- * @author yam655
+ * @author Steven Black
  *
  */
-public class Simple {
+public class QandA {
 
     private boolean quit;
     private ColorPalette palette;
     private TerminalInterface term = null;
     
-    Simple() {
+    QandA() {
         // do nothing
     }
 
     protected boolean loop() {
         int ch = BlackenKeys.NO_KEY;
-        if (palette.containsKey("Black")) { //$NON-NLS-1$
-            term.setCurBackground("Black"); //$NON-NLS-1$
+        if (palette.containsKey("Black")) {
+            term.setCurBackground("Black");
         }
-        if (palette.containsKey("White")) { //$NON-NLS-1$
-            term.setCurForeground("White"); //$NON-NLS-1$
+        if (palette.containsKey("White")) {
+            term.setCurForeground("White");
         }
-        term.puts("Terminal Interface\n"); //$NON-NLS-1$
-        term.puts("Press F10 to quit.\n"); //$NON-NLS-1$
+        term.puts("What is your name?\n");
+        term.puts(">");
+        String name = term.gets(-1);
+        term.puts(String.format("\nHello, %s.\n", name));
+        term.puts("What is your occupation?\n");
+        term.puts(">");
+        String job = term.gets(-1);
+        term.puts(String.format("\nExcellent, every %s I have met has been very wise.\n", job));
+        term.puts("Type any string you like. When you are done type 'END' in uppercase.\n");
         while (!this.quit) {
-            term.puts(">"); //$NON-NLS-1$
-            // getch automatically does a refresh
-            ch = term.getch();
-            term.puts(BlackenKeys.toString(ch));
-            if (ch == BlackenKeys.KEY_F10) {
+            term.puts(">");
+            String got = term.gets(-1);
+            if ("END".equals(got)) {
+                term.puts("\nEnding...\n");
                 this.quit = true;
+            } else if ("END".equals(got.toUpperCase())) {
+                term.puts("\nI'm not ending yet. Case matters. Type 'END' to quit.\n");
+            } else {
+                term.puts(String.format("\nI saw: %s\n", got));
             }
-            term.puts("\n"); //$NON-NLS-1$
+            
+            term.puts("\n");
         }
         term.refresh();
         return this.quit;
@@ -75,7 +83,7 @@ public class Simple {
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
             this.term = new SwingTerminal();
-            this.term.init("Simple", 25, 80); //$NON-NLS-1$
+            this.term.init("QandA", 25, 80);
         } else {
             this.term = term;
         }
@@ -94,7 +102,7 @@ public class Simple {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
-        Simple cmd = new Simple();
+        QandA cmd = new QandA();
         cmd.init(null, null);
         cmd.loop();
         cmd.quit();

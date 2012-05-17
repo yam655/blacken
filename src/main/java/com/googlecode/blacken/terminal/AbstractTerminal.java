@@ -1,8 +1,8 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -12,7 +12,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * and the GNU Lesser General Public License along with this program.  
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 package com.googlecode.blacken.terminal;
 
@@ -280,14 +281,37 @@ public abstract class AbstractTerminal implements TerminalInterface {
         int i = 0;
         int lastUpX, lastUpY;
         lastUpX = -1; lastUpY = -1;
-        while (cp != '\r' && cp != '\t') {
+        boolean isDone = false;
+        while (!isDone) {
             cp = getch();
-            if (cp == '\r') continue;
-            if (cp == '\t') continue;
+            if (cp == '\r' || cp == BlackenKeys.KEY_ENTER || 
+                    cp == BlackenKeys.KEY_NP_ENTER) {
+                isDone = true;
+                continue;
+            }
+            if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
+                isDone = true;
+                continue;
+            }
             // XXX add line-editing capabilities
             // When the limit is reached, we don't force a return.
             // We should be able to incorporate some line-editing
+            if (cp == '\b' || cp == BlackenKeys.KEY_BACKSPACE) {
+                addch('\b');
+            }
+
             if (length != -1 && i >= length) continue;
+            if (BlackenKeys.isSpecial(cp)) {
+                if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
+                    // get it but ignore it.
+                    this.getmouse();
+                } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
+                    // get it but ignore it.
+                    this.getwindow();
+                }
+                continue;
+            }
+            // at this point this should always be true.
             if (Character.isValidCodePoint(cp)) {
                 out.append(Character.toChars(cp));
             }
