@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2011, 2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.googlecode.blacken.grid;
 /**
  * This is an implementation of Sizable so it can be returned by things.
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class SimpleSize implements Sizable {
     private int height;
@@ -34,62 +34,50 @@ public class SimpleSize implements Sizable {
         this.width = size_x;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#getHeight()
-     */
+    public SimpleSize(Sizable size) {
+        this.height = size.getWidth();
+        this.width = size.getWidth();
+    }
+
     @Override
     public int getHeight() {
         return height;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#getWidth()
-     */
     @Override
     public int getWidth() {
         return width;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#setHeight(int)
-     */
     @Override
     public void setHeight(int height) {
         this.height = height;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#setWidth(int)
-     */
     @Override
     public void setWidth(int width) {
         this.width = width;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#setSize(int, int)
-     */
     @Override
     public void setSize(int height, int width) {
         this.height = height;
         this.width = width;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Sizable#setSize(com.googlecode.blacken.grid.Sizable)
-     */
     @Override
     public void setSize(Sizable size) {
         this.height = size.getHeight();
         this.width = size.getWidth();
     }
 
-    /**
-     * Produce a string representation
-     */
     @Override
     public String toString() {
-        return String.format("Size:(h: %s, w: %s)",  //$NON-NLS-1$
-                             height, width);
+        return String.format("Size:(h: %s, w: %s)", height, width);
+    }
+
+    @Override
+    public Sizable getSize() {
+        return new SimpleSize(this);
     }
 }

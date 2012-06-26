@@ -55,7 +55,7 @@ public interface Regionlike extends Positionable, Sizable {
      */
     public boolean contains(Regionlike r);
     /**
-     * Get the bounds of the region
+     * Get a concise copy of the bounds of the region
      * @return bounds, expressed in a regionlike
      */
     public Regionlike getBounds();
@@ -64,12 +64,6 @@ public interface Regionlike extends Positionable, Sizable {
      * @return iterator.
      */
     public RegionIterator getEdgeIterator();
-    /**
-     * Get the height
-     * @return height
-     */
-    @Override
-    public int getHeight();
     /**
      * Get the inside iterator
      * @return iterator
@@ -84,12 +78,6 @@ public interface Regionlike extends Positionable, Sizable {
      * @return iterator
      */
     public RegionIterator getNotOutsideIterator();
-    /**
-     * Get the width.
-     * @return width
-     */
-    @Override
-    public int getWidth();
     /**
      * Does the box intersect with the region?
      * 
@@ -109,16 +97,4 @@ public interface Regionlike extends Positionable, Sizable {
      * @return true on success; false on failure
      */
     public boolean intersects(Regionlike room);
-    /**
-     * Set the height.
-     * @param height the height
-     */
-    @Override
-    public void setHeight(int height);
-    /**
-     * Set the width.
-     * @param width the width
-     */
-    @Override
-    public void setWidth(int width);
 }

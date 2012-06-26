@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,6 @@
 */
 package com.googlecode.blacken.grid;
 
-/** Create and manage two-dimensional maps
- *
- * Copyright � 2010, Steven Black. All Rights Reserved.
- * You may distribute under the terms of the LGPL v3 or newer.
- *
- * Adapted from Python code to do the same thing, 
- * which was Copyright � 2004-2010 Steven Black.
- */
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +22,8 @@ import java.util.ArrayList;
 
 import com.googlecode.blacken.exceptions.IrregularGridException;
 import com.googlecode.blacken.grid.Bresenham.LineIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A two-dimensional grid. 
@@ -62,12 +55,13 @@ import com.googlecode.blacken.grid.Bresenham.LineIterator;
  * copy one irregular grid in to another the number of <code>null</code> 
  * cells are always reduced.</p>
  * 
- * @author yam655
+ * @author Steven Black
  * @param <Z> an object implementing Cloneable or an object copied by reference
  */
-public class Grid <Z> 
-implements Regionlike, Serializable{
-    private static final long serialVersionUID = 1L;
+public class Grid <Z>
+implements Serializable, Regionlike {
+    private static final long serialVersionUID = 709537762108750L;
+    private static Logger LOGGER = LoggerFactory.getLogger(Grid.class);
     private ArrayList<ArrayList<Z>> grid = null;
     private int start_x = 0;
     private int start_y = 0;
@@ -86,7 +80,7 @@ implements Regionlike, Serializable{
      * calling {@link #reset(int, int, Object)}.</p>
      */
     public Grid() {
-        grid = new ArrayList<ArrayList<Z>>();
+        grid = new ArrayList<>();
         this.empty = null;
         this.size_x = 0;
         this.size_y = 0;
@@ -124,7 +118,7 @@ implements Regionlike, Serializable{
      * @param x starting X coordinate
      */
     public Grid(Z empty, int numRows, int numCols, int y, int x) {
-        grid = new ArrayList<ArrayList<Z>>();
+        grid = new ArrayList<>();
         this.empty = this.copyCell(empty);
         this.size_x = 0;
         this.size_y = 0;
@@ -138,27 +132,27 @@ implements Regionlike, Serializable{
     /**
      * Create an irregularly shaped grid.
      * 
-     * An irregular grid does not have cells within the square that is the
+     * <p>An irregular grid does not have cells within the square that is the
      * normal bounds. This is handled by inserting nulls in the missing cells.
      * When we create an irregularly shaped grid, the entire grid is full of
      * nulls. To create the pattern, you need to explicitly set some of them
-     * to non-null.
+     * to non-null.</p>
      * 
-     * Irregularly shaped grids can not be resized after they're created. They
-     * will throw an IrregularGridException if you try. 
+     * <p>Irregularly shaped grids can not be resized after they're created. They
+     * will throw an IrregularGridException if you try.</p>
      * 
      * @param empty the normal empty cell (though not the initial cell) 
      * @param numRows number of rows
      * @param numCols number of cells
-     * @param y starting Y coord
-     * @param x starting X coord
+     * @param y starting Y coordinate
+     * @param x starting X coordinate
      * @param irregular true if irregular, false if regular
      * 
      */
     public Grid(Z empty, int numRows, int numCols, int y, int x, 
                 boolean irregular) {
         this.irregular = irregular;
-        grid = new ArrayList<ArrayList<Z>>();
+        grid = new ArrayList<>();
         if (irregular) {
             this.empty = null;
         } else {
@@ -284,14 +278,16 @@ implements Regionlike, Serializable{
     /**
      * Clear the entire map, optionally using a new/different empty value.
      * 
-     * If <code>empty</code> is null this will use the empty value from at 
+     * If <code>empty</code> is null this will use the empty value from 
      * map creation (or last clearing).
      * 
      * @param empty The exact contents of each cell on the map. 
      */
     public void clear(Z empty) {
-        if (empty != null) this.empty = empty;
-        resize(this.size_y, this.size_x, true);
+        if (empty != null) this.empty = copyCell(empty);
+        if (size_y > 0 && size_x > 0) {
+            resize(this.size_y, this.size_x, true);
+        }
     }
     /**
      * Is position (y, x) contained within the grid?
@@ -359,19 +355,11 @@ implements Regionlike, Serializable{
         return grid.get(pos.getY() - start_y).get(pos.getX() - start_x); 
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#getBounds()
-     */
     @Override
     public Regionlike getBounds() {
-        return this;
+        return new BoxRegion(this);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#getEdgeIterator()
-     */
     @Override
     public RegionIterator getEdgeIterator() {
         RegionIterator ret = new BoxRegionIterator(this, true, false);
@@ -381,7 +369,7 @@ implements Regionlike, Serializable{
     /**
      * Get the current empty cell
      * 
-     * @return the current empty cell
+     * @return a copy of the current empty cell
      */
     public Z getEmpty() {
         return this.copyCell(empty);
@@ -390,7 +378,7 @@ implements Regionlike, Serializable{
     @SuppressWarnings("unchecked")
     protected Z copyCell(Z cell) {
         if (cell == null) {
-            return cell;
+            return null;
         }
         if (cell.getClass().isPrimitive()) {
             return cell;
@@ -398,7 +386,7 @@ implements Regionlike, Serializable{
         Z ret = null;
         Method cloneMethod;
         try {
-            cloneMethod = cell.getClass().getMethod("clone"); //$NON-NLS-1$
+            cloneMethod = cell.getClass().getMethod("clone");
         } catch (SecurityException e) {
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
@@ -407,14 +395,10 @@ implements Regionlike, Serializable{
         if (cloneMethod != null) {
             try {
                 ret = (Z) cloneMethod.invoke(cell);
-            } catch (IllegalArgumentException e) {
-                // Should never happen: Shouldn't take arguments
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                // Should never happen: Should have already occured
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                // Should never happen
+            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+                // IllegalArgumentException should never happen: Shouldn't take arguments
+                // IllegalAccessException should never happen: Should have already occured
+                // InvocationTargetException should never happen
                 throw new RuntimeException(e);
             }
         }
@@ -449,68 +433,39 @@ implements Regionlike, Serializable{
         return ret;
     }
 
-    /**
-     * Get the size of the grid.
-     * 
-     * @return int[] the size
-     */
+    @Override
     public Sizable getSize() {
         return new SimpleSize(size_y, size_x);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#getWidth()
-     */
     @Override
     public int getWidth() {
         return this.size_x;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getX()
-     */
     @Override
     public int getX() {
         return start_x;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getY()
-     */
     @Override
     public int getY() {
         return start_y;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#intersects(int, int, int, int)
-     */
     @Override
     public boolean intersects(int height, int width, int y1, int x1) {
         return BoxRegion.intersects(this, height, width, y1, x1);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#intersects(com.googlecode.blacken.grid.Regionlike)
-     */
     @Override
     public boolean intersects(Regionlike room) {
         return BoxRegion.intersects(this, room);
     }
 
-    /**
-     * Make a new grid just like this one (but empty).
-     * 
-     * @return the new grid
-     */
     public Grid<Z> like() {
         // not quite a copy, instead we want a similar map
-        return new Grid<Z>(empty, size_y, size_x, start_y, start_x, irregular);
+        return new Grid<>(empty, size_y, size_x, start_y, start_x, irregular);
     }
     
     /**
@@ -615,7 +570,7 @@ implements Regionlike, Serializable{
                 if (size_x == 0 && size_y == 0) {
                     // legal -- we're doing the initial sizing
                 } else if (ysize != size_y || xsize != size_x) {
-                    throw new IrregularGridException("Can not change the size of an irregular map."); //$NON-NLS-1$
+                    throw new IrregularGridException("Can not change the size of an irregular map.");
                 }
             }
         } else if ((size_x != xsize || size_y != ysize) && this.empty == null) {
@@ -624,22 +579,26 @@ implements Regionlike, Serializable{
         int x2 = Math.min(size_x, xsize);
         int y2 = Math.min(size_y, ysize);
         ArrayList<ArrayList<Z>> old_grid = grid;
-        if (wipe) old_grid = null;
-        ArrayList<ArrayList<Z>> new_grid = new ArrayList<ArrayList<Z>>();
-        if(ysize != 0) new_grid.ensureCapacity(ysize);
+        if (wipe) {
+            old_grid = null;
+        }
+        ArrayList<ArrayList<Z>> new_grid = new ArrayList<>();
+        if(ysize != 0) {
+            new_grid.ensureCapacity(ysize);
+        }
         for (int y = 0; y < ysize; y++) {
-            ArrayList<Z> grid_line = new ArrayList<Z>();
+            ArrayList<Z> grid_line = new ArrayList<>();
             if (xsize != 0) grid_line.ensureCapacity(xsize);
             if (y < y2 && x2 > 0) {
-                if (wipe && this.irregular) {
+                if (this.irregular) {
                     for (int x = 0; x < x2; x++) {
-                        if (old_grid != null && old_grid.get(y).get(x) == null) {
+                        if (old_grid == null || old_grid.get(y).get(x) == null) {
                             grid_line.add(null);
                         } else {
                             grid_line.add(copyCell(empty));
                         }
                     }
-                } else if (!wipe && old_grid != null) {
+                } else if (old_grid != null) {
                     grid_line.addAll(old_grid.get(y).subList(0, x2));
                 }
             }
@@ -669,7 +628,7 @@ implements Regionlike, Serializable{
     public Z set(int y, int x, Z value) {
         if (value == null) {
             if (!this.irregular) {
-                throw new NullPointerException("Use 'unset' to clear a cell."); //$NON-NLS-1$
+                throw new NullPointerException("Use 'unset' to clear a cell.");
             }
         }
         return grid.get(y - start_y).set(x - start_x, value); 
@@ -690,7 +649,7 @@ implements Regionlike, Serializable{
     public <T extends Positionable> Z set (T pos, Z value) {
         if (value == null) {
             if (!this.irregular) {
-                throw new NullPointerException("Use 'unset' to clear a cell."); //$NON-NLS-1$
+                throw new NullPointerException("Use 'unset' to clear a cell.");
             }
         }
         return grid.get(pos.getY() - start_y).set(pos.getX() - start_x, value); 
@@ -709,7 +668,7 @@ implements Regionlike, Serializable{
         int x1 = x - start_x;
         if (value == null) {
             if (!this.irregular) {
-                throw new NullPointerException("Use 'unset' to clear a cell."); //$NON-NLS-1$
+                throw new NullPointerException("Use 'unset' to clear a cell.");
             }
             return grid.get(y1).set(x1, null);
         }
@@ -729,7 +688,7 @@ implements Regionlike, Serializable{
         int x1 = pos.getX() - start_x;
         if (value == null) {
             if (!this.irregular) {
-                throw new NullPointerException("Use 'unset' to clear a cell."); //$NON-NLS-1$
+                throw new NullPointerException("Use 'unset' to clear a cell.");
             }
             return grid.get(y1).set(x1, null); 
         }
@@ -823,7 +782,7 @@ implements Regionlike, Serializable{
     }
 
     /**
-     * <p>Pull a copy of a grid in to a subgrid (by quad ints).</p>
+     * <p>Pull a copy of a grid in to a subgrid (by ints).</p>
      * 
      * <p>While the returned grid doesn't contain any <code>null</code>'s it is
      * still returned as an IrregularGrid. This allows the subgrid to have
@@ -841,13 +800,14 @@ implements Regionlike, Serializable{
      * @return returns the new subgrid
      */
     public Grid<Z> subGrid(int numRows, int numCols, int y1, int x1) {
-        Grid<Z> ret = new Grid<Z>(this.empty, numRows, numCols, y1, x1, true);
+        // LOGGER.debug("Creating new subgrid");
+        Grid<Z> ret = new Grid<>(this.empty, numRows, numCols, y1, x1, true);
         for (int y = y1; y < y1 + numRows; y++) {
             for (int x = x1; x < x1 + numCols; x++) {
-                if (!contains(y, x)) {
-                    continue;
+                Z cell = get(y, x);
+                if (cell != null) {
+                    ret.setCopy(y, x, cell);
                 }
-                ret.setCopy(y, x, get(y, x));
             }
         }
         return ret;
@@ -867,12 +827,12 @@ implements Regionlike, Serializable{
      * @return new grid
      */
     public Grid<Z> subGrid(Regionlike r) {
-        Grid<Z> ret = new Grid<Z>(this.empty, r.getHeight(), r.getWidth(), 
+        Grid<Z> ret = new Grid<>(this.empty, r.getHeight(), r.getWidth(), 
                                   r.getY(), r.getX());
 
         RegionIterator inside = r.getNotOutsideIterator();
         int[] p = new int[4];
-        boolean[] pattern = null;
+        boolean[] pattern;
         int segtype;
         
         while (!inside.isDone()) {
@@ -958,11 +918,55 @@ implements Regionlike, Serializable{
      * @param empty new empty value
      */
     public void wipe(int height, int width, int y1, int x1, Z empty) {
+        // LOGGER.debug(String.format("wipe(numRows:%s, numCols:%s, origY:%s, origX:%s)", height, width, y1, x1));
         for (int y = y1; y < y1 + height; y++) {
             for (int x = x1; x < x1 + width; x++) {
-                if (grid.get(y - this.start_y).get(x - this.start_x) != null) {
-                    grid.get(y - this.start_y).set(x - this.start_x, 
-                                                   copyCell(empty));
+                if (this.get(y, x) != null) {
+                    // LOGGER.debug(String.format("SetCopy: (%s) at %s,%s", empty, y, x));
+                    this.setCopy(y, x, empty);
+                }
+            }
+        }
+    }
+
+    /**
+     * Add one grid to another.
+     *
+     * <p>At first glance this function doesn't look useful. For the Grid
+     * class it <em>isn't</em> useful. This function exists so we can have the
+     * same addGrid logic used by both the Grid and {@link GridView} classes.</p>
+     *
+     * <p>This function doesn't go public until Blacken 2.0 -- when we get
+     * GridView and Gridlike.</p>
+     *
+     * @param <T>
+     * @param to
+     * @param from
+     * @since 2.0
+     */
+    private static <T> void addGrid(Grid<T> to, Grid<T> from) {
+        // LOGGER.debug("Adding grid on top of this grid");
+        if (from == null) {
+            LOGGER.error("Null grid passed to Grid.addGrid()");
+            return;
+        }
+        if (to == null) {
+            throw new NullPointerException("Can not modify a null Gridlike");
+        }
+        for (int y = from.getY(); y < from.getY() + from.getHeight() ; y++) {
+            if (y < to.getY() || y >= to.getY() + to.getHeight()) {
+                // LOGGER.debug(String.format("Skipping ROW: %s,-", y));
+                continue;
+            }
+            for (int x = from.getX(); x < from.getX() + from.getWidth(); x++) {
+                if (x < to.getX() || x >= to.getX() + to.getWidth()) {
+                    // LOGGER.debug(String.format("Skipping COL: %s,%s", y + to.getY(), x + to.getX()));
+                    continue;
+                }
+                T cell = from.get(y, x);
+                if (cell != null) {
+                    to.setCopy(y, x, cell);
+                    // LOGGER.debug(String.format("Copying: (%s) at %s,%s", cell.toString(), y, x));
                 }
             }
         }
@@ -974,23 +978,10 @@ implements Regionlike, Serializable{
      * <p>This works best when the grid to copy is an irregular grid which
      * contains transparent values.</p>
      * 
-     * @param tgrid grid
+     * @param source grid to copy
      */
-    public void addGrid(Grid<Z> tgrid) {
-        for (int y = 0; y < tgrid.size_y ; y++) {
-            int offsety = y + tgrid.start_y - this.start_y;
-            if (offsety < 0 || offsety >= this.size_y) {
-                continue;
-            }
-            for (int x = 0; x < tgrid.size_x; x++) {
-                int offsetx = x + tgrid.start_x - this.start_x;
-                if (offsetx < 0 || offsetx >= this.size_x) {
-                    continue;
-                }
-                this.setCopy(y + tgrid.start_x, x + tgrid.start_x, 
-                             tgrid.get(y + tgrid.start_y, x + tgrid.start_x));
-            }
-        }
+    public void addGrid(Grid<Z> source) {
+        addGrid(this, source);
     }
 
     /**
@@ -1013,6 +1004,23 @@ implements Regionlike, Serializable{
     /**
      * Move a block of cells.
      * 
+     * <p>There is different behavior if you're copying from the same Grid or
+     * a different Grid. If it is the same Grid, we clear the source location
+     * so that you can use this to move blocks around the screen. This is
+     * usually what is desired and removes the need to have the caller perform
+     * "smear cleanup" before the Grid is presentable to the end-user.</p>
+     * 
+     * <p>If you're copying from a different Grid, however, there's no issue
+     * of smear. Copying from a Grid never causes visual smear, so there's no
+     * need to perform smear cleanup. The source remains pristine and the 
+     * destination only gets modified due to the copy from the source.</p>
+     * 
+     * <p>Note that when dealing with the same Grid it sounds like identical
+     * logic to what is performed by 
+     * {@link #moveBlock(int, int, int, int, int, int, DirtyGridCell)}. There's
+     * a reason for that. moveBlock() is a convenience function added for
+     * semantic clarity in the code.</p>
+     * 
      * @param source source grid
      * @param numRows number of rows to move
      * @param numCols number of columns to move
@@ -1022,26 +1030,37 @@ implements Regionlike, Serializable{
      * @param destX destination X coordinate
      * @param resetCell class/function to refresh a cell
      */
-    public void copyFrom(Grid<Z> source, int numRows, int numCols, 
+    public void copyFrom(Grid<Z> source, int numRows, int numCols,
                          int startY, int startX, int destY, int destX, 
                          DirtyGridCell<Z> resetCell) {
         Grid<Z> tgrid = source.subGrid(numRows, numCols, startY, startX);
         if (source == this) {
+            // LOGGER.debug("Wiping starting location.");
             this.wipe(numRows, numCols, startY, startX);
         }
+        Point startingPoint = new Point(tgrid);
+        tgrid.setPosition(destY, destX);
+        this.addGrid(tgrid);
         if (resetCell != null) {
+            // LOGGER.debug("Setting dirty state on copied cells");
             for (int y = 0; y < numRows; y++) {
                 for (int x = 0; x < numCols; x++) {
-                    Z cell = tgrid.grid.get(y).get(x); 
+                    Z cell = tgrid.get(y + tgrid.getY(), x + tgrid.getX());
                     if (cell == null) {
                         continue;
                     }
-                    resetCell.setDirty(cell, true);
+                    if (resetCell != null) {
+                        resetCell.setDirty(grid.get(y+start_y).get(x+start_x), true);
+                    }
                 }
             }
         }
-        tgrid.setPosition(destY, destX);
-        this.addGrid(tgrid);
+        tgrid.setPosition(startingPoint);
+    }
+
+    @Override
+    public Positionable getPosition() {
+        return new Point(this);
     }
     
 }

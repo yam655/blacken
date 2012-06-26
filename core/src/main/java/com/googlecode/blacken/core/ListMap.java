@@ -920,7 +920,7 @@ implements List<V>, Cloneable, Serializable {
         ListMap<?, ?> othr = (ListMap<?, ?>)other;
         if (othr.size() != this.size()) return false;
         if (othr.keyMap.size() != this.keyMap.size()) return false;
-        if (this.keyMap.size() != 0) {
+        if (!this.keyMap.isEmpty()) {
             if (!othr.keyMap.keySet().iterator().next().getClass()
                     .isAssignableFrom(this.keyMap.keySet().iterator()
                                       .next().getClass())) {
@@ -991,8 +991,7 @@ implements List<V>, Cloneable, Serializable {
     @Override
     public int hashCode() {
         int ret = 1;
-        Map<Integer, ConsolidatedListMapEntry<K, V>> c = 
-            new HashMap<Integer, ConsolidatedListMapEntry<K, V>>();
+        Map<Integer, ConsolidatedListMapEntry<K, V>> c = new HashMap<>();
         consolidateEntries(c);
         for (Integer i = 0; i < c.size(); i++) {
             ret = ret * 31 + c.get(i).hashCode();
@@ -1381,6 +1380,43 @@ implements List<V>, Cloneable, Serializable {
         }
         return oldSize != this.size();
     }
+
+    /**
+     * Rotate a section of the list
+     * 
+     * @param startIdx index to start rotation
+     * @param count the number of indexes to effect
+     * @param dir the speed and direction of movement
+     */
+    public void rotate(int startIdx, int changeCount, int dir) {
+        if (dir == 0) {
+            return;
+        }
+        if (startIdx < 0) {
+            startIdx = 0;
+        }
+        if (changeCount < 0) {
+            changeCount = valueList.size() - startIdx;
+        }
+        if (dir > 0) {
+            List<ListMapEntry<V>> t = this.valueList.subList(startIdx, startIdx+dir);
+            List<ListMapEntry<V>> move = new ArrayList<>();
+            move.addAll(t);
+            t.clear();
+            this.valueList.addAll(startIdx+changeCount-dir, move);
+        } else {
+            dir *= -1;
+            List<ListMapEntry<V>> t = this.valueList.subList(startIdx + changeCount-dir, startIdx + changeCount);
+            List<ListMapEntry<V>> move = new ArrayList<>();
+            move.addAll(t);
+            t.clear();
+            this.valueList.addAll(startIdx, move);
+        }
+        for (int i = startIdx; i < startIdx + changeCount; i++) {
+            this.valueList.get(i).setIndex(i);
+        }
+    }
+
     /**
      * Set the value of an index to a new value.
      * 

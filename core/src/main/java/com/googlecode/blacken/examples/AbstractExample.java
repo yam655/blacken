@@ -18,6 +18,7 @@ package com.googlecode.blacken.examples;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.swing.SwingTerminal;
+import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
 
 /**
@@ -29,7 +30,7 @@ public abstract class AbstractExample {
     /**
      * TerminalInterface used by the example
      */
-    protected TerminalInterface term;
+    protected CursesLikeAPI term;
     /**
      * ColorPalette used by the example
      */
@@ -64,11 +65,10 @@ public abstract class AbstractExample {
      */
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
-            this.term = new SwingTerminal();
-            this.term.init("Example Program", 25, 80);
-        } else {
-            this.term = term;
+            term = new SwingTerminal();
+            term.init("Example Program", 25, 80);
         }
+        this.term = new CursesLikeAPI(term);
         if (palette == null) {
             palette = new ColorPalette();
             palette.addAll(ColorNames.XTERM_256_COLORS, false);

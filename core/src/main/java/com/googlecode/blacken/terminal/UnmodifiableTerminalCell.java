@@ -39,7 +39,8 @@ public class UnmodifiableTerminalCell implements TerminalCellLike {
      * @param cell terminal cell
      */
     public UnmodifiableTerminalCell(TerminalCellLike cell) {
-        data = new TerminalCell(cell);
+        data = new TerminalCell();
+        data.set(cell);
     }
     /**
      * Create an immutable TerminalCell like <code>cell</code>

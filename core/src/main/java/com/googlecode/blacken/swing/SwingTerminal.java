@@ -23,6 +23,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
+import java.io.File;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import javax.swing.JFrame;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.terminal.AbstractTerminal;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
@@ -54,12 +56,27 @@ public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener {
 
     protected BlackenPanel gui;
-    protected HashMap<Integer, Color> swingColor = new HashMap<Integer, Color>();
+    protected HashMap<Integer, Color> swingColor = new HashMap<>();
     protected EventListener listener;
     protected JFrame frame;
     protected HashMap<String, GraphicAttribute> replacement = null;
     protected DropTarget dropTarget;
-    
+
+    /**
+     * Create and initialize the function at once.
+     * 
+     * @param name Window name
+     * @param rows number of rows (0 is acceptable)
+     * @param cols number of columns (0 is acceptable)
+     * @param font Font name or path
+     * @return new SwingTerminal
+     */
+    static public SwingTerminal initialize(String name, int rows, int cols, String font) {
+        SwingTerminal terminal = new SwingTerminal();
+        terminal.init(name, rows, cols, font);
+        return terminal;
+    }
+
     /**
      * Create a new terminal
      */
@@ -74,20 +91,18 @@ public class SwingTerminal extends AbstractTerminal
         AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
         awtempty.setDirty(true);
         awtempty.setFont(f);
-        awtempty.setForegroundColor(this.getSwingColor(getCurForeground()));
-        awtempty.setBackgroundColor(this.getSwingColor(getCurBackground()));
         gui.setEmpty(awtempty);
         gui.clear();
     }
     
     @Override
     public void componentHidden(ComponentEvent e) {
-        return;
+        // do nothing
     }
 
     @Override
     public void componentMoved(ComponentEvent e) {
-        return;
+        // do nothing
     }
 
     @Override
@@ -97,7 +112,7 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void componentShown(ComponentEvent e) {
-        return;
+        // do nothing
     }
     
     @Override
@@ -202,21 +217,20 @@ public class SwingTerminal extends AbstractTerminal
         BlackenWindowEvent e = listener.popWindow();
         return e;
     }
-
+    
     @Override
-    public void init(String name, int rows, int cols) {
-        super.init(name, rows, cols);
-        if (frame == null) {
-            frame = new JFrame(name);
+    public void init(String name, int rows, int cols, String font) {
+        if (frame != null) {
+            setFont(font);
+            resize(rows, cols);
+            setCursorLocation(-1,-1);
+            return;
         }
-        Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        super.init(name, rows, cols, font);
+        frame = new JFrame(name);
 
-        if (gui == null) {
-            gui = new BlackenPanel();;
-        }
-        if (listener == null) {
-            listener = new EventListener(gui);
-        }
+        gui = new BlackenPanel();
+        listener = new EventListener(gui);
 
         frame.setSize(640, 480);
         frame.getContentPane().setLayout(new BorderLayout());
@@ -227,13 +241,18 @@ public class SwingTerminal extends AbstractTerminal
         frame.pack();
         
         AwtCell empty = new AwtCell();
-        gui.init(font, rows, cols, empty);
+        if (font == null) {
+            font = Font.MONOSPACED;
+        }
+        Font fontObj = new Font(font, Font.PLAIN, 1);
+
+        gui.init(fontObj, rows, cols, empty);
         getGrid().reset(rows, cols, getEmpty());
 
         gui.resizeFrame(frame, 0);
         frame.setLocationRelativeTo(null); // places window in center of screen
         frame.setResizable(true);
-        move(0, 0);
+        setCursorLocation(-1, -1);
 
         frame.setVisible(true);
                 
@@ -247,8 +266,11 @@ public class SwingTerminal extends AbstractTerminal
         frame.addInputMethodListener(listener);
         gui.windowResized();
     }
-
-
+    
+    @Override
+    public void init(String name, int rows, int cols) {
+        init(name, rows, cols, null);
+    }
 
     /**
      * We do not cache the entire dim palette at palette-load as it isn't
@@ -278,6 +300,16 @@ public class SwingTerminal extends AbstractTerminal
     public void refresh() {
         gui.doUpdate();
         gui.repaint();
+    }
+
+    @Override
+    public void resize(int rows, int cols) {
+        if (this.getCursorX() >= cols || this.getCursorY() >= rows) {
+            setCursorLocation(-1,-1);
+        }
+        getGrid().setSize(rows, cols);
+        gui.resizeGrid(rows, cols);
+        gui.windowResized();
     }
 
     @Override
@@ -313,6 +345,18 @@ public class SwingTerminal extends AbstractTerminal
         Grid<TerminalCellLike> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
+    }
+
+    @Override
+    public TerminalCellLike assign(int y, int x, TerminalCellLike tcell) {
+        AwtCell acell = gui.get(y, x);
+        AwtCell r = this.setAwtFromTerminal(acell, tcell);
+        if (acell == null) {
+            gui.set(y, x, r);
+        }
+        Grid<TerminalCellLike> grid = getGrid();
+        tcell.setDirty(false);
+        return grid.set(y, x, tcell);
     }
 
     protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCellLike term) {
@@ -453,6 +497,15 @@ public class SwingTerminal extends AbstractTerminal
         if (gui != null) {
             gui.moveCursor(y, x);
         }
+    }
+    
+    @Override
+    public void setFont(String font) {
+        if (font == null) {
+            font = Font.MONOSPACED;
+        }
+        Font fontObj = new Font(font, Font.PLAIN, 1);
+        gui.setFont(fontObj);
     }
 
     @Override

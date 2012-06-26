@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package com.googlecode.blacken.terminal;
 import java.util.EnumSet;
 
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Positionable;
 
 /**
  * The interface for terminal-like views.
@@ -27,10 +29,13 @@ import com.googlecode.blacken.grid.Grid;
  */
 public interface TerminalInterface {
     /**
-     * Write a character to the current update location
-     * @param what codepoint to add to the screen
+     * Set the cell to the value, assigning ownership
+     * @since EXPERIMENTAL
+     * @param y
+     * @param x
+     * @param cell
      */
-    public void addch(int what);
+    public TerminalCellLike assign(int y, int x, TerminalCellLike cell);
     /**
      * Clear the screen.
      */
@@ -40,7 +45,7 @@ public interface TerminalInterface {
      * 
      * @param empty new empty cell value.
      */
-    public void clear(TerminalCell empty);
+    public void clear(TerminalCellLike empty);
     /**
      * Copy from another TerminalInterface
      * 
@@ -100,11 +105,23 @@ public interface TerminalInterface {
      */
     public int getch();
     /**
+     * get the Grid's bounds
+     * @return a concise representation of the bounds
+     */
+    public Regionlike getBounds();
+    /**
      * Get the cursor location
      * 
      * @return cursor location
+     * @deprecated migrating to {@link #getCursorPosition()}
      */
+    @Deprecated
     public int[] getCursorLocation();
+    /**
+     * Get cursor position
+     * @return cursor location as a concise Positionable
+     */
+    public Positionable getCursorPosition();
     /**
      * Get the cursor's X location.
      * 
@@ -123,6 +140,14 @@ public interface TerminalInterface {
      * @return template cell
      */
     public TerminalCellLike getEmpty();
+    
+    /**
+     * Get the current terminal max Y size
+     * 
+     * @return terminal's max Y size
+     */
+    public int getHeight();
+
     /**
      * Don't depend on this function.
      * 
@@ -164,7 +189,8 @@ public interface TerminalInterface {
      * @param length length of string to read
      * @return new string
      */
-    public String gets(int length);
+    public String getString(int y, int x, int length);
+
     /**
      * Get the latest window event.
      * 
@@ -176,17 +202,12 @@ public interface TerminalInterface {
     public BlackenWindowEvent getwindow();
 
     /**
-     * Get the current terminal max Y size
-     * 
-     * @return terminal's max Y size
-     */
-    public int getHeight();
-    /**
      * Get the current terminal max X size
      * 
      * @return terminal's max X size
      */
     public int getWidth();
+
     /**
      * Get the current terminal max Y size
      * 
@@ -203,10 +224,6 @@ public interface TerminalInterface {
      */
     @Deprecated
     public int gridWidth();
-    /**
-     * Initialize the terminal
-     */
-    public void init();
 
     /**
      * Initialize the terminal with a specific window name and size.
@@ -218,22 +235,14 @@ public interface TerminalInterface {
     public void init(String name, int rows, int cols);
 
     /**
-     * Are we using a separate cursor?
+     * Initialize the terminal with a specific window name and size.
      * 
-     * @return true if {@link #move(int, int)} does not update cursor
+     * @param name window name
+     * @param rows terminal rows
+     * @param cols terminal columns
      */
-    boolean isSeparateCursor();
+    public void init(String name, int rows, int cols, String font);
     
-    /**
-     * Move the invisible output cursor. 
-     * <p>
-     * To move the visible cursor used for user-input, use the moveCursor 
-     * function.
-     * 
-     * @param y row
-     * @param x column
-     */
-    public void move(int y, int x);
     /**
      * Move a block of cells
      * 
@@ -246,88 +255,53 @@ public interface TerminalInterface {
      */
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX);
-    /**
-     * This is another name for {@link #move(int, int)}.
-     * 
-     * <p>Since this name is required for the TerminalPanel interface, we
-     * also provide the name here.</p>
-     * 
-     * @param y row
-     * @param x column
-     */
-    public void mv(int y, int x);
-    /**
-     * Move the update position and write a character.
-     * 
-     * @param y new Y location
-     * @param x new X location
-     * @param what codepoint to write
-     */
-    public void mvaddch(int y, int x, int what);
-
-    /**
-     * Move the cursor and get a character
-     * 
-     * @param y cursor's new Y location
-     * @param x cursor's new X location
-     * @return codepoint we get from the user
-     */
-    public int mvgetch(int y, int x);
-    /**
-     * Overlay a character on to a specific character position.
-     * 
-     * @param y row
-     * @param x column
-     * @param what code point
-     */
-    public void mvoverlaych(int y, int x, int what);
-    /**
-     * Move the update location and write a string
-     * 
-     * @param y new Y location
-     * @param x new X location
-     * @param str string to write
-     */
-    void mvputs(int y, int x, String str);
     
     /**
-     * Overlay a character on to the last character position.
-     * 
-     * <p>Adds a codepoint to the previous cell (using y, x-1), and 
-     * quietly fails if the cursor is now at the beginning of a line.</p>
-     *  
-     * @param what code point
-     */
-    public void overlaych(int what);
-    
-    /**
-     * Write a character sequence to the terminal.
-     * 
-     * @param what character sequence to write
-     */
-    public void puts(String what);
-    /**
-     * Quit the terminal system
+     * Quit the backing window and the application if it was the last one.
      */
     public void quit();
     /**
-     * Refresh the terminal window
+     * Redraw the terminal
      */
     public void refresh();
     /**
+     * Resize the terminal without resizing the window
+     * @param rows
+     * @param cols 
+     */
+    public void resize(int rows, int cols);
+    /**
      * Set a cell to explicit contents
      * 
-     * @param y cell Y location
-     * @param x cell X location
-     * @param sequence character sequence to write
-     * @param foreground foreground color index (or value)
-     * @param background background color index (or value)
-     * @param style cell terminal style
-     * @param walls cell walls
+     * Any of the arguments can be null. When they are null, that part of the
+     * cell remains untouched.
+     * 
+     * @param y row
+     * @param x column
+     * @param sequence UTF-16 sequence to display; null to leave untouched
+     * @param foreground color index or 0xAARRGGBB value; null to not change
+     * @param background color index or 0xAARRGGBB value; null to not change
+     * @param style cell terminal style; can be null
+     * @param walls cell walls; can be null
      */
     public void set(int y, int x, String sequence, 
                     Integer foreground, Integer background,
                     EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls);
+
+    /**
+     * Simplified set cell command.
+     * 
+     * Any of the arguments can be null. When they are null, that part of the
+     * cell remains untouched.
+     * 
+     * @param y row
+     * @param x column
+     * @param sequence UTF-16 sequence to display; null to leave untouched
+     * @param foreground color index or 0xAARRGGBB value; null to not change
+     * @param background color index or 0xAARRGGBB value; null to not change
+     */
+    public void set(int y, int x, String sequence, Integer foreground, 
+            Integer background);
     
     /**
      * Set a cell to explicit contents, using a CellLike
@@ -338,31 +312,6 @@ public interface TerminalInterface {
      */
     public void set(int y, int x, TerminalCellLike cell);
     /**
-     * Set the current background color.
-     * 
-     * @param color new color index (or value)
-     */
-    public void setCurBackground(int color);
-    /**
-     * Set the background based upon the color name.
-     * 
-     * @param string color name
-     */
-    public void setCurBackground(String string);
-    /**
-     * Set the current foreground color.
-     * 
-     * @param color new color index (or value)
-     */
-    public void setCurForeground(int color);
-    
-    /**
-     * Set the foreground based upon the color name.
-     * 
-     * @param string color name
-     */
-    public void setCurForeground(String string);
-    /**
      * Set the cursor location.
      * 
      * @param y new Y location
@@ -370,13 +319,18 @@ public interface TerminalInterface {
      */
     public void setCursorLocation(int y, int x);
     /**
-     * Set the cursor location.
-     *
-     * <p>This makes setCursorLocation symmetrical with getCursorLocation.</p>
+     * Set the cursor position.
      *
      * @param position [y, x]
+     * @deprecated migrating to {@link #setCursorPosition(com.googlecode.blacken.grid.Positionable)}
      */
+    @Deprecated
     public void setCursorLocation(int[] position);
+    /**
+     * Set the cursor position.
+     * @param position 
+     */
+    public void setCursorPosition(Positionable position);
     /**
      * Set the template cell used for new and clear cells.
      * 
@@ -384,32 +338,57 @@ public interface TerminalInterface {
      */
     public void setEmpty(TerminalCellLike empty);
     /**
+     * Set the font to a name or a path
+     * @param font name or path; default MONOSPACE if null
+      */
+    public void setFont(String font);
+    /**
      * Set the palette, performing any additional implementation-specific
      * backing logic as needed.
      * 
-     * <p>Expect {@link #setPalette(ColorPalette, int, int)} to be called.
-     * Also, if your palette does not have true black (0xFF000000) or true
-     * white (0xFFffffff) expect these to default to 0 and 1 respectively.</p>
+     * <p>If the passed in palette is null, it does not clear out the palette,
+     * but instead reparses the existing palette for changes. Implementations
+     * may extend this reparsing to perform back-end clean-up. This means that
+     * if you modify an in-use palette, you may not see changes until you
+     * <code>setPalette(null)</code>.</p>
      * 
-     * @param palette new palette
+     * <p>This will try to find raw colors and assign them to the palette.
+     * When shrinking the palette, it will either try to find the color in a
+     * different location in the new palette or it will convert the indexed
+     * color in to a raw color.</p>
+     * 
+     * @param palette new palette or null
      * @return old palette
      */
     public ColorPalette setPalette(ColorPalette palette);
     /**
+     * Use {@link #coercePalette(ColorPalette, int, int)} instead.
+     * 
+     * <p>This does a lot more than just set the palette. We made that more 
+     * explicit by changing the name.</p>
+     * 
+     * @param palette
+     * @param white
+     * @param black
+     * @deprecated Use {@link #coercePalette(ColorPalette, int, int)} instead
+     * @return 
+     */
+    @Deprecated
+    public ColorPalette setPalette(ColorPalette palette, int white, 
+            int black);
+    /**
      * Set the palette, converting existing colors to the palette or to
      * white or black.
      * 
+     * <p>This makes sure that any color present is guaranteed to be a part
+     * of the palette.<p>
+     * 
      * @param palette new palette
-     * @param white index to use for white
-     * @param black index to use for black
+     * @param white index to use for white or null
+     * @param black index to use for black or null
      * @return old palette
      */
-    public ColorPalette setPalette(ColorPalette palette, int white, int black);
-    /**
-     * Separate screen update location from cursor location.
-     * 
-     * @param separateCursor true to separate; false to join
-     */
-    public void setSeparateCursor(boolean separateCursor);
+    public ColorPalette coercePalette(ColorPalette palette, int white, 
+            int black);
 
 }

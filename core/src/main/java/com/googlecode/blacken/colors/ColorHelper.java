@@ -349,8 +349,8 @@ public class ColorHelper {
      * @param black index to use for black
      * @return the <code>white</code> or <code>black> value
      */
-    public static int makeVisible(int value, int threshold, 
-                                  int white, int black) {
+    public static Integer makeVisible(int value, int threshold, int white, 
+            int black) {
         int[] parts = makeComponents(value);
         int g = (parts[0] * 20 + parts[1] * 69 + parts[2] * 11) / 255;
         if (g < threshold) {

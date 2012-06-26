@@ -47,72 +47,87 @@ public class Point implements Positionable {
     /**
      * @param point a point to base this one off of
      */
-    public Point(Point point) {
+    public Point(Positionable point) {
         this.x = point.getX();
         this.y = point.getY();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getX()
-     */
     @Override
     public int getX() {
         return this.x;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#getY()
-     */
     @Override
     public int getY() {
         return this.y;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setX(int)
-     */
     @Override
     public void setX(int x) {
         this.x = x;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setY(int)
-     */
     @Override
     public void setY(int y) {
         this.y = y;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setPos(int, int)
-     */
     @Override
     public void setPosition(int y, int x) {
         this.setX(x);
         this.setY(y);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setPos(com.googlecode.blacken.grid.Positionable)
-     */
     @Override
     public void setPosition(Positionable point) {
         this.setX(point.getX());
         this.setY(point.getY());
     }
 
-    /**
-     * Produce a string representation.
-     */
     @Override
     public String toString() {
         return String.format("Point:(y=%s, x=%s)",
                              this.getY(), this.getX());
+    }
+
+    @Override
+    public Positionable getPosition() {
+        return new Point(this);
+    }
+
+    public static boolean samePosition(Positionable p1, Positionable p2) {
+        if (p1.getY() != p2.getY()) {
+            return false;
+        }
+        if (p1.getX() != p2.getX()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object point) {
+        if (this == point) {
+            return true;
+        }
+        if (!(point instanceof Positionable)) {
+            return false;
+        }
+        Positionable pos = (Positionable)point;
+        if (this.getY() != pos.getY()) {
+            return false;
+        }
+        if (this.getX() != pos.getX()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + this.x;
+        hash = 37 * hash + this.y;
+        return hash;
     }
 }

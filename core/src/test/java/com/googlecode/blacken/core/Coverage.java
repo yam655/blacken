@@ -78,7 +78,9 @@ public class Coverage {
             for (Method m : implMethods) {
                 String impl = m.toGenericString().replaceAll(
                         "[a-zA-Z0-9.]+[.]([a-zA-Z0-9_]+)", "$1");
-                implNames.add(impl);
+                if (!impl.startsWith("protected ")) {
+                    implNames.add(impl);
+                }
             }
             Set<String> myNames = new HashSet<>();
             implMethods = implClass.getDeclaredMethods();
@@ -102,7 +104,9 @@ public class Coverage {
             for (Method m : implMethods) {
                 String impl = m.toGenericString().replaceAll(
                         "[a-zA-Z0-9.]+[.]([a-zA-Z0-9_]+)", "$1");
-                implNames.add(impl);
+                if (!impl.startsWith("protected ") && !impl.startsWith("private ")) {
+                    implNames.add(impl);
+                }
             }
         }
         Constructor<?>[] implConstructors = implClass.getConstructors();

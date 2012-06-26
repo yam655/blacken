@@ -19,12 +19,12 @@ import java.util.Iterator;
 
 /**
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class Bresenham {
 
     /**
-     * @author yam655
+     * @author Steven Black
      *
      */
     public static class LineIterator implements Iterator<Positionable>, Iterable<Positionable> {

@@ -90,8 +90,10 @@ public class TestColorHelper {
      */
     @Test
     public void makeVisible_Value_Threshold_White_Black() {
-        assertEquals(RED, ColorHelper.makeVisible(GREY_HALF, 75, RED, BLUE));
-        assertEquals(BLUE, ColorHelper.makeVisible(GREY_HALF, 25, RED, BLUE));
+        assertEquals(RED, 
+                (int)ColorHelper.makeVisible(GREY_HALF, 75, RED, BLUE));
+        assertEquals(BLUE, 
+                (int)ColorHelper.makeVisible(GREY_HALF, 25, RED, BLUE));
     }
     
     /**

@@ -32,6 +32,11 @@ public interface Positionable {
      */
     public int getY();
     /**
+     * Get a copy of the position in a concise form
+     * @return the position
+     */
+    public Positionable getPosition();
+    /**
      * Set the X coordinate
      * @param x the coordinate
      */

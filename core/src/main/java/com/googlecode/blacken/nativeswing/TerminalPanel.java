@@ -61,7 +61,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     private AwtCell empty = new AwtCell();
     private int minX = 80;
     private int minY = 25;
-    private Grid<AwtCell> grid = new Grid<AwtCell>(empty, minY, minX);
+    private Grid<AwtCell> grid = new Grid<>(empty, minY, minX);
     
     // private transient Image image = null;
     private transient Graphics2D graphics = null;

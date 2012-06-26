@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 */
 package com.googlecode.blacken.terminal;
 
-
 import java.util.EnumSet;
 
 import com.googlecode.blacken.grid.Grid;
@@ -26,7 +25,22 @@ import com.googlecode.blacken.grid.Grid;
  * 
  * @author yam655
  */
-public class UnboundTerminal extends AbstractTerminal {
+ public class UnboundTerminal extends AbstractTerminal {
+
+    /**
+     * Create and initialize the function at once.
+     * 
+     * @param name Window name
+     * @param rows number of rows (0 is acceptable)
+     * @param cols number of columns (0 is acceptable)
+     * @param font Font name or path
+     * @return new SwingTerminal
+     */
+    static public UnboundTerminal initialize(String name, int rows, int cols, String font) {
+        UnboundTerminal terminal = new UnboundTerminal();
+        terminal.init(name, rows, cols, font);
+        return terminal;
+    }
 
     /**
      * Create a new terminal
@@ -97,6 +111,16 @@ public class UnboundTerminal extends AbstractTerminal {
     @Override
     public BlackenMouseEvent getmouse() {
         return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.googlecode.blacken.terminal.TerminalInterface#getString()
+     */
+    @Override
+    public String getString(int y, int x, int length) {
+        setCursorLocation(y, x);
+        return "";
     }
 
     /*

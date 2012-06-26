@@ -44,7 +44,7 @@ import com.googlecode.blacken.terminal.BlackenWindowState;
 /**
  * Listen to Swing/AWT events and process them.
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class EventListener implements WindowListener, KeyListener,
         MouseListener, MouseMotionListener, MouseWheelListener, 
@@ -52,11 +52,11 @@ public class EventListener implements WindowListener, KeyListener,
 
     static final int NUMBER_OF_KEY_EVENTS = 1024;
     private ArrayBlockingQueue<Integer> keyEvents = 
-        new ArrayBlockingQueue<Integer>(NUMBER_OF_KEY_EVENTS);
+        new ArrayBlockingQueue<>(NUMBER_OF_KEY_EVENTS);
     private ArrayBlockingQueue<BlackenWindowEvent> windowEvents = 
-        new ArrayBlockingQueue<BlackenWindowEvent>(16);
+        new ArrayBlockingQueue<>(16);
     private ArrayBlockingQueue<BlackenMouseEvent> mouseEvents = 
-        new ArrayBlockingQueue<BlackenMouseEvent>(64);
+        new ArrayBlockingQueue<>(64);
     private EnumSet<BlackenEventType> enabled = 
         EnumSet.noneOf(BlackenEventType.class);
     private BlackenMouseEvent lastMouseEvent = null;
@@ -146,7 +146,7 @@ public class EventListener implements WindowListener, KeyListener,
                 set.add(BlackenModifier.MODIFIER_KEY_SCROLL_LOCK);
             }
         } catch (UnsupportedOperationException e) {
-            /* do nothing */;
+            /* do nothing */
         }
         try {
             int k = KeyEvent.VK_NUM_LOCK;
@@ -154,7 +154,7 @@ public class EventListener implements WindowListener, KeyListener,
                 set.add(BlackenModifier.MODIFIER_KEY_NUM_LOCK);
             }
         } catch (UnsupportedOperationException e) {
-            /* do nothing */;
+            /* do nothing */
         }
         try {
             int k = KeyEvent.VK_KANA_LOCK;
@@ -162,7 +162,7 @@ public class EventListener implements WindowListener, KeyListener,
                 set.add(BlackenModifier.MODIFIER_KEY_KANA_LOCK);
             }
         } catch (UnsupportedOperationException e) {
-            /* do nothing */;
+            /* do nothing */
         }
         try {
             int k = KeyEvent.VK_CAPS_LOCK;
@@ -170,7 +170,7 @@ public class EventListener implements WindowListener, KeyListener,
                 set.add(BlackenModifier.MODIFIER_KEY_CAPS_LOCK);
             }
         } catch (UnsupportedOperationException e) {
-            /* do nothing */;
+            /* do nothing */
         }
         return set;
     }
@@ -818,7 +818,7 @@ public class EventListener implements WindowListener, KeyListener,
             keyEvents.add(BlackenKeys.WINDOW_EVENT);
         } catch(IllegalStateException err) {
             // XXX log this
-            mouseEvents.remove(w);
+            windowEvents.remove(w);
         }
     }
     /**
@@ -1010,7 +1010,7 @@ public class EventListener implements WindowListener, KeyListener,
      */
     public synchronized void pushKey(int key) {
         ArrayBlockingQueue<Integer> oldQueue = keyEvents;
-        keyEvents = new ArrayBlockingQueue<Integer>(NUMBER_OF_KEY_EVENTS);
+        keyEvents = new ArrayBlockingQueue<>(NUMBER_OF_KEY_EVENTS);
         try {
             keyEvents.add(key);
             keyEvents.addAll(oldQueue);

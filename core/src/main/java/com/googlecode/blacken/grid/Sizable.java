@@ -31,6 +31,11 @@ public interface Sizable {
      */
     public int getWidth();
     /**
+     * Get a concise copy of the size
+     * @return size
+     */
+    public Sizable getSize();
+    /**
      * Set the height.
      * @param height the height
      */

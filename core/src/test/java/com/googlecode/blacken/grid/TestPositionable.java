@@ -20,8 +20,7 @@ import org.junit.*;
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test

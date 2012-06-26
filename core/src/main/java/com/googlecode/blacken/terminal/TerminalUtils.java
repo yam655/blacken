@@ -1,10 +1,22 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+/* blacken - a library for Roguelike games
+ * Copyright © 2012 Steven Black <yam655@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package com.googlecode.blacken.terminal;
 
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Positionable;
 
 /**
  *
@@ -42,6 +54,9 @@ public class TerminalUtils {
          * @return true to ignore the codepoint; false to process as usual
          */
         public EditorCommand dispatchEditorCodepoint(int codepoint);
+        public EditorCommand dispatchMouseEvent(BlackenMouseEvent mouse);
+        public EditorCommand dispatchWindowEvent(BlackenWindowEvent window);
+        public void dispatchResizeEvent();
     }
     
     /**
@@ -64,7 +79,7 @@ public class TerminalUtils {
         if (length < 0 || terminal.getWidth() - x - length <= 0) {
             length = terminal.getWidth() - x;
         }
-        int[] lastCursor = terminal.getCursorLocation();
+        Positionable lastCursor = terminal.getCursorPosition();
         int cp = -1;
         StringBuffer out;
         if (length < 0) {
@@ -79,18 +94,37 @@ public class TerminalUtils {
         while (!doQuit) {
             cp = terminal.getch();
             if (cd != null) {
-                switch (cd.dispatchEditorCodepoint(cp)) {
-                    case IGNORE_KEY:
-                        continue;
-                    case PROCESS_KEY:
-                        // do nothing
-                        break;
-                    case RETURN_STRING:
-                        doQuit = true;
-                        break;
-                    case PERFORM_BACKSPACE:
-                        cp = BlackenKeys.KEY_BACKSPACE;
-                        break;
+                EditorCommand ec = EditorCommand.IGNORE_KEY;
+                if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
+                    ec = cd.dispatchMouseEvent(terminal.getmouse());
+                } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
+                    ec = cd.dispatchWindowEvent(terminal.getwindow());
+                } else if (cp == BlackenKeys.RESIZE_EVENT) {
+                    cd.dispatchResizeEvent();
+                } else {
+                    switch (cd.dispatchEditorCodepoint(cp)) {
+                        case IGNORE_KEY:
+                            continue;
+                        case PROCESS_KEY:
+                            // do nothing
+                            break;
+                        case RETURN_STRING:
+                            doQuit = true;
+                            break;
+                        case PERFORM_BACKSPACE:
+                            cp = BlackenKeys.KEY_BACKSPACE;
+                            break;
+                    }
+                }
+            } else {
+                if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
+                    terminal.getmouse();
+                    continue;
+                } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
+                    terminal.getwindow();
+                    continue;
+                } else if (cp == BlackenKeys.RESIZE_EVENT) {
+                    continue;
                 }
             }
             if(cp == BlackenKeys.NO_KEY) {
@@ -146,7 +180,7 @@ public class TerminalUtils {
             }
             i++;
         }
-        terminal.setCursorLocation(lastCursor);
+        terminal.setCursorPosition(lastCursor);
         return out.toString();
     }
 

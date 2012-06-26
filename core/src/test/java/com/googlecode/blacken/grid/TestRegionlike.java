@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 /**
  * test
- * @author yam655
+ * @author Steven Black
  */
 public class TestRegionlike {
 
@@ -30,7 +30,7 @@ public class TestRegionlike {
     private int x;
     private int y;
     TestPositionable parent = new TestPositionable();
-
+    
 
     /**
      * test

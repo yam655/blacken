@@ -584,453 +584,126 @@ public class BlackenKeys {
 //  static final public int KEY_ = KEY_FIRST + 18;
 //  static final public int KEY_ = KEY_FIRST + 19;
 
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_NUL = 0x00;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SOH = 0x01;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_STX = 0x02;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ETX = 0x03;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_EOT = 0x04;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ENQ = 0x05;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ACK = 0x06;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_BEL = 0x07;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_BS = 0x08;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_HT = 0x09;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_LF = 0x0a;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_VT = 0x0b;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_FF = 0x0c;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_CR = 0x0d;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SO = 0x0e;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SI = 0x0f;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DLE = 0x10;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DC1 = 0x11;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DC2 = 0x12;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DC3 = 0x13;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DC4 = 0x14;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_NAK = 0x15;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SYN = 0x16;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ETB = 0x17;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_CAN = 0x18;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_EM = 0x19;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SUB = 0x1a;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ESC = 0x1b;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_FS = 0x1c;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_GS = 0x1d;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_RS = 0x1e;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_US = 0x1f;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SP = 0x20;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DEL = 0x7f;
 
-    /**
-     * Unnamed in unicode.
-     */
     static final public int CODEPOINT_PAD = 0x80;
-    /**
-     * Unnamed in unicode.
-     */
     static final public int CODEPOINT_HOP = 0x81;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SPH = 0x82;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_NBH = 0x83;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_IND = 0x84;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_NEL = 0x85;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SSA = 0x86;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ESA = 0x87;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_HTS = 0x88;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_HTJ = 0x89;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_VTS = 0x8a;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_PLD = 0x8b;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_PLU = 0x8c;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_RI = 0x8d;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SS2 = 0x8e;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SS3 = 0x8f;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_DCS = 0x90;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_PU1 = 0x91;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_PU2 = 0x92;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_STS = 0x93;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_CCH = 0x94;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_MW = 0x95;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SPA = 0x96;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_EPA = 0x97;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SOS = 0x98;
-    /**
-     * Unnamed in unicode.
-     */
     static final public int CODEPOINT_SGCI = 0x99;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_SCI = 0x9a;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_CSI = 0x9b;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_ST = 0x9c;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_OSC = 0x9d;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_PM = 0x9e;
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_APC = 0x9f;
 
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_NBSP = 0xa0;
 
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_GRAVE_ACCENT = '\u0300';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_ACUTE_ACCENT = '\u0301';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT = '\u0302';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_TILDE = '\u0303';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_MACRON = '\u0304';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_OVERLINE = '\u0305';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_BREVE = '\u0306';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOT_ABOVE = '\u0307';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DIAERESIS = '\u0308';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_HOOK_ABOVE = '\u0309';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_RING_ABOVE = '\u030A';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT = '\u030B';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_CARON = '\u030C';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE = '\u030D';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOUBLE_VERTICAL_LINE_ABOVE = '\u030E';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOUBLE_GRAVE_ACCENT = '\u030F';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_CANDRABINDU = '\u0310';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_INVERTED_BREVE = '\u0311';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_TURNED_COMMA_ABOVE = '\u0312';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_COMMA_ABOVE = '\u0313';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_REVERSED_COMMA_ABOVE = '\u0314';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_COMMA_ABOVE_RIGHT = '\u0315';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_GRAVE_ACCENT_BELOW = '\u0316';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_ACUTE_ACCENT_BELOW = '\u0317';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_LEFT_TACK_BELOW = '\u0318';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_RIGHT_TACK_BELOW = '\u0319';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_LEFT_ANGLE_ABOVE = '\u031A';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_HORN = '\u031B';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_LEFT_HALF_RING_BELOW = '\u031C';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_UP_TACK_BELOW = '\u031D';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOWN_TACK_BELOW = '\u031E';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_PLUS_SIGN_BELOW = '\u031F';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_MINUS_SIGN_BELOW = '\u0320';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_PALATALIZED_HOOK_BELOW = '\u0321';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_RETROFLEX_HOOK_BELOW = '\u0322';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DOT_BELOW = '\u0323';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_DIAERESIS_BELOW = '\u0324';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_RING_BELOW = '\u0325';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_COMMA_BELOW = '\u0326';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_CEDILLA = '\u0327';
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_OGONEK = '\u0328';
-
-    /**
-     * codepoint
-     */
     static final public int CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI = '\u0345';
+
     /**
      * Find the plane that a codepoint is on.
      * 
      * @param codepoint The codepoint to check.
      * @return -1 if codepoint isn't a legal codepoint (as of Unicode 5.2)
      */
-    public final static int findPlane(int codepoint) {
+    public static int findPlane(int codepoint) {
         if (codepoint < 0) return -1;
         codepoint >>= 16;
         if (codepoint > 16) codepoint = -1;
@@ -1043,7 +716,7 @@ public class BlackenKeys {
      * @param codepoint the codepoint to check
      * @return true if it is a keycode or modifer notice, false otherwise
      */
-    public final static boolean isSpecial(int codepoint) {
+    public static boolean isSpecial(int codepoint) {
         int plane = findPlane(codepoint);
         if (plane == PLANE_KEY_CODES || plane == PLANE_MODIFIER_NOTICES) {
             return true;
@@ -1060,7 +733,7 @@ public class BlackenKeys {
      * @param codepoint the codepoint to check
      * @return true if a keycode, false otherwise
      */
-    public final static boolean isKeyCode(int codepoint) {
+    public static boolean isKeyCode(int codepoint) {
         if (findPlane(codepoint) == BlackenKeys.PLANE_KEY_CODES) {
             return true;
         }
@@ -1073,7 +746,7 @@ public class BlackenKeys {
      * @param codepoint keycode to check
      * @return true if modifier, false otherwise
      */
-    public final static boolean isModifier(int codepoint) {
+    public static boolean isModifier(int codepoint) {
         if (findPlane(codepoint) == BlackenKeys.PLANE_MODIFIER_NOTICES) {
             return true;
         }
@@ -1099,7 +772,7 @@ public class BlackenKeys {
      * @return string
      */
     public static String toString(int keycode) {
-        StringBuffer keybuf = new StringBuffer();
+        StringBuilder keybuf = new StringBuilder();
         if (findPlane(keycode) != 0) {
             keybuf.append(String.format("\\U%08x", keycode)); //$NON-NLS-1$
         } else if (keycode < 0x20 || (keycode >= 0x7f && keycode < 0xa0)) {
@@ -1116,7 +789,7 @@ public class BlackenKeys {
      * @return string containing key name
      */
     public static String getKeyName(int keycode) {
-        StringBuffer keybuf = new StringBuffer();
+        StringBuilder keybuf = new StringBuilder();
         keycode = removeModifier(keycode);
         int plane = findPlane(keycode);
         if (plane == 16) {
@@ -1132,9 +805,7 @@ public class BlackenKeys {
                             name = f.getName();
                             break;
                         }
-                    } catch (IllegalArgumentException e) {
-                        continue;
-                    } catch (IllegalAccessException e) {
+                    } catch (IllegalArgumentException | IllegalAccessException e) {
                         continue;
                     }
                 }
