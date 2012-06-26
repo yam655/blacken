@@ -36,7 +36,7 @@ public class Stumble {
     /**
      * TerminalInterface used by the example
      */
-    protected TerminalInterface term;
+    protected CursesLikeAPI term;
     /**
      * ColorPalette used by the example
      */
@@ -62,8 +62,7 @@ public class Stumble {
      * Create a new instance
      */
     public Stumble() {
-        grid = new Grid<Integer>(new Integer(EMPTY_FLOOR),
-                100, 100);
+        grid = new Grid<>(new Integer(EMPTY_FLOOR), 100, 100);
         rand = new Random();
         noisePlane = rand.nextFloat();
     }
@@ -81,7 +80,7 @@ public class Stumble {
             }
         }
         if (placement[0] == -1) {
-            throw new RuntimeException("It took too long to place."); //$NON-NLS-1$
+            throw new RuntimeException("It took too long to place.");
         }
         return placement;
     }
@@ -105,13 +104,13 @@ public class Stumble {
         int ey = MAP_END.getY();
         int ex = MAP_END.getX();
         if (ey <= 0) {
-            ey += term.gridHeight();
+            ey += term.getHeight();
         }
         if (ey > grid.getHeight()) {
             ey = grid.getHeight();
         }
         if (ex <= 0) {
-            ex += term.gridWidth();
+            ex += term.getWidth();
         }
         if (ex > grid.getWidth()) {
             ex = grid.getWidth();
@@ -175,7 +174,6 @@ public class Stumble {
         movePlayerBy(0,0);
         this.message = "Welcome to Stumble!";
         term.move(-1, -1);
-        term.setSeparateCursor(true);
         while (ch != BlackenKeys.KEY_F10) {
             if (dirtyStatus) {
                 updateStatus();
@@ -184,6 +182,7 @@ public class Stumble {
             showMap();
             term.setCursorLocation(player.getY() - upperLeft.getY() + MAP_START.getY(), 
                                    player.getX() - upperLeft.getX() + MAP_START.getX());
+            this.palette.rotate(0xee, 10, +1);
             term.refresh();
             mod = BlackenKeys.NO_KEY;
             ch = term.getch();
@@ -227,11 +226,11 @@ public class Stumble {
     private void updateStatus() {
         term.setCurForeground(7);
         dirtyStatus = false;
-        for (int x = 0; x < term.gridWidth()-1; x++) {
-            term.mvaddch(term.gridHeight(), x, ' ');
+        for (int x = 0; x < term.getWidth()-1; x++) {
+            term.mvaddch(term.getHeight(), x, ' ');
         }
         if (nextLocation <= '9') {
-            term.mvputs(term.gridHeight(), 0, "Get the ");
+            term.mvputs(term.getHeight(), 0, "Get the ");
             term.setCurForeground((nextLocation - '0') + 0x4);
             term.addch(nextLocation);
             term.setCurForeground(7);
@@ -239,10 +238,10 @@ public class Stumble {
                 term.puts(" to win.");
             }
         } else {
-            term.mvputs(term.gridHeight(), 0, "You won!");
+            term.mvputs(term.getHeight(), 0, "You won!");
         }
         String msg = "F10 to quit.";
-        term.mvputs(term.gridHeight(), term.gridWidth()-msg.length()-1, msg);
+        term.mvputs(term.getHeight(), term.getWidth()-msg.length()-1, msg);
     }
 
     private void refreshScreen() {
@@ -252,10 +251,7 @@ public class Stumble {
         this.showMap();
     }
     
-    /**
-     * @param ch
-     */
-    private void doAction(int modifier, int ch) {
+    private boolean doAction(int modifier, int ch) {
         if (BlackenModifier.MODIFIER_KEY_CTRL.hasFlag(modifier)) {
             switch (ch) {
             case 'l':
@@ -264,30 +260,41 @@ public class Stumble {
                 refreshScreen();
                 break;
             }
-            return;
+            return false;
         }
         switch (ch) {
         case 'j':
         case BlackenKeys.KEY_DOWN:
+        case BlackenKeys.KEY_NP_2:
+        case BlackenKeys.KEY_KP_DOWN:
             movePlayerBy(+1,  0);
             break;
         case 'k':
         case BlackenKeys.KEY_UP:
+        case BlackenKeys.KEY_NP_8:
+        case BlackenKeys.KEY_KP_UP:
             movePlayerBy(-1,  0);
             break;
-        case 'l':
+        case 'h':
         case BlackenKeys.KEY_LEFT:
+        case BlackenKeys.KEY_NP_4:
+        case BlackenKeys.KEY_KP_LEFT:
             movePlayerBy(0,  -1);
             break;
-        case 'h':
+        case 'l':
         case BlackenKeys.KEY_RIGHT:
+        case BlackenKeys.KEY_NP_6:
+        case BlackenKeys.KEY_KP_RIGHT:
             movePlayerBy(0,  +1);
             break;
         case BlackenKeys.KEY_F10:
         case BlackenKeys.KEY_ESCAPE:
             this.quit = true;
+            // fall-through to 'default'
+        default:
+            return false;
         }
-        
+        return true;
     }
 
     /**
@@ -326,7 +333,7 @@ public class Stumble {
                 recenterMap();
             }
             if (there == nextLocation) {
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 buf.append("Got it.");
                 buf.append(' ');
                 if (there == '9') {
@@ -359,11 +366,10 @@ public class Stumble {
      */
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
-            this.term = new SwingTerminal();
-            this.term.init("Blacken Example: Stumble", 25, 80);
-        } else {
-            this.term = term;
+            term = new SwingTerminal();
+            term.init("Blacken Example: Stumble", 25, 80);
         }
+        this.term = new CursesLikeAPI(term);
         if (palette == null) {
             palette = new ColorPalette();
             palette.addAll(ColorNames.XTERM_256_COLORS, false);
