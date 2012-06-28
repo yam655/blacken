@@ -23,7 +23,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
-import java.io.File;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,18 +33,9 @@ import javax.swing.JFrame;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Positionable;
-import com.googlecode.blacken.terminal.AbstractTerminal;
-import com.googlecode.blacken.terminal.BlackenEventType;
-import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.BlackenModifier;
-import com.googlecode.blacken.terminal.BlackenMouseEvent;
-import com.googlecode.blacken.terminal.BlackenWindowEvent;
-import com.googlecode.blacken.terminal.CellWalls;
-import com.googlecode.blacken.terminal.TerminalCell;
-import com.googlecode.blacken.terminal.TerminalCellLike;
-import com.googlecode.blacken.terminal.TerminalInterface;
-import com.googlecode.blacken.terminal.TerminalStyle;
+import com.googlecode.blacken.terminal.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create a new Terminal using Swing.
@@ -54,7 +44,7 @@ import com.googlecode.blacken.terminal.TerminalStyle;
  */
 public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener {
-
+    static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
     protected BlackenPanel gui;
     protected HashMap<Integer, Color> swingColor = new HashMap<>();
     protected EventListener listener;
@@ -232,7 +222,7 @@ public class SwingTerminal extends AbstractTerminal
         gui = new BlackenPanel();
         listener = new EventListener(gui);
 
-        frame.setSize(640, 480);
+        frame.setSize(600, 450);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -245,17 +235,10 @@ public class SwingTerminal extends AbstractTerminal
             font = Font.MONOSPACED;
         }
         Font fontObj = new Font(font, Font.PLAIN, 1);
-
         gui.init(fontObj, rows, cols, empty);
-        getGrid().reset(rows, cols, getEmpty());
-
-        gui.resizeFrame(frame, 0);
-        frame.setLocationRelativeTo(null); // places window in center of screen
-        frame.setResizable(true);
         setCursorLocation(-1, -1);
-
-        frame.setVisible(true);
                 
+        frame.setResizable(true);
         frame.addKeyListener(listener);
         frame.addMouseListener(listener);
         frame.addMouseMotionListener(listener);
@@ -264,7 +247,10 @@ public class SwingTerminal extends AbstractTerminal
         frame.addWindowFocusListener(listener);
         frame.addComponentListener(this);
         frame.addInputMethodListener(listener);
-        gui.windowResized();
+
+        frame.setSize(600, 450);
+        frame.setLocationRelativeTo(null); // places window in center of screen
+        frame.setVisible(true);
     }
     
     @Override
