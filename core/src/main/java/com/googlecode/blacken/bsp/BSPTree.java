@@ -379,7 +379,7 @@ public class BSPTree {
      */
 
 
-    public void splitRecursive(Random gen, int nb, int minVSize, int minHSize, int maxVRatio, int maxHRatio) {
+    public void splitRecursive(Random gen, int nb, int minVSize, int minHSize, double maxVRatio, double maxHRatio) {
         if(nb == 0 || w < 2*minHSize || h < 2*minVSize) {
             return;
         }
