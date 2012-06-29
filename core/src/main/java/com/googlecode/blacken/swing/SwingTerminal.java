@@ -160,11 +160,6 @@ public class SwingTerminal extends AbstractTerminal
         this.refresh();
         int ch = listener.popKey();
         int activeModifier = this.lastModifier;
-        if (BlackenKeys.isModifier(ch)) {
-            this.lastModifier = ch;
-        } else {
-            this.lastModifier = BlackenKeys.NO_KEY;
-        }
         if (ch == BlackenKeys.NO_KEY) {
             this.refresh();
             try {
@@ -173,13 +168,21 @@ public class SwingTerminal extends AbstractTerminal
                 ch = BlackenKeys.NO_KEY;
             }
         }
+        if (BlackenKeys.isModifier(ch)) {
+            this.lastModifier = ch;
+        } else {
+            this.lastModifier = BlackenKeys.NO_KEY;
+        }
         if (ch == BlackenKeys.RESIZE_EVENT) {
             gui.windowResized();
             getGrid().setBounds(gui.getGridBounds());
-        } else if (ch == BlackenKeys.KEY_F11) {
-            if (!this.inhibitFullScreen) {
-                this.setFullScreen(!this.getFullScreen());
-                ch = BlackenKeys.NO_KEY;
+        } else if (ch == BlackenKeys.KEY_ENTER) {
+            // Set<BlackenModifier> mods = BlackenModifier.getAsSet(activeModifier);
+            if (activeModifier == BlackenModifier.MODIFIER_KEY_ALT.getAsCodepoint()) {
+                if (!this.inhibitFullScreen) {
+                    this.setFullScreen(!this.getFullScreen());
+                    ch = BlackenKeys.NO_KEY;
+                }
             }
         }
         return ch;
