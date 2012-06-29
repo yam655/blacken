@@ -461,4 +461,17 @@ public abstract class AbstractTerminal implements TerminalInterface {
         this.setCursorLocation(position.getY(), position.getX());
     }
 
+    @Override
+    public boolean setFullScreen(boolean state) {
+        return getFullScreen();
+    }
+
+    @Override
+    public abstract boolean getFullScreen();
+
+    @Override
+    public void inhibitFullScreen(boolean state) {
+        // do nothing
+    }
+
 }

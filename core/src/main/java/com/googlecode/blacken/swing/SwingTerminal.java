@@ -18,6 +18,7 @@ package com.googlecode.blacken.swing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -66,6 +67,10 @@ public class SwingTerminal extends AbstractTerminal
         terminal.init(name, rows, cols, font);
         return terminal;
     }
+    private boolean nowFullscreen = false;
+    private Rectangle windowedBounds = null;
+    private boolean inhibitFullScreen = false;
+    private int lastModifier;
 
     /**
      * Create a new terminal
@@ -154,6 +159,12 @@ public class SwingTerminal extends AbstractTerminal
     public int getch() {
         this.refresh();
         int ch = listener.popKey();
+        int activeModifier = this.lastModifier;
+        if (BlackenKeys.isModifier(ch)) {
+            this.lastModifier = ch;
+        } else {
+            this.lastModifier = BlackenKeys.NO_KEY;
+        }
         if (ch == BlackenKeys.NO_KEY) {
             this.refresh();
             try {
@@ -165,6 +176,11 @@ public class SwingTerminal extends AbstractTerminal
         if (ch == BlackenKeys.RESIZE_EVENT) {
             gui.windowResized();
             getGrid().setBounds(gui.getGridBounds());
+        } else if (ch == BlackenKeys.KEY_F11) {
+            if (!this.inhibitFullScreen) {
+                this.setFullScreen(!this.getFullScreen());
+                ch = BlackenKeys.NO_KEY;
+            }
         }
         return ch;
     }
@@ -252,7 +268,48 @@ public class SwingTerminal extends AbstractTerminal
         frame.setLocationRelativeTo(null); // places window in center of screen
         frame.setVisible(true);
     }
-    
+
+    @Override
+    public boolean setFullScreen(boolean state) {
+        if (state == this.nowFullscreen) {
+            return this.nowFullscreen;
+        }
+        if (state) {
+            this.windowedBounds = frame.getBounds();
+            frame.setVisible(false);
+            frame.removeNotify();
+            frame.setUndecorated(true);
+            frame.addNotify();
+            frame.setResizable(false);
+            frame.setSize(frame.getToolkit().getScreenSize().width, frame.getToolkit().getScreenSize().height);
+            frame.setAlwaysOnTop(true);
+            frame.setLocation(0, 0);
+            frame.setVisible(true);
+        } else {
+            frame.setVisible(false);
+            frame.removeNotify();
+            frame.setUndecorated(false);
+            frame.addNotify();
+            frame.setResizable(true);
+            frame.setAlwaysOnTop(false);
+            frame.setBounds(windowedBounds);
+            frame.setVisible(true);
+            windowedBounds = null;
+        }
+        this.nowFullscreen = state;
+        return this.nowFullscreen;
+    }
+
+    @Override
+    public boolean getFullScreen() {
+        return this.nowFullscreen;
+    }
+
+    @Override
+    public void inhibitFullScreen(boolean state) {
+        this.inhibitFullScreen = state;
+    }
+
     @Override
     public void init(String name, int rows, int cols) {
         init(name, rows, cols, null);

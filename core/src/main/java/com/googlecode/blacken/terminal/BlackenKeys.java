@@ -795,11 +795,15 @@ public class BlackenKeys {
         if (plane == 16) {
             keybuf.append(BlackenModifier.getModifierString(keycode));
         } else if (plane == 15) {
-            String name = String.format("\\U%08x", keycode); //$NON-NLS-1$
+            String name = String.format("\\U%08x", keycode);
             for (Field f : BlackenKeys.class.getDeclaredFields()) {
                 String fieldName = f.getName();
-                if (fieldName.startsWith("KEY_") ||  //$NON-NLS-1$
-                    fieldName.startsWith("CODEPOINT_")) { //$NON-NLS-1$
+                if ("KEY_FIRST".equals(fieldName)) {
+                    // suppress this -- we want to print KEY_NO_KEY
+                    continue;
+                }
+                if (fieldName.startsWith("KEY_") ||
+                    fieldName.startsWith("CODEPOINT_")) {
                     try {
                         if (f.getInt(null) == keycode) {
                             name = f.getName();

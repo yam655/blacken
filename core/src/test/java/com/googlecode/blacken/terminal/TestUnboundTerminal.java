@@ -596,6 +596,9 @@ public class TestUnboundTerminal {
              "public BlackenWindowEvent getwindow()",
              "public void setFont(String)",
              "public void quit()",
+             "public boolean setFullScreen(boolean)",
+             "public boolean getFullScreen()",
+             "public void inhibitFullScreen(boolean)",
     })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

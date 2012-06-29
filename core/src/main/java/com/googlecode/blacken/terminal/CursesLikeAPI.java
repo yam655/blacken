@@ -20,9 +20,9 @@ import java.util.EnumSet;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
-import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.Regionlike;
 
 /**
  * This is just vaguely similar to the Curses API.
@@ -536,5 +536,18 @@ public class CursesLikeAPI implements TerminalInterface {
     public TerminalCellLike assign(int y, int x, TerminalCellLike cell) {
         return terminal.assign(y, x, cell);
     }
- 
+
+    @Override
+    public boolean setFullScreen(boolean state) {
+        return terminal.setFullScreen(state);
+    }
+    @Override
+    public boolean getFullScreen() {
+        return terminal.getFullScreen();
+    }
+
+    @Override
+    public void inhibitFullScreen(boolean state) {
+        terminal.inhibitFullScreen(state);
+    }
 }

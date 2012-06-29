@@ -809,6 +809,9 @@ public class TestCursesLikeAPI {
              "public BlackenMouseEvent getmouse()",
              "public BlackenWindowEvent getwindow()",
              "public String gets(int)",
+             "public boolean setFullScreen(boolean)",
+             "public boolean getFullScreen()",
+             "public void inhibitFullScreen(boolean)",
             })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

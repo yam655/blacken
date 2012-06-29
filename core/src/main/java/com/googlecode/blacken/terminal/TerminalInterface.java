@@ -391,4 +391,35 @@ public interface TerminalInterface {
     public ColorPalette coercePalette(ColorPalette palette, int white, 
             int black);
 
+    /**
+     * This attempts to switch to full-screen mode.
+     *
+     * <p>Not all TerminalInterface implementations can support FullScreen mode.
+     * Some TerminalInterfaces are implicitly FullScreen. The return value is
+     * a flag indicating the current FullScreen mode state. It is not an
+     * error (or even an exceptional condition) to ignore your request.</p>
+     *
+     * @param state true to request full-screen; false to request windowed
+     * @return true if now full-screen; false if now windowed
+     * @since 1.1
+     */
+    public boolean setFullScreen(boolean state);
+
+    /**
+     * Get the current full-screen state.
+     * @return true if now full-screen; false if now windowed
+     * @since 1.1
+     */
+    public boolean getFullScreen();
+    /**
+     * Normally, Alt-Enter (or the like) automatically triggers full-screen
+     * mode without application intervention. This prohibits that behavior.
+     *
+     * <p>Not all TerminalInterfaces may be able to support this behavior.</p>
+     *
+     * @param state true to inhibit Alt-Enter; false to support it.
+     * @since 1.1
+     */
+    public void inhibitFullScreen(boolean state);
+
 }
