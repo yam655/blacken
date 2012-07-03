@@ -57,8 +57,7 @@ public class AwtCell implements Cloneable {
     }
     private String sequence;
     private boolean dirty;
-    private Map<TextAttribute, Object> attributes = 
-        new HashMap<TextAttribute, Object>();
+    private Map<TextAttribute, Object> attributes = new HashMap<>();
     private EnumSet<CellWalls> cellWalls = EnumSet.noneOf(CellWalls.class);
     
     /**
@@ -308,10 +307,11 @@ public class AwtCell implements Cloneable {
      * Create a new AWT cell based upon an existing cell.
      * 
      * @param source source cell
+     * @deprecated Use set(AwtCell) or clone() instead.
      */
     public AwtCell(AwtCell source) {
         super();
-        setCell(source);
+        set(source);
     }
     /**
      * Add a character sequence to a cell
@@ -355,20 +355,11 @@ public class AwtCell implements Cloneable {
         this.cellWalls = EnumSet.noneOf(CellWalls.class);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#clone()
-     */
     @Override
     public AwtCell clone() {
-        AwtCell ret;
-        try {
-            ret = (AwtCell)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("unexpected clone failure", e); //$NON-NLS-1$
-        }
-        ret.cellWalls = EnumSet.copyOf(this.cellWalls);
-        ret.attributes = new HashMap<TextAttribute, Object>(this.attributes);
+        AwtCell ret = new AwtCell();
+        ret.set(this);
+        ret.setDirty(this.dirty);
         return ret;
     }
     /**
@@ -488,13 +479,23 @@ public class AwtCell implements Cloneable {
             }
         }
     }
+
+    /**
+     * Set the cell to an existing cell
+     * @param cell new cell
+     * @deprecated use 'set' instead.
+     */
+    public void setCell(AwtCell cell) {
+
+    }
+
     /**
      * Set the cell to an existing cell
      * @param cell new cell
      */
-    public void setCell(AwtCell cell) {
+    public void set(AwtCell cell) {
         if (cell == null) {
-            setCell("\u0000", Color.BLACK, Color.WHITE); //$NON-NLS-1$
+            setCell("\u0000", Color.BLACK, Color.WHITE);
             clearTextAttributes();
             clearCellWalls();
         } else {

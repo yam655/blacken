@@ -35,10 +35,17 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
  * 
  * <p>The greatest flexibility is found in the {@link #addMapping(String[])}
  * and {@link #putMapping(String[])} functions.<p>
- * 
- * @author yam655
+ *
+ * <p>In the future (version 2.0) this will not be a simple
+ * ListMap<String, Integer> but a ListMap<String, PaletteEntry<T>> with
+ * PaletteEntry supporting both an integer as well as a configurable
+ * cache type. It may well actually implement enough to still feel like
+ * ListMap<String, Integer>, but there will be more there as well.</p?
+ *
+ * @author Steven W. Black
  */
 public class ColorPalette extends ListMap<String, Integer> {
+    // XXX Version 2: Add cache value to normalize with AwtPalette
 
     /**
      * serial ID

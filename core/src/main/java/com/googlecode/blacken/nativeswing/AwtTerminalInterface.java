@@ -30,6 +30,10 @@ import com.googlecode.blacken.swing.AwtCell;
 import com.googlecode.blacken.terminal.CellWalls;
 
 /**
+ * In the future (version 2.0) this will be normalized with the standard
+ * TerminalInterface. This class will disappear and the standard
+ * TerminalInterface will break binary compatibility.</p>
+ *
  * @author Steven Black
  *
  */

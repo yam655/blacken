@@ -204,6 +204,13 @@ public class TestCursesLikeAPI {
     }
 
     @Test
+    @Covers("public TerminalInterface getBackingTerminalInterface()")
+    public void getBackingTerminalInterface() {
+        assertNotNull(terminal.getBackingTerminalInterface());
+        assertNotSame(terminal, terminal.getBackingTerminalInterface());
+    }
+
+    @Test
     @Covers("public Regionlike getBounds()")
     public void getBounds() {
         assertEquals(0, terminal.getCursorY());

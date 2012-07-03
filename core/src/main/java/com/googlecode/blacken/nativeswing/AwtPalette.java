@@ -39,7 +39,7 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
  * <p>The greatest flexibility is found in the {@link #addMapping(String[])}
  * and {@link #putMapping(String[])} functions.<p>
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class AwtPalette extends ListMap<String, Color> {
 

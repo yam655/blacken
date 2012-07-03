@@ -19,10 +19,8 @@ import org.junit.*;
 
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.EnhancedPatternLayout;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
@@ -30,7 +28,7 @@ import static org.junit.Assert.*;
  * @author Steven Black
  */
 public class GridTest {
-    private static Logger LOGGER = Logger.getLogger(GridTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GridTest.class);
 
     private Integer empty = null;
     private Grid<Integer> grid = null;
@@ -62,11 +60,6 @@ public class GridTest {
      */
     public void setUp(Grid<Integer> grid, Object empty, 
                       int height, int width, int y, int x) {
-        EnhancedPatternLayout layout = new EnhancedPatternLayout();
-        layout.setConversionPattern("%5p [%t] (%F:%L) - %m%n");
-        ConsoleAppender consoleAppender = new ConsoleAppender();
-        consoleAppender.setLayout(layout);
-        BasicConfigurator.configure(new ConsoleAppender(layout));
         this.grid = grid;
         this.size_x = width;
         this.size_y = height;
@@ -221,7 +214,7 @@ public class GridTest {
                 assertNotNull(d);
                 assertEquals(String.format("(%d,%d) Offset:(%d,%d)",
                                          row, col, oy, ox), 
-                                         (int)d, col + row + ox + oy);
+                                         col + row + ox + oy, (int)d);
             }
         }
     }
@@ -252,14 +245,15 @@ public class GridTest {
         int y5 = y + (size_y / 2);
         
         // compare a sample that should be outside
-        assertEquals(String.format("(%s, %s)", y, x), border, grid.get(y, x));
-        assertEquals(border, grid.get(y2, x2));
-        assertEquals(border, grid.get(y, x2));
-        assertEquals(border, grid.get(y2, x));
-        assertEquals(border, grid.get(y5, x));
-        assertEquals(border, grid.get(y, x5));
-        assertEquals(border, grid.get(y5, x2));
-        assertEquals(border, grid.get(y2, x5));
+        // numbers (ex. "7(%s, %s)") map to location on number pad
+        assertEquals(String.format("7(%s, %s)", y, x), border, grid.get(y, x));
+        assertEquals(String.format("3(%s, %s)", y2, x2), border, grid.get(y2, x2));
+        assertEquals(String.format("9(%s, %s)", y, x2), border, grid.get(y, x2));
+        assertEquals(String.format("1(%s, %s)", y2, x), border, grid.get(y2, x));
+        assertEquals(String.format("4(%s, %s)", y5, x), border, grid.get(y5, x));
+        assertEquals(String.format("8(%s, %s)", y, x5), border, grid.get(y, x5));
+        assertEquals(String.format("6(%s, %s)", y5, x2), border, grid.get(y5, x2));
+        assertEquals(String.format("2(%s, %s)", y2, x5), border, grid.get(y2, x5));
         
         // compare a sample that should be the box detail
         assertEquals(inside, grid.get(y + 1, x + 1));
@@ -1048,6 +1042,62 @@ public class GridTest {
         // so the pattern offset doesn't need that.
         this.checkPattern(g, half_y, half_x, 
                           half_y / 2 + start_y, half_x / 2 + start_x, 
+                          half_y / 2, half_x / 2);
+    }
+
+
+    @Test
+    @Covers("public Grid<Z> cutSubGrid(int,int,int,int)")
+    public void cutSubGrid_RowsColsYX_Same() {
+        this.setPattern(grid, size_y, size_x, start_y, start_x, 0, 0);
+        Grid<Integer> g = grid.cutSubGrid(size_y, size_x, start_y, start_x);
+        this.checkPattern(g, size_y, size_x, start_y, start_x, 0, 0);
+        this.checkSolid(grid, empty, empty, size_y, size_x, start_y, start_x);
+    }
+
+    @Test
+    @Covers("public Grid<Z> cutSubGrid(int,int,int,int)")
+    public void cutSubGrid_RowsColsYX_Half() {
+        int half_x = size_x / 2;
+        int half_y = size_y / 2;
+        this.setPattern(grid, size_y, size_x, start_y, start_x, 0, 0);
+        Grid<Integer> g = grid.cutSubGrid(half_y, half_x,
+                                       start_y + half_y / 2,
+                                       start_x + half_x / 2);
+        // We want half of the visible grid, so our starting position is
+        // +y,x. However the pattern itself is not based upon the position,
+        // so the pattern offset doesn't need that.
+        this.checkPattern(g, half_y, half_x,
+                          half_y / 2 + start_y, half_x / 2 + start_x,
+                          half_y / 2, half_x / 2);
+        this.checkSolid(grid, empty, empty, half_y, half_x,
+                                       start_y + half_y / 2,
+                                       start_x + half_x / 2);
+    }
+
+
+    @Test
+    @Covers("public Grid<Z> copySubGrid(int,int,int,int)")
+    public void copySubGrid_RowsColsYX_Same() {
+        this.setPattern(grid, size_y, size_x, start_y, start_x, 0, 0);
+        Grid<Integer> g = grid.subGrid(size_y, size_x, start_y, start_x);
+        this.checkPattern(g, size_y, size_x, start_y, start_x, 0, 0);
+    }
+
+    @Test
+    @Covers("public Grid<Z> copySubGrid(int,int,int,int)")
+    public void copySubGrid_RowsColsYX_Half() {
+        int half_x = size_x / 2;
+        int half_y = size_y / 2;
+        this.setPattern(grid, size_y, size_x, start_y, start_x, 0, 0);
+        Grid<Integer> g = grid.subGrid(half_y, half_x,
+                                       start_y + half_y / 2,
+                                       start_x + half_x / 2);
+        // We want half of the visible grid, so our starting position is
+        // +y,x. However the pattern itself is not based upon the position,
+        // so the pattern offset doesn't need that.
+        this.checkPattern(g, half_y, half_x,
+                          half_y / 2 + start_y, half_x / 2 + start_x,
                           half_y / 2, half_x / 2);
     }
 

@@ -210,6 +210,13 @@ public class TestUnboundTerminal {
     }
 
     @Test
+    @Covers("public TerminalInterface getBackingTerminalInterface()")
+    public void getBackingTerminalInterface() {
+        assertNotNull(terminal.getBackingTerminalInterface());
+        assertSame(terminal, terminal.getBackingTerminalInterface());
+    }
+
+    @Test
     @Covers("public Regionlike getBounds()")
     public void getBounds() {
         assertEquals(-1, terminal.getCursorX());

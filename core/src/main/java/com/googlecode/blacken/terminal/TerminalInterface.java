@@ -422,4 +422,10 @@ public interface TerminalInterface {
      */
     public void inhibitFullScreen(boolean state);
 
+    /**
+     * We're entering a land of wrapper interfaces. This function is supposed
+     * to return the backing TerminalInterface for wrapper classes.
+     * @return
+     */
+    public TerminalInterface getBackingTerminalInterface();
 }

@@ -550,4 +550,10 @@ public class CursesLikeAPI implements TerminalInterface {
     public void inhibitFullScreen(boolean state) {
         terminal.inhibitFullScreen(state);
     }
+
+    @Override
+    public TerminalInterface getBackingTerminalInterface() {
+        return terminal;
+    }
+
 }

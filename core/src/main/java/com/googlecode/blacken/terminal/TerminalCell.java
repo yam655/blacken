@@ -169,11 +169,9 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
     @Override
     public TerminalCell clone() {
         TerminalCell ret;
-        try {
-            ret = (TerminalCell)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Unexpected CloneNotSupportedException", e);
-        }
+        ret = new TerminalCell();
+        ret.set(this);
+        ret.setDirty(this.dirty);
         return ret;
     }
 

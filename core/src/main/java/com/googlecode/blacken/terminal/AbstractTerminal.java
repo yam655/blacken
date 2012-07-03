@@ -474,4 +474,8 @@ public abstract class AbstractTerminal implements TerminalInterface {
         // do nothing
     }
 
+    @Override
+    public TerminalInterface getBackingTerminalInterface() {
+        return this;
+    }
 }

@@ -379,15 +379,17 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     @Override
     public void init(Font font, int rows, int cols, AwtCell empty) {
         setCursor(null);
-        int width = Toolkit.getDefaultToolkit().getScreenSize().width;
-        int height = Toolkit.getDefaultToolkit().getScreenSize().height;
-        setBounds(0, 0, width, height);
+        // int width = Toolkit.getDefaultToolkit().getScreenSize().width;
+        // int height = Toolkit.getDefaultToolkit().getScreenSize().height;
+        // setBounds(0, 0, width, height);
+        Dimension maxSize = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.setMaximumSize(maxSize);
         graphics = (Graphics2D) getGraphics();
         this.minY = rows;
         this.minX = cols;
         setFont(font, false);
         grid.reset(rows, cols, empty);
-        repaint();
+        // repaint();
     }
     /* (non-Javadoc)
      * @see com.googlecode.blacken.nativeswing.AwtTerminalInterface#isSeparateCursor()

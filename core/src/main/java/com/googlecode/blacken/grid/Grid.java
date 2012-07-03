@@ -1033,10 +1033,11 @@ implements Serializable, Regionlike {
     public void copyFrom(Grid<Z> source, int numRows, int numCols,
                          int startY, int startX, int destY, int destX, 
                          DirtyGridCell<Z> resetCell) {
-        Grid<Z> tgrid = source.subGrid(numRows, numCols, startY, startX);
+        Grid<Z> tgrid;
         if (source == this) {
-            // LOGGER.debug("Wiping starting location.");
-            this.wipe(numRows, numCols, startY, startX);
+            tgrid = source.cutSubGrid(numRows, numCols, startY, startX);
+        } else {
+            tgrid = source.copySubGrid(numRows, numCols, startY, startX);
         }
         Point startingPoint = new Point(tgrid);
         tgrid.setPosition(destY, destX);
@@ -1061,6 +1062,33 @@ implements Serializable, Regionlike {
     @Override
     public Positionable getPosition() {
         return new Point(this);
+    }
+
+    /**
+     * Create a subgrid that is a copy of a section of this grid.
+     * 
+     * @param numRows
+     * @param numCols
+     * @param startY
+     * @param startX
+     * @return 
+     */
+    public Grid<Z> copySubGrid(int numRows, int numCols, int startY, int startX) {
+        return this.subGrid(numRows, numCols, startY, startX);
+    }
+
+    public Grid<Z> cutSubGrid(int numRows, int numCols, int y1, int x1) {
+        Grid<Z> ret = new Grid<>(null, numRows, numCols, y1, x1, true);
+        for (int y = y1; y < y1 + numRows; y++) {
+            for (int x = x1; x < x1 + numCols; x++) {
+                Z cell = get(y, x);
+                if (cell != null) {
+                    ret.set(y, x, cell);
+                    setCopy(y, x, empty);
+                }
+            }
+        }
+        return ret;
     }
     
 }

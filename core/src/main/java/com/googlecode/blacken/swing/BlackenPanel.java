@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,15 @@ package com.googlecode.blacken.swing;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.font.TextAttribute;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -39,22 +36,21 @@ import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.grid.SimpleSize;
 import com.googlecode.blacken.grid.Sizable;
 import com.googlecode.blacken.terminal.CellWalls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A JPanel implementation supporting Blacken.
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class BlackenPanel extends JPanel {
-    private static final long serialVersionUID = 4608415642377103276L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanelV2.class);
+    private static final long serialVersionUID = 1;
     private AwtCell empty = new AwtCell();
     private int minX = 80;
     private int minY = 25;
-    private Grid<AwtCell> grid = new Grid<AwtCell>(empty, minY, minX);
-    private final ReentrantLock imageChangeLock = new ReentrantLock();
-    
-    private transient Image image = null;
-    private transient Graphics2D graphics = null;
+    private Grid<AwtCell> grid = new Grid<>(empty, minY, minX);
 
     private boolean fontHasDouble = true;
     private int fontAscent;
@@ -90,23 +86,13 @@ public class BlackenPanel extends JPanel {
     /**
      * Flag to ignore cell-specific refresh and refresh everything.
      */
-    private boolean refresh_all;
+    private transient boolean refresh_all = false;
 
     /**
-     * The AWT-side image.
+     * Running average of the display speed
      */
-    private Image imageDisplay = null;
+    private transient long displaySpeed = 0;
 
-    /**
-     * Marker for aborted Terminal-side updates.
-     */
-    private int updates;
-
-    /**
-     * Indicates the AWT-side image needs to be updated.
-     */
-    private boolean changed;
-    
     /**
      * Create a new panel.
      */
@@ -126,7 +112,6 @@ public class BlackenPanel extends JPanel {
      * Clear the screen.
      */
     public void clear() {
-        this.maybeRepaint();
         grid.clear(this.empty);
         this.moveCursor(0, 0);
     }
@@ -134,8 +119,8 @@ public class BlackenPanel extends JPanel {
     /**
      * Perform a window update.
      */
+    @Deprecated
     public void doUpdate() {
-        paintImage();
     }
     
     /**
@@ -144,7 +129,6 @@ public class BlackenPanel extends JPanel {
      * @return column
      */
     public int findColForWindow(int x) {
-        this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
         x -= r.x;
         int ret = x / this.fontSglAdvance;
@@ -158,7 +142,6 @@ public class BlackenPanel extends JPanel {
      * @return {row, col}
      */
     public int[] findPositionForWindow(int y, int x) {
-        this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
         y -= r.y;
         int retY = y / this.fontHeight;
@@ -173,7 +156,6 @@ public class BlackenPanel extends JPanel {
      * @return row
      */
     public int findRowForWindow(int y) {
-        this.maybeRepaint();
         Rectangle r = this.getRootPane().getBounds();
         y -= r.y;
         int ret = y / this.fontHeight;
@@ -187,7 +169,6 @@ public class BlackenPanel extends JPanel {
      * @return the AWT cell
      */
     public AwtCell get(int y, int x) {
-        this.maybeRepaint();
         return grid.get(y, x);
     }
     /**
@@ -207,7 +188,6 @@ public class BlackenPanel extends JPanel {
      * @return the empty/template
      */
     public AwtCell getEmpty() {
-        this.maybeRepaint();
         return empty;
     }
     /*
@@ -216,7 +196,6 @@ public class BlackenPanel extends JPanel {
      */
     @Override
     public Font getFont() {
-        this.maybeRepaint();
         if (empty == null) {
             return null;
         }
@@ -227,14 +206,12 @@ public class BlackenPanel extends JPanel {
      * @return {ySize, xSize}
      */
     public Regionlike getGridBounds() {
-        this.maybeRepaint();
         return grid.getBounds();
     }
     /**
      * Hide the cursor.
      */
     public void hideCursor() {
-        this.maybeRepaint();
         moveCursor(-1, -1, null);
     }
     /**
@@ -250,29 +227,11 @@ public class BlackenPanel extends JPanel {
         int width = Toolkit.getDefaultToolkit().getScreenSize().width;
         int height = Toolkit.getDefaultToolkit().getScreenSize().height;
         setBounds(0, 0, width, height);
-        image = createImage(width, height);
-        graphics = (Graphics2D) image.getGraphics();
-        imageDisplay = createImage(width, height);
         this.minY = rows;
         this.minX = cols;
         setFont(font, false);
         grid.reset(rows, cols, empty);
         repaint();
-    }
-
-    /**
-     * Maybe repaint the screen.
-     * 
-     * <p>We can skip the updates if we need to. As such, we try to find places
-     * to perform the repaint if needed.</p>
-     */
-    private void maybeRepaint() {
-        if (this.updates != 0) {
-            paintImage();
-        }
-        if (this.changed) {
-            repaint();
-        }
     }
 
     /**
@@ -287,7 +246,6 @@ public class BlackenPanel extends JPanel {
      */
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
-        this.maybeRepaint();
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
                        new AwtCell().new ResetCell());
     }
@@ -310,7 +268,6 @@ public class BlackenPanel extends JPanel {
      * @param cursorColor new cursor color
      */
     public void moveCursor(int y, int x, Paint cursorColor) {
-        this.maybeRepaint();
         if (cursorColor != null) {
             this.cursorColor = cursorColor;
         }
@@ -318,66 +275,24 @@ public class BlackenPanel extends JPanel {
         cursorY = y;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
     @Override
     public void paintComponent(Graphics g) {
-        try {
-            if (!imageChangeLock.tryLock(0, TimeUnit.SECONDS)) {
-                return;
-            }
-        } catch (InterruptedException e) {
-            return;
-        }
-        try {
-            if (this.changed) {
-                this.changed = false;
-                imageDisplay.getGraphics().drawImage(image, 0, 0, null);
-            }
-            g.drawImage(imageDisplay, 0, 0, null);
-        } finally {
-            imageChangeLock.unlock();
-        }
-    }
-
-    /**
-     * Paint the bitmap the terminal-side sees.
-     * 
-     * <p>The Terminal and AWT sides exist in separate threads. This function
-     * updates the Terminal-visible bitmap. {@link #paintComponent(Graphics)}
-     * copies the Terminal-visible bitmap to the AWT-visible bitmap.</p>
-     */
-    public void paintImage() {
-        AwtCell c = null;
+        AwtCell c;
         boolean need_cursor = false;
-        if (imageChangeLock == null) {
-            return;
-        }
-        try {
-            if (!imageChangeLock.tryLock(0, TimeUnit.SECONDS)) {
-                this.updates ++;
-                return;
-            }
-        } catch (InterruptedException e) {
-            this.updates ++;
-            return;
-        }
+        Graphics2D graphics = (Graphics2D)g;
 
         try {
-            this.updates = 0;
-            this.changed = true;
+            long startTime = System.currentTimeMillis();
             if (refresh_all) {
                 graphics.setPaint(Color.BLACK);
                 graphics.fill(getBounds());
-            }
-    
-            if (lastCursorX != -1 && lastCursorY != -1) {
-                if (cursorX != lastCursorX || cursorY != lastCursorY) {
-                    if (grid.contains(lastCursorY, lastCursorX)) {
-                        c = grid.get(lastCursorY, lastCursorX);
-                        c.setDirty(true);
+            } else {
+                if (lastCursorX != -1 && lastCursorY != -1) {
+                    if (cursorX != lastCursorX || cursorY != lastCursorY) {
+                        if (grid.contains(lastCursorY, lastCursorX)) {
+                            c = grid.get(lastCursorY, lastCursorX);
+                            c.setDirty(true);
+                        }
                     }
                 }
             }
@@ -401,74 +316,78 @@ public class BlackenPanel extends JPanel {
             }
             lastCursorX = cursorX;
             lastCursorY = cursorY;
-            
+
             for (int y = 0; y < grid.getHeight(); y++) {
-                // We do the background then the foreground so that double-wide 
+                // We do the background then the foreground so that double-wide
                 // characters get the background set reasonably.
-                
+
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
                     if (c.isDirty() || refresh_all) {
                         graphics.setPaint(c.getBackgroundColor());
-                        graphics.fill(new Rectangle(x * fontSglAdvance, 
-                                                    y * fontHeight, 
-                                                    fontSglAdvance, 
+                        graphics.fill(new Rectangle(x * fontSglAdvance,
+                                                    y * fontHeight,
+                                                    fontSglAdvance,
                                                     fontHeight));
                     }
                 }
-                // I'm not sure whether this will be enough to get the "complex"
-                // characters to work. -- We may need to do it by code-point.
-                int fontHeightD2 = fontHeight / 2;
-                int fontSglAdvanceD2 = fontSglAdvance / 2;
+                final int fontHeightD2 = fontHeight / 2;
+                final int fontSglAdvanceD2 = fontSglAdvance / 2;
+
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
-                    if (c.isDirty() || refresh_all) {
-                        String cs = c.getSequence();
-                        c.setFont(this.font);
-                        // For double-wide characters, we can safely put a NUL
-                        // byte in the second slot and it will never be displayed.
-                        if (cs != null && !"\u0000".equals(cs)) { //$NON-NLS-1$
-                            int w = metrics.stringWidth(cs);
-                            w = fontSglAdvance - w;
-                            if (w < 0) w = 0;
-                            else w /= 2;
-                            graphics.drawString(c.getAttributedString().getIterator(), 
-                                            x * fontSglAdvance + w, 
-                                            y * fontHeight + fontAscent);
+
+                    if (!c.isDirty() && !refresh_all) {
+                        continue;
+                    }
+                    String cs = c.getSequence();
+                    c.setFont(this.font);
+                    // For double-wide characters, we can safely put a NUL
+                    // byte in the second slot and it will never be displayed.
+                    if (cs != null && !"\u0000".equals(cs)) {
+                        int w = metrics.stringWidth(cs);
+                        w = fontSglAdvance - w;
+                        if (w < 0) w = 0;
+                        else w /= 2;
+                        graphics.setBackground(c.getBackgroundColor());
+                        graphics.setColor(c.getForegroundColor());
+                        graphics.drawString(c.getSequence(),
+                                        x * fontSglAdvance + w,
+                                        y * fontHeight + fontAscent);
+                    }
+
+                    c.setDirty(false);
+                    if (c.getCellWalls() != null && !c.getCellWalls().isEmpty()) {
+                        int x1 = x * fontSglAdvance;
+                        int y1 = y * fontHeight;
+                        graphics.setColor(c.getForegroundColor());
+                        if (c.getCellWalls().contains(CellWalls.TOP)) {
+                            graphics.drawLine(x1, y1,
+                                                x1 + fontSglAdvance -1, y1);
                         }
-                        c.setDirty(false);
-                        if (c.getCellWalls() != null && !c.getCellWalls().isEmpty()) {
-                            int x1 = x * fontSglAdvance;
-                            int y1 = y * fontHeight;
-                            graphics.setColor(c.getForegroundColor());
-                            if (c.getCellWalls().contains(CellWalls.TOP)) {
-                                graphics.drawLine(x1, y1, 
-                                                  x1 + fontSglAdvance -1, y1);
-                            }
-                            if (c.getCellWalls().contains(CellWalls.LEFT)) {
-                                graphics.drawLine(x1, y1, x1, 
-                                                  y1 + fontHeight -1);
-                            }
-                            if (c.getCellWalls().contains(CellWalls.BOTTOM)) {
-                                graphics.drawLine(x1, y1 + fontHeight-1, 
-                                                  x1 + fontSglAdvance -1, 
-                                                  y1 + fontHeight-1);
-                            }
-                            if (c.getCellWalls().contains(CellWalls.RIGHT)) {
-                                graphics.drawLine(x1 + fontSglAdvance-1, y1, 
-                                                  x1 + fontSglAdvance-1, 
-                                                  y1 + fontHeight -1);
-                            }
-                            if (c.getCellWalls().contains(CellWalls.HORIZONTAL)) {
-                                graphics.drawLine(x1, y1 + fontHeightD2, 
-                                                  x1 + fontSglAdvance -1, 
-                                                  y1 + fontHeightD2);
-                            }
-                            if (c.getCellWalls().contains(CellWalls.VERTICAL)) {
-                                graphics.drawLine(x1 + fontSglAdvanceD2, y1, 
-                                                  x1 + fontSglAdvanceD2, 
-                                                  y1 + fontHeight -1);
-                            }
+                        if (c.getCellWalls().contains(CellWalls.LEFT)) {
+                            graphics.drawLine(x1, y1, x1,
+                                                y1 + fontHeight -1);
+                        }
+                        if (c.getCellWalls().contains(CellWalls.BOTTOM)) {
+                            graphics.drawLine(x1, y1 + fontHeight-1,
+                                                x1 + fontSglAdvance -1,
+                                                y1 + fontHeight-1);
+                        }
+                        if (c.getCellWalls().contains(CellWalls.RIGHT)) {
+                            graphics.drawLine(x1 + fontSglAdvance-1, y1,
+                                                x1 + fontSglAdvance-1,
+                                                y1 + fontHeight -1);
+                        }
+                        if (c.getCellWalls().containsAll(CellWalls.HORIZONTAL)) {
+                            graphics.drawLine(x1, y1 + fontHeightD2,
+                                                x1 + fontSglAdvance -1,
+                                                y1 + fontHeightD2);
+                        }
+                        if (c.getCellWalls().containsAll(CellWalls.VERTICAL)) {
+                            graphics.drawLine(x1 + fontSglAdvanceD2, y1,
+                                                x1 + fontSglAdvanceD2,
+                                                y1 + fontHeight -1);
                         }
                     }
                 }
@@ -480,14 +399,24 @@ public class BlackenPanel extends JPanel {
                 } else {
                     graphics.setPaint(cursorColor);
                 }
-                graphics.fill(new Rectangle(cursorX * fontSglAdvance, 
+                graphics.fill(new Rectangle(cursorX * fontSglAdvance,
                                             cursorY * fontHeight + fontAscent,
-                                            fontSglAdvance -1, 
+                                            fontSglAdvance -1,
                                             fontHeight - fontAscent -1));
             }
             refresh_all = false;
+            long endTime = System.currentTimeMillis();
+            if (this.displaySpeed == 0) {
+                this.displaySpeed = endTime - startTime;
+            } else {
+                this.displaySpeed = (displaySpeed + endTime - startTime) / 2;
+            }
+            LOGGER.info("Panel update speed: {} ms / Average: {} ms", endTime - startTime,
+                    displaySpeed);
         } finally {
-            imageChangeLock.unlock();
+            synchronized(this) {
+                this.notifyAll();
+            }
         }
     }
     
@@ -512,7 +441,7 @@ public class BlackenPanel extends JPanel {
         if (this.getGraphics() == null) {
             return;
         }
-        metrics = graphics.getFontMetrics(this.font);
+        metrics = this.getGraphics().getFontMetrics(this.font);
         fontAscent = metrics.getMaxAscent()+1;
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
@@ -578,15 +507,20 @@ public class BlackenPanel extends JPanel {
      * Refresh the window.
      */
     public void refresh() {
-        refresh_all = true;
-        paintImage();
+        synchronized(this) {
+            repaint();
+            try {
+                this.wait();
+            } catch (InterruptedException ex) {
+                // do nothing
+            }
+        }
     }
     /**
      * Refresh a row/line.
      * @param y the line to refresh
      */
     public void refreshLine(int y) {
-        this.maybeRepaint();
         if (y < 0) { y = 0; }
         if (y > grid.getHeight()) { y = grid.getHeight(); } 
         for (int x = 0; x < grid.getWidth(); x++) {
@@ -603,7 +537,6 @@ public class BlackenPanel extends JPanel {
      * @param x1 coordinate of the box
      */
     public void refreshRegion(int height, int width, int y1, int x1) {
-        this.maybeRepaint();
         if (y1 < 0) y1 = 0;
         if (x1 < 0) x1 = 0;
 
@@ -667,8 +600,7 @@ public class BlackenPanel extends JPanel {
      * @param fontSize font size to use
      */
     public void resizeFrame(JFrame frame, int fontSize) {
-        this.maybeRepaint();
-        Font f = null;
+        Font f;
         if (fontSize > 0) {
             f = this.font;
             if (f == null) {
@@ -688,7 +620,6 @@ public class BlackenPanel extends JPanel {
      * @param cols new columns
      */
     public void resizeGrid(int rows, int cols) {
-        this.maybeRepaint();
         grid.setSize(rows, cols);
     }
     
@@ -696,7 +627,6 @@ public class BlackenPanel extends JPanel {
      * Resize the grid to the window.
      */
     protected void resizeGridToWindow() {
-        this.maybeRepaint();
         int xsize, ysize;
         Dimension d = this.getSize();
         xsize = d.width / fontSglAdvance;
@@ -719,9 +649,8 @@ public class BlackenPanel extends JPanel {
      * @param cell cell definition
      */
     public void set(int y, int x, AwtCell cell) {
-        this.maybeRepaint();
         AwtCell c = grid.get(y, x);
-        c.setCell(cell);
+        c.set(cell);
         c.setDirty(true);
     }
     
@@ -735,7 +664,6 @@ public class BlackenPanel extends JPanel {
      * @param fore foreground color
      */
     public void set(int y, int x, int glyph, Color back, Color fore) {
-        this.maybeRepaint();
         grid.get(y, x).setCell(glyph, back, fore);
     }
 
@@ -749,7 +677,6 @@ public class BlackenPanel extends JPanel {
      */
     public void set(int y, int x, int glyph, 
                     Map<TextAttribute, Object> attributes) {
-        this.maybeRepaint();
         grid.get(y, x).setCell(glyph, attributes);
     }
 
@@ -758,9 +685,8 @@ public class BlackenPanel extends JPanel {
      * @param empty new empty cell
      */
     public void setEmpty(AwtCell empty) {
-        this.maybeRepaint();
         if (this.empty != empty) {
-            this.empty.setCell(empty);
+            this.empty.set(empty);
         }
     }
     /*
@@ -769,7 +695,6 @@ public class BlackenPanel extends JPanel {
      */
     @Override
     public void setFont(Font font) {
-        this.maybeRepaint();
         setFont(font, true);
     }
 
@@ -780,7 +705,7 @@ public class BlackenPanel extends JPanel {
      */
     private void setFont(Font font, boolean recalc) {
         setFontNoUpdate(font);
-        if (recalc && graphics != null) {
+        if (recalc && this.getGraphics() != null) {
             resizeFontToFit();
         }
         if (empty != null && this.font != null) {
@@ -805,8 +730,7 @@ public class BlackenPanel extends JPanel {
             this.font = font;
         }
         super.setFont(this.font);
-        if(graphics != null) {
-            graphics.setFont(this.font);
+        if(this.getGraphics() != null) {
             this.getGraphics().setFont(this.font);
         }
         recalculateFontBits();
@@ -816,10 +740,8 @@ public class BlackenPanel extends JPanel {
      * Process a window resize event.
      */
     public void windowResized() {
-        this.maybeRepaint();
         resizeFontToFit();
         refresh();
     }
-
 
 }
