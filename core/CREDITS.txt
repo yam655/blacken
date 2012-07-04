@@ -1,7 +1,37 @@
+The Current Team
+================
+
+Steven W. Black (yam655):
+
+     Steven started programming so he could cheat at the DOS port of Moria in
+     the 1980s. He's had a fondness for Roguelike games since that time. He
+     likes to say that Roguelike games predate cursor keys on keyboards. In
+     his youth he actually got to play Hack and Rogue on a dumb terminal
+     without arrow keys as he had a dumb terminal in his bedroom connected to
+     his father's Xenix/286 machine.
+
+Shout-outs and Thank Yous
+=========================
+
+Steven would like to thank Robert Alan Koeneke (the creator of Moria) and
+Jim E. Wilson (who made it available for DOS). Without Moria he very likely
+would have never started programming seriously.
+
+Blacken would like to thank the developers of LibTCOD -- located at
+http://doryen.eptalys.net/libtcod/ -- for redefining what is expected of
+a Roguelike library and for giving us higher sights to set our goals upon.
+
+A Brief History
+===============
+
 Blacken was started by Steven Black <yam655@gmail.com> in 2010.
 
 Version 1.0 was released under the GPL version 3 with Steven Black as the only
 contributor.
+
+A patch release to fix a bug was released as 1.0.1 (again with Steven Black the
+only contributor) and that was released under the LGPL version 3 to assist
+folks with the move to the new license in 1.1.
 
 On 2012-03-26, Blacken switched to the Apache 2.0 license for the development
 of Blacken 1.1. It is hoped that by switching licenses, we can gain 
