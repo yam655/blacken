@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2012 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-
 package com.googlecode.blacken.swing;
 
 import java.awt.Color;
@@ -90,8 +89,16 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
     /**
      * Flag to ignore cell-specific refresh and refresh everything.
      */
-    private boolean refresh_all;
-    private long displaySpeed = 0;
+    private transient boolean refresh_all = false;
+
+    /**
+     * Running average of the display speed
+     */
+    private transient long displaySpeed = 0;
+
+    /**
+     * Experimental display mode setting
+     */
     private static int displayMode = 2;
 
     /**
@@ -113,6 +120,7 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      * Clear the screen.
      */
     public void clear() {
+        this.refresh_all = true;
         grid.clear(this.empty);
         this.moveCursor(0, 0);
     }
@@ -215,6 +223,7 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      */
     public void init(Font font, int rows, int cols, AwtCell empty) {
         setCursor(null);
+        this.setFocusTraversalKeysEnabled(false);
         int width = Toolkit.getDefaultToolkit().getScreenSize().width;
         int height = Toolkit.getDefaultToolkit().getScreenSize().height;
         setBounds(0, 0, width, height);
@@ -464,8 +473,8 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
             } else {
                 this.displaySpeed = (displaySpeed + endTime - startTime) / 2;
             }
-            LOGGER.info("Panel update speed: {} / Average: {}", (double)(endTime - startTime) / 1000.0,
-                    (double)displaySpeed / 1000.0);
+            LOGGER.info("Panel update speed: {} ms / Average: {} ms", 
+                    endTime - startTime, displaySpeed);
         } finally {
             synchronized(this) {
                 this.notifyAll();

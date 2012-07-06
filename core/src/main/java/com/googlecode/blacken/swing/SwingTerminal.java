@@ -237,8 +237,12 @@ public class SwingTerminal extends AbstractTerminal
         }
         super.init(name, rows, cols, font);
         frame = new JFrame(name);
+        frame.setIgnoreRepaint(true);
+        frame.setFocusTraversalKeysEnabled(false);
 
         gui = new BlackenPanel();
+        gui.setIgnoreRepaint(true);
+        gui.setDoubleBuffered(true);
         listener = new EventListener(gui);
 
         frame.setSize(600, 450);
@@ -344,8 +348,7 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void refresh() {
-        gui.doUpdate();
-        gui.repaint();
+        gui.refresh();
     }
 
     @Override

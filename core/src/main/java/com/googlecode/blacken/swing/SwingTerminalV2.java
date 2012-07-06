@@ -171,7 +171,7 @@ public class SwingTerminalV2 extends AbstractTerminal
         int ch = listener.popKey();
         int activeModifier = this.lastModifier;
         if (ch == BlackenKeys.NO_KEY) {
-            LOGGER.debug("Need to do blocking wait.");
+            // LOGGER.debug("Need to do blocking wait.");
             this.refresh();
             try {
                 ch = listener.blockingPopKey();
@@ -179,7 +179,7 @@ public class SwingTerminalV2 extends AbstractTerminal
                 ch = BlackenKeys.NO_KEY;
             }
         } else {
-            LOGGER.debug("Found key right away.");
+            // LOGGER.debug("Found key right away.");
         }
         if (BlackenKeys.isModifier(ch)) {
             this.lastModifier = ch;
@@ -251,6 +251,7 @@ public class SwingTerminalV2 extends AbstractTerminal
         super.init(name, rows, cols, font);
         frame = new JFrame(name);
         frame.setIgnoreRepaint(true);
+        frame.setFocusTraversalKeysEnabled(false);
 
         gui = new BlackenPanelV2();
         gui.setIgnoreRepaint(true);

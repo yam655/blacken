@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Steven Black
  */
 public class BlackenPanel extends JPanel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanelV2.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanel.class);
     private static final long serialVersionUID = 1;
     private AwtCell empty = new AwtCell();
     private int minX = 80;
@@ -86,12 +86,14 @@ public class BlackenPanel extends JPanel {
     /**
      * Flag to ignore cell-specific refresh and refresh everything.
      */
-    private transient boolean refresh_all = false;
+    private transient boolean refresh_all = true;
 
     /**
      * Running average of the display speed
      */
     private transient long displaySpeed = 0;
+    private int refreshedCnt = 0;
+    private int repaintedCnt = 0;
 
     /**
      * Create a new panel.
@@ -112,12 +114,14 @@ public class BlackenPanel extends JPanel {
      * Clear the screen.
      */
     public void clear() {
+        this.refresh_all = true;
         grid.clear(this.empty);
         this.moveCursor(0, 0);
     }
     
     /**
      * Perform a window update.
+     * @deprecated No longer needed
      */
     @Deprecated
     public void doUpdate() {
@@ -190,10 +194,7 @@ public class BlackenPanel extends JPanel {
     public AwtCell getEmpty() {
         return empty;
     }
-    /*
-     * (non-Javadoc)
-     * @see java.awt.Component#getFont()
-     */
+
     @Override
     public Font getFont() {
         if (empty == null) {
@@ -224,6 +225,7 @@ public class BlackenPanel extends JPanel {
      */
     public void init(Font font, int rows, int cols, AwtCell empty) {
         setCursor(null);
+        this.setFocusTraversalKeysEnabled(false);
         int width = Toolkit.getDefaultToolkit().getScreenSize().width;
         int height = Toolkit.getDefaultToolkit().getScreenSize().height;
         setBounds(0, 0, width, height);
@@ -280,6 +282,14 @@ public class BlackenPanel extends JPanel {
         AwtCell c;
         boolean need_cursor = false;
         Graphics2D graphics = (Graphics2D)g;
+
+        synchronized(this) {
+            if (this.refreshedCnt == this.repaintedCnt) {
+                LOGGER.error("Dropped an paintComponent update -- didn't come through refresh()");
+                return;
+            }
+            this.repaintedCnt = this.refreshedCnt;
+        }
 
         try {
             long startTime = System.currentTimeMillis();
@@ -411,8 +421,8 @@ public class BlackenPanel extends JPanel {
             } else {
                 this.displaySpeed = (displaySpeed + endTime - startTime) / 2;
             }
-            LOGGER.info("Panel update speed: {} ms / Average: {} ms", endTime - startTime,
-                    displaySpeed);
+            //LOGGER.info("Panel update speed: {} ms / Average: {} ms",
+            //         endTime - startTime, displaySpeed);
         } finally {
             synchronized(this) {
                 this.notifyAll();
@@ -508,6 +518,7 @@ public class BlackenPanel extends JPanel {
      */
     public void refresh() {
         synchronized(this) {
+            this.refreshedCnt ++;
             repaint();
             try {
                 this.wait();

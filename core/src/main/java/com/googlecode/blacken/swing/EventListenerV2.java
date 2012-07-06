@@ -41,6 +41,8 @@ import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.BlackenWindowState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -49,6 +51,7 @@ import com.googlecode.blacken.terminal.BlackenWindowState;
 public class EventListenerV2 implements WindowListener, KeyListener,
         MouseListener, MouseMotionListener, MouseWheelListener,
         WindowFocusListener, InputMethodListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventListenerV2.class);
 
     static final int NUMBER_OF_KEY_EVENTS = 1024;
     private ArrayBlockingQueue<Integer> keyEvents =
@@ -187,62 +190,216 @@ public class EventListenerV2 implements WindowListener, KeyListener,
     }
     @Override
     public void keyPressed(KeyEvent e) {
+        // Certain things _have_ to get handled here -- even though not actions
+        LOGGER.debug("KeyEvent: {}", e);
+        switch(e.getExtendedKeyCode()) {
+            case KeyEvent.VK_BACK_SPACE:
+                loadKey(e, BlackenKeys.KEY_BACKSPACE);
+                break;
+            case KeyEvent.VK_ESCAPE:
+                loadKey(e, BlackenKeys.KEY_ESCAPE);
+                break;
+            case KeyEvent.VK_ENTER:
+                if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                    loadKey(e, BlackenKeys.KEY_NP_ENTER);
+                } else {
+                    loadKey(e, BlackenKeys.KEY_ENTER);
+                }
+                break;
+            case KeyEvent.VK_TAB:
+                loadKey(e, BlackenKeys.KEY_TAB);
+                break;
+            // Number pad / key pad -- when number lock is enabled
+            case KeyEvent.VK_NUMPAD0:
+                loadKey(e, BlackenKeys.KEY_NP_0);
+                break;
+            case KeyEvent.VK_NUMPAD1:
+                loadKey(e, BlackenKeys.KEY_NP_1);
+                break;
+            case KeyEvent.VK_NUMPAD2:
+                loadKey(e, BlackenKeys.KEY_NP_2);
+                break;
+            case KeyEvent.VK_NUMPAD3:
+                loadKey(e, BlackenKeys.KEY_NP_3);
+                break;
+            case KeyEvent.VK_NUMPAD4:
+                loadKey(e, BlackenKeys.KEY_NP_4);
+                break;
+            case KeyEvent.VK_NUMPAD5:
+                loadKey(e, BlackenKeys.KEY_NP_5);
+                break;
+            case KeyEvent.VK_NUMPAD6:
+                loadKey(e, BlackenKeys.KEY_NP_6);
+                break;
+            case KeyEvent.VK_NUMPAD7:
+                loadKey(e, BlackenKeys.KEY_NP_7);
+                break;
+            case KeyEvent.VK_NUMPAD8:
+                loadKey(e, BlackenKeys.KEY_NP_8);
+                break;
+            case KeyEvent.VK_NUMPAD9:
+                loadKey(e, BlackenKeys.KEY_NP_9);
+                break;
+            case KeyEvent.VK_CLEAR:
+                // Also known as KEY_KP_B2
+                loadKey(e, BlackenKeys.KEY_KP_CLEAR);
+                break;
+            case KeyEvent.VK_DELETE:
+                if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                    loadKey(e, BlackenKeys.KEY_KP_DELETE);
+                } else {
+                    loadKey(e, BlackenKeys.KEY_DELETE);
+                }
+                break;
+
+            // Number pad actions
+            case KeyEvent.VK_ADD:
+                loadKey(e, BlackenKeys.KEY_NP_ADD);
+                break;
+            case KeyEvent.VK_DIVIDE:
+                loadKey(e, BlackenKeys.KEY_NP_DIVIDE);
+                break;
+            case KeyEvent.VK_MULTIPLY:
+                loadKey(e, BlackenKeys.KEY_NP_MULTIPLY);
+                break;
+            case KeyEvent.VK_SUBTRACT:
+                loadKey(e, BlackenKeys.KEY_NP_SUBTRACT);
+                break;
+
+            case KeyEvent.VK_SEPARATOR:
+                // Constant for the Numpad Separator key.
+                loadKey(e, BlackenKeys.KEY_NP_SEPARATOR);
+                break;
+            case KeyEvent.VK_PRINTSCREEN:
+                loadKey(e, BlackenKeys.KEY_PRINT_SCREEN);
+                break;
+
+            default:
+                int cp = e.getKeyChar();
+                // LOGGER.debug("Key: {}", e);
+                if (cp == KeyEvent.CHAR_UNDEFINED) {
+                    if (!e.isActionKey()) {
+                        // XXX No good way to resolve this...
+                        // loadKey(e, e.getExtendedKeyCode()); // unreliable
+                        LOGGER.debug("Undefined Key: {}", e);
+                    }
+                } else if (cp == '.') {
+                    if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
+                        loadKey(e, BlackenKeys.KEY_NP_SEPARATOR);
+                    } else {
+                        loadKey(e, cp);
+                    }
+                } else if (cp < 0x20) {
+                    cp += '@';
+                    loadKey(e, cp);
+                } else if (cp == 0x7f) {
+                    loadKey(e, '?');
+                } else if (cp >= '0' && cp <= '9') {
+                    loadKey(e, cp);
+                } else if (cp == '+' || cp == '-' || cp == '/' || cp == '*') {
+                    loadKey(e, cp);
+                }
+        }
         // in variantKeyMode all keys are handled here.
-        // In the normal key mode, only action keys are handled here.
         if (!this.variantKeyMode) {
             if (!e.isActionKey()) {
                 return;
             }
         }
-        switch(e.getKeyCode()) {
-        // dead keys
-        case KeyEvent.VK_DEAD_ABOVEDOT:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOT_ABOVE);
-            break;
-        case KeyEvent.VK_DEAD_ABOVERING:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_RING_ABOVE);
-            break;
-        case KeyEvent.VK_DEAD_ACUTE:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_ACUTE_ACCENT);
-            break;
-        case KeyEvent.VK_DEAD_BREVE:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_BREVE);
-            break;
-        case KeyEvent.VK_DEAD_CARON:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CARON);
-            break;
-        case KeyEvent.VK_DEAD_CEDILLA:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
-            break;
-        case KeyEvent.VK_DEAD_CIRCUMFLEX:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
-            break;
-        case KeyEvent.VK_DEAD_DIAERESIS:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DIAERESIS);
-            break;
-        case KeyEvent.VK_DEAD_DOUBLEACUTE:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT);
-            break;
-        case KeyEvent.VK_DEAD_GRAVE:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GRAVE_ACCENT);
-            break;
-        case KeyEvent.VK_DEAD_IOTA:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI);
-            break;
-        case KeyEvent.VK_DEAD_MACRON:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MACRON);
-            break;
-        case KeyEvent.VK_DEAD_OGONEK:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_OGONEK);
-            break;
-        case KeyEvent.VK_DEAD_SEMIVOICED_SOUND:
-            break;
-        case KeyEvent.VK_DEAD_TILDE:
-            loadKey(e, BlackenKeys.CODEPOINT_COMBINING_TILDE);
-            break;
-        case KeyEvent.VK_DEAD_VOICED_SOUND:
-            break;
 
+        if (this.variantKeyMode) {
+            switch(e.getExtendedKeyCode()) {
+                // dead keys
+                case KeyEvent.VK_DEAD_ABOVEDOT:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOT_ABOVE);
+                    break;
+                case KeyEvent.VK_DEAD_ABOVERING:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_RING_ABOVE);
+                    break;
+                case KeyEvent.VK_DEAD_ACUTE:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_ACUTE_ACCENT);
+                    break;
+                case KeyEvent.VK_DEAD_BREVE:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_BREVE);
+                    break;
+                case KeyEvent.VK_DEAD_CARON:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CARON);
+                    break;
+                case KeyEvent.VK_DEAD_CEDILLA:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
+                    break;
+                case KeyEvent.VK_DEAD_CIRCUMFLEX:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
+                    break;
+                case KeyEvent.VK_DEAD_DIAERESIS:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DIAERESIS);
+                    break;
+                case KeyEvent.VK_DEAD_DOUBLEACUTE:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT);
+                    break;
+                case KeyEvent.VK_DEAD_GRAVE:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GRAVE_ACCENT);
+                    break;
+                case KeyEvent.VK_DEAD_IOTA:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI);
+                    break;
+                case KeyEvent.VK_DEAD_MACRON:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MACRON);
+                    break;
+                case KeyEvent.VK_DEAD_OGONEK:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_OGONEK);
+                    break;
+                case KeyEvent.VK_DEAD_SEMIVOICED_SOUND:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MINUS_SIGN_BELOW);
+                    break;
+                case KeyEvent.VK_DEAD_TILDE:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_TILDE);
+                    break;
+                case KeyEvent.VK_DEAD_VOICED_SOUND:
+                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE);
+                    break;
+
+                // lock keys -- Java modifiers, but treated specially here
+                case KeyEvent.VK_CAPS_LOCK:
+                    loadKey(e, BlackenKeys.KEY_CAPS_LOCK);
+                    break;
+                case KeyEvent.VK_KANA_LOCK:
+                    loadKey(e, BlackenKeys.KEY_KANA_LOCK);
+                    break;
+                case KeyEvent.VK_NUM_LOCK:
+                    loadKey(e, BlackenKeys.KEY_NUM_LOCK);
+                    break;
+                case KeyEvent.VK_SCROLL_LOCK:
+                    loadKey(e, BlackenKeys.KEY_SCROLL_LOCK);
+                    break;
+
+                // modifiers -- Note: We send notice about these immediately!
+                case KeyEvent.VK_ALT:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+                case KeyEvent.VK_ALT_GRAPH:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+                case KeyEvent.VK_CONTROL:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+                case KeyEvent.VK_SHIFT:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+                case KeyEvent.VK_KANA:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+                case KeyEvent.VK_META:
+                    loadKey(e, BlackenKeys.NO_KEY);
+                    break;
+
+                case KeyEvent.VK_COMPOSE:
+                    // Constant for the Compose function key.
+                    loadKey(e, BlackenKeys.KEY_COMPOSE);
+                    break;
+            }
+        }
+        switch(e.getKeyCode()) {
         case KeyEvent.VK_F1:
             // Function keys. All these represent real keys
             // F1-F12 are PC-standard
@@ -320,28 +477,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
             loadKey(e, BlackenKeys.KEY_F24);
             break;
 
-        // modifiers -- not action keys!!
-        case KeyEvent.VK_ALT:
-        case KeyEvent.VK_ALT_GRAPH:
-        case KeyEvent.VK_CONTROL:
-        case KeyEvent.VK_SHIFT:
-        case KeyEvent.VK_KANA:
-        case KeyEvent.VK_META:
-            break;
-        // lock keys -- Java modifiers, but treated specially here
-        case KeyEvent.VK_CAPS_LOCK:
-            loadKey(e, BlackenKeys.KEY_CAPS_LOCK);
-            break;
-        case KeyEvent.VK_KANA_LOCK:
-            loadKey(e, BlackenKeys.KEY_KANA_LOCK);
-            break;
-        case KeyEvent.VK_NUM_LOCK:
-            loadKey(e, BlackenKeys.KEY_NUM_LOCK);
-            break;
-        case KeyEvent.VK_SCROLL_LOCK:
-            loadKey(e, BlackenKeys.KEY_SCROLL_LOCK);
-            break;
-
         // Less common action keys
         case KeyEvent.VK_ACCEPT:
             loadKey(e, BlackenKeys.KEY_ACCEPT);
@@ -357,10 +492,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
         case KeyEvent.VK_CODE_INPUT:
             // Constant for the Code Input function key.
             loadKey(e, BlackenKeys.KEY_CODE_INPUT);
-            break;
-        case KeyEvent.VK_COMPOSE:
-            // Constant for the Compose function key.
-            loadKey(e, BlackenKeys.KEY_COMPOSE);
             break;
         case KeyEvent.VK_FINAL:
             loadKey(e, BlackenKeys.KEY_FINAL);
@@ -399,22 +530,9 @@ public class EventListenerV2 implements WindowListener, KeyListener,
             break;
 
         // Standard PC action keys
-        case KeyEvent.VK_BACK_SPACE:
-            loadKey(e, BlackenKeys.KEY_BACKSPACE);
-            break;
         case KeyEvent.VK_CONTEXT_MENU:
             // Constant for the Microsoft Windows Context Menu key.
             loadKey(e, BlackenKeys.KEY_CONTEXT_MENU);
-            break;
-        case KeyEvent.VK_ESCAPE:
-            loadKey(e, BlackenKeys.KEY_ESCAPE);
-            break;
-        case KeyEvent.VK_ENTER:
-            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
-                loadKey(e, BlackenKeys.KEY_NP_ENTER);
-            } else {
-                loadKey(e, BlackenKeys.KEY_ENTER);
-            }
             break;
         case KeyEvent.VK_PAUSE:
             loadKey(e, BlackenKeys.KEY_PAUSE);
@@ -423,12 +541,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
             // Constant for the Microsoft Windows "Windows" key.
             loadKey(e, BlackenKeys.KEY_LOGO);
             break;
-        case KeyEvent.VK_PRINTSCREEN:
-            loadKey(e, BlackenKeys.KEY_PRINT_SCREEN);
-            break;
-        case KeyEvent.VK_TAB:
-            loadKey(e, BlackenKeys.KEY_TAB);
-            break;
 
         // Keys which may also be able via the numpad/keypad
         case KeyEvent.VK_INSERT:
@@ -436,13 +548,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
                 loadKey(e, BlackenKeys.KEY_KP_INSERT);
             } else {
                 loadKey(e, BlackenKeys.KEY_INSERT);
-            }
-            break;
-        case KeyEvent.VK_DELETE:
-            if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) {
-                loadKey(e, BlackenKeys.KEY_KP_DELETE);
-            } else {
-                loadKey(e, BlackenKeys.KEY_DELETE);
             }
             break;
         case KeyEvent.VK_LEFT:
@@ -470,10 +575,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
         case KeyEvent.VK_KP_RIGHT:
             // Constant for the numeric keypad right arrow key.
             loadKey(e, BlackenKeys.KEY_KP_RIGHT);
-            break;
-        case KeyEvent.VK_CLEAR:
-            // Also known as KEY_KP_B2
-            loadKey(e, BlackenKeys.KEY_KP_CLEAR);
             break;
         case KeyEvent.VK_UP:
             // Constant for the non-numpad up arrow key.
@@ -528,56 +629,6 @@ public class EventListenerV2 implements WindowListener, KeyListener,
             } else {
                 loadKey(e, BlackenKeys.KEY_END);
             }
-            break;
-
-        // Number pad actions
-        case KeyEvent.VK_ADD:
-            loadKey(e, BlackenKeys.KEY_NP_ADD);
-            break;
-        case KeyEvent.VK_DIVIDE:
-            loadKey(e, BlackenKeys.KEY_NP_DIVIDE);
-            break;
-        case KeyEvent.VK_MULTIPLY:
-            loadKey(e, BlackenKeys.KEY_NP_MULTIPLY);
-            break;
-        case KeyEvent.VK_SUBTRACT:
-            loadKey(e, BlackenKeys.KEY_NP_SUBTRACT);
-            break;
-        case KeyEvent.VK_SEPARATOR:
-            // Constant for the Numpad Separator key.
-            loadKey(e, BlackenKeys.KEY_NP_SEPARATOR);
-            break;
-
-        // Number pad / key pad -- when number lock is enabled
-        case KeyEvent.VK_NUMPAD0:
-            loadKey(e, BlackenKeys.KEY_NP_0);
-            break;
-        case KeyEvent.VK_NUMPAD1:
-            loadKey(e, BlackenKeys.KEY_NP_1);
-            break;
-        case KeyEvent.VK_NUMPAD2:
-            loadKey(e, BlackenKeys.KEY_NP_2);
-            break;
-        case KeyEvent.VK_NUMPAD3:
-            loadKey(e, BlackenKeys.KEY_NP_3);
-            break;
-        case KeyEvent.VK_NUMPAD4:
-            loadKey(e, BlackenKeys.KEY_NP_4);
-            break;
-        case KeyEvent.VK_NUMPAD5:
-            loadKey(e, BlackenKeys.KEY_NP_5);
-            break;
-        case KeyEvent.VK_NUMPAD6:
-            loadKey(e, BlackenKeys.KEY_NP_6);
-            break;
-        case KeyEvent.VK_NUMPAD7:
-            loadKey(e, BlackenKeys.KEY_NP_7);
-            break;
-        case KeyEvent.VK_NUMPAD8:
-            loadKey(e, BlackenKeys.KEY_NP_8);
-            break;
-        case KeyEvent.VK_NUMPAD9:
-            loadKey(e, BlackenKeys.KEY_NP_9);
             break;
 
         // International keys
@@ -674,7 +725,9 @@ public class EventListenerV2 implements WindowListener, KeyListener,
     @Override
     public void keyTyped(KeyEvent e) {
         if (this.variantKeyMode) {
-            return;
+            if (e.getExtendedKeyCode() != KeyEvent.VK_UNDEFINED) {
+                return;
+            }
         }
 
         // XXX: this fails to grab characters outside of the BMP.
@@ -683,11 +736,16 @@ public class EventListenerV2 implements WindowListener, KeyListener,
             return;
         }
 
-        if (cp >= 0x20 && !e.isControlDown()) {
+        if (cp >= '0' && cp <= '9') {
+            // do nothing.
+        } else if (cp == '+' || cp == '-' || cp == '/' || cp == '*') {
+            // do nothing.
+        } else if (cp >= 0x20 && cp != 0x7f && cp != '.') {
             int mods = makeModifierNotice(e);
             if (mods != BlackenKeys.NO_KEY &&
-                (mods != BlackenModifier.MODIFIER_KEY_SHIFT.getAsCodepoint() ||
-                 BlackenKeys.isSpecial(cp))) {
+                ((mods != BlackenModifier.MODIFIER_KEY_SHIFT.getAsCodepoint() &&
+                    mods != BlackenModifier.MODIFIER_KEY_ALTGR.getAsCodepoint()) ||
+                    BlackenKeys.isSpecial(cp))) {
                 loadKey(mods);
             }
             loadKey(cp);
@@ -844,7 +902,9 @@ public class EventListenerV2 implements WindowListener, KeyListener,
         if ((mods & KeyEvent.SHIFT_DOWN_MASK) != 0) {
             mod.add(BlackenModifier.MODIFIER_KEY_SHIFT);
         }
-        if (mod.isEmpty()) return BlackenKeys.NO_KEY;
+        if (mod.isEmpty()) {
+            return BlackenKeys.NO_KEY;
+        }
         return BlackenModifier.getAsCodepoint(mod);
     }
 
