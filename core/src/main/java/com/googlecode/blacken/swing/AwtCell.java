@@ -485,8 +485,9 @@ public class AwtCell implements Cloneable {
      * @param cell new cell
      * @deprecated use 'set' instead.
      */
+    @Deprecated
     public void setCell(AwtCell cell) {
-
+        this.set(cell);
     }
 
     /**

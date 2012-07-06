@@ -113,4 +113,14 @@ import com.googlecode.blacken.grid.Grid;
         return false;
     }
 
+    @Override
+    public TerminalInterface getGlass() {
+        return null;
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols, String font) {
+        throw new UnsupportedOperationException("Does not make sense.");
+    }
+
 }

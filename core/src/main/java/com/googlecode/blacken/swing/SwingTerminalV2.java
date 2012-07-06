@@ -23,29 +23,15 @@ import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.font.GraphicAttribute;
-import java.awt.font.TextAttribute;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JFrame;
-
-import com.googlecode.blacken.colors.ColorHelper;
-import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.terminal.AbstractTerminal;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
-import com.googlecode.blacken.terminal.CellWalls;
-import com.googlecode.blacken.terminal.TerminalCell;
-import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
-import com.googlecode.blacken.terminal.TerminalStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,14 +39,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Steven Black
  */
-public class SwingTerminalV2 extends AbstractTerminal
+public class SwingTerminalV2 extends ReducedSwingTerminalV2
                     implements ComponentListener {
     static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
-    protected BlackenPanelV2 gui;
-    protected HashMap<Integer, Color> swingColor = new HashMap<>();
     protected EventListenerV2 listener;
     protected JFrame frame;
-    protected HashMap<String, GraphicAttribute> replacement = null;
     protected DropTarget dropTarget;
 
     /**
@@ -81,23 +64,14 @@ public class SwingTerminalV2 extends AbstractTerminal
     private Rectangle windowedBounds = null;
     private boolean inhibitFullScreen = false;
     private int lastModifier;
+    //private BlackenPanelV2 glassGui = null;
+    private ReducedSwingTerminalV2 glass = null;
 
     /**
      * Create a new terminal
      */
     public SwingTerminalV2() {
         super();
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-        Font f = gui.getEmpty().getFont();
-        AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
-        awtempty.setDirty(true);
-        awtempty.setFont(f);
-        gui.setEmpty(awtempty);
-        gui.clear();
     }
 
     @Override
@@ -118,18 +92,6 @@ public class SwingTerminalV2 extends AbstractTerminal
     @Override
     public void componentShown(ComponentEvent e) {
         // do nothing
-    }
-
-    @Override
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols,
-                         int startY, int startX, int destY, int destX) {
-        if (oterm == this) {
-            this.moveBlock(numRows, numCols, startY, startX, destY, destX);
-        } else {
-            getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX,
-                           destY, destX, new TerminalCell().new ResetCell());
-            forceRefresh(numRows, numCols, destY, destX);
-        }
     }
 
     @Override
@@ -155,19 +117,9 @@ public class SwingTerminalV2 extends AbstractTerminal
         listener.setEnabled(events);
     }
 
-    private void forceRefresh(int numRows, int numCols, int startY, int startX) {
-        Grid<TerminalCellLike> grid = getGrid();
-        for (int y = startY; y < numRows + startY; y++) {
-            for (int x = startX; x < numCols + startX; x++) {
-                this.setAwtFromTerminal(gui.get(y, x), grid.get(y, x));
-                grid.get(y, x).setDirty(false);
-            }
-        }
-    }
-
     @Override
     public int getch() {
-        this.refresh();
+        // this.refresh();
         int ch = listener.popKey();
         int activeModifier = this.lastModifier;
         if (ch == BlackenKeys.NO_KEY) {
@@ -187,8 +139,10 @@ public class SwingTerminalV2 extends AbstractTerminal
             this.lastModifier = BlackenKeys.NO_KEY;
         }
         if (ch == BlackenKeys.RESIZE_EVENT) {
-            gui.windowResized();
-            getGrid().setBounds(gui.getGridBounds());
+            this.windowResized();
+            if (this.glass != null) {
+                this.glass.windowResized();
+            }
         } else if (ch == BlackenKeys.KEY_ENTER) {
             // Set<BlackenModifier> mods = BlackenModifier.getAsSet(activeModifier);
             if (activeModifier == BlackenModifier.MODIFIER_KEY_ALT.getAsCodepoint()) {
@@ -219,25 +173,60 @@ public class SwingTerminalV2 extends AbstractTerminal
         return e;
     }
 
-    protected Color getSwingColor(int c) {
-        Color clr;
-        ColorPalette palette = getPalette();
-        if (palette != null) {
-            c = palette.getColor(c);
-        }
-        if (swingColor.containsKey(c)) {
-            clr = swingColor.get(c);
-        } else {
-            clr = new Color(c);
-            swingColor.put(c, clr);
-        }
-        return clr;
-    }
-
     @Override
     public BlackenWindowEvent getwindow() {
         BlackenWindowEvent e = listener.popWindow();
         return e;
+    }
+
+    @Override
+    public TerminalInterface getGlass() {
+        return this.glass;
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols) {
+        return initGlass(rows, cols, null);
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols, String font) {
+        /*
+        if (this.frame == null) {
+            this.init("Java", rows, cols, font);
+        }
+        if (this.glass != null) {
+            this.glass.setFont(font);
+            this.glass.resize(rows, cols);
+            this.glass.setCursorLocation(-1, -1);
+            return this.glass;
+        }
+        glassGui = new BlackenPanelV2(true);
+        glassGui.setIgnoreRepaint(false);
+        glassGui.setDoubleBuffered(true);
+        Rectangle frameBounds = frame.getBounds();
+        this.glass = new ReducedSwingTerminalV2(this, glassGui);
+        this.glass.getEmpty().setBackground(0x00010000);
+        this.glass.init("Glass", rows, cols, font);
+
+        AwtCell empty = new AwtCell();
+        if (font == null) {
+            font = Font.MONOSPACED;
+        }
+
+        // empty.setBackgroundColor(new Color(0x00000000));
+        Font fontObj = new Font(font, Font.PLAIN, 1);
+        glassGui.init(fontObj, rows, cols, empty);
+        glass.setCursorLocation(-1, -1);
+        // frame.setGlassPane(glassGui);
+        glassGui.setOpaque(true);
+        glassGui.setVisible(false);
+
+        // frame.pack();
+        // frame.setBounds(frameBounds);
+        return glass;
+        */
+        throw new UnsupportedOperationException("Not complete.");
     }
 
     @Override
@@ -253,10 +242,11 @@ public class SwingTerminalV2 extends AbstractTerminal
         frame.setIgnoreRepaint(true);
         frame.setFocusTraversalKeysEnabled(false);
 
-        gui = new BlackenPanelV2();
+        BlackenPanelV2 gui = new BlackenPanelV2(false);
         gui.setIgnoreRepaint(true);
         gui.setDoubleBuffered(true);
         listener = new EventListenerV2(gui);
+        this.setGui(gui);
 
         frame.setSize(600, 450);
         frame.getContentPane().setLayout(new BorderLayout());
@@ -331,254 +321,15 @@ public class SwingTerminalV2 extends AbstractTerminal
     }
 
     @Override
-    public void init(String name, int rows, int cols) {
-        init(name, rows, cols, null);
-    }
-
-    /**
-     * We do not cache the entire dim palette at palette-load as it isn't
-     * expected that many applications will make use of it.
-     *
-     * @param color standard (opaque) color in an
-     * @return
-     */
-    protected int makeDim(final int color) {
-        return ColorHelper.increaseAlpha(color, -0.20);
-    }
-
-    @Override
-    public void moveBlock(int numRows, int numCols, int origY, int origX,
-                          int newY, int newX) {
-        getGrid().moveBlock(numRows, numCols, origY, origX, newY, newX,
-                       new TerminalCell().new ResetCell());
-        gui.moveBlock(numRows, numCols, origY, origX, newY, newX);
+    public void refresh() {
+        getGui().refresh();
+        if (this.glass != null) {
+            glass.getGui().refresh();
+        }
     }
 
     @Override
     public void quit() {
         frame.dispose();
-    }
-
-    @Override
-    public void refresh() {
-        gui.refresh();
-    }
-
-    @Override
-    public void resize(int rows, int cols) {
-        if (this.getCursorX() >= cols || this.getCursorY() >= rows) {
-            setCursorLocation(-1,-1);
-        }
-        getGrid().setSize(rows, cols);
-        gui.resizeGrid(rows, cols);
-        gui.windowResized();
-    }
-
-    @Override
-    public void set(int y, int x, String glyph, Integer foreground,
-                    Integer background, EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
-        TerminalCellLike tcell = getGrid().get(y,x);
-        if (walls != null) {
-            tcell.setCellWalls(walls);
-        }
-        if (style != null) {
-            tcell.setStyle(style);
-        }
-        if (foreground != null) {
-            tcell.setForeground(foreground);
-        }
-        if (background != null) {
-            tcell.setBackground(background);
-        }
-        if (glyph != null) {
-            tcell.setSequence(glyph);
-        }
-        gui.set(y, x, this.setAwtFromTerminal(null, tcell));
-        tcell.setDirty(true);
-    }
-
-    @Override
-    public void set(int y, int x, TerminalCellLike tcell) {
-        AwtCell acell = gui.get(y, x);
-        AwtCell r = this.setAwtFromTerminal(acell, tcell);
-        if (acell == null) {
-            gui.set(y, x, r);
-        }
-        Grid<TerminalCellLike> grid = getGrid();
-        grid.get(y, x).set(tcell);
-        grid.get(y, x).setDirty(false);
-    }
-
-    @Override
-    public TerminalCellLike assign(int y, int x, TerminalCellLike tcell) {
-        AwtCell acell = gui.get(y, x);
-        AwtCell r = this.setAwtFromTerminal(acell, tcell);
-        if (acell == null) {
-            gui.set(y, x, r);
-        }
-        Grid<TerminalCellLike> grid = getGrid();
-        tcell.setDirty(false);
-        return grid.set(y, x, tcell);
-    }
-
-    protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCellLike term) {
-        if (term == null && awt != null) {
-            awt.setCell(null);
-            return awt;
-        }
-        if (awt == null) {
-            awt = new AwtCell();
-            awt.setFont(gui.getEmpty().getFont());
-            if (term == null) {
-                return awt;
-            }
-        } else {
-            awt.setFont(gui.getEmpty().getFont());
-        }
-        if (term == null) {
-            throw new NullPointerException();
-        }
-        awt.setSequence(term.getSequence());
-        awt.setCellWalls(term.getCellWalls());
-        awt.clearTextAttributes();
-        Set<TerminalStyle> styles = term.getStyle();
-        int fore = term.getForeground();
-        int back = term.getBackground();
-        if (styles.contains(TerminalStyle.STYLE_REVERSE)) {
-            int r = fore;
-            fore = back;
-            back = r;
-        }
-        if (styles.contains(TerminalStyle.STYLE_DIM)) {
-            fore = makeDim(fore);
-        }
-        awt.setBackgroundColor(getSwingColor(back));
-        awt.setForegroundColor(getSwingColor(fore));
-        Map<TextAttribute, Object> attrs = awt.getAttributes();
-        // attrs.put(TextAttribute.FAMILY, Font.MONOSPACED);
-        if (styles.contains(TerminalStyle.STYLE_LIGHT)) {
-            if (styles.contains(TerminalStyle.STYLE_BOLD)) {
-                if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                    // STYLE_LIGHT | STYLE_BOLD | STYLE_HEAVY
-                    // This is currently undefined.
-                } else {
-                    // STYLE_LIGHT | STYLE_BOLD
-                    attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_LIGHT);
-                }
-            } else if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                // STYLE_LIGHT | STYLE_HEAVY
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_MEDIUM);
-            } else {
-                // STYLE_LIGHT
-                attrs.put(TextAttribute.WEIGHT,
-                          TextAttribute.WEIGHT_EXTRA_LIGHT);
-            }
-        } else if (styles.contains(TerminalStyle.STYLE_BOLD)) {
-            if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                // STYLE_BOLD | STYLE_HEAVY
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_ULTRABOLD);
-            } else {
-                // STYLE_BOLD
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-            }
-
-        } else if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-            // STYLE_HEAVY
-            attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_HEAVY);
-        }
-        for(TerminalStyle style : styles) {
-            switch (style) {
-            case STYLE_LIGHT:
-            case STYLE_BOLD:
-            case STYLE_HEAVY:
-                break; // handled elsewhere
-
-            case STYLE_NARROW:
-                attrs.put(TextAttribute.WIDTH, TextAttribute.WIDTH_CONDENSED);
-                break;
-            case STYLE_WIDE:
-                attrs.put(TextAttribute.WIDTH, TextAttribute.WIDTH_EXTENDED);
-                break;
-            // What is STYLE_NARROW | STYLE_WIDE ?
-
-            case STYLE_ITALIC:
-                attrs.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
-                break;
-
-            // Mapped to SUPERSCRIPT (possibly *unclean* mapping)
-            case STYLE_SUPERSCRIPT: // SUPERSCRIPT_SUPER
-                attrs.put(TextAttribute.SUPERSCRIPT,
-                          TextAttribute.SUPERSCRIPT_SUPER);
-                break;
-            case STYLE_SUBSCRIPT: // SUPERSCRIPT_SUB
-                attrs.put(TextAttribute.SUPERSCRIPT,
-                          TextAttribute.SUPERSCRIPT_SUB);
-                break;
-            // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
-
-            case STYLE_INVISIBLE:
-                awt.setSequence("\u0000"); //$NON-NLS-1$
-                break;
-            case STYLE_REPLACEMENT:
-                awt.setSequence("\uFFFC"); //$NON-NLS-1$
-                String s = term.getSequence();
-                if (replacement != null && replacement.containsKey(s)) {
-                    attrs.put(TextAttribute.CHAR_REPLACEMENT, replacement.get(s));
-                }
-                break;
-
-            // Mapped to UNDERLINE
-            case STYLE_UNDERLINE: // UNDERLINE_ON
-                attrs.put(TextAttribute.UNDERLINE,
-                          TextAttribute.UNDERLINE_ON);
-                break;
-
-            // Mapped to STRIKETHROUGH
-            case STYLE_STRIKETHROUGH: // STRIKETHROUGH_ON
-                attrs.put(TextAttribute.STRIKETHROUGH,
-                          TextAttribute.STRIKETHROUGH_ON);
-                break;
-
-            // Mapped to SWAP_COLORS
-            case STYLE_REVERSE: // SWAP_COLORS_ON
-                attrs.put(TextAttribute.SWAP_COLORS,
-                          TextAttribute.SWAP_COLORS_ON);
-                break;
-            case STYLE_DIM:
-                /* handled elsewhere */
-                break;
-            }
-        }
-        awt.setTextAttributes(attrs);
-        return awt;
-    }
-
-    @Override
-    public void setCursorLocation(int y, int x) {
-        super.setCursorLocation(y, x);
-        if (gui != null) {
-            gui.moveCursor(y, x);
-        }
-    }
-
-    @Override
-    public void setFont(String font) {
-        if (font == null) {
-            font = Font.MONOSPACED;
-        }
-        Font fontObj = new Font(font, Font.PLAIN, 1);
-        gui.setFont(fontObj);
-    }
-
-    @Override
-    public ColorPalette setPalette(ColorPalette palette) {
-        ColorPalette old = super.setPalette(palette);
-        swingColor.clear();
-        if (palette != null) {
-            for (int c : palette) {
-                swingColor.put(c, new Color(c));
-            }
-        }
-        return old;
     }
 }

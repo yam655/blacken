@@ -191,7 +191,7 @@ public class EventListener implements WindowListener, KeyListener,
     @Override
     public void keyPressed(KeyEvent e) {
         // Certain things _have_ to get handled here -- even though not actions
-        LOGGER.debug("KeyEvent: {}", e);
+        // LOGGER.debug("KeyEvent: {}", e);
         switch(e.getExtendedKeyCode()) {
             case KeyEvent.VK_BACK_SPACE:
                 loadKey(e, BlackenKeys.KEY_BACKSPACE);

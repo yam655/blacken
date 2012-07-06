@@ -428,4 +428,38 @@ public interface TerminalInterface {
      * @return
      */
     public TerminalInterface getBackingTerminalInterface();
+
+    /**
+     * The "glass" TerminalInterface sits on top of the normal one and should
+     * be mostly transparent.
+     * @return current glass terminal interface (if any) or <code>null</code>
+     * @since COMING IN BLACKEN 2.0
+     */
+    public TerminalInterface getGlass();
+
+    /**
+     * Create a new "glass" TerminalInterface with the default font.
+     *
+     * @param rows
+     * @param cols
+     * @since COMING IN BLACKEN 2.0
+     * @return
+     */
+    public TerminalInterface initGlass(int rows, int cols);
+
+    /**
+     * Creates a translucent terminal interface on top of the current one.
+     *
+     * <p>A different resolution and font size can be used. This allows big
+     * a blocky tile-like font for the map with the other text smaller as
+     * well as super tiny font for the map and normal text for the rest.</p>
+     *
+     * @param rows
+     * @param cols
+     * @param font
+     * @since COMING IN BLACKEN 2.0
+     * @return
+     */
+    public TerminalInterface initGlass(int rows, int cols, String font);
+
 }

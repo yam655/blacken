@@ -556,4 +556,19 @@ public class CursesLikeAPI implements TerminalInterface {
         return terminal;
     }
 
+    @Override
+    public TerminalInterface getGlass() {
+        return terminal.getGlass();
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols) {
+        return terminal.initGlass(rows, cols);
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols, String font) {
+        return terminal.initGlass(rows, cols, font);
+    }
+
 }

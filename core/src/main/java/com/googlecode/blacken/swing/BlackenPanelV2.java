@@ -15,6 +15,7 @@
 */
 package com.googlecode.blacken.swing;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -96,24 +97,27 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      */
     private transient long displaySpeed = 0;
 
-    /**
-     * Experimental display mode setting
-     */
-    private static int displayMode = 2;
+    private int refreshedCnt = 0;
+    private int repaintedCnt = 0;
+    private final boolean isGlass;
 
     /**
      * Create a new panel.
+     * @param isGlass
      */
-    public BlackenPanelV2() {
+    public BlackenPanelV2(boolean isGlass) {
         super(true);
+        this.isGlass = isGlass;
     }
 
     /**
      * Create a new panel with a layout manager.
      * @param layout layout manager
+     * @param isGlass 
      */
-    public BlackenPanelV2(LayoutManager layout) {
+    public BlackenPanelV2(LayoutManager layout, boolean isGlass) {
         super(layout, true);
+        this.isGlass = isGlass;
     }
 
     /**
@@ -122,7 +126,7 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
     public void clear() {
         this.refresh_all = true;
         grid.clear(this.empty);
-        this.moveCursor(0, 0);
+        this.moveCursor(-1, -1);
     }
 
     /**
@@ -277,14 +281,31 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
 
     @Override
     public void paintComponent(Graphics g) {
-        AwtCell c = null;
+        AwtCell c;
         boolean need_cursor = false;
         Graphics2D graphics = (Graphics2D)g;
 
+        synchronized(this) {
+            if (this.refreshedCnt == this.repaintedCnt) {
+                LOGGER.error("Dropped a paintComponent update -- didn't come through refresh() {} {}", this.refreshedCnt, isGlass);
+                return;
+            } else {
+                LOGGER.info("Painting... {}", this.isGlass);
+            }
+            this.repaintedCnt = this.refreshedCnt;
+        }
+
         try {
             long startTime = System.currentTimeMillis();
-            if (displayMode == 1 || refresh_all) {
-                graphics.setPaint(Color.BLACK);
+            if (this.isGlass) {
+                graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.0f));
+            }
+            if (refresh_all) {
+                if (this.isGlass) {
+                    graphics.setPaint(new Color(0x00000000, true));
+                } else {
+                    graphics.setPaint(Color.BLACK);
+                }
                 graphics.fill(getBounds());
             } else {
                 if (lastCursorX != -1 && lastCursorY != -1) {
@@ -297,32 +318,20 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
                 }
             }
             if (cursorX != -1 && cursorY != -1) {
-                if (displayMode == 0 || displayMode == 2) {
-                    if (grid.contains(cursorY, cursorX)) {
-                        c = grid.get(cursorY, cursorX);
-                        if (c.isDirty()) {
-                            need_cursor = true;
-                        } else if (cursorX != lastCursorX || cursorY != lastCursorY) {
-                            need_cursor = true;
-                        }
-                    } else {
+                if (grid.contains(cursorY, cursorX)) {
+                    c = grid.get(cursorY, cursorX);
+                    if (c.isDirty()) {
                         need_cursor = true;
-                        if (cursorY >= grid.getHeight() + grid.getY()) {
-                            cursorY = grid.getHeight() + grid.getY() -1;
-                        }
-                        if (cursorX >= grid.getWidth() + grid.getX()) {
-                            cursorX = grid.getWidth() + grid.getX() -1;
-                        }
+                    } else if (cursorX != lastCursorX || cursorY != lastCursorY) {
+                        need_cursor = true;
                     }
-                } else if (displayMode == 1) {
+                } else {
                     need_cursor = true;
-                    if (!grid.contains(cursorY, cursorX)) {
-                        if (cursorY >= grid.getHeight() + grid.getY()) {
-                            cursorY = grid.getHeight() + grid.getY() -1;
-                        }
-                        if (cursorX >= grid.getWidth() + grid.getX()) {
-                            cursorX = grid.getWidth() + grid.getX() -1;
-                        }
+                    if (cursorY >= grid.getHeight() + grid.getY()) {
+                        cursorY = grid.getHeight() + grid.getY() -1;
+                    }
+                    if (cursorX >= grid.getWidth() + grid.getX()) {
+                        cursorX = grid.getWidth() + grid.getX() -1;
                     }
                 }
             }
@@ -336,86 +345,39 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
 
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
-                    if (displayMode == 1) { // row-joined
-                        if (!c.getBackgroundColor().equals(Color.BLACK)) {
-                            graphics.setPaint(c.getBackgroundColor());
-                            graphics.fill(new Rectangle(x * fontSglAdvance,
-                                                        y * fontHeight,
-                                                        fontSglAdvance,
-                                                        fontHeight));
-                        }
-                    } else {
-                        if (c.isDirty() || refresh_all) {
-                            graphics.setPaint(c.getBackgroundColor());
-                            graphics.fill(new Rectangle(x * fontSglAdvance,
-                                                        y * fontHeight,
-                                                        fontSglAdvance,
-                                                        fontHeight));
-                        }
+                    if (c.isDirty() || refresh_all) {
+                        graphics.setPaint(c.getBackgroundColor());
+                        graphics.fill(new Rectangle(x * fontSglAdvance,
+                                                    y * fontHeight,
+                                                    fontSglAdvance,
+                                                    fontHeight));
                     }
                 }
                 final int fontHeightD2 = fontHeight / 2;
                 final int fontSglAdvanceD2 = fontSglAdvance / 2;
-                if (displayMode == 1) { // row-joined
-                    StringBuilder lineText = new StringBuilder(grid.getWidth());
-                    for (int x = 0; x < grid.getWidth(); x++) {
-                        c = grid.get(y, x);
-                        String cs = c.getSequence();
-                        if (cs == null || "\u0000".equals(cs)) {
-                            cs = " ";
-                        }
-                        lineText.append(cs);
-                    }
-                    as = new AttributedString(lineText.toString());
-                    for (int x = 0; x < grid.getWidth(); x++) {
-                        c = grid.get(y, x);
-                        c.setFont(this.font);
-                        as.addAttributes(c.getAttributes(), x, x+1);
-                    }
-                    graphics.drawString(as.getIterator(),
-                                    0,
-                                    y * fontHeight + fontAscent);
-                    // LOGGER.debug("Drew row in mode 1");
-                }
 
                 for (int x = 0; x < grid.getWidth(); x++) {
                     c = grid.get(y, x);
-                    if (displayMode == 0) { // multiple AttributedStrings
-                        if (!c.isDirty() && !refresh_all) {
-                            continue;
+                    if (!c.isDirty() && !refresh_all) {
+                        continue;
+                    }
+                    String cs = c.getSequence();
+                    c.setFont(this.font);
+                    // For double-wide characters, we can safely put a NUL
+                    // byte in the second slot and it will never be displayed.
+                    if (cs != null && !"\u0000".equals(cs)) {
+                        int w = metrics.stringWidth(cs);
+                        w = fontSglAdvance - w;
+                        if (w < 0) {
+                            w = 0;
+                        } else {
+                            w /= 2;
                         }
-                        String cs = c.getSequence();
-                        c.setFont(this.font);
-                        // For double-wide characters, we can safely put a NUL
-                        // byte in the second slot and it will never be displayed.
-                        if (cs != null && !"\u0000".equals(cs)) {
-                            int w = metrics.stringWidth(cs);
-                            w = fontSglAdvance - w;
-                            if (w < 0) w = 0;
-                            else w /= 2;
-                            graphics.drawString(c.getAttributedString().getIterator(),
-                                            x * fontSglAdvance + w,
-                                            y * fontHeight + fontAscent);
-                        }
-                    } else if (displayMode == 2) {
-                        if (!c.isDirty() && !refresh_all) {
-                            continue;
-                        }
-                        String cs = c.getSequence();
-                        c.setFont(this.font);
-                        // For double-wide characters, we can safely put a NUL
-                        // byte in the second slot and it will never be displayed.
-                        if (cs != null && !"\u0000".equals(cs)) {
-                            int w = metrics.stringWidth(cs);
-                            w = fontSglAdvance - w;
-                            if (w < 0) w = 0;
-                            else w /= 2;
-                            graphics.setBackground(c.getBackgroundColor());
-                            graphics.setColor(c.getForegroundColor());
-                            graphics.drawString(c.getSequence(),
-                                            x * fontSglAdvance + w,
-                                            y * fontHeight + fontAscent);
-                        }
+                        graphics.setBackground(c.getBackgroundColor());
+                        graphics.setColor(c.getForegroundColor());
+                        graphics.drawString(c.getSequence(),
+                                        x * fontSglAdvance + w,
+                                        y * fontHeight + fontAscent);
                     }
 
                     c.setDirty(false);
@@ -479,6 +441,7 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
             synchronized(this) {
                 this.notifyAll();
             }
+            LOGGER.debug("Was glass? {}", isGlass);
         }
     }
 
@@ -507,19 +470,19 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
         fontAscent = metrics.getMaxAscent()+1;
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
-        if (fontDblAdvance == -1) fontDblAdvance = fontSglAdvance;
+        if (fontDblAdvance == -1) {
+            fontDblAdvance = fontSglAdvance;
+        }
         fontHasDouble = false;
         if (fontDblAdvance >= fontSglAdvance + fontSglAdvance) {
             fontHasDouble = true;
         }
-        if (displayMode != 1) {
-            if (fontHasDouble) {
-                int sa = fontDblAdvance / 2;
-                if (sa >= fontSglAdvance) {
-                    fontSglAdvance = sa;
-                } else {
-                    fontDblAdvance = fontSglAdvance * 2;
-                }
+        if (fontHasDouble) {
+            int sa = fontDblAdvance / 2;
+            if (sa >= fontSglAdvance) {
+                fontSglAdvance = sa;
+            } else {
+                fontDblAdvance = fontSglAdvance * 2;
             }
         }
         /* XXX: Here's the issue:
@@ -571,12 +534,16 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      * Refresh the window.
      */
     public void refresh() {
+        LOGGER.debug("Calling refresh: isGlass={}", isGlass);
         synchronized(this) {
-            repaint();
-            try {
-                this.wait();
-            } catch (InterruptedException ex) {
-                // do nothing
+            this.refreshedCnt++;
+            if (this.isVisible()) {
+                repaint();
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    // do nothing
+                }
             }
         }
     }
@@ -601,15 +568,23 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      * @param x1 coordinate of the box
      */
     public void refreshRegion(int height, int width, int y1, int x1) {
-        if (y1 < 0) y1 = 0;
-        if (x1 < 0) x1 = 0;
+        if (y1 < 0) {
+            y1 = 0;
+        }
+        if (x1 < 0) {
+            x1 = 0;
+        }
 
-        if (height < 0) height = grid.getHeight();
+        if (height < 0) {
+            height = grid.getHeight();
+        }
         if (height + y1 >= grid.getHeight()) {
             height = grid.getHeight() - y1;
         }
 
-        if (width < 0) width = grid.getWidth();
+        if (width < 0) {
+            width = grid.getWidth();
+        }
         if (width + y1 >= grid.getWidth()) {
             width = grid.getWidth() - y1;
         }
@@ -664,7 +639,7 @@ public class BlackenPanelV2 extends JPanel implements Serializable {
      * @param fontSize font size to use
      */
     public void resizeFrame(JFrame frame, int fontSize) {
-        Font f = null;
+        Font f;
         if (fontSize > 0) {
             f = this.font;
             if (f == null) {

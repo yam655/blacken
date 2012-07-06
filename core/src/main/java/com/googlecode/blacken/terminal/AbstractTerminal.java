@@ -181,18 +181,24 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void init(String name, int rows, int cols) {
-        if (grid == null) {
-            grid = new Grid<>(this.empty, rows, cols);
-        } else {
-            resize(rows, cols);
-        }
-        setCursorLocation(-1,-1);
+        init(name, rows, cols, null);
     }
+
+    @Override
+    public abstract TerminalInterface getGlass();
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols) {
+        return initGlass(rows, cols, null);
+    }
+
+    @Override
+    public abstract TerminalInterface initGlass(int rows, int cols, String font);
 
     @Override
     public void init(String name, int rows, int cols, String font) {
         if (grid == null) {
-            grid = new Grid<TerminalCellLike>(this.empty, rows, cols);
+            grid = new Grid<>(this.empty, rows, cols);
         } else {
             grid.reset(rows, cols, this.empty);
             

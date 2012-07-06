@@ -568,4 +568,14 @@ public class SwingTerminal extends AbstractTerminal
         }
         return old;
     }
+
+    @Override
+    public TerminalInterface getGlass() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols, String font) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
