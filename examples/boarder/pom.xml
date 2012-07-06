@@ -48,6 +48,56 @@
                 <encoding>${project.build.sourceEncoding}</encoding>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        <overWriteReleases>false</overWriteReleases>
+                        <overWriteSnapshots>false</overWriteSnapshots>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.4</version>
+            <configuration>
+                <archive>
+                    <addMavenDescriptor/>
+                    <compress/>
+                    <forced/>
+                    <index/>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <addDefaultImplementationEntries/>
+                        <addDefaultSpecificationEntries/>
+                        <addExtensions/>
+                        <classpathLayoutType/>
+                        <classpathMavenRepositoryLayout/>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <customClasspathLayout/>
+                        <mainClass>com.googlecode.blacken.examples.Boarder</mainClass>
+                        <packageName/>
+                    </manifest>
+                    <manifestEntries>
+                        <key>value</key>
+                    </manifestEntries>
+                    <manifestFile/>
+                    <pomPropertiesFile/>
+                </archive>
+            </configuration>
+        </plugin>
+
     </plugins>
   </build>
     <description>A user-interface to test the keyboard and keyboard codes.
