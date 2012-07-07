@@ -22,7 +22,7 @@ package com.googlecode.blacken.colors;
  * <p>The functions here are used with the {@link ColorPalette} class to get
  * standard color sets.</p>
  * 
- * @author yam655
+ * @author Steven Black
  */
 public final class ColorNames {
     /**
@@ -36,7 +36,6 @@ public final class ColorNames {
      * 
      * <p>Described on http://en.wikipedia.org/wiki/Web_colors</p>
      */
-    @SuppressWarnings("nls")
     static public String[] HTML_COLORS = 
     {
      "Black / black -> #000000",
@@ -66,7 +65,6 @@ public final class ColorNames {
      * 
      * <p>These come from http://www.w3.org/TR/SVG/types.html</p> 
      */
-    @SuppressWarnings("nls")
     static public String[] SVG_COLORS = 
     {
         "AliceBlue -> #f0f8ff",
@@ -354,7 +352,6 @@ public final class ColorNames {
      * </p>
      *  
      */
-    @SuppressWarnings("nls")
     static public String[] STANDARD_16_COLORS = 
     {
      "COLOR_BLACK / black -> #000000",
@@ -426,4 +423,110 @@ public final class ColorNames {
      "COLOR_WHITE|A_BOLD / white -> #FFFFFF",
     };
 
+    static public String[] LIBTCOD_COLORS = {
+        "black -> 0,0,0",
+        "white -> 255,255,255",
+        // standard
+        "desaturatedRed -> 128,64,64", "lightestRed -> 255,191,191",
+        "lighterRed -> 255,166,166", "lightRed -> 255,115,115",
+        "red -> 255,0,0", "darkRed -> 191,0,0",
+        "darkerRed -> 128,0,0", "darkestRed -> 64,0,0",
+        "desaturatedFlame -> 128,80,64", "lightestFlame -> 255,207,191",
+        "lighterFlame -> 255,188,166", "lightFlame -> 255,149,115",
+        "flame -> 255,63,0", "darkFlame -> 191,47,0",
+        "darkerFlame -> 128,32,0", "darkestFlame -> 64,16,0",
+        "desaturatedOrange -> 128,96,64", "lightestOrange -> 255,223,191",
+        "lighterOrange -> 255,210,166","lightOrange -> 255,185,115",
+        "orange -> 255,127,0","darkOrange -> 191,95,0",
+        "darkerOrange -> 128,64,0","darkestOrange -> 64,32,0",
+        "desaturatedAmber -> 128,112,64", "lightestAmber -> 255,239,191",
+        "lighterAmber -> 255,233,166","lightAmber -> 255,220,115",
+        "amber -> 255,191,0","darkAmber -> 191,143,0",
+        "darkerAmber -> 128,96,0","darkestAmber -> 64,48,0",
+        "desaturatedYellow -> 128,128,64", "lightestYellow -> 255,255,191",
+        "lighterYellow -> 255,255,166","lightYellow -> 255,255,115",
+        "yellow -> 255,255,0","darkYellow -> 191,191,0",
+        "darkerYellow -> 128,128,0","darkestYellow -> 64,64,0",
+        "desaturatedLime -> 112,128,64", "lightestLime -> 239,255,191",
+        "lighterLime -> 233,255,166","lightLime -> 220,255,115",
+        "lime -> 191,255,0","darkLime -> 143,191,0",
+        "darkerLime -> 96,128,0","darkestLime -> 48,64,0",
+        "desaturatedChartreuse -> 96,128,64", "lightestChartreuse -> 223,255,191",
+        "lighterChartreuse -> 210,255,166","lightChartreuse -> 185,255,115",
+        "chartreuse -> 127,255,0","darkChartreuse -> 95,191,0",
+        "darkerChartreuse -> 64,128,0","darkestChartreuse -> 32,64,0",
+        "desaturatedGreen -> 64,128,64", "lightestGreen -> 191,255,191",
+        "lighterGreen -> 166,255,166","lightGreen -> 115,255,115",
+        "green -> 0,255,0","darkGreen -> 0,191,0",
+        "darkerGreen -> 0,128,0","darkestGreen -> 0,64,0",
+        "desaturatedSea -> 64,128,96", "lightestSea -> 191,255,223",
+        "lighterSea -> 166,255,210","lightSea -> 115,255,185",
+        "sea -> 0,255,127","darkSea -> 0,191,95",
+        "darkerSea -> 0,128,64","darkestSea -> 0,64,32",
+        "desaturatedTurquoise -> 64,128,112", "lightestTurquoise -> 191,255,239",
+        "lighterTurquoise -> 166,255,233","lightTurquoise -> 115,255,220",
+        "turquoise -> 0,255,191","darkTurquoise -> 0,191,143",
+        "darkerTurquoise -> 0,128,96","darkestTurquoise -> 0,64,48",
+        "desaturatedCyan -> 64,128,128", "lightestCyan -> 191,255,255",
+        "lighterCyan -> 166,255,255","lightCyan -> 115,255,255",
+        "cyan -> 0,255,255","darkCyan -> 0,191,191",
+        "darkerCyan -> 0,128,128","darkestCyan -> 0,64,64",
+        "desaturatedSky -> 64,112,128", "lightestSky -> 191,239,255",
+        "lighterSky -> 166,233,255","lightSky -> 115,220,255",
+        "sky -> 0,191,255","darkSky -> 0,143,191",
+        "darkerSky -> 0,96,128","darkestSky -> 0,48,64",
+        "desaturatedAzure -> 64,96,128", "lightestAzure -> 191,223,255",
+        "lighterAzure -> 166,210,255","lightAzure -> 115,185,255",
+        "azure -> 0,127,255","darkAzure -> 0,95,191",
+        "darkerAzure -> 0,64,128","darkestAzure -> 0,32,64",
+        "desaturatedBlue -> 64,64,128", "lightestBlue -> 191,191,255",
+        "lighterBlue -> 166,166,255","lightBlue -> 115,115,255",
+        "blue -> 0,0,255","darkBlue -> 0,0,191",
+        "darkerBlue -> 0,0,128","darkestBlue -> 0,0,64",
+        "desaturatedHan -> 80,64,128", "lightestHan -> 207,191,255",
+        "lighterHan -> 188,166,255","lightHan -> 149,115,255",
+        "han -> 63,0,255","darkHan -> 47,0,191",
+        "darkerHan -> 32,0,128","darkestHan -> 16,0,64",
+        "desaturatedViolet -> 96,64,128", "lightestViolet -> 223,191,255",
+        "lighterViolet -> 210,166,255","lightViolet -> 185,115,255",
+        "violet -> 127,0,255","darkViolet -> 95,0,191",
+        "darkerViolet -> 64,0,128","darkestViolet -> 32,0,64",
+        "desaturatedPurple -> 111,64,128", "lightestPurple -> 239,191,255",
+        "lighterPurple -> 233,166,255","lightPurple -> 220,115,255",
+        "purple -> 191,0,255","darkPurple -> 143,0,191",
+        "darkerPurple -> 95,0,128","darkestPurple -> 48,0,64",
+        "desaturatedFuchsia -> 128,64,128", "lightestFuchsia -> 255,191,255",
+        "lighterFuchsia -> 255,166,255","lightFuchsia -> 255,115,255",
+        "fuchsia -> 255,0,255","darkFuchsia -> 191,0,191",
+        "darkerFuchsia -> 128,0,128","darkestFuchsia -> 64,0,64",
+        "desaturatedMagenta -> 128,64,111", "lightestMagenta -> 255,191,239",
+        "lighterMagenta -> 255,166,233","lightMagenta -> 255,115,220",
+        "magenta -> 255,0,191","darkMagenta -> 191,0,143",
+        "darkerMagenta -> 128,0,95","darkestMagenta -> 64,0,48",
+        "desaturatedPink -> 128,64,96", "lightestPink -> 255,191,223",
+        "lighterPink -> 255,166,210","lightPink -> 255,115,185",
+        "pink -> 255,0,127","darkPink -> 191,0,95",
+        "darkerPink -> 128,0,64","darkestPink -> 64,0,32",
+        "desaturatedCrimson -> 128,64,79", "lightestCrimson -> 255,191,207",
+        "lighterCrimson -> 255,166,188","lightCrimson -> 255,115,149",
+        "crimson -> 255,0,63","darkCrimson -> 191,0,47",
+        "darkerCrimson -> 128,0,31","darkestCrimson -> 64,0,16",
+        // metallic
+        "brass -> 191,151,96", "copper -> 196,136,124",
+        "gold -> 229,191,0", "silver -> 203,203,203",
+        // miscellaneous
+        "celadon -> 172,255,175", "peach -> 255,159,127",
+        // grey/gray scale
+        "lightestGrey / lightestGray -> 223,223,223",
+        "lighterGrey / lighterGray -> 191,191,191",
+        "lightGrey / lightGray -> 159,159,159","grey -> 127,127,127",
+        "darkGrey / darkGray -> 95,95,95",
+        "darkerGrey / darkerGray -> 63,63,63",
+        "darkestGrey / darkestGray -> 31,31,31",
+        // sepia
+        "lightestSepia -> 222,211,195","lighterSepia -> 191,171,143",
+        "lightSepia -> 158,134,100","sepia -> 127,101,63",
+        "darkSepia -> 94,75,47","darkerSepia -> 63,50,31",
+        "darkestSepia -> 31,24,15"
+        };
 }

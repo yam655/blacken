@@ -15,6 +15,9 @@
 */
 package com.googlecode.blacken.colors;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
@@ -76,7 +79,9 @@ public class ColorHelper {
      */
     public static boolean isColorDefinition(String color) {
         boolean ret = false;
-        if (color == null) return false;
+        if (color == null) {
+            return false;
+        }
         if (color.startsWith("#")) {  //$NON-NLS-1$
             color = color.substring(1);
             try {
@@ -106,7 +111,7 @@ public class ColorHelper {
      * @see makeOpaque
      * @return true if the alpha channel is fully opaque, false otherwise
      */
-    static boolean isOpaque(int color) {
+    public static boolean isOpaque(int color) {
         return (color & 0xFF000000) == 0xFF000000 ? true : false;
     }
     /**
@@ -119,17 +124,20 @@ public class ColorHelper {
      * @see #isOpaque
      * @return true if the alpha channel is fully transparent, false otherwise
      */
-    static boolean isTransparent(int color) {
+    public static boolean isTransparent(int color) {
         return (color & 0xFF000000) == 0 ? true : false;
     }
     
     /**
      * Make an opaque RGBA color -- color components have upper value of 1.0.
+     *
+     * <p>Having a separate function for opaque color is silly.</p>
      * 
      * @param red red value
      * @param green green value
      * @param blue blue value
      * @return valid RGBA color
+     * @deprecated use {@link #makeColor(float, float, float, float)} instead
      */
     public static int makeColor(float red, float green, float blue) {
         return makeColor(red, green, blue, 1.0F);
@@ -146,25 +154,36 @@ public class ColorHelper {
      */
     public static int makeColor(float red, float green, float blue, 
                                 float alpha) {
-        if (red > 1.0) red = 1.0F;
-        if (green > 1.0) green = 1.0F;
-        if (blue > 1.0) blue = 1.0F;
-        if (alpha > 1.0) alpha = 1.0F;
-        red = red * 255.0F;
-        blue = blue * 255.0F;
-        green = green * 255.0F;
-        alpha = alpha * 255.0F;
-        return makeColor((int)Math.floor(red), (int)Math.floor(green), 
+        if (red > 1.0) {
+            red = 1.0F;
+        }
+        if (green > 1.0) {
+            green = 1.0F;
+        }
+        if (blue > 1.0) {
+            blue = 1.0F;
+        }
+        if (alpha > 1.0) {
+            alpha = 1.0F;
+        }
+        red *= 255.0F;
+        blue *= 255.0F;
+        green *= 255.0F;
+        alpha *= 255.0F;
+        return colorFromComponents((int)Math.floor(red), (int)Math.floor(green),
                          (int)Math.floor(blue), (int)Math.floor(alpha));
     }
 
     /**
      * Make an opaque RGB color -- color components have upper value of 255.
-     * 
+     *
+     * <p>Having a separate function for opaque color is silly.</p>
+     *
      * @param red red value
      * @param green green value
      * @param blue blue value
      * @return valid RGBA color (opaque)
+     * @deprecated use {@link #colorFromComponents(int, int, int, int)}
      */
     public static int makeColor(int red, int green, int blue) {
         return makeColor(red, green, blue, 255, 255);
@@ -178,10 +197,25 @@ public class ColorHelper {
      * @param blue blue value
      * @param alpha alpha value
      * @return valid RGBA color
+     * @deprecated use {@link #colorFromComponents(int, int, int, int)}
      */
     public static int makeColor(int red, int green, int blue, int alpha) {
         return makeColor(red, green, blue, alpha, 255);
     }
+
+    /**
+     * Make an RGBA color -- color components have upper value of 255.
+     *
+     * @param red red value
+     * @param green green value
+     * @param blue blue value
+     * @param alpha alpha value
+     * @return valid RGBA color
+     */
+    public static int colorFromComponents(int red, int green, int blue, int alpha) {
+        return makeColor(red, green, blue, alpha, 255);
+    }
+
 
     /**
      * Make an RGBA color using a variable upper value for color components
@@ -247,7 +281,7 @@ public class ColorHelper {
      */
     public static int makeColor(String color)
             throws InvalidStringFormatException {
-        if (color.startsWith("#")) { //$NON-NLS-1$
+        if (color.startsWith("#")) {
             color = color.substring(1);
             int c;
             try {
@@ -265,8 +299,8 @@ public class ColorHelper {
                 // This may be disappearing or changing
                 return c;
             }
-        } else if (color.startsWith("0x") || //$NON-NLS-1$ 
-                color.startsWith("0X")) { //$NON-NLS-1$
+        } else if (color.startsWith("0x") ||
+                color.startsWith("0X")) {
             color = color.substring(2);
             int c;
             long trialC;
@@ -281,24 +315,79 @@ public class ColorHelper {
             } else if (color.length() == 8) {
                 return c;
             }
+        } else if (color.contains(",")) {
+            String[] parts = color.split(",");
+            int[] components = new int[4];
+            try {
+                components[0] = Integer.parseInt(parts[0], 10);
+                components[1] = Integer.parseInt(parts[1], 10);
+                components[2] = Integer.parseInt(parts[2], 10);
+                if (parts.length > 3) {
+                    components[3] = Integer.parseInt(parts[3], 10);
+                } else {
+                    components[3] = 255;
+                }
+            } catch(NumberFormatException e) {
+                throw new InvalidStringFormatException(e);
+            }
+            return colorFromComponents(components);
         }
         throw new InvalidStringFormatException();
     }
 
     /**
      * Split a color out in to the component R,G,B,A values.
-     * 
+     *
+     * @param color ARGB value
+     * @returns int[] {red, green, blue, alpha}
+     * @deprecated use {@link #colorToComponents(int)} instead.
+     */
+    @Deprecated
+    public static int[] makeComponents(final int color) {
+        return colorToComponents(color);
+    }
+
+    /**
+     * Split a color out in to the component R,G,B,A values.
+     *
      * @param color color value
      * @see #makeColor(int, int, int, int)
      * @return array containing red, green, blue, and alpha components
      */
-    public static int[] makeComponents(final int color) {
+    public static int[] colorToComponents(final int color) {
         int r, g, b, a;
         a = (color & 0xff000000) >>> 24;
         r = (color & 0x00ff0000) >>> 16;
         g = (color & 0x0000ff00) >>> 8;
         b = color & 0x000000ff;
         int[] ret = {r, g, b, a};
+        return ret;
+    }
+
+    /**
+     * Split a color out in to the component R,G,B,A values.
+     *
+     * <p>If the <code>out</code> Map is provided, it will be used to store
+     * the component settings, otherwise a new map will be created and
+     * returned. The components have keys of "red", "green", "blue", and
+     * "alpha".</p>
+     *
+     * @param color an ARGB value
+     * @param out null to create a new Map; otherwise output variable
+     * @return components in a Map
+     * @since Blacken 1.1
+     */
+    public static Map<String, Integer> colorToComponents(final int color,
+            Map<String, Integer> out) {
+        Map<String, Integer> ret = out;
+        if (ret == null) {
+            ret = new HashMap<>(4);
+        }
+        int[] comps = makeComponents(color);
+        ret.put("red", comps[0]);
+        ret.put("green", comps[1]);
+        ret.put("blue", comps[2]);
+        ret.put("alpha", comps[3]);
         return ret;
     }
 
@@ -394,18 +483,49 @@ public class ColorHelper {
     public static int setAlpha(final int color, final int alpha) {
         int ret = alpha & 0xff;
         ret <<= 24;
-        ret = ret | (color & 0x00ffffff);
+        ret |= (color & 0x00ffffff);
         return ret;
     }
-    
+
+    /**
+     * Generate HSVA components for a color.
+     *
+     * @param rgba
+     * @param out
+     * @return
+     */
+    public static Map<String, Float> colorToHSV(int rgba, Map<String, Float> out) {
+        Map<String, Float> ret = out;
+        if (ret == null) {
+            ret = new HashMap<>(4);
+        }
+        float[] hsva = ColorToHSV(rgba);
+        ret.put("hue", hsva[0]);
+        ret.put("saturation", hsva[1]);
+        ret.put("value", hsva[2]);
+        ret.put("alpha", hsva[3]);
+        return ret;
+    }
+
+    /**
+     *
+     * @param rgba color value
+     * @return array of {hue, saturation, value, alpha}
+     * @deprecated use {@link #colorToHSV(int)} instead.
+     */
+    @Deprecated
+    public static float[] ColorToHSV(int rgba) {
+        return colorToHSV(rgba);
+    }
+
     /**
      * @param rgba color value
      * @return array of {hue, saturation, value, alpha}
      */
-    public static float[] ColorToHSV(int rgba) {
+    public static float[] colorToHSV(int rgba) {
         int min, max;
         float d;
-        int[] comps = makeComponents(rgba);
+        int[] comps = colorToComponents(rgba);
         int r = comps[0]; int g = comps[1]; int b = comps[2];
         int alpha = comps[3];
         
@@ -414,8 +534,12 @@ public class ColorHelper {
         } else { 
             min = r; max = g; 
         }
-        if (b > max) max = b;
-        if (b < min) min = b;
+        if (b > max) {
+            max = b;
+        }
+        if (b < min) {
+            min = b;
+        }
         d = max - min;
 
         float h = 0;
@@ -428,8 +552,68 @@ public class ColorHelper {
                 h = (4 + (r - g) / d);
             }
         }
-        if (h < 0) h += 6F; // convert from -180:+180 to 0:360
+        if (h < 0) {
+            // convert from -180:+180 to 0:360
+            h += 6F;
+        }
         return new float[]{ h * 60F, d / 255F, max / 255F, alpha / 255F};
+    }
+
+    public static int shiftHue(int rgba, float shift) {
+        if (shift >= 360.0 || shift <= -360.0) {
+            throw new IllegalArgumentException("shift should be within +/- 360.0");
+        }
+        float[] hsv = colorToHSV(rgba);
+        hsv[0] += shift;
+        if (hsv[0] < 0) {
+            hsv[0] += 360.0;
+        } else if (hsv[0] >= 360.0) {
+            hsv[0] -= 360.0;
+        }
+        return colorFromHSV(hsv);
+    }
+
+    public static int scaleSV(int rgba, float scaleS, float scaleV) {
+        float[] hsv = colorToHSV(rgba);
+        hsv[1] *= scaleS;
+        hsv[2] *= scaleV;
+        return colorFromHSV(hsv);
+    }
+
+    public static int colorFromHSV(float hue, float saturation, float value, float alpha) {
+        return colorFromHSV(new float[] {hue, saturation, value, alpha});
+    }
+
+    public static int colorFromHSV(Map<String, Float> hsva) {
+        Float hue = hsva.get("hue");
+        Float saturation = hsva.get("saturation");
+        Float value = hsva.get("saturation");
+        Float alpha = hsva.get("alpha");
+        if (alpha == null) {
+            alpha = 1.0F;
+        }
+        if (hue == null) {
+            hue = 0.0F;
+        }
+        if (saturation == null) {
+            saturation = 0.0F;
+        }
+        if (value == null) {
+            value = 0.0F;
+        }
+        return ColorFromHSV(new float[] {hue, saturation, value, alpha});
+    }
+
+    /**
+     * Convert color from HSV to RGBA
+     *
+     * @param hsva {hue, saturation, value, (optional) alpha}
+     * @return color value
+     * @deprecated use {@link #colorFromHSV(float[])} instead.
+     */
+    @Deprecated
+    public static int ColorFromHSV(float[] hsva) {
+        return colorFromHSV(hsva);
     }
 
     /**
@@ -441,21 +625,23 @@ public class ColorHelper {
      * @param hsva {hue, saturation, value, (optional) alpha}
      * @return color value
      */
-    public static int ColorFromHSV(float[] hsva) {
+    public static int colorFromHSV(float[] hsva) {
         float h = hsva[0]; float s = hsva[1]; float v = hsva[2];
         float alpha = 1F;
-        if (hsva.length > 3) alpha = hsva[3];
+        if (hsva.length > 3) {
+            alpha = hsva[3];
+        }
         float r, g, b;
         
         int segment;
         float f, p, q, t;
 
-        if (s == 0F) {
+        if (s == 0.0F) {
             r = g = b = v;
             return makeColor(r, g, b, alpha);
         }
         
-        h /= 60F;
+        h /= 60.0F;
         segment = (int)Math.floor(h);
         f = h - segment;
         p = v * (1 - s);
@@ -484,20 +670,156 @@ public class ColorHelper {
      * @param endIdx ending index (exclusive)
      * @param satStep offset to modify the saturation (-1.0 to +1.0)
      */
-    public void saturatePalette(ColorPalette pal, int startIdx, int endIdx, float satStep) {
-        if (startIdx < 0) startIdx = 0;
-        if (endIdx == 0) endIdx = pal.size();
-        else if (endIdx < 0) endIdx += pal.size() +1;
+    static public void saturatePalette(ColorPalette pal, int startIdx, int endIdx, float satStep) {
+        if (startIdx < 0) {
+            startIdx = 0;
+        }
+        if (endIdx == 0) {
+            endIdx = pal.size();
+        } else if (endIdx < 0) {
+            endIdx += pal.size() +1;
+        }
         for (int idx = startIdx; idx < endIdx; idx++) {
-            float[] hsv = ColorToHSV(pal.get(idx));
+            float[] hsv = colorToHSV(pal.get(idx));
             hsv[1] += satStep;
             if (hsv[1] < 0F) {
                 hsv[1] = 0F;
             } else if (hsv[1] > 1.0F) {
                 hsv[1] = 1F;
             }
-            pal.set(idx, ColorFromHSV(hsv));
+            pal.set(idx, colorFromHSV(hsv));
         }
     }
-    
+
+    public static void multiplyPalette(ColorPalette pal, int startIdx, int endIdx, int rgba) {
+        if (startIdx < 0) {
+            startIdx = 0;
+        }
+        if (endIdx == 0) {
+            endIdx = pal.size();
+        } else if (endIdx < 0) {
+            endIdx += pal.size() +1;
+        }
+        for (int idx = startIdx; idx < endIdx; idx++) {
+            int newColor = multiply(pal.get(idx), rgba);
+            pal.set(idx, newColor);
+        }
+    }
+
+    /**
+     * Multiply two colors together to get a third color.
+     *
+     * <p>Actually splits the colors in to component values, then does a
+     * <code>component1 * component2 / 255</code> -- so it isn't <em>strictly</em>
+     * just multiplication.</p>
+     *
+     * <p>The overall effect is that if you take a saturated color, and a grey
+     * scale setting and combine them with this function you get the color with
+     * a value similar to that of the grey value. The HSV functions may product
+     * more accurate results, but this will be much faster.</p>
+     *
+     * @param rgba1
+     * @param rgba2
+     * @return
+     */
+    public static int multiply(int rgba1, int rgba2) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        int[] result = {comps1[0] * comps2[0] / 255,
+                        comps1[1] * comps2[1] / 255,
+                        comps1[2] * comps2[2] / 255,
+                        comps1[3] * comps2[3] / 255};
+        return colorFromComponents(result);
+    }
+
+    /**
+     * Multiply all components of a color by a single float value.
+     *
+     * @param rgba1 ARGB value
+     * @param value 0.0 - 1.0
+     * @return new ARGB value
+     */
+    public static int multiply(int rgba1, float value) {
+        int[] comps1 = colorToComponents(rgba1);
+        int component = (int)Math.floor(value * 255.0);
+        int[] result = {comps1[0] * component / 255,
+                        comps1[1] * component / 255,
+                        comps1[2] * component / 255,
+                        comps1[3] * component / 255};
+        return colorFromComponents(result);
+    }
+
+    public static int add(int rgba1, int rgba2) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        int[] result = {Math.min(255, comps1[0] + comps2[0]),
+                        Math.min(255, comps1[1] + comps2[1]),
+                        Math.min(255, comps1[2] + comps2[2]),
+                        Math.min(255, comps1[3] + comps2[3])};
+        return colorFromComponents(result);
+    }
+
+    public static int subtract(int rgba1, int rgba2) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        int[] result = {Math.max(0, comps1[0] - comps2[0]),
+                        Math.max(0, comps1[1] - comps2[1]),
+                        Math.max(0, comps1[2] - comps2[2]),
+                        Math.max(0, comps1[3] - comps2[3])};
+        return colorFromComponents(result);
+    }
+
+    /**
+     * Perform linear interpolation on a color with a weight.
+     *
+     * @param rgba1
+     * @param rgba2
+     * @param weight common weight (0.0-1.0) of how much rgba2 goes in to rgba1
+     * @return
+     */
+    public static int lerp(int rgba1, int rgba2, float weight) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        int[] result = {(int)Math.floor(comps1[0] + (comps2[0] - comps1[0]) * weight),
+                        (int)Math.floor(comps1[1] + (comps2[1] - comps1[1]) * weight),
+                        (int)Math.floor(comps1[2] + (comps2[2] - comps1[2]) * weight),
+                        (int)Math.floor(comps1[3] + (comps2[3] - comps1[3]) * weight)};
+        return colorFromComponents(result);
+    }
+
+    /**
+     * Perform linear interpolation on a color with a component-varied weight.
+     *
+     * @param rgba1
+     * @param rgba2
+     * @param weight set of weights of how much rgba2 goes in to rgba1
+     * @return
+     */
+    public static int lerp(int rgba1, int rgba2, int weight) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        int[] ws = colorToComponents(weight);
+        int[] result = {(int)Math.floor(comps1[0] + (comps2[0] - comps1[0]) * (ws[0] / 255.0)),
+                        (int)Math.floor(comps1[1] + (comps2[1] - comps1[1]) * (ws[1] / 255.0)),
+                        (int)Math.floor(comps1[2] + (comps2[2] - comps1[2]) * (ws[2] / 255.0)),
+                        (int)Math.floor(comps1[3] + (comps2[3] - comps1[3]) * (ws[3] / 255.0))};
+        return colorFromComponents(result);
+    }
+
+    public static int colorFromComponents(Map<String, Integer> components) {
+        Integer alpha = components.get("alpha");
+        if (alpha == null) {
+            alpha = 255;
+        }
+        return colorFromComponents(components.get("red"),
+                components.get("green"), components.get("blue"), alpha);
+    }
+
+    public static int colorFromComponents(int[] components) {
+        int alpha = 255;
+        if (components.length >= 3) {
+            alpha = components[3];
+        }
+        return colorFromComponents(components[0], components[1], components[2], alpha);
+    }
 }
