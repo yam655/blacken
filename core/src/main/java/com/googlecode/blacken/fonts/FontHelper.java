@@ -35,7 +35,7 @@ public class FontHelper {
      * @return new character sequence
      */
     public String shiftAscii(String sequence, int newBase) {
-        StringBuffer out = new StringBuffer(sequence.length());
+        StringBuilder out = new StringBuilder(sequence.length());
         for(int i = 0; i < sequence.codePointCount(0, sequence.length()); i++) {
             int cp = sequence.codePointAt(i);
             if (cp > 0x20 && cp < 0x7f) {
@@ -52,7 +52,7 @@ public class FontHelper {
      * @return new character sequence
      */
     public String returnToAscii(String sequence) {
-        StringBuffer out = new StringBuffer(sequence.length());
+        StringBuilder out = new StringBuilder(sequence.length());
         for(int i = 0; i < sequence.codePointCount(0, sequence.length()); i++) {
             int cp = sequence.codePointAt(i);
             if (cp > FULLWIDTH_ASCII_VARIANTS && 
@@ -70,7 +70,7 @@ public class FontHelper {
      * @return new character sequence
      */
     public String toHalfWidth(String sequence) {
-        StringBuffer out = new StringBuffer(sequence.length());
+        StringBuilder out = new StringBuilder(sequence.length());
         for(int i = 0; i < sequence.codePointCount(0, sequence.length()); i++) {
             int cp = sequence.codePointAt(i);
             if (cp > FULLWIDTH_ASCII_VARIANTS && 
@@ -91,7 +91,7 @@ public class FontHelper {
      */
     public String toDoubleWide(String sequence) {
         sequence = shiftAscii(sequence, FULLWIDTH_ASCII_VARIANTS);
-        StringBuffer out = new StringBuffer(sequence.length());
+        StringBuilder out = new StringBuilder(sequence.length());
         for(int i = 0; i < sequence.codePointCount(0, sequence.length()); i++) {
             int cp = sequence.codePointAt(i);
             switch (cp) {

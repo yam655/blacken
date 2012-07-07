@@ -360,7 +360,19 @@ public class BoxRegion implements Regionlike {
     public boolean intersects(Regionlike room) {
         return intersects(this, room);
     }
-    
+
+    @Override
+    public void setBounds(int height, int width, int y1, int x1) {
+        this.setPosition(y1, x1);
+        this.setSize(height, width);
+    }
+
+    @Override
+    public void setBounds(Regionlike r) {
+        this.setSize(r);
+        this.setPosition(r);
+    }
+
     @Override
     public void setHeight(int height) {
         this.size_y = height;

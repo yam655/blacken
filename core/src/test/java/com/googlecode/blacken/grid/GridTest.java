@@ -857,7 +857,23 @@ public class GridTest {
         assertEquals(start_x + 1, grid.getX());
         assertEquals(start_y + 1, grid.getY());
     }
-    
+
+
+    @Test
+    @Covers("public void setBounds(int,int,int,int)")
+    public void setBounds_h_w_y_x() {
+        assertEquals(size_y, grid.getHeight());
+        assertEquals(size_x, grid.getWidth());
+        assertEquals(start_y, grid.getY());
+        assertEquals(start_x, grid.getX());
+        grid.setBounds(size_y - 1, size_x - 1, start_y + 1,
+                start_x + 1);
+        assertEquals(size_y -1, grid.getHeight());
+        assertEquals(size_x -1, grid.getWidth());
+        assertEquals(start_x + 1, grid.getX());
+        assertEquals(start_y + 1, grid.getY());
+    }
+
     @Test
     @Covers("public <T> Z setCopy(T,Z)")
     public void setCopy_PositionableZ() {

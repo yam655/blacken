@@ -18,9 +18,10 @@ package com.googlecode.blacken.grid;
 /**
  * A region iterator.
  * 
- * @author yam655
+ * @author Steven Black
  */
 public abstract class RegionIterator {
+    // XXX Should be easy to make this a real Iterator.
     /**
      * This indicates you have seen all the segments.
      * 

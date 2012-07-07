@@ -749,6 +749,7 @@ implements Serializable, Regionlike {
      * Set the bounds size.
      * @param bounds the bounds 
      */
+    @Override
     public void setBounds(Regionlike bounds) {
         setPosition(bounds.getY(), bounds.getX());
         setSize(bounds.getHeight(), bounds.getWidth());
@@ -1089,6 +1090,12 @@ implements Serializable, Regionlike {
             }
         }
         return ret;
+    }
+
+    @Override
+    public void setBounds(int height, int width, int y, int x) {
+        setPosition(y, x);
+        setSize(height, width);
     }
     
 }

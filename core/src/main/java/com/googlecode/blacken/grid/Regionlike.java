@@ -97,4 +97,21 @@ public interface Regionlike extends Positionable, Sizable {
      * @return true on success; false on failure
      */
     public boolean intersects(Regionlike room);
+
+    /**
+     * Set the bounds for this object.
+     *
+     * <p>In most cases, this is the same as calling:
+     * <code>setPosition(r); setSize(r);</code></p>
+     * @param r
+     */
+    public void setBounds(Regionlike r);
+    /**
+     * Set the bounds to a quad of the size and position.
+     * @param height
+     * @param width
+     * @param y
+     * @param x
+     */
+    public void setBounds(int height, int width, int y, int x);
 }

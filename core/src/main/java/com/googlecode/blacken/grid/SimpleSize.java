@@ -35,8 +35,34 @@ public class SimpleSize implements Sizable {
     }
 
     public SimpleSize(Sizable size) {
-        this.height = size.getWidth();
+        this.height = size.getHeight();
         this.width = size.getWidth();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SimpleSize other = (SimpleSize) obj;
+        if (this.getHeight() != other.getHeight()) {
+            return false;
+        }
+        if (this.getWidth() != other.getWidth()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + this.height;
+        hash = 29 * hash + this.width;
+        return hash;
     }
 
     @Override

@@ -16,7 +16,10 @@
 package com.googlecode.blacken.grid;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
+import com.googlecode.blacken.core.Coverage;
+import com.googlecode.blacken.core.Covers;
 
 /**
  * test
@@ -49,19 +52,19 @@ public class TestRegionlike {
         parent.setUp(data, y, x);
     }
     
-    /**
-     * test
-     */
     @Before
     public void setUp() {
         data = new BoxRegion(10, 20, 100, 200);
         setUp(data, 10, 20, 100, 200);
     }
-    
-    /**
-     * test
-     */
+
     @Test
+    public void testCoverage() {
+        Coverage.checkCoverageDeep(Regionlike.class, this.getClass());
+    }
+
+    @Test
+    @Covers("public abstract boolean contains(int,int)")
     public void containsYX() {
         assertTrue(data.contains(y, x));
         assertFalse(data.contains(y -1, x-1));
@@ -69,20 +72,16 @@ public class TestRegionlike {
         assertFalse(data.contains(y + size_y, x + size_x));
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract boolean contains(int,int,int,int)")
     public void containsHWYX() {
         assertTrue(data.contains(size_y, size_x, y, x));
         assertTrue(data.contains(size_y -2, size_x -2, y + 1, x +1));
         assertFalse(data.contains(size_y, size_x, y +2, x+2));
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract boolean contains(Positionable)")
     public void containsP() {
         Point p = new Point(y, x);
         assertTrue(data.contains(p));
@@ -94,10 +93,8 @@ public class TestRegionlike {
         assertFalse(data.contains(p));
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract boolean contains(Regionlike)")
     public void containsR() {
         BoxRegion b = new BoxRegion(size_y, size_x, y, x);
         assertTrue(data.contains(b));
@@ -109,10 +106,9 @@ public class TestRegionlike {
         assertFalse(data.contains(b));
     }
 
-    /**
-     * test
-     */
+
     @Test
+    @Covers("public abstract Regionlike getBounds()")
     public void getBounds() {
         assertTrue(data.getX() == x);
         assertTrue(data.getY() == y);
@@ -125,50 +121,38 @@ public class TestRegionlike {
         assertTrue(b.getHeight() == this.size_y);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract RegionIterator getEdgeIterator()")
     public void getEdgeIterator() {
         assertNotNull(data.getEdgeIterator());
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract int getHeight()")
     public void getHeight() {
         assertTrue(data.getHeight() == this.size_y);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract RegionIterator getInsideIterator()")
     public void getInsideIterator() {
         assertNotNull(data.getInsideIterator());
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract RegionIterator getNotOutsideIterator()")
     public void getNotOutsideIterator() {
         assertNotNull(data.getNotOutsideIterator());
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract int getWidth()")
     public void getWidth() {
         assertTrue(data.getWidth() == this.size_x);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract boolean intersects(int,int,int,int)")
     public void intersectsHWYX() {
         // entirely inside
         assertFalse(data.intersects(size_y, size_x, y, x));
@@ -180,10 +164,8 @@ public class TestRegionlike {
         assertTrue(data.intersects(size_y + 2, size_x+2, y -1, x-1));
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract boolean intersects(Regionlike)")
     public void intersectsR() {
         BoxRegion b = new BoxRegion(size_y, size_x, y, x);
         // entirely inside
@@ -200,20 +182,16 @@ public class TestRegionlike {
         assertTrue(data.intersects(b));
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract void setHeight(int)")
     public void setHeight() {
         assertTrue(data.getHeight() == this.size_y);
         data.setHeight(size_y + 2);
         assertTrue(data.getHeight() == this.size_y + 2);
     }
 
-    /**
-     * test
-     */
     @Test
+    @Covers("public abstract void setWidth(int)")
     public void setWidth() {
         assertTrue(data.getWidth() == this.size_x);
         data.setWidth(size_x + 2);
@@ -221,8 +199,103 @@ public class TestRegionlike {
     }
 
     @Test
+    @Covers("public abstract void setPosition(Positionable)")
     public void setPos() {
         parent.setPos();
     }
+
+
+    @Test
+    @Covers("public abstract void setBounds(Regionlike)")
+    public void setBounds() {
+        assertEquals(size_y, data.getHeight());
+        assertEquals(size_x, data.getWidth());
+        assertEquals(y, data.getY());
+        assertEquals(x, data.getX());
+        BoxRegion region = new BoxRegion(size_y - 1, size_x - 1, y + 1, x + 1);
+        data.setBounds(region);
+        assertEquals(size_y -1, data.getHeight());
+        assertEquals(size_x -1, data.getWidth());
+        assertEquals(x + 1, data.getX());
+        assertEquals(y + 1, data.getY());
+    }
+
+
+    @Test
+    @Covers("public abstract void setBounds(int,int,int,int)")
+    public void setBounds_h_w_y_x() {
+        assertEquals(size_y, data.getHeight());
+        assertEquals(size_x, data.getWidth());
+        assertEquals(y, data.getY());
+        assertEquals(x, data.getX());
+        data.setBounds(size_y - 1, size_x - 1, y + 1, x + 1);
+        assertEquals(size_y -1, data.getHeight());
+        assertEquals(size_x -1, data.getWidth());
+        assertEquals(x + 1, data.getX());
+        assertEquals(y + 1, data.getY());
+    }
+
+    @Test
+    @Covers("public abstract Positionable getPosition()")
+    public void getPosition() {
+        Positionable e = new Point(y, x);
+        assertEquals(e, data.getPosition());
+    }
+    @Test
+    @Covers({"public abstract void setY(int)",
+             "public abstract int getY()",
+    })
+    public void setY() {
+        assertEquals(y, data.getY());
+        data.setY(y+1);
+        assertEquals(y+1, data.getY());
+    }
+    @Test
+    @Covers({"public abstract int getX()",
+             "public abstract void setX(int)",
+    })
+    public void setX() {
+        assertEquals(data.getX(), x);
+        data.setX(x+1);
+        assertEquals(data.getX(), x+1);
+    }
+    @Test
+    @Covers("public abstract void setPosition(int,int)")
+    public void setPosition() {
+        Positionable e = new Point(y, x);
+        assertEquals(e, data.getPosition());
+        e.setY(y+1);
+        e.setX(x+1);
+        data.setPosition(e);
+        assertEquals(e, data.getPosition());
+    }
+    @Test
+    @Covers("public abstract void setSize(Sizable)")
+    public void setSize_sizable() {
+        assertEquals(size_y, data.getHeight());
+        assertEquals(size_x, data.getWidth());
+        Sizable s = new SimpleSize(size_y - 1, size_x - 1);
+        data.setSize(s);
+        assertEquals(size_y -1, data.getHeight());
+        assertEquals(size_x -1, data.getWidth());
+    }
+    @Test
+    @Covers("public abstract void setSize(int,int)")
+    public void setSize_h_w() {
+        assertEquals(size_y, data.getHeight());
+        assertEquals(size_x, data.getWidth());
+        data.setSize(size_y - 1, size_x - 1);
+        assertEquals(size_y -1, data.getHeight());
+        assertEquals(size_x -1, data.getWidth());
+    }
+    @Test
+    @Covers("public abstract Sizable getSize()")
+    public void getSize() {
+        assertEquals(size_y, data.getHeight());
+        assertEquals(size_x, data.getWidth());
+        Sizable e = new SimpleSize(size_y, size_x);
+        assertEquals(e, data.getSize());
+    }
+
 
 }

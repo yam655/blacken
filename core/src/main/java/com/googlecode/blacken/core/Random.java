@@ -32,7 +32,7 @@ public class Random extends java.util.Random {
     private static final long serialVersionUID = 3049695947451276476L;
         
     private final Pattern guessPattern = 
-        Pattern.compile("\\s*(\\d+)?\\s*(?:([:])\\s*(\\d+))??\\s*(?:([d:])\\s*(\\d+))?\\s*(?:([+-/*])\\s*(\\d+))?\\s*"); //$NON-NLS-1$
+        Pattern.compile("\\s*(\\d+)?\\s*(?:([:])\\s*(\\d+))??\\s*(?:([d:])\\s*(\\d+))?\\s*(?:([+-/*])\\s*(\\d+))?\\s*");
     /**
      * Create a new random number generator
      */

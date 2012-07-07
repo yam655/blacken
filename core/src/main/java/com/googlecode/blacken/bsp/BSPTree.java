@@ -16,11 +16,23 @@
 
 package com.googlecode.blacken.bsp;
 
-import com.googlecode.blacken.core.Random;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+
+import com.googlecode.blacken.core.Random;
+import com.googlecode.blacken.grid.BoxRegion;
+import com.googlecode.blacken.grid.BoxRegionIterator;
+import com.googlecode.blacken.grid.Point;
+import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.RegionIterator;
+import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.grid.SimpleSize;
+import com.googlecode.blacken.grid.Sizable;
 
 /**
  *  An implementation of Binary Screen Partitioning Trees, useful for quick and good dungeon generation.
@@ -29,84 +41,121 @@ import java.util.Stack;
  *
  */
 
-public class BSPTree {
+public class BSPTree implements Regionlike {
 
     private int x;
     private int y;
-    private int w;
-    private int h;
+    private int width;
+    private int height;
     private int level;
     private int position;
     private boolean horizontal;
     private BSPTree leftChild;
     private BSPTree rightChild;
-    private BSPTree father;
+    private BSPTree parent;
 
-    /**
-     *  Constructor of BSPTree.
-     *  Creates a new single-node tree which can be split to refine it.
-     *  @param x the tree's x ordinate
-     *  @param y the tree's y ordinate
-     *  @param w the tree's width
-     *  @param h the tree's height
-     */
-
-    public BSPTree(int y, int x, int w, int h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
+    public BSPTree(Regionlike r) {
+        this.x = r.getX();
+        this.y = r.getY();
+        this.width = r.getWidth();
+        this.height = r.getHeight();
         this.level = 0;
-        this.position = 0;
+        this.position = -1;
         this.horizontal = false;
         this.leftChild = null;
         this.rightChild = null;
-        this.father = null;
+        this.parent = null;
+    }
+
+    /**
+     * Constructor of BSPTree.
+     * Creates a new single-node tree which can be split to refine it.
+     *
+     * @param height the tree's height
+     * @param width the tree's width
+     * @param y the tree's y ordinate
+     * @param x the tree's x ordinate
+     */
+    public BSPTree(int height, int width, int y, int x) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.level = 0;
+        this.position = -1;
+        this.horizontal = false;
+        this.leftChild = null;
+        this.rightChild = null;
+        this.parent = null;
+    }
+
+    /**
+     * This mostly exists to help with debugging.
+     *
+     * @param height
+     * @param width
+     * @param y
+     * @param x
+     * @param level
+     * @param position
+     * @param horizontal
+     */
+    protected BSPTree(int height, int width, int y, int x, int level, int position, boolean horizontal) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.level = level;
+        this.position = position;
+        this.horizontal = horizontal;
+        this.leftChild = null;
+        this.rightChild = null;
+        this.parent = null;
     }
 
     /**
      *  Constructor of BSPTree.
      *  Creates a new sub-tree for an existing BSPTree.
      *  Do not use for splitting a tree.
-     *  @param father the father node
+     *  @param parent the father node
      *  @param left true to create a left child, false to create a right child
      */
 
-    public BSPTree(BSPTree father, boolean left) {
-        if(father.isHorizontal()) {
-            this.x = father.getX();
-            this.w = father.getWidth();
+    public BSPTree(BSPTree parent, boolean left) {
+        if(parent.isHorizontal()) {
+            this.x = parent.getX();
+            this.width = parent.getWidth();
             if(left) {
-                this.y = father.getY();
-                this.h = father.getPosition() - this.y;
+                this.y = parent.getY();
+                this.height = parent.getSplitPosition() - this.y;
             } else {
-                this.y = father.getPosition();
-                this.h = father.getY() + father.getHeight() - father.getPosition();
+                this.y = parent.getSplitPosition();
+                this.height = parent.getY() + parent.getHeight() - parent.getSplitPosition();
             }
         } else {
-            this.y = father.getY();
-            this.h = father.getHeight();
+            this.y = parent.getY();
+            this.height = parent.getHeight();
             if(left) {
-                this.x = father.getX();
-                this.w = father.getPosition() - this.x;
+                this.x = parent.getX();
+                this.width = parent.getSplitPosition() - this.x;
             } else {
-                this.x = father.getPosition();
-                this.w = father.getX() + father.getWidth() - father.getPosition();
+                this.x = parent.getSplitPosition();
+                this.width = parent.getX() + parent.getWidth() - parent.getSplitPosition();
             }
         }
-        this.level = father.getLevel() + 1;
-        this.position = 0;
+        this.level = parent.getLevel() + 1;
+        this.position = -1;
         this.horizontal = false;
         this.leftChild = null;
         this.rightChild = null;
-        this.father = father;
+        this.parent = parent;
     }
 
     /**
      *  Returns the node's x ordinate.
      *  @return the node's x ordinate
      */
-
+    @Override
     public int getX() {
         return x;
     }
@@ -115,7 +164,7 @@ public class BSPTree {
      *  Returns the node's y ordinate.
      *  @return the node's y ordinate
      */
-
+    @Override
     public int getY() {
         return y;
     }
@@ -124,20 +173,18 @@ public class BSPTree {
      *  Returns the node's width.
      *  @return the node's width
      */
-
-
+    @Override
     public int getWidth() {
-        return w;
+        return width;
     }
 
     /**
      *  Returns the node's height.
      *  @return the node's height
      */
-
-
+    @Override
     public int getHeight() {
-        return h;
+        return height;
     }
 
     /**
@@ -154,7 +201,7 @@ public class BSPTree {
      *  @return the place in which the node is split.
      */
 
-    public int getPosition() {
+    public int getSplitPosition() {
         return position;
     }
 
@@ -187,12 +234,21 @@ public class BSPTree {
     }
 
     /**
-     *  Returns the node's father.
-     *  @return the node's father
+     *  Returns the node's parent.
+     *  @return the node's parent
      */
+    public BSPTree getParent() {
+        return parent;
+    }
 
+    /**
+     * Returns the node's father.
+     * @return the node's father
+     * @deprecated use {@link #getParent()} instead.
+     */
+    @Deprecated
     public BSPTree getFather() {
-        return father;
+        return parent;
     }
 
     /**
@@ -215,9 +271,9 @@ public class BSPTree {
      *  @param py the y ordinate
      *  @return true, if the coordinates lie in the node, false otherwise.
      */
-
+    @Override
     public boolean contains(int py, int px) {
-        return (px >= x && py >= y && px < x+w && py < y+h);
+        return (px >= x && py >= y && px < x+width && py < y+height);
     }
 
     /**
@@ -246,10 +302,9 @@ public class BSPTree {
      *  @param nodelist the target list. If null is passed, a new list will be created.
      *  @return a List of the tree's nodes in preorder.
      */
-
     public List<BSPTree> traversePreorder(List<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<BSPTree>();
+            nodelist = new LinkedList<>();
         }
         nodelist.add(this);
         if(leftChild != null) {
@@ -269,7 +324,7 @@ public class BSPTree {
 
     public List<BSPTree> traverseInorder(List<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<BSPTree>();
+            nodelist = new LinkedList<>();
         }
         if(leftChild != null) {
             leftChild.traverseInorder(nodelist);
@@ -289,7 +344,7 @@ public class BSPTree {
 
     public List<BSPTree> traversePostorder(List<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<BSPTree>();
+            nodelist = new LinkedList<>();
         }
         if(leftChild != null) {
             leftChild.traversePostorder(nodelist);
@@ -306,19 +361,18 @@ public class BSPTree {
      *  @param nodelist the target list. If null is passed, a new list will be created.
      *  @return a List of the tree's nodes in level order
      */
-
     public List<BSPTree> traverseLevelOrder(List<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<BSPTree>();
+            nodelist = new ArrayList<>();
         }
-        Queue<BSPTree> nodequeue = new LinkedList<BSPTree>();
-        nodequeue.offer(this);
-        while(nodequeue.peek() != null) {
-            BSPTree currentNode = nodequeue.poll();
+        List<BSPTree> q = new ArrayList<>();
+        q.add(this);
+        while(!q.isEmpty()) {
+            BSPTree currentNode = q.remove(0);
             nodelist.add(currentNode);
             if(!currentNode.isLeaf()) {
-                nodequeue.offer(currentNode.getLeftChild());
-                nodequeue.offer(currentNode.getRightChild());
+                q.add(currentNode.getLeftChild());
+                q.add(currentNode.getRightChild());
             }
         }
         return nodelist;
@@ -329,27 +383,10 @@ public class BSPTree {
      *  @param nodelist the target list. If null is passed, a new list will be generated.
      *  @return a List of the tree's nodes in inverted level order
      */
-
     public List<BSPTree> traverseInvertedLevelOrder(List<BSPTree> nodelist) {
-        if(nodelist == null) {
-            nodelist = new LinkedList<BSPTree>();
-        }
-        Queue<BSPTree> queue = new LinkedList<BSPTree>();
-        Stack<BSPTree> stack = new Stack<BSPTree>();
-        queue.offer(this);
-        while(queue.peek() != null) {
-            BSPTree currentNode = queue.poll();
-            stack.push(currentNode);
-            if(!currentNode.isLeaf()) {
-                queue.offer(currentNode.getLeftChild());
-                queue.offer(currentNode.getRightChild());
-            }
-        }
-        while(!stack.empty()) {
-            BSPTree currentNode = stack.pop();
-            nodelist.add(currentNode);
-        }
-        return nodelist;
+        List<BSPTree> ret = traverseLevelOrder(nodelist);
+        Collections.reverse(ret);
+        return ret;
     }
 
     /**
@@ -360,6 +397,9 @@ public class BSPTree {
      */
 
     public void splitOnce(boolean horizontal, int position) {
+        if (this.leftChild != null) {
+            return;
+        }
         this.horizontal = horizontal;
         this.position = position;
         BSPTree lc = new BSPTree(this, true);
@@ -369,46 +409,49 @@ public class BSPTree {
     }
 
     /**
-     *  Splits the tree recursively, based on size and recursion depth constraints.
-     *  @param gen a blacken random number generator. If no RNG is passed, a new one will be created
-     *  @param nb the desired recursion depth. Note that due to size constraints this depth might no be reached.
-     *  @param minVSize the minumum height of a node. A node will only be split if the resulting subnodes are at least minVSize x minHSize large
-     *  @param minHSize the minimum width of a node. A node will only be split if the resulting subnodes are at least minVSize x minHSize large
-     *  @param maxVRatio the maximum height/width ratio. If a split node does not fit this, the split orientation will be changed to achieve a ratio smaller than maxVRatio
-     *  @param maxHRatio the maximum width/height ratio. If a split node does not fit this, the split orientation will be changed to achieve a ratio smaller than maxHRatio
+     * Splits the tree recursively, based on size and recursion depth 
+     * constraints.
+     *
+     * <p>A node will only be split if the resulting subnodes are at least
+     * minVSize x minHSize large.</p>
+     *
+     * <p>If a split node does not fit the maxVRatio, the split  orientation
+     * will be changed to achieve a ratio smaller than maxHRatio</p>
+     *
+     *  @param rng If null, a new one will be created
+     *  @param recursionDepth Due to size constraints this might no be reached.
+     *  @param minVSize the minumum height of a node
+     *  @param minHSize the minimum width of a node
+     *  @param maxVRatio the maximum height/width ratio 
+     *  @param maxHRatio the maximum width/height ratio
      */
-
-
-    public void splitRecursive(Random gen, int nb, int minVSize, int minHSize, double maxVRatio, double maxHRatio) {
-        if(nb == 0 || w < 2*minHSize || h < 2*minVSize) {
+    public void splitRecursive(Random rng, int recursionDepth,
+            int minVSize, int minHSize, double maxVRatio, double maxHRatio) {
+        if(recursionDepth == 0 || width < 2*minHSize || height < 2*minVSize) {
             return;
         }
         boolean horiz;
-        if(gen == null) {
-            gen = new Random();
+        if(rng == null) {
+            rng = new Random();
         }
-        if(h < 2*minVSize || w > h * maxHRatio) {
+        if(height < 2*minVSize || width > height * maxHRatio) {
             horiz = false;
-        } else if (w < 2*minHSize || h > w * maxVRatio) {
+        } else if (width < 2*minHSize || height > width * maxVRatio) {
             horiz = true;
         } else {
-            int orientation = gen.nextInt(0,2);
-            if(orientation == 0) {
-                horiz = false;
-            } else {
-                horiz = true;
-            }
+            horiz = rng.nextBoolean();
         }
-        int position;
+        int pos;
         if(horiz) {
-            position = gen.nextInt(y+minVSize,y+h-minVSize);
+            pos = rng.nextInt(y+minVSize,y+height-minVSize);
         } else {
-            position = gen.nextInt(x+minHSize,x+w-minHSize);
+            pos = rng.nextInt(x+minHSize,x+width-minHSize);
         }
-        splitOnce(horiz, position);
-        leftChild.splitRecursive(gen, nb-1, minVSize, minHSize, maxVRatio, maxHRatio);
-        rightChild.splitRecursive(gen, nb-1, minVSize, minHSize, maxVRatio, maxHRatio);
-        rightChild.splitRecursive(gen, nb-1, minVSize, minHSize, maxVRatio, maxHRatio);
+        if (this.leftChild == null && this.rightChild == null) {
+            splitOnce(horiz, pos);
+        }
+        leftChild.splitRecursive(rng, recursionDepth-1, minVSize, minHSize, maxVRatio, maxHRatio);
+        rightChild.splitRecursive(rng, recursionDepth-1, minVSize, minHSize, maxVRatio, maxHRatio);
     }
 
 
@@ -417,21 +460,187 @@ public class BSPTree {
      *  This should only be called on the tree to enlarge it - shrinking may cause splits to be outside the repective node. Leafs can of course be shrunk safely, but should not be enlarged beyond their original size, otherwise a coordinate may be contained in more than one leaf.
      *  @param x the tree's new x ordinate
      *  @param y the tree's new y ordinate
-     *  @param w the tree's new width
-     *  @param h the tree's new height
+     *  @param width the tree's new width
+     *  @param height the tree's new height
      */
-
-    public void resize(int y, int x, int w, int h) {
+    @Override
+    public void setBounds(int y, int x, int height, int width) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.width = width;
+        this.height = height;
         if(!this.isLeaf()) {
             if(isHorizontal()) {
-                leftChild.resize(x,y,w,position-y);
-                rightChild.resize(x,position,w,y+h-position);
+                leftChild.setBounds(y, x, position-y, width);
+                rightChild.setBounds(position, x, y+height-position, width);
+            } else {
+                leftChild.setBounds(y, x, height, position-x);
+                rightChild.setBounds(y, position, height, x+width-position);
             }
         }
     }
+    @Override
+    public void setBounds(Regionlike r) {
+        this.setBounds(r.getY(), r.getX(), r.getHeight(), r.getWidth());
+    }
 
+    @Override
+    public boolean contains(int height, int width, int y1, int x1) {
+        return BoxRegion.contains(this, height, width, y1, x1);
+    }
+
+    @Override
+    public boolean contains(Positionable p) {
+        return this.contains(p.getY(), p.getX());
+    }
+
+    @Override
+    public boolean contains(Regionlike r) {
+        return BoxRegion.contains(this, r);
+    }
+
+    @Override
+    public Regionlike getBounds() {
+        return new BoxRegion(height, width, y, x);
+    }
+
+    @Override
+    public RegionIterator getEdgeIterator() {
+        RegionIterator ret = new BoxRegionIterator(this, true, false);
+        return ret;
+    }
+
+    @Override
+    public RegionIterator getInsideIterator() {
+        RegionIterator ret = new BoxRegionIterator(this, false, false);
+        return ret;
+    }
+
+    @Override
+    public RegionIterator getNotOutsideIterator() {
+        RegionIterator ret = new BoxRegionIterator(this, false, true);
+        return ret;
+    }
+
+    @Override
+    public boolean intersects(int height, int width, int y1, int x1) {
+        return BoxRegion.intersects(this, height, width, y1, x1);
+    }
+
+    @Override
+    public boolean intersects(Regionlike room) {
+        return BoxRegion.intersects(this, room);
+    }
+
+    @Override
+    public Positionable getPosition() {
+        return new Point(y, x);
+    }
+
+    @Override
+    public void setX(int x) {
+        throw new UnsupportedOperationException("BSP Trees are not movable");
+    }
+
+    @Override
+    public void setY(int y) {
+        throw new UnsupportedOperationException("BSP Trees are not movable");
+    }
+
+    @Override
+    public void setPosition(int y, int x) {
+        throw new UnsupportedOperationException("BSP Trees are not movable");
+    }
+
+    @Override
+    public void setPosition(Positionable point) {
+        throw new UnsupportedOperationException("BSP Trees are not movable");
+    }
+
+    @Override
+    public Sizable getSize() {
+        return new SimpleSize(height, width);
+    }
+
+    @Override
+    public void setHeight(int height) {
+        throw new UnsupportedOperationException("BSP Trees are not individually resizable");
+    }
+
+    @Override
+    public void setWidth(int width) {
+        throw new UnsupportedOperationException("BSP Trees are not individually resizable");
+    }
+
+    @Override
+    public void setSize(int height, int width) {
+        throw new UnsupportedOperationException("BSP Trees are not individually resizable");
+    }
+
+    @Override
+    public void setSize(Sizable size) {
+        throw new UnsupportedOperationException("BSP Trees are not individually resizable");
+    }
+
+    @Override
+    public String toString() {
+        String right = "-";
+        String left = "-";
+        if (rightChild != null) {
+            right = rightChild.toString();
+        }
+        if (leftChild != null) {
+            left = leftChild.toString();
+        }
+        return String.format("{Level: %s; Position: %s,%s; Size: %s,%s; "
+                + "Split: %s; %s; Level: %s;\n Right:%s;\n Left:%s}",
+                level, getY(), getX(), getHeight(), getWidth(), position,
+                (horizontal ? "Horizontal" : "Vertical"), level, right, left);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BSPTree other = (BSPTree) obj;
+        if (this.x != other.x) {
+            return false;
+        }
+        if (this.y != other.y) {
+            return false;
+        }
+        if (this.width != other.width) {
+            return false;
+        }
+        if (this.height != other.height) {
+            return false;
+        }
+        if (this.level != other.level) {
+            return false;
+        }
+        if (this.position != other.position) {
+            return false;
+        }
+        if (this.horizontal != other.horizontal) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + this.x;
+        hash = 37 * hash + this.y;
+        hash = 37 * hash + this.width;
+        hash = 37 * hash + this.height;
+        hash = 37 * hash + this.level;
+        hash = 37 * hash + this.position;
+        hash = 37 * hash + (this.horizontal ? 1 : 0);
+        return hash;
+    }
 }
