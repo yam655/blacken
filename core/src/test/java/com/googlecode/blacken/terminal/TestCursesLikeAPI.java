@@ -819,6 +819,9 @@ public class TestCursesLikeAPI {
              "public boolean setFullScreen(boolean)",
              "public boolean getFullScreen()",
              "public void inhibitFullScreen(boolean)",
+             "public TerminalInterface getGlass()",
+             "public TerminalInterface initGlass(int,int,String)",
+             "public TerminalInterface initGlass(int,int)",
             })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal
