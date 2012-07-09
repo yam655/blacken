@@ -27,6 +27,18 @@ public class Point implements Positionable {
     private int y;
 
     /**
+     * Get the center of a boxed region
+     * @param region
+     * @return the point at the center of the region
+     * @since Blacken 1.1
+     */
+    public static Point centerOfRegion(Regionlike region) {
+        int y = region.getY() + region.getHeight() / 2;
+        int x = region.getX() + region.getWidth() / 2;
+        return new Point(y, x);
+    }
+
+    /**
      * A point
      */
     public Point() {

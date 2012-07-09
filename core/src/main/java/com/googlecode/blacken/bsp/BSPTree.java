@@ -17,6 +17,7 @@
 package com.googlecode.blacken.bsp;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,40 +36,40 @@ import com.googlecode.blacken.grid.SimpleSize;
 import com.googlecode.blacken.grid.Sizable;
 
 /**
- *  An implementation of Binary Screen Partitioning Trees, useful for quick and good dungeon generation.
+ * An implementation of Binary Screen Partitioning Trees, useful for quick and good dungeon generation.
  *
+ * @param <R> room object contained in tree
  * @author XLambda
- *
+ * @since Blacken 1.1
  */
 
-public class BSPTree implements Regionlike {
+public class BSPTree<R> implements Regionlike {
 
     private int x;
     private int y;
     private int width;
     private int height;
-    private int level;
-    private int position;
-    private boolean horizontal;
-    private BSPTree leftChild;
-    private BSPTree rightChild;
-    private BSPTree parent;
+    private int level = 0;
+    private int position = -1;
+    private boolean horizontal = false;
+    private BSPTree leftChild = null;
+    private BSPTree rightChild = null;
+    private BSPTree parent = null;
+    private R contained = null;
 
-    public BSPTree(Regionlike r) {
-        this.x = r.getX();
-        this.y = r.getY();
-        this.width = r.getWidth();
-        this.height = r.getHeight();
-        this.level = 0;
-        this.position = -1;
-        this.horizontal = false;
-        this.leftChild = null;
-        this.rightChild = null;
-        this.parent = null;
+    /**
+     * Creates a new single-node tree which can be split to refine it.
+     *
+     * @param bounds the tree's bounds
+     */
+    public BSPTree(Regionlike bounds) {
+        this.x = bounds.getX();
+        this.y = bounds.getY();
+        this.width = bounds.getWidth();
+        this.height = bounds.getHeight();
     }
 
     /**
-     * Constructor of BSPTree.
      * Creates a new single-node tree which can be split to refine it.
      *
      * @param height the tree's height
@@ -81,12 +82,24 @@ public class BSPTree implements Regionlike {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.level = 0;
-        this.position = -1;
-        this.horizontal = false;
-        this.leftChild = null;
-        this.rightChild = null;
-        this.parent = null;
+    }
+
+    /**
+     * Assign datum to the leaf node.
+     * @param contained
+     */
+    public void setContained(R contained) {
+        if (!isLeaf()) {
+            throw new IllegalStateException("Can't fit that there.");
+        }
+        this.contained = contained;
+    }
+    /**
+     * Get the leaf node's datum.
+     * @return
+     */
+    public R getContained() {
+        return this.contained;
     }
 
     /**
@@ -144,63 +157,47 @@ public class BSPTree implements Regionlike {
             }
         }
         this.level = parent.getLevel() + 1;
-        this.position = -1;
-        this.horizontal = false;
-        this.leftChild = null;
-        this.rightChild = null;
         this.parent = parent;
     }
 
-    /**
-     *  Returns the node's x ordinate.
-     *  @return the node's x ordinate
-     */
     @Override
     public int getX() {
         return x;
     }
 
-    /**
-     *  Returns the node's y ordinate.
-     *  @return the node's y ordinate
-     */
     @Override
     public int getY() {
         return y;
     }
 
-    /**
-     *  Returns the node's width.
-     *  @return the node's width
-     */
     @Override
     public int getWidth() {
         return width;
     }
 
-    /**
-     *  Returns the node's height.
-     *  @return the node's height
-     */
     @Override
     public int getHeight() {
         return height;
     }
 
     /**
-     *  Returns the node's level. Zero is the root node.
-     *  @return the node's level
+     * Returns the node's level.
+     *
+     * Zero is the root node.
+     *
+     * @return the node's level
      */
-
     public int getLevel() {
         return level;
     }
 
     /**
-     *  Returns the place in which the node is split. See {@link #isHorizontal()} for the dimension of the split.
-     *  @return the place in which the node is split.
+     * Returns the place in which the node is split. 
+     * 
+     * See {@link #isHorizontal()} for the orientation of the split.
+     *
+     * @return the place in which the node is split.
      */
-
     public int getSplitPosition() {
         return position;
     }
@@ -208,33 +205,27 @@ public class BSPTree implements Regionlike {
 
     /**
      *  Returns the node's orientation when split.
-     *  @return true if the node splits horizontally, false if it splits vertically
+     *  @return true if horizontal, false if vertical
      */
-
     public boolean isHorizontal() {
         return horizontal;
     }
 
     /**
-     *  Returns the node's left child.
      *  @return the node's left child
      */
-
     public BSPTree getLeftChild() {
         return leftChild;
     }
 
     /**
-     *  Returns the node's right child.
      *  @return the node's right child
      */
-
     public BSPTree getRightChild() {
         return rightChild;
     }
 
     /**
-     *  Returns the node's parent.
      *  @return the node's parent
      */
     public BSPTree getParent() {
@@ -242,7 +233,6 @@ public class BSPTree implements Regionlike {
     }
 
     /**
-     * Returns the node's father.
      * @return the node's father
      * @deprecated use {@link #getParent()} instead.
      */
@@ -255,7 +245,6 @@ public class BSPTree implements Regionlike {
      *  Checks whether the node is a leaf.
      *  @return true, if the node is a leaf, false otherwise
      */
-
     public boolean isLeaf() {
         if(leftChild == null && rightChild == null) {
             return true;
@@ -264,13 +253,6 @@ public class BSPTree implements Regionlike {
         }
     }
 
-
-    /**
-     *  Checks whether the given coordinates lie in the node.
-     *  @param px the x ordinate
-     *  @param py the y ordinate
-     *  @return true, if the coordinates lie in the node, false otherwise.
-     */
     @Override
     public boolean contains(int py, int px) {
         return (px >= x && py >= y && px < x+width && py < y+height);
@@ -282,7 +264,6 @@ public class BSPTree implements Regionlike {
      *  @param py the y ordinate
      *  @return the leaf containing the coordinates, or null if the tree does not contain the coordinates.
      */
-
     public BSPTree findNode(int py, int px) {
         if(!contains(px,py)) {
             return null;
@@ -298,70 +279,308 @@ public class BSPTree implements Regionlike {
     }
 
     /**
-     *  Traverses the tree in preorder.
-     *  @param nodelist the target list. If null is passed, a new list will be created.
-     *  @return a List of the tree's nodes in preorder.
+     * Find the top-down order of the tree. (libtcod calls it "preorder")
+     *
+     * <p>If you want to use a callback with this, send in a custom Collection
+     * that overrides <code>Collection.add(Object)</code>. No other Collection
+     * functions are used on the <code>nodelist</code> object.</p>
+     *
+     * @param nodelist returns new collection if null
+     *  @return List of the tree's nodes ordered top-down.
      */
-    public List<BSPTree> traversePreorder(List<BSPTree> nodelist) {
+    public Collection<BSPTree> findTopOrder(Collection<BSPTree> nodelist) {
         if(nodelist == null) {
             nodelist = new LinkedList<>();
         }
         nodelist.add(this);
         if(leftChild != null) {
-            leftChild.traversePreorder(nodelist);
+            leftChild.findTopOrder(nodelist);
         }
         if(rightChild !=null) {
-            rightChild.traversePreorder(nodelist);
+            rightChild.findTopOrder(nodelist);
         }
         return nodelist;
     }
 
     /**
-     *  Traverses the tree in inorder.
-     *  @param nodelist the target list. If null is passed, a new list will be created.
+     *  Traverses the tree in preorder.
+     *
+     * <p>We're not really "traversing" the tree so much as just returning all
+     * the desired nodes. We're changing the name of the function to clarify
+     * that. We will keep this function indefinitely to help with folks
+     * familiar with libtcod.</p>
+     *
+     * @param nodelist the target list. If null is passed, a new list will be created.
+     * @return a List of the tree's nodes in preorder.
+     * @deprecated Use {@link #findInorder(java.util.Collection)} instead.
+     */
+    public List<BSPTree> traversePreorder(List<BSPTree> nodelist) {
+        return (List)findTopOrder(nodelist);
+    }
+
+    /**
+     * Find the order for the tree. (libtcod calls this "inorder")
+     *
+     * <p>This is neither a top-down nor a bottom-up order.</p>
+     *
+     * <p>If you want to use a callback with this, send in a custom Collection
+     * that overrides <code>Collection.add(Object)</code>. No other Collection
+     * functions are used on the <code>nodelist</code> object.</p>
+     *
+     * @param nodelist returns new collection if null
      *  @return a List of the tree's nodes in inorder
      */
-
-    public List<BSPTree> traverseInorder(List<BSPTree> nodelist) {
+    public Collection<BSPTree> findInOrder(Collection<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<>();
+            nodelist = new ArrayList<>();
         }
         if(leftChild != null) {
-            leftChild.traverseInorder(nodelist);
+            leftChild.findInOrder(nodelist);
         }
         nodelist.add(this);
         if(rightChild != null) {
-            rightChild.traverseInorder(nodelist);
+            rightChild.findInOrder(nodelist);
         }
         return nodelist;
     }
 
     /**
-     *  Traverses the tree in postorder.
-     *  @param nodelist the target list. If null is passed, a new list will be created.
-     *  @return a List of the tree's nodes in postorder
+     * Traverses the tree in inorder.
+     *
+     * <p>We're not really "traversing" the tree so much as just returning all
+     * the desired nodes. We're changing the name of the function to clarify
+     * that. We will keep this function indefinitely to help with folks
+     * familiar with libtcod.</p>
+     *
+     * @param nodelist the target list. If null is passed, a new list will be created.
+     * @deprecated Use {@link #findInorder(java.util.Collection)} instead.
+     * @return a List of the tree's nodes in inorder
      */
+    public List<BSPTree> traverseInorder(List<BSPTree> nodelist) {
+        return (List)findInOrder(nodelist);
+    }
 
-    public List<BSPTree> traversePostorder(List<BSPTree> nodelist) {
+    /**
+     * Find the bottom-up order of the tree. (libtcod calls it "preorder")
+     *
+     * <p>If you want to use a callback with this, send in a custom Collection
+     * that overrides <code>Collection.add(Object)</code>. No other Collection
+     * functions are used on the <code>nodelist</code> object.</p>
+     *
+     * @param nodelist returns new collection if null
+     * @return a List of the tree's nodes in postorder
+     */
+    public Collection<BSPTree> findBottomOrder(Collection<BSPTree> nodelist) {
         if(nodelist == null) {
-            nodelist = new LinkedList<>();
+            nodelist = new ArrayList<>();
         }
         if(leftChild != null) {
-            leftChild.traversePostorder(nodelist);
+            leftChild.findBottomOrder(nodelist);
         }
         if(rightChild != null) {
-            rightChild.traversePostorder(nodelist);
+            rightChild.findBottomOrder(nodelist);
         }
         nodelist.add(this);
         return nodelist;
     }
 
     /**
-     *  Traverses the tree in level order.
+     * Traverses the tree in postorder.
+     *
+     * <p>We're not really "traversing" the tree so much as just returning all
+     * the desired nodes. We're changing the name of the function to clarify
+     * that. We will keep this function indefinitely to help with folks
+     * familiar with libtcod.</p>
+     *
+     * @param nodelist the target list. If null is passed, a new list will be created.
+     * @deprecated use {@link #findBottomOrder(java.util.Collection) instead.
+     * @return a List of the tree's nodes in postorder
+     */
+    public List<BSPTree> traversePostorder(List<BSPTree> nodelist) {
+        return (List)findBottomOrder(nodelist);
+    }
+
+    /**
+     * Find all the leaf nodes for this section of the tree.
+     * @param nodelist
+     * @return all the 'contained' objects
+     */
+    public Collection<BSPTree> findLeaves(Collection<BSPTree> nodelist) {
+        // This demonstrates tree traversal using Collection-overriding
+        // Java IDEs will fill out the skeleton, so this was trivial to implement.
+        class GetLeaves implements Collection<BSPTree> {
+            Collection<BSPTree> collector;
+            GetLeaves(Collection<BSPTree> collector) {
+                this.collector = collector;
+            }
+            @Override
+            public boolean add(BSPTree e) {
+                if (e.isLeaf()) {
+                    collector.add(e);
+                }
+                return true;
+            }
+
+            @Override
+            public int size() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean isEmpty() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean contains(Object o) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public Iterator<BSPTree> iterator() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public Object[] toArray() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public <T> T[] toArray(T[] a) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean remove(Object o) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends BSPTree> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void clear() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        }
+        Collection<BSPTree> ret = nodelist;
+        if (ret == null) {
+            ret = new ArrayList<>();
+        }
+        findLevelOrder(new GetLeaves(ret));
+        return ret;
+    }
+
+    /**
+     * Find all the 'contained' items under this section of the tree.
+     * @param c collection of the 'ontained' objects
+     * @return all the 'contained' objects
+     */
+    public Collection<R> findContained(Collection<R> c) {
+        // This demonstrates tree traversal using Collection-overriding
+        // Java IDEs will fill out the skeleton, so this was trivial to implement.
+        class GetContained implements Collection<BSPTree> {
+            Collection<R> collector;
+            GetContained(Collection<R> collector) {
+                this.collector = collector;
+            }
+            @Override
+            public boolean add(BSPTree e) {
+                R contained = (R)e.getContained();
+                if (contained != null) {
+                    collector.add(contained);
+                }
+                return true;
+            }
+
+            @Override
+            public int size() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean isEmpty() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean contains(Object o) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public Iterator<BSPTree> iterator() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public Object[] toArray() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public <T> T[] toArray(T[] a) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            @Override
+            public boolean remove(Object o) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends BSPTree> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void clear() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        }
+        Collection<R> ret = c;
+        if (ret == null) {
+            ret = new ArrayList<>();
+        }
+        findLevelOrder(new GetContained(ret));
+        return ret;
+    }
+
+    /**
+     *  Find the level order for the tree.
+     *
+     * <p>If you want to use a callback with this, send in a custom Collection
+     * that overrides <code>Collection.add(Object)</code>. No other Collection
+     * functions are used on the <code>nodelist</code> object.</p>
+     *
+     * <p>Implementation note: This is currently the most efficient way to get
+     * the tree's nodes. If that's your only goal, use this function.</p>
+     *
      *  @param nodelist the target list. If null is passed, a new list will be created.
      *  @return a List of the tree's nodes in level order
      */
-    public List<BSPTree> traverseLevelOrder(List<BSPTree> nodelist) {
+    public Collection<BSPTree> findLevelOrder(Collection<BSPTree> nodelist) {
         if(nodelist == null) {
             nodelist = new ArrayList<>();
         }
@@ -379,23 +598,70 @@ public class BSPTree implements Regionlike {
     }
 
     /**
+     *  Traverses the tree in level order.
+     *
+     * <p>We're not really "traversing" the tree so much as just returning all
+     * the desired nodes. We're changing the name of the function to clarify
+     * that. We will keep this function indefinitely to help with folks
+     * familiar with libtcod.</p>
+     *
+     *  @param nodelist the target list. If null is passed, a new list will be created.
+     *  @return a List of the tree's nodes in level order
+     * @deprecated Use {@link #findLevelOrder(java.util.Collection)} instead.
+     */
+    public List<BSPTree> traverseLevelOrder(List<BSPTree> nodelist) {
+        return (List)findLevelOrder(nodelist);
+    }
+
+    /**
      *  Traverses the tree in inverted level order.
+     *
+     * <p>If you want to use a callback with this, send in a custom Collection
+     * that overrides <code>Collection.addAll(Collection)</code> or
+     * <code>Collection.add(Object)</code>. No other Collection
+     * functions are used on the <code>nodelist</code> object. (We first try
+     * the <code>addAll</code> function, and if it throws an exception we
+     * use separate <code>add</code> commands.)</p>
+     *
+     *  @param nodelist the target list. If null is passed, a new list will be generated.
+     *  @return a List of the tree's nodes in inverted level order
+     */
+    public Collection<BSPTree> findInvertedLevelOrder(Collection<BSPTree> nodelist) {
+        List<BSPTree> first = new ArrayList<>();
+        findLevelOrder(first);
+        Collections.reverse(first);
+        // If we didn't want a simpler override interface, we would use addAll()
+        try {
+            nodelist.addAll(first);
+        } catch(RuntimeException e) {
+            for (BSPTree node : first) {
+                nodelist.add(node);
+            }
+        }
+        return nodelist;
+    }
+
+    /**
+     *  Traverses the tree in inverted level order.
+     *
+     * <p>We're not really "traversing" the tree so much as just returning all
+     * the desired nodes. We're changing the name of the function to clarify
+     * that. We will keep this function indefinitely to help with folks
+     * familiar with libtcod.</p>
+     *
      *  @param nodelist the target list. If null is passed, a new list will be generated.
      *  @return a List of the tree's nodes in inverted level order
      */
     public List<BSPTree> traverseInvertedLevelOrder(List<BSPTree> nodelist) {
-        List<BSPTree> ret = traverseLevelOrder(nodelist);
-        Collections.reverse(ret);
-        return ret;
+        return (List)findInvertedLevelOrder(nodelist);
     }
 
     /**
-     *  Splits the tree by adding two sons to the node.
+     *  Splits the tree by adding two children to the node.
      *  @param horizontal orientation of the split
      *  @param position place in which the tree is to be split
      *
      */
-
     public void splitOnce(boolean horizontal, int position) {
         if (this.leftChild != null) {
             return;
@@ -418,7 +684,7 @@ public class BSPTree implements Regionlike {
      * <p>If a split node does not fit the maxVRatio, the split  orientation
      * will be changed to achieve a ratio smaller than maxHRatio</p>
      *
-     *  @param rng If null, a new one will be created
+     *  @param rng If null uses the default instance
      *  @param recursionDepth Due to size constraints this might no be reached.
      *  @param minVSize the minumum height of a node
      *  @param minHSize the minimum width of a node
@@ -432,7 +698,7 @@ public class BSPTree implements Regionlike {
         }
         boolean horiz;
         if(rng == null) {
-            rng = new Random();
+            rng = Random.getInstance();
         }
         if(height < 2*minVSize || width > height * maxHRatio) {
             horiz = false;
@@ -454,6 +720,75 @@ public class BSPTree implements Regionlike {
         rightChild.splitRecursive(rng, recursionDepth-1, minVSize, minHSize, maxVRatio, maxHRatio);
     }
 
+    /**
+     * Splits the tree recursively, based on size and recursion depth
+     * constraints.
+     *
+     * <p>A node will only be split if the resulting subnodes are at least
+     * minVSize x minHSize large.</p>
+     *
+     * <p>If a split node does not fit the maxVRatio, the split  orientation
+     * will be changed to achieve a ratio smaller than maxHRatio</p>
+     *
+     *  @param rng If null uses the default instance
+     *  @param recursionDepth Due to size constraints this might no be reached.
+     *  @param minVSize the minumum height of a node
+     *  @param minHSize the minimum width of a node
+     */
+    public void splitRecursive(Random rng, int recursionDepth,
+            int minVSize, int minHSize) {
+        splitRecursive(rng, recursionDepth, minVSize, minHSize,
+                3000, 4000);
+    }
+
+    /**
+     * Splits the tree recursively, based on size and recursion depth
+     * constraints.
+     *
+     * <p>A node will only be split if the resulting subnodes are at least
+     * minVSize x minHSize large.</p>
+     *
+     * <p>If a split node does not fit the maxVRatio, the split  orientation
+     * will be changed to achieve a ratio smaller than maxHRatio</p>
+     *
+     * <p>This is an integer-math version of 
+     * {@link #splitRecursive(com.googlecode.blacken.core.Random, int, int, int, double, double)}</p>
+     *
+     *  @param rng If null uses the default instance
+     *  @param recursionDepth Due to size constraints this might no be reached.
+     *  @param minVSize the minumum height of a node
+     *  @param minHSize the minimum width of a node
+     *  @param maxVRatio the maximum height/width ratio (times 1000)
+     *  @param maxHRatio the maximum width/height ratio (times 1000)
+     */
+    public void splitRecursive(Random rng, int recursionDepth,
+            int minVSize, int minHSize, int maxVRatio, int maxHRatio) {
+        if(recursionDepth == 0 || width < 2*minHSize || height < 2*minVSize) {
+            return;
+        }
+        boolean horiz;
+        if(rng == null) {
+            rng = Random.getInstance();
+        }
+        if(height < 2*minVSize || width > height * maxHRatio / 1000) {
+            horiz = false;
+        } else if (width < 2*minHSize || height > width * maxVRatio / 1000) {
+            horiz = true;
+        } else {
+            horiz = rng.nextBoolean();
+        }
+        int pos;
+        if(horiz) {
+            pos = rng.nextInt(y+minVSize,y+height-minVSize);
+        } else {
+            pos = rng.nextInt(x+minHSize,x+width-minHSize);
+        }
+        if (this.leftChild == null && this.rightChild == null) {
+            splitOnce(horiz, pos);
+        }
+        leftChild.splitRecursive(rng, recursionDepth-1, minVSize, minHSize, maxVRatio, maxHRatio);
+        rightChild.splitRecursive(rng, recursionDepth-1, minVSize, minHSize, maxVRatio, maxHRatio);
+    }
 
     /**
      *  Resizes the tree and all its subtrees, without changing the splitting orientation and position.

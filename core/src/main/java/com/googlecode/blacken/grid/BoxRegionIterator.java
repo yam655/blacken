@@ -72,18 +72,22 @@ public class BoxRegionIterator extends RegionIterator {
             case 0: 
                 coords[0] = y1; coords[2] = y1; 
                 coords[1] = x1; coords[3] = x2;
+                segment++;
                 break;
             case 1:
                 coords[0] = y1 +1; coords[2] = y2-1; 
                 coords[1] = x1; coords[3] = x1;
+                segment++;
                 break;
             case 2: 
                 coords[0] = y2; coords[2] = y2; 
                 coords[1] = x1; coords[3] = x2;
+                segment++;
                 break;
             case 3:
                 coords[0] = y1 +1; coords[2] = y2-1; 
                 coords[1] = x2; coords[3] = x2;
+                segment = -1;
                 break;
             }
             if (unbordered_region) {

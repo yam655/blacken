@@ -374,9 +374,18 @@ implements Serializable, Regionlike {
     public Z getEmpty() {
         return this.copyCell(empty);
     }
-    
+
+    /**
+     * Copy a cell somehow.
+     *
+     * <p>If possible, we clone the cell. If that isn't available we copy by
+     * reference.</p>
+     *
+     * @param cell
+     * @return
+     */
     @SuppressWarnings("unchecked")
-    protected Z copyCell(Z cell) {
+    public Z copyCell(Z cell) {
         if (cell == null) {
             return null;
         }
@@ -395,10 +404,15 @@ implements Serializable, Regionlike {
         if (cloneMethod != null) {
             try {
                 ret = (Z) cloneMethod.invoke(cell);
-            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof CloneNotSupportedException) {
+                    ret = cell;
+                } else {
+                    throw new RuntimeException(e);
+                }
+            } catch (IllegalArgumentException | IllegalAccessException e) {
                 // IllegalArgumentException should never happen: Shouldn't take arguments
                 // IllegalAccessException should never happen: Should have already occured
-                // InvocationTargetException should never happen
                 throw new RuntimeException(e);
             }
         }

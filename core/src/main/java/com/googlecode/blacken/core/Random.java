@@ -30,6 +30,14 @@ import java.util.regex.*;
 public class Random extends java.util.Random {
     
     private static final long serialVersionUID = 3049695947451276476L;
+    private static Random instance = null;
+
+    public static Random getInstance() {
+        if (instance == null) {
+            instance = new Random();
+        }
+        return instance;
+    }
         
     private final Pattern guessPattern = 
         Pattern.compile("\\s*(\\d+)?\\s*(?:([:])\\s*(\\d+))??\\s*(?:([d:])\\s*(\\d+))?\\s*(?:([+-/*])\\s*(\\d+))?\\s*");
@@ -63,7 +71,7 @@ public class Random extends java.util.Random {
             num = outof;
             outof = t;
         }
-        ArrayList<Integer> arr = new ArrayList<Integer>(outof);
+        ArrayList<Integer> arr = new ArrayList<>(outof);
         int ret = 0;
         while(outof > 0) {
             arr.add(dice(1, sides));
@@ -88,7 +96,7 @@ public class Random extends java.util.Random {
         if (num > outof) {
             throw new IllegalArgumentException();
         }
-        ArrayList<Integer> arr = new ArrayList<Integer>(group);
+        ArrayList<Integer> arr = new ArrayList<>(group);
         int ret = 0;
         Collections.sort(arr);
         while(num > 0) {
@@ -113,7 +121,7 @@ public class Random extends java.util.Random {
             num = outof;
             outof = t;
         }
-        ArrayList<Integer> arr = new ArrayList<Integer>(outof);
+        ArrayList<Integer> arr = new ArrayList<>(outof);
         int ret = 0;
         while(outof > 0) {
             arr.add(guess(g));
@@ -188,7 +196,7 @@ public class Random extends java.util.Random {
      * @return list of results
      */
     public List<Integer> diceList(int num, int sides) {
-        List<Integer> ret = new ArrayList<Integer>(num);
+        List<Integer> ret = new ArrayList<>(num);
         for (int c = 0; c < num; c++) {
             ret.add(nextInt(sides) + 1);
         }
@@ -236,41 +244,49 @@ public class Random extends java.util.Random {
             p = pnum == null ? 0 : Integer.parseInt(pnum);
             if (num1 != null && num2 != null) {
                 if (wnum != null) {
-                    if (":".equals(wmode)) { //$NON-NLS-1$
-                        if ("d".equals(mode)) { //$NON-NLS-1$
+                    if (":".equals(wmode)) { 
+                        if ("d".equals(mode)) { 
                             ret = bestOf(a, w, b);
                         }
                     }
-                } else if ("d".equals(mode)) { //$NON-NLS-1$
+                } else if ("d".equals(mode)) { 
                     ret = dice(a, b);
-                } else if (":".equals(mode)) { //$NON-NLS-1$
+                } else if (":".equals(mode)) { 
                     ret = nextInt(a, b+1);
                 }
             } else if (num1 != null) {
-                if (":".equals(wmode)) { //$NON-NLS-1$
+                if (":".equals(wmode)) { 
                     ret = nextInt(a, w+1);
                 } else {
                     ret = a;
                 }
             } else if (num2 != null) {
-                if ("d".equals(mode)) { //$NON-NLS-1$
-                    ret = dice(1, b);
-                } else if (":".equals(mode)) { //$NON-NLS-1$
-                    ret = nextInt(0, b+1);
+                switch (mode) {
+                    case "d":
+                        ret = dice(1, b);
+                        break;
+                    case ":":
+                        ret = nextInt(0, b+1);
+                        break;
                 }
             } else {
-                if (":".equals(wmode)) { //$NON-NLS-1$
+                if (":".equals(wmode)) { 
                     ret = nextInt(0, w+1);
                 }
             }
-            if ("+".equals(pmode)) { //$NON-NLS-1$
-                ret += p;
-            } else if ("-".equals(pmode)) { //$NON-NLS-1$
-                ret -= p;
-            } else if ("*".equals(pmode)) { //$NON-NLS-1$
-                ret *= p;
-            } else if ("/".equals(pmode)) { //$NON-NLS-1$
-                ret /= p;
+            switch (pmode) {
+                case "+":
+                    ret += p;
+                    break;
+                case "-":
+                    ret -= p;
+                    break;
+                case "*":
+                    ret *= p;
+                    break;
+                case "/":
+                    ret /= p;
+                    break;
             }
         }
         return ret;
@@ -284,6 +300,9 @@ public class Random extends java.util.Random {
      */
     public int nextInt(int bottom, int top) {
         int diff = top - bottom;
+        if (diff == 0) {
+            return bottom;
+        }
         return bottom + nextInt(diff);
     }
 
