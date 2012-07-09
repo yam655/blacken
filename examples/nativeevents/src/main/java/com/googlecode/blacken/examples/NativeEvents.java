@@ -15,17 +15,16 @@
 */
 package com.googlecode.blacken.examples;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
-import javax.swing.JFrame;
-
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.nativeswing.AwtPalette;
 import com.googlecode.blacken.nativeswing.TerminalPanel;
 import com.googlecode.blacken.swing.AwtCell;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JFrame;
 
 /**
  * Example application using native events.
@@ -38,8 +37,7 @@ import com.googlecode.blacken.swing.AwtCell;
  * <p>It has the added benefit of adding a bit of flexibility to folks who want
  * a terminal-like window, but also want do be more Java-like.</p>
  * 
- * @author yam655
- *
+ * @author Steven Black
  */
 public class NativeEvents implements KeyListener {
 
@@ -63,8 +61,8 @@ public class NativeEvents implements KeyListener {
         Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
         gui = new TerminalPanel();
-        frame.setSize(480, 640); // resized later
-        frame.getContentPane().setLayout(new BorderLayout());
+        frame.setSize(640, 480); // resized later
+        frame.getContentPane().setLayout(new CardLayout());
         frame.setBackground(palette.get("Black"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(gui);

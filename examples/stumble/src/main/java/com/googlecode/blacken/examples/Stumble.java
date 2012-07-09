@@ -15,8 +15,7 @@
 */
 package com.googlecode.blacken.examples;
 
-import java.util.EnumSet;
-
+import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Random;
@@ -25,22 +24,23 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.swing.SwingTerminal;
+import com.googlecode.blacken.swing.SwingTerminalV2;
 import com.googlecode.blacken.terminal.*;
+import java.util.EnumSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A super-simple game
  * 
- * @author yam655
+ * @author Steven Black
  */
 public class Stumble {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Stumble.class);
     /**
      * TerminalInterface used by the example
      */
     protected CursesLikeAPI term;
-    /**
-     * ColorPalette used by the example
-     */
-    protected ColorPalette palette;
     /**
      * Whether to quit the loop or not
      */
@@ -57,6 +57,7 @@ public class Stumble {
     private boolean dirtyStatus = false;
     private String message;
     private float noisePlane;
+    private TerminalInterface glass;
     
     /**
      * Create a new instance
@@ -182,7 +183,7 @@ public class Stumble {
             showMap();
             term.setCursorLocation(player.getY() - upperLeft.getY() + MAP_START.getY(), 
                                    player.getX() - upperLeft.getX() + MAP_START.getX());
-            this.palette.rotate(0xee, 10, +1);
+            this.term.getPalette().rotate(0xee, 10, +1);
             term.refresh();
             mod = BlackenKeys.NO_KEY;
             ch = term.getch();
@@ -193,6 +194,7 @@ public class Stumble {
                 mod = ch;
                 ch = term.getch();
             }
+            // LOGGER.debug("Processing key: {}", ch);
             if (ch != BlackenKeys.NO_KEY) {
                 this.message = null;
                 doAction(mod, ch);
@@ -375,8 +377,17 @@ public class Stumble {
             palette.addAll(ColorNames.XTERM_256_COLORS, false);
             palette.putMapping(ColorNames.SVG_COLORS);
         } 
-        this.palette = palette;
         this.term.setPalette(palette);
+        try {
+            this.glass = term.initGlass(20, 40);
+        } catch (UnsupportedOperationException e) {
+            this.glass = null;
+        }
+        if (this.glass != null) {
+            TerminalCellLike cell = this.glass.getEmpty();
+            cell.setBackground(0x013f3f3f);
+            this.glass.clear(cell);
+        }
     }
     
     /**

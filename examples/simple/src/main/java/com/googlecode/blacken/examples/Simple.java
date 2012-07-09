@@ -19,6 +19,7 @@ import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
+import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
 
 /**
@@ -34,7 +35,7 @@ public class Simple {
 
     private boolean quit;
     private ColorPalette palette;
-    private TerminalInterface term = null;
+    private CursesLikeAPI term = null;
     
     Simple() {
         // do nothing
@@ -42,23 +43,23 @@ public class Simple {
 
     protected boolean loop() {
         int ch = BlackenKeys.NO_KEY;
-        if (palette.containsKey("Black")) { //$NON-NLS-1$
-            term.setCurBackground("Black"); //$NON-NLS-1$
+        if (palette.containsKey("Black")) {
+            term.setCurBackground("Black");
         }
-        if (palette.containsKey("White")) { //$NON-NLS-1$
-            term.setCurForeground("White"); //$NON-NLS-1$
+        if (palette.containsKey("White")) {
+            term.setCurForeground("White");
         }
-        term.puts("Terminal Interface\n"); //$NON-NLS-1$
-        term.puts("Press F10 to quit.\n"); //$NON-NLS-1$
+        term.puts("Terminal Interface\n");
+        term.puts("Press F10 to quit.\n");
         while (!this.quit) {
-            term.puts(">"); //$NON-NLS-1$
+            term.puts(">");
             // getch automatically does a refresh
             ch = term.getch();
             term.puts(BlackenKeys.toString(ch));
             if (ch == BlackenKeys.KEY_F10) {
                 this.quit = true;
             }
-            term.puts("\n"); //$NON-NLS-1$
+            term.puts("\n");
         }
         term.refresh();
         return this.quit;
@@ -72,10 +73,10 @@ public class Simple {
      */
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
-            this.term = new SwingTerminal();
-            this.term.init("Simple", 25, 80); //$NON-NLS-1$
+            this.term = new CursesLikeAPI(new SwingTerminal());
+            this.term.init("Simple", 25, 80);
         } else {
-            this.term = term;
+            this.term = new CursesLikeAPI(term);
         }
         if (palette == null) {
             palette = new ColorPalette();

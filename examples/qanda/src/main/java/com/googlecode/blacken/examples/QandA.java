@@ -19,6 +19,7 @@ import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
+import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalUtils;
 
@@ -32,7 +33,7 @@ public class QandA {
 
     private boolean quit;
     private ColorPalette palette;
-    private TerminalInterface term = null;
+    private CursesLikeAPI term = null;
     
     QandA() {
         // do nothing
@@ -80,10 +81,10 @@ public class QandA {
      */
     public void init(TerminalInterface term, ColorPalette palette) {
         if (term == null) {
-            this.term = new SwingTerminal();
+            this.term = new CursesLikeAPI(new SwingTerminal());
             this.term.init("QandA", 25, 80);
         } else {
-            this.term = term;
+            this.term = new CursesLikeAPI(term);
         }
         if (palette == null) {
             palette = new ColorPalette();

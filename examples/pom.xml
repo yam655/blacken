@@ -23,6 +23,7 @@
         <module>simple</module>
         <module>stumble</module>
         <module>swinger</module>
+        <module>dungeon</module>
     </modules>
     
 </project>
