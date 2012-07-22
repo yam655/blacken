@@ -134,7 +134,7 @@ public class TestBSP {
         List<BSPTree> nodelist = t.traverseInvertedLevelOrder(null);
         assertSame(t.getRightChild(),nodelist.get(0));
         assertSame(t.getLeftChild(),nodelist.get(1));
-        assertSame(t.nodelist.get(2));
+        assertSame(t,nodelist.get(2));
     }
 
 
