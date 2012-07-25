@@ -48,6 +48,32 @@
                 <encoding>${project.build.sourceEncoding}</encoding>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.4</version>
+            <configuration>
+                <archive>
+                    <addMavenDescriptor/>
+                    <compress/>
+                    <forced/>
+                    <index/>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <addDefaultImplementationEntries/>
+                        <addDefaultSpecificationEntries/>
+                        <addExtensions/>
+                        <classpathLayoutType/>
+                        <classpathMavenRepositoryLayout/>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>com.googlecode.blacken.examples.Dungeon</mainClass>
+                        <packageName/>
+                    </manifest>
+                    <manifestFile/>
+                    <pomPropertiesFile/>
+                </archive>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>
