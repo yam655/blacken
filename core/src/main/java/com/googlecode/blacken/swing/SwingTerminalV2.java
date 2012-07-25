@@ -179,6 +179,7 @@ public class SwingTerminalV2 extends ReducedSwingTerminalV2
         return e;
     }
 
+    /*
     @Override
     public TerminalInterface getGlass() {
         return this.glass;
@@ -191,7 +192,7 @@ public class SwingTerminalV2 extends ReducedSwingTerminalV2
 
     @Override
     public TerminalInterface initGlass(int rows, int cols, String font) {
-        /*
+        // XXX not complete
         if (this.frame == null) {
             this.init("Java", rows, cols, font);
         }
@@ -225,9 +226,8 @@ public class SwingTerminalV2 extends ReducedSwingTerminalV2
         // frame.pack();
         // frame.setBounds(frameBounds);
         return glass;
-        */
-        throw new UnsupportedOperationException("Not complete.");
     }
+    */
 
     @Override
     public void init(String name, int rows, int cols, String font) {

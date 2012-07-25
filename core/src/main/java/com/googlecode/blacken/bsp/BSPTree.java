@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
 
 import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.grid.BoxRegion;
@@ -90,12 +88,12 @@ public class BSPTree<R> implements Regionlike {
      */
     public void setContained(R contained) {
         if (!isLeaf()) {
-            throw new IllegalStateException("Can't fit that there.");
+            throw new IllegalStateException("Only leaf nodes can contain data");
         }
         this.contained = contained;
     }
     /**
-     * Get the leaf node's datum.
+     * Get the leaf node's contained data.
      * @return
      */
     public R getContained() {
@@ -628,6 +626,10 @@ public class BSPTree<R> implements Regionlike {
      */
     public Collection<BSPTree> findInvertedLevelOrder(Collection<BSPTree> nodelist) {
         List<BSPTree> first = new ArrayList<>();
+        Collection<BSPTree> ret = nodelist;
+        if (ret == null) {
+            ret = new ArrayList<>();
+        }
         findLevelOrder(first);
         Collections.reverse(first);
         // If we didn't want a simpler override interface, we would use addAll()
@@ -635,10 +637,10 @@ public class BSPTree<R> implements Regionlike {
             nodelist.addAll(first);
         } catch(RuntimeException e) {
             for (BSPTree node : first) {
-                nodelist.add(node);
+                ret.add(node);
             }
         }
-        return nodelist;
+        return ret;
     }
 
     /**

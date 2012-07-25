@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.dungeon;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ import com.googlecode.blacken.grid.Regionlike;
 
 /**
  *
+ * @param <T> type this room can contain
  * @author Steven Black
  */
 public class RoomFactory<T> {
@@ -39,14 +41,7 @@ public class RoomFactory<T> {
     }
     private Map<String, CheckDatum<T>> checks;
     private Random rng = Random.getInstance();
-
-    public void setRandomNumberGenerator(Random randomNumberGenerator) {
-        this.rng = randomNumberGenerator;
-    }
-
-    public Random getRandomNumberGenerator() {
-        return rng;
-    }
+    private Map<String, T> config = Collections.emptyMap();
 
     /**
      * A room factory creating simple single-item rooms.
@@ -110,6 +105,8 @@ public class RoomFactory<T> {
                 ret.assignContainer(check.getKey(), new SimpleContainer(
                         check.getValue().verifier,
                         check.getValue().sizeLimited ? 1 : -1));
+                ret.setConfig(config);
+                ret.setRandom(rng);
             }
         }
         return ret;
@@ -129,22 +126,42 @@ public class RoomFactory<T> {
         Regionlike r = new BoxRegion(region);
         int meddleX = r.getWidth() * 1000 / per;
         int meddleY = r.getHeight() * 1000 / per;
-        if (r.getWidth() - meddleX < 3) {
+        if (r.getWidth() < 5) {
             meddleX = 0;
+        } else if (r.getWidth() - meddleX < 5) {
+            meddleX = r.getWidth() - 5;
         }
-        if (r.getHeight() - meddleY < 3) {
+        if (r.getHeight() < 5) {
             meddleY = 0;
+        } else if (r.getHeight() - meddleY < 5) {
+            meddleY = r.getHeight() - 5;
         }
         if (meddleY != 0 || meddleX != 0) {
             int shrinkY = meddleY == 0 ? 0 : rng.nextInt(meddleY) + 1;
             int shrinkX = meddleX == 0 ? 0 : rng.nextInt(meddleX) + 1;
             r.setSize(r.getHeight()-shrinkY, r.getWidth()-shrinkX);
-            int moveY = shrinkY == 0 ? 0 : rng.nextInt(shrinkY+1);
-            int moveX = shrinkX == 0 ? 0 : rng.nextInt(shrinkX+1);
+            int moveY = shrinkY == 0 ? 0 : rng.nextInt(shrinkY) + 1;
+            int moveX = shrinkX == 0 ? 0 : rng.nextInt(shrinkX) + 1;
             if (moveY != 0 || moveX != 0) {
                 r.setPosition(r.getY() + moveY, r.getX() + moveX);
             }
         }
         return createRoom(r);
+    }
+
+    public void setRandomNumberGenerator(Random randomNumberGenerator) {
+        this.rng = randomNumberGenerator;
+    }
+
+    public Random getRandomNumberGenerator() {
+        return rng;
+    }
+
+    public void setConfig(Map<String, T> config) {
+        this.config = config;
+    }
+
+    public Map<String, T> getConfig() {
+        return config;
     }
 }

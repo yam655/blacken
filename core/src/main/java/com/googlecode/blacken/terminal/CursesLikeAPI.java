@@ -512,8 +512,26 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public void setFont(String font) {
+    public void setFont(String font) throws FontNotFoundException {
         terminal.setFont(font);
+    }
+    @Override
+    public String setFont(String... font) throws FontNotFoundException {
+        FontNotFoundException lastEx = null;
+        String used = null;
+        for (String f : font) {
+            try {
+                setFont(f);
+                used = f;
+                break;
+            } catch(FontNotFoundException ex) {
+                lastEx = ex;
+            }
+        }
+        if (used == null) {
+            throw new FontNotFoundException("None of the requested fonts were found", lastEx);
+        }
+        return used;
     }
 
     @Override
@@ -556,6 +574,7 @@ public class CursesLikeAPI implements TerminalInterface {
         return terminal;
     }
 
+    /*
     @Override
     public TerminalInterface getGlass() {
         return terminal.getGlass();
@@ -570,5 +589,6 @@ public class CursesLikeAPI implements TerminalInterface {
     public TerminalInterface initGlass(int rows, int cols, String font) {
         return terminal.initGlass(rows, cols, font);
     }
+    */
 
 }

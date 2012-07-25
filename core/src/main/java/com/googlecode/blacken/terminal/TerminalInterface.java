@@ -340,8 +340,17 @@ public interface TerminalInterface {
     /**
      * Set the font to a name or a path
      * @param font name or path; default MONOSPACE if null
+     * @throws FontNotFoundException requested font was not found
       */
-    public void setFont(String font);
+    public void setFont(String font) throws FontNotFoundException;
+    /**
+     * Set the font to a name or a path
+     * @param font a set of fonts to try in order; default MONOSPACE if null
+     * @return the font used.
+     * @throws FontNotFoundException requested font was not found
+      */
+    public String setFont(String... font) throws FontNotFoundException;
+
     /**
      * Set the palette, performing any additional implementation-specific
      * backing logic as needed.
@@ -429,15 +438,15 @@ public interface TerminalInterface {
      */
     public TerminalInterface getBackingTerminalInterface();
 
-    /**
+    /*
      * The "glass" TerminalInterface sits on top of the normal one and should
      * be mostly transparent.
      * @return current glass terminal interface (if any) or <code>null</code>
      * @since COMING IN BLACKEN 2.0
      */
-    public TerminalInterface getGlass();
+    //public TerminalInterface getGlass();
 
-    /**
+    /*
      * Create a new "glass" TerminalInterface with the default font.
      *
      * @param rows
@@ -445,9 +454,9 @@ public interface TerminalInterface {
      * @since COMING IN BLACKEN 2.0
      * @return
      */
-    public TerminalInterface initGlass(int rows, int cols);
+    //public TerminalInterface initGlass(int rows, int cols);
 
-    /**
+    /*
      * Creates a translucent terminal interface on top of the current one.
      *
      * <p>A different resolution and font size can be used. This allows big
@@ -460,6 +469,6 @@ public interface TerminalInterface {
      * @since COMING IN BLACKEN 2.0
      * @return
      */
-    public TerminalInterface initGlass(int rows, int cols, String font);
+    //public TerminalInterface initGlass(int rows, int cols, String font);
 
 }

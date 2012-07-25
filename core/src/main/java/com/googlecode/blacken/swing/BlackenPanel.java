@@ -357,8 +357,11 @@ public class BlackenPanel extends JPanel {
                     if (cs != null && !"\u0000".equals(cs)) {
                         int w = metrics.stringWidth(cs);
                         w = fontSglAdvance - w;
-                        if (w < 0) w = 0;
-                        else w /= 2;
+                        if (w < 0) {
+                            w = 0;
+                        } else {
+                            w /= 2;
+                        }
                         graphics.setBackground(c.getBackgroundColor());
                         graphics.setColor(c.getForegroundColor());
                         graphics.drawString(c.getSequence(),
@@ -455,7 +458,9 @@ public class BlackenPanel extends JPanel {
         fontAscent = metrics.getMaxAscent()+1;
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
-        if (fontDblAdvance == -1) fontDblAdvance = fontSglAdvance;
+        if (fontDblAdvance == -1) {
+            fontDblAdvance = fontSglAdvance;
+        }
         fontHasDouble = false;
         if (fontDblAdvance >= fontSglAdvance + fontSglAdvance) {
             fontHasDouble = true;
@@ -511,7 +516,7 @@ public class BlackenPanel extends JPanel {
          */
         //fontHeight = metrics.getMaxAscent() + metrics.getMaxDescent() 
         //                                    + metrics.getLeading();
-        fontHeight = metrics.getHeight() +2;
+        fontHeight = metrics.getHeight() /* + 2 */;
     }
     /**
      * Refresh the window.

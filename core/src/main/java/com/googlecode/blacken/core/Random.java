@@ -261,32 +261,36 @@ public class Random extends java.util.Random {
                     ret = a;
                 }
             } else if (num2 != null) {
-                switch (mode) {
-                    case "d":
-                        ret = dice(1, b);
-                        break;
-                    case ":":
-                        ret = nextInt(0, b+1);
-                        break;
+                if (mode != null) {
+                    switch (mode) {
+                        case "d":
+                            ret = dice(1, b);
+                            break;
+                        case ":":
+                            ret = nextInt(0, b+1);
+                            break;
+                    }
                 }
             } else {
                 if (":".equals(wmode)) { 
                     ret = nextInt(0, w+1);
                 }
             }
-            switch (pmode) {
-                case "+":
-                    ret += p;
-                    break;
-                case "-":
-                    ret -= p;
-                    break;
-                case "*":
-                    ret *= p;
-                    break;
-                case "/":
-                    ret /= p;
-                    break;
+            if (pmode != null) {
+                switch (pmode) {
+                    case "+":
+                        ret += p;
+                        break;
+                    case "-":
+                        ret -= p;
+                        break;
+                    case "*":
+                        ret *= p;
+                        break;
+                    case "/":
+                        ret /= p;
+                        break;
+                }
             }
         }
         return ret;

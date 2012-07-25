@@ -389,6 +389,15 @@ public class GridTest {
     }
 
     @Test
+    @Covers("public Z copyCell(Z)")
+    public void copyCell() {
+        Integer v = 42;
+        Integer a = this.grid.copyCell(v);
+        assertSame(v, a);
+        assertEquals(v, a);
+    }
+
+    @Test
     @Covers("public void copyFrom(Grid<Z>,int,int,int,int,int,int,DirtyGridCell<Z>)")
     public void copyFrom() {
         checkSolid(empty, empty);

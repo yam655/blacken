@@ -15,9 +15,9 @@
 */
 package com.googlecode.blacken.core;
 
-import static org.junit.Assert.*;
-
 import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * test
@@ -38,8 +38,8 @@ public class TestRandom {
      */
     @Test
     public void testGuessEmpty() {
-        int got = 0;
-        got = r.guess(""); //$NON-NLS-1$
+        int got;
+        got = r.guess("");
         assertEquals(0, got);
     }
     
@@ -48,7 +48,7 @@ public class TestRandom {
      */
     @Test
     public void testPlus() {
-        int got = r.guess("+2"); //$NON-NLS-1$
+        int got = r.guess("+2");
         assertEquals(2, got);
     }
 
@@ -57,7 +57,7 @@ public class TestRandom {
      */
     @Test
     public void testDiv() {
-        int got = r.guess("8/4"); //$NON-NLS-1$
+        int got = r.guess("8/4");
         assertEquals(2, got);
     }
 
@@ -66,7 +66,7 @@ public class TestRandom {
      */
     @Test
     public void testMul() {
-        int got = r.guess("2*2"); //$NON-NLS-1$
+        int got = r.guess("2*2");
         assertEquals(4, got);
     }
 
@@ -75,7 +75,7 @@ public class TestRandom {
      */
     @Test
     public void testSub() {
-        int got = r.guess("6-2"); //$NON-NLS-1$
+        int got = r.guess("6-2");
         assertEquals(4, got);
     }
 
@@ -84,7 +84,7 @@ public class TestRandom {
      */
     @Test
     public void testAdd() {
-        int got = r.guess("2+2"); //$NON-NLS-1$
+        int got = r.guess("2+2");
         assertEquals(4, got);
     }
     
@@ -93,7 +93,7 @@ public class TestRandom {
      */
     @Test
     public void testDice() {
-        int got = r.guess("5d10"); //$NON-NLS-1$
+        int got = r.guess("5d10");
         assertEquals(34, got);
     }
     
@@ -102,7 +102,7 @@ public class TestRandom {
      */
     @Test
     public void testBestOfDice() {
-        int got = r.guess("3:4d6"); //$NON-NLS-1$
+        int got = r.guess("3:4d6");
         assertEquals(18, got);
     }
     
@@ -111,7 +111,7 @@ public class TestRandom {
      */
     @Test
     public void testBestOfDiceMul() {
-        int got = r.guess("3:4d6*50"); //$NON-NLS-1$
+        int got = r.guess("3:4d6*50");
         assertEquals(900, got);
     }
 

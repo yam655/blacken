@@ -184,6 +184,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         init(name, rows, cols, null);
     }
 
+    /*
     @Override
     public abstract TerminalInterface getGlass();
 
@@ -194,6 +195,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public abstract TerminalInterface initGlass(int rows, int cols, String font);
+    */
 
     @Override
     public void init(String name, int rows, int cols, String font) {
@@ -257,8 +259,26 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
     
     @Override
-    public void setFont(String font) {
-        // do nothing
+    public void setFont(String font) throws FontNotFoundException {
+        throw new FontNotFoundException("Fonts unsupported here");
+    }
+    @Override
+    public String setFont(String... font) throws FontNotFoundException {
+        FontNotFoundException lastEx = null;
+        String used = null;
+        for (String f : font) {
+            try {
+                setFont(f);
+                used = f;
+                break;
+            } catch(FontNotFoundException ex) {
+                lastEx = ex;
+            }
+        }
+        if (used == null) {
+            throw new FontNotFoundException("None of the requested fonts were found", lastEx);
+        }
+        return used;
     }
 
     @Override

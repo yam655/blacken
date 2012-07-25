@@ -658,7 +658,9 @@ public class TestCursesLikeAPI {
     }
 
     @Test
-    @Covers("public void setFont(String)")
+    @Covers({"public void setFont(String) throws FontNotFoundException",
+        "public String setFont(String...) throws FontNotFoundException"
+    })
     public void setFont_name() {
         // unimplemented in UnboundTerminal
     }
@@ -819,9 +821,9 @@ public class TestCursesLikeAPI {
              "public boolean setFullScreen(boolean)",
              "public boolean getFullScreen()",
              "public void inhibitFullScreen(boolean)",
-             "public TerminalInterface getGlass()",
-             "public TerminalInterface initGlass(int,int,String)",
-             "public TerminalInterface initGlass(int,int)",
+             //"public TerminalInterface getGlass()",
+             //"public TerminalInterface initGlass(int,int,String)",
+             //"public TerminalInterface initGlass(int,int)",
             })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

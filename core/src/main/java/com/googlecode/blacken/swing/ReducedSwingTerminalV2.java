@@ -427,6 +427,7 @@ public class ReducedSwingTerminalV2 extends AbstractTerminal {
         getGrid().setBounds(gui.getGridBounds());
     }
 
+    /*
     @Override
     public TerminalInterface getGlass() {
         if (this.term != this) {
@@ -443,4 +444,6 @@ public class ReducedSwingTerminalV2 extends AbstractTerminal {
         }
         throw new UnsupportedOperationException("Does not make sense.");
     }
+    * 
+    */
 }

@@ -142,4 +142,25 @@ public class Point implements Positionable {
         hash = 37 * hash + this.y;
         return hash;
     }
+
+    /**
+     * Add two positionables together.
+     *
+     * <p>Typically, one will be a real point and the other will be an offset.</p>
+     *
+     * @param a
+     * @param b
+     * @return new positionable
+     */
+    static public Positionable add(Positionable a, Positionable b) {
+        return new Point(a.getY() + b.getY(), a.getX() + b.getX());
+    }
+
+    /**
+     * Add a positionable to this point.
+     * @param b offset to add
+     */
+    public void add(Positionable b) {
+        this.setPosition(getY() + b.getY(), getX() + b.getX());
+    }
 }

@@ -240,6 +240,21 @@ public class BoxRegion implements Regionlike {
     }
 
     /**
+     * Convert a Positionable in to a Regionlike.
+     *
+     * <p>The position is taken from the Positionable.
+     * The size (both y and x) is set to 1.</p>
+     *
+     * @param point
+     */
+    public BoxRegion(Positionable point) {
+        this.start_x = point.getX();
+        this.start_y = point.getY();
+        this.size_x = 1;
+        this.size_y = 1;
+    }
+
+    /**
      * Create a box region.
      * 
      * @param height height of box

@@ -16,10 +16,12 @@
 
 package com.googlecode.blacken.bsp;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.*;
-import java.util.List;
+
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
 import com.googlecode.blacken.core.Random;
@@ -32,6 +34,8 @@ import com.googlecode.blacken.grid.SimpleSize;
 import com.googlecode.blacken.grid.Sizable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 
 /**
  *  Unit test for BSPTree.
@@ -145,7 +149,8 @@ public class TestBSP {
     public void testSplitRecursive() {
         Random rng = new Random(987654321);
         t.splitRecursive(rng, 5, 3, 3, 5.0, 3.0);
-        List<BSPTree> sample = t.traverseLevelOrder(null);
+        Collection<BSPTree> s = t.findLevelOrder(null);
+        List<BSPTree> sample = new ArrayList<>(s);
         //     protected BSPTree(int height, int width, int y, int x, int level, int position, boolean horizontal) {
 
         BSPTree good = new BSPTree(25, 80, 0, 0, 0, 10, true);
@@ -442,6 +447,377 @@ public class TestBSP {
     public void testCoverage() {
         // Parent is abstract, so we need to test it!
         Coverage.checkCoverageDeep(BSPTree.class, this.getClass());
+    }
+
+    @Test
+    public void testSimpleBounds() {
+        Sizable whole = t.getBounds();
+        Sizable partA = t.getLeftChild().getBounds();
+        Sizable partB = t.getRightChild().getBounds();
+        if (t.isHorizontal()) {
+            assertEquals(whole.getHeight(), partA.getHeight() + partB.getHeight());
+            assertEquals(whole.getWidth(), partA.getWidth());
+            assertEquals(whole.getWidth(), partB.getWidth());
+        } else {
+            assertEquals(whole.getWidth(), partA.getWidth() + partB.getWidth());
+            assertEquals(whole.getHeight(), partA.getHeight());
+            assertEquals(whole.getHeight(), partB.getHeight());
+        }
+        assertTrue(t.contains(START_Y + NUM_ROWS -1, START_X + NUM_ROWS -1));
+        assertFalse(t.contains(START_Y + NUM_ROWS, START_X + NUM_ROWS));
+    }
+
+    @Test
+    @Covers({"public void setContained(R)", "public R getContained()"})
+    public void setContained() {
+        Object sassy = new Object();
+        try {
+            t.setContained(sassy);
+            if (!t.isLeaf()) {
+                fail("failed to throw exception");
+            }
+        } catch(IllegalStateException e) {
+            // do nothing
+        }
+        BSPTree r = t.getRightChild();
+        r.setContained(sassy);
+        assertNotNull(r.getContained());
+        assertSame(sassy, r.getContained());
+    }
+    @Test
+    @Covers("public Collection<BSPTree> findTopOrder(Collection<BSPTree>)")
+    public void findTopOrder() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findTopOrder(null);
+        String expect = "[{Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+    @Test
+    @Covers("public Collection<BSPTree> findLevelOrder(Collection<BSPTree>)")
+    public void findLevelOrder() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findLevelOrder(null);
+        String expect = "[{Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+    @Test
+    @Covers("public Collection<BSPTree> findLeaves(Collection<BSPTree>)")
+    public void findLeaves() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findLeaves(null);
+        String expect = "[{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+    @Test
+    @Covers("public Collection<R> findContained(Collection<R>)")
+    public void findContained() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> trees = t.findLeaves(null);
+        Integer idx = 0;
+        for (BSPTree bsp : trees) {
+            bsp.setContained(idx++);
+        }
+        Collection<Integer> ints = t.findContained(null);
+        idx = 0;
+        for (Integer i : ints) {
+            assertEquals(idx++, i);
+        }
+    }
+    @Test
+    @Covers("public Collection<BSPTree> findInOrder(Collection<BSPTree>)")
+    public void findInOrder() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findInOrder(null);
+        String expect = "[{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+    @Test
+    @Covers("public void splitRecursive(Random,int,int,int)")
+    public void splitRecursiveSimple() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findInOrder(null);
+        String expect = "[{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        //fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+    @Test
+    @Covers("public Collection<BSPTree> findInvertedLevelOrder(Collection<BSPTree>)")
+    public void findInvertedLevelOrder() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findInvertedLevelOrder(null);
+        String expect = "[{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+
+    @Test
+    @Covers("public void splitRecursive(Random,int,int,int,int,int)")
+    public void splitRecursiveBig() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5000, 3000);
+        Collection<BSPTree> o = t.findInOrder(null);
+        String expect = "[{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
+    }
+
+    @Test
+    @Covers("public Collection<BSPTree> findBottomOrder(Collection<BSPTree>)")
+    public void findBottomOrder() {
+        t.splitRecursive(new Random(1234556), 2, 4, 4, 5.0, 3.0);
+        Collection<BSPTree> o = t.findBottomOrder(null);
+        String expect = "[{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}, {Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}, {Level: 0; Position: 0,0; Size: 25,80; Split: 10; Horizontal; Level: 0;\n"
+            + " Right:{Level: 1; Position: 10,0; Size: 15,80; Split: 18; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 10,18; Size: 15,62; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 10,0; Size: 15,18; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}};\n"
+            + " Left:{Level: 1; Position: 0,0; Size: 10,80; Split: 12; Vertical; Level: 1;\n"
+            + " Right:{Level: 2; Position: 0,12; Size: 10,68; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-};\n"
+            + " Left:{Level: 2; Position: 0,0; Size: 10,12; Split: -1; Vertical; Level: 2;\n"
+            + " Right:-;\n"
+            + " Left:-}}}]";
+        assertEquals(expect, o.toString());
+        // fail(o.toString().replaceAll("\n", "\\\\n\"\n    + \""));
     }
 
 }

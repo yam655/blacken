@@ -28,6 +28,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.swing.JFrame;
 
@@ -230,7 +231,18 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void init(String name, int rows, int cols, String font) {
         if (frame != null) {
-            setFont(font);
+            try {
+                setFont(font);
+            } catch (FontNotFoundException ex) {
+                LOGGER.error("Failed to set font", ex);
+                if (font != null) {
+                    try {
+                        setFont(null);
+                    } catch (FontNotFoundException ex1) {
+                        LOGGER.error("Failed to set backup font", ex1);
+                    }
+                }
+            }
             resize(rows, cols);
             setCursorLocation(-1,-1);
             return;
@@ -410,7 +422,7 @@ public class SwingTerminal extends AbstractTerminal
 
     protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCellLike term) {
         if (term == null && awt != null) {
-            awt.setCell(null);
+            awt.set(null);
             return awt;
         }
         if (awt == null) {
@@ -504,10 +516,10 @@ public class SwingTerminal extends AbstractTerminal
             // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
     
             case STYLE_INVISIBLE:
-                awt.setSequence("\u0000"); //$NON-NLS-1$
+                awt.setSequence("\u0000");
                 break;
             case STYLE_REPLACEMENT:
-                awt.setSequence("\uFFFC"); //$NON-NLS-1$
+                awt.setSequence("\uFFFC");
                 String s = term.getSequence();
                 if (replacement != null && replacement.containsKey(s)) {
                     attrs.put(TextAttribute.CHAR_REPLACEMENT, replacement.get(s));
@@ -549,12 +561,16 @@ public class SwingTerminal extends AbstractTerminal
     }
     
     @Override
-    public void setFont(String font) {
+    public void setFont(String font) throws FontNotFoundException {
         if (font == null) {
             font = Font.MONOSPACED;
         }
         Font fontObj = new Font(font, Font.PLAIN, 1);
-        gui.setFont(fontObj);
+        if (fontObj.getName().equals(font) || fontObj.getFamily().equals(font)) {
+            gui.setFont(fontObj);
+        } else {
+            throw new FontNotFoundException("Font is not found");
+        }
     }
 
     @Override
@@ -569,6 +585,7 @@ public class SwingTerminal extends AbstractTerminal
         return old;
     }
 
+    /*
     @Override
     public TerminalInterface getGlass() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -578,4 +595,5 @@ public class SwingTerminal extends AbstractTerminal
     public TerminalInterface initGlass(int rows, int cols, String font) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    */
 }

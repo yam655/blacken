@@ -697,6 +697,9 @@ public class BlackenKeys {
     static final public int CODEPOINT_COMBINING_OGONEK = '\u0328';
     static final public int CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI = '\u0345';
 
+    static final public int CODEPOINT_LIGHT_SHADE = '\u2591';
+    static final public int CODEPOINT_MEDIUM_SHADE = '\u2592';
+    static final public int CODEPOINT_DARK_SHADE = '\u2593';
     /**
      * Find the plane that a codepoint is on.
      * 
