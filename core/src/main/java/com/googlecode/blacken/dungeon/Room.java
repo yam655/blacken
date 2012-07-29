@@ -38,6 +38,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A generic room-like object.
+ * 
+ * <p>Rooms exist with dimensions and with stuff. Though the room has stuff,
+ * the stuff does not have a position other than simply "inside the room." 
+ * 
+ * <p>For Roguelike games this primarily is useful when creating the dungeon.
+ *
+ * <p>A room's floor space is considered to consist of zero or more independent
+ * layers which can all contain stuff. The implication is that each of the
+ * layers can exist independently, however in practice this is rarely the case.
+ * We would rarely want initial placement of a monster to be on a terrain which
+ * can kill it, or initial placement of an item on terrain which will destroy
+ * it.
  *
  * @param <T> item the room can contain
  * @author Steven Black
@@ -67,6 +80,16 @@ public class Room<T> implements Regionlike {
         floorSpace = (height - 2) * (width - 2);
     }
 
+    /**
+     * Get the current floor space
+     *
+     * <p>The floor space is the inside of the room. This is not the map area
+     * the room fills, as the room walls are not zero-width, so a room (like all
+     * {@link Regionlike} objects) consists of an inside, an outside, and an
+     * edge. The room walls are the edge. The floor space is the inside.
+     *
+     * @return number of floor squares present
+     */
     public int getFloorSpace() {
         return floorSpace;
     }

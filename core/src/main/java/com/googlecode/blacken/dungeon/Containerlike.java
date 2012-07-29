@@ -14,16 +14,47 @@ import java.util.Iterator;
  * @author Steven Black
  */
 public interface Containerlike<I> extends Collection<I> {
+    /**
+     * Can this contain the <code>thing</code>?
+     * @param thing
+     * @return false when incompatable type or container full; true otherwise
+     */
     public boolean canFit(I thing);
+    /**
+     * Request similar items from this container.
+     * @param judge determiner for what is similar
+     * @return
+     */
     public Collection<I> getSimilar(ThingTypeCheck<I> judge);
+    /**
+     * Set the typing verifier
+     *
+     * <p>Use <code>null</code> to disable the typing verifier.</code>
+     *
+     * @param judge determiner for what can fit in this container
+     */
     public void setVerifier(ThingTypeCheck<I> judge);
+    /**
+     * Get the typing verifier
+     * @return null if none specified
+     */
     public ThingTypeCheck<I> getVerifier();
     /**
      * Is a size limit in effect?
      * @return
      */
     public boolean hasSizeLimit();
+    /**
+     * Get the current size limit
+     * @return -1 if none; otherwise size limit
+     */
     public int getSizeLimit();
+    /**
+     * Set the size limit
+     * @param limit new size limit (-1 to disable)
+     * @return old size limit (-1 if none)
+     * @throws IllegalStateException already contains too many items
+     */
     public int setSizeLimit(int limit) throws IllegalStateException;
 
     @Override

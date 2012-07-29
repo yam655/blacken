@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.dungeon;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class SimpleDungeonConfig {
      * @param <T> type of config entry
      * @param config Mapping object
      */
-    public static <T extends Object> void cleanConfig(Map<String, T> config) {
+    public static <T> void cleanConfig(Map<String, T> config) {
         Map<String, T> cfg = (Map<String, T>) config;
         T a = cfg.get("floor");
         T b = cfg.get("room:floor");
@@ -217,7 +218,7 @@ public class SimpleDungeonConfig {
         }
     }
 
-    public static <T extends Object> Set<T> findRoomWalls(Map<String, T> config) {
+    public static <T> Set<T> findRoomWalls(Map<String, T> config) {
         Set<T> ret = new HashSet<>();
         T roomWall;
         roomWall = config.get("room:wall:top");
@@ -257,6 +258,35 @@ public class SimpleDungeonConfig {
             ret.add(roomWall);
         }
 
+        return ret;
+    }
+
+    /**
+     * Define values in a map by way of a common set of keys in both a key
+     * map and a value map.
+     *
+     * <p>The use-case for this function is creating maps suitable for the
+     * {@link SimpleFactoryMap} class while using the names and fuzzy
+     * reassignment of the standard config map.
+     *
+     * <p>In this common use-case, both the <code>keymap</code> and the
+     * <code>valmap</code> must have been processed by
+     * {@link #cleanConfig(java.util.Map)}.
+     *
+     * @param <K> key type
+     * @param <X> value/key type
+     * @param <Y> value/value type
+     * @param keymap
+     * @param valmap
+     * @return Map<X, Y> for Map<K, X> and Map<K, Y>
+     */
+    public static <K, X, Y> Map<X, Y> commonKeyMap(Map<K, X> keymap, Map<K, Y> valmap) {
+        Map<X, Y> ret = new HashMap<>();
+        Set<K> realKeys = new HashSet<>(keymap.keySet());
+        realKeys.retainAll(valmap.keySet());
+        for (K key : realKeys) {
+            ret.put(keymap.get(key), valmap.get(key));
+        }
         return ret;
     }
 }

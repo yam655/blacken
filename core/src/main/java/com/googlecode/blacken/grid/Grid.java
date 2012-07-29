@@ -16,10 +16,9 @@
 package com.googlecode.blacken.grid;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import com.googlecode.blacken.core.Util;
 import com.googlecode.blacken.exceptions.IrregularGridException;
 import com.googlecode.blacken.grid.Bresenham.LineIterator;
 import org.slf4j.Logger;
@@ -35,41 +34,76 @@ import org.slf4j.LoggerFactory;
  * While regular grids are always rectangular, irregular grids can be both
  * arbitrary shapes, as well as contain voids.</p>
  * 
- * <p>A regular grid is
- * exactly what you think of when you think of a grid, a two-dimensional
- * array which can be arbitrarily sized along either dimension. 
+ * <p>A regular grid is exactly what you think of when you think of a grid, a 
+ * two-dimensional array which can be arbitrarily sized along either dimension.
  * That is, our grid forbids <code>null</code> values in favor of having 
  * a known-good <code>empty</code> cell value. This allows the grid to be
  * arbitrarily resized with cells being dropped and added and the cells always
- * have known-good values.</p>
+ * have known-good values.
  * 
  * <p>The irregular grids expressly allow <code>null</code> values. (Note
  * that ({@link #unset(int, int)} uses the stored <code>empty</code> value, not 
  * <code>null</code>.) Because irregular grids may have shaped edges which we
- * can not recreate, they explicitly forbid resizing.</p>
+ * can not recreate, they explicitly forbid resizing.
  * 
  * <p>While in the general use you could use a regular grid with a special
  * "off-limits" cell value, the voids in the irregular grids allow a shaped
  * segment of a grid to be copied in to another grid. The <code>null</code> 
  * cells are never copied when copying a grid in to another grid, so if you 
  * copy one irregular grid in to another the number of <code>null</code> 
- * cells are always reduced.</p>
- * 
+ * cells are always reduced.
+ *
+ * <p>Note that this (by default) uses introspection to determine
+ * if the cells are cloneable. (It ends up copying cells by way of the
+ * {@link Util#cloneOrCopy(Object)} function.) If you want to
+ * avoid this, provide a {@link GridCellCopier} through
+ * {@link #setCellCopier(GridCellCopier)}.
+ *
  * @author Steven Black
  * @param <Z> an object implementing Cloneable or an object copied by reference
  */
 public class Grid <Z>
 implements Serializable, Regionlike {
     private static final long serialVersionUID = 709537762108750L;
-    private static Logger LOGGER = LoggerFactory.getLogger(Grid.class);
+    private static transient Logger LOGGER = LoggerFactory.getLogger(Grid.class);
     private ArrayList<ArrayList<Z>> grid = null;
     private int start_x = 0;
     private int start_y = 0;
     private int size_x = 0;
     private int size_y = 0;
     protected Z empty = null;
-
     private boolean irregular = false;
+    private GridCellCopier<Z> cellCopier = new FlexibleCellCopier<>();
+
+    /**
+     * GridCellCopier implementation that can handle complex and simple types.
+     * 
+     * <p>This uses {@link Util#cloneOrCopy(java.lang.Object)}, so it uses
+     * introspection. It's quite flexible in terms of the types it can handle.
+     * It handles objects which can both by copied by value (like primitive
+     * types) as well as complex objects supporting {@link Object#clone()}.
+     *
+     * <p>This is currently the default cell copier.
+     */
+    public static class FlexibleCellCopier<Z> implements GridCellCopier<Z> {
+        @Override
+        public Z copyCell(Z source) {
+            return Util.cloneOrCopy(source);
+        }
+    }
+    /**
+     * GridCellCopier implementation that is suitable for primitive types.
+     *
+     * <p>This is a simple implementation that copies by value. That is,
+     * the input is also the output. If this is usable, it is guaranteed to
+     * be faster than the {@link FlexibleCellCopier}
+     */
+    public static class PrimitiveGridCellCopier<Z> implements GridCellCopier<Z> {
+        @Override
+        public Z copyCell(Z source) {
+            return source;
+        }
+    }
 
     /**
      * Create a new, zero height, zero width grid
@@ -99,12 +133,12 @@ implements Serializable, Regionlike {
      * @param numCols number of columns
      */
     public Grid(Z empty, int numRows, int numCols) {
-        grid = new ArrayList<ArrayList<Z>>();
-        this.empty = this.copyCell(empty);
+        grid = new ArrayList<>();
+        this.empty = cellCopier.copyCell(empty);
         this.size_y = 0;
         this.size_x = 0;
         if (numRows > 0) {
-            setSize(numRows, numCols);
+            internal_resize(numRows, numCols, true);
         }
     }
 
@@ -119,13 +153,13 @@ implements Serializable, Regionlike {
      */
     public Grid(Z empty, int numRows, int numCols, int y, int x) {
         grid = new ArrayList<>();
-        this.empty = this.copyCell(empty);
+        this.empty = cellCopier.copyCell(empty);
         this.size_x = 0;
         this.size_y = 0;
         this.start_y = y;
         this.start_x = x;
         if (numRows > 0) {
-            setSize(numRows, numCols);
+            internal_resize(numRows, numCols, true);
         }
     }
     
@@ -156,17 +190,17 @@ implements Serializable, Regionlike {
         if (irregular) {
             this.empty = null;
         } else {
-            this.empty = this.copyCell(empty);
+            this.empty = cellCopier.copyCell(empty);
         }
         this.size_x = 0;
         this.size_y = 0;
         this.start_y = y;
         this.start_x = x;
         if (numRows > 0) {
-            setSize(numRows, numCols);
+            internal_resize(numRows, numCols, true);
         }
         if (irregular) {
-            this.empty = this.copyCell(empty);
+            this.empty = cellCopier.copyCell(empty);
         }
     }
 
@@ -207,20 +241,36 @@ implements Serializable, Regionlike {
             for (int x = x1; x <= x2; x++){
                 if (y == y1) {
                     if (x == x1){
-                        if (topleft != null) setCopy(y, x, topleft);
+                        if (topleft != null) {
+                            setCopy(y, x, topleft);
+                        }
                     } else if (x == x2) {
-                        if (topright != null) setCopy(y, x, topright);
-                    } else if (top != null) setCopy(y, x, top);
+                        if (topright != null) {
+                            setCopy(y, x, topright);
+                        }
+                    } else if (top != null) {
+                        setCopy(y, x, top);
+                    }
                 } else if (y == y2) {
                     if (x == x1) {
-                        if (bottomleft != null) setCopy(y, x, bottomleft);
+                        if (bottomleft != null) {
+                            setCopy(y, x, bottomleft);
+                        }
                     } else if (x == x2) {
-                        if (bottomright != null) setCopy(y, x, bottomright);
-                    } else if (bottom != null) setCopy(y, x, bottom);
+                        if (bottomright != null) {
+                            setCopy(y, x, bottomright);
+                        }
+                    } else if (bottom != null) {
+                        setCopy(y, x, bottom);
+                    }
                 } else if (x == x2) {
-                    if (right != null) setCopy(y, x, right);
+                    if (right != null) {
+                        setCopy(y, x, right);
+                    }
                 } else if (x == x1) {
-                    if (left != null) setCopy(y, x, left);
+                    if (left != null) {
+                        setCopy(y, x, left);
+                    }
                 } else if (inside != null) {
                     setCopy(y, x, inside);
                 }
@@ -284,7 +334,9 @@ implements Serializable, Regionlike {
      * @param empty The exact contents of each cell on the map. 
      */
     public void clear(Z empty) {
-        if (empty != null) this.empty = copyCell(empty);
+        if (empty != null) {
+            this.empty = cellCopier.copyCell(empty);
+        }
         if (size_y > 0 && size_x > 0) {
             resize(this.size_y, this.size_x, true);
         }
@@ -372,7 +424,7 @@ implements Serializable, Regionlike {
      * @return a copy of the current empty cell
      */
     public Z getEmpty() {
-        return this.copyCell(empty);
+        return cellCopier.copyCell(empty);
     }
 
     /**
@@ -384,39 +436,8 @@ implements Serializable, Regionlike {
      * @param cell
      * @return
      */
-    @SuppressWarnings("unchecked")
     public Z copyCell(Z cell) {
-        if (cell == null) {
-            return null;
-        }
-        if (cell.getClass().isPrimitive()) {
-            return cell;
-        }
-        Z ret = null;
-        Method cloneMethod;
-        try {
-            cloneMethod = cell.getClass().getMethod("clone");
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            return cell;
-        }
-        if (cloneMethod != null) {
-            try {
-                ret = (Z) cloneMethod.invoke(cell);
-            } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof CloneNotSupportedException) {
-                    ret = cell;
-                } else {
-                    throw new RuntimeException(e);
-                }
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                // IllegalArgumentException should never happen: Shouldn't take arguments
-                // IllegalAccessException should never happen: Should have already occured
-                throw new RuntimeException(e);
-            }
-        }
-        return ret;
+        return cellCopier.copyCell(cell);
     }
     
     /*
@@ -518,7 +539,9 @@ implements Serializable, Regionlike {
      * <code>null</code> without raising a NullPointerException.</p>
      */
     public void makeIrregular() {
-        if (this.irregular) return;
+        if (this.irregular) {
+            return;
+        }
         this.irregular = true;
     }
 
@@ -531,7 +554,9 @@ implements Serializable, Regionlike {
      * @param filler used to fill <code>null</code> grid gaps
      */
     public void makeRegular(Z filler) {
-        if (!this.irregular) return;
+        if (!this.irregular) {
+            return;
+        }
         if (filler == null) {
             if (this.empty == null) {
                 throw new NullPointerException();
@@ -542,7 +567,7 @@ implements Serializable, Regionlike {
             for (int x = start_x; x < start_x + size_x; x++) {
                 Z c = get(y, x);
                 if (c == null) {
-                    set(y, x, copyCell(filler));
+                    set(y, x, cellCopier.copyCell(filler));
                 }
             }
         }
@@ -564,21 +589,29 @@ implements Serializable, Regionlike {
      */
     public void reset(int ysize, int xsize, Z empty) {
         if (empty != null) {
-            this.empty = copyCell(empty);
+            this.empty = cellCopier.copyCell(empty);
         }
         resize(ysize, xsize, true);
     }
 
     /**
-     * Resize the grid, optionally wiping it
-     * 
-     * @param ysize new Y size
-     * @param xsize new X size
-     * @param wipe true to wipe; false to leave existing cells
+     * Resize the grid, optionally wiping it. (Non-overridable.)
+     *
+     * <p>We use a private, internal resize command to make sure that when we
+     * call it from the constructor to set things up, it doesn't trigger
+     * derived-class weirdness.
+     *
+     * @param ysize -1 for current value
+     * @param xsize -1 for current value
+     * @param wipe
      */
-    protected void resize(int ysize, int xsize, boolean wipe) {
-        if (ysize == -1) ysize = this.size_y;
-        if (xsize == -1) xsize = this.size_x;
+    private void internal_resize(int ysize, int xsize, boolean wipe) {
+        if (ysize == -1) {
+            ysize = this.size_y;
+        }
+        if (xsize == -1) {
+            xsize = this.size_x;
+        }
         if (this.irregular) {
             if (!wipe) {
                 if (size_x == 0 && size_y == 0) {
@@ -602,14 +635,16 @@ implements Serializable, Regionlike {
         }
         for (int y = 0; y < ysize; y++) {
             ArrayList<Z> grid_line = new ArrayList<>();
-            if (xsize != 0) grid_line.ensureCapacity(xsize);
+            if (xsize != 0) {
+                grid_line.ensureCapacity(xsize);
+            }
             if (y < y2 && x2 > 0) {
                 if (this.irregular) {
                     for (int x = 0; x < x2; x++) {
                         if (old_grid == null || old_grid.get(y).get(x) == null) {
                             grid_line.add(null);
                         } else {
-                            grid_line.add(copyCell(empty));
+                            grid_line.add(cellCopier.copyCell(empty));
                         }
                     }
                 } else if (old_grid != null) {
@@ -618,13 +653,24 @@ implements Serializable, Regionlike {
             }
             int x1 = grid_line.size();
             for (int x = x1; x < xsize; x++) {
-                grid_line.add(copyCell(empty));
+                grid_line.add(cellCopier.copyCell(empty));
             }
             new_grid.add(grid_line);
         }
         grid = new_grid;
         size_x = xsize;
         size_y = ysize;
+    }
+
+    /**
+     * Resize the grid, optionally wiping it.
+     *
+     * @param ysize -1 for current value
+     * @param xsize -1 for current value
+     * @param wipe true to wipe; false to leave existing cells
+     */
+    protected void resize(int ysize, int xsize, boolean wipe) {
+        internal_resize(ysize,xsize, wipe);
     }
 
     /**
@@ -686,7 +732,7 @@ implements Serializable, Regionlike {
             }
             return grid.get(y1).set(x1, null);
         }
-        return grid.get(y1).set(x1, copyCell(value));
+        return grid.get(y1).set(x1, cellCopier.copyCell(value));
     }
 
     /**
@@ -706,32 +752,20 @@ implements Serializable, Regionlike {
             }
             return grid.get(y1).set(x1, null); 
         }
-        return grid.get(y1).set(x1, copyCell(value));
+        return grid.get(y1).set(x1, cellCopier.copyCell(value));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#setHeight(int)
-     */
     @Override
     public void setHeight(int height) {
         resize(height, this.size_x, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setPos(int, int)
-     */
     @Override
     public void setPosition(int y, int x) {
         this.setX(x);
         this.setY(y);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setPos(com.googlecode.blacken.grid.Positionable)
-     */
     @Override
     public void setPosition(Positionable point) {
         this.setX(point.getX());
@@ -769,28 +803,16 @@ implements Serializable, Regionlike {
         setSize(bounds.getHeight(), bounds.getWidth());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Regionlike#setWidth(int)
-     */
     @Override
     public void setWidth(int width) {
         resize(this.size_y, width, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setX(int)
-     */
     @Override
     public void setX(int x) {
         start_x = x;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.googlecode.blacken.grid.Positionable#setY(int)
-     */
     @Override
     public void setY(int y) {
         start_y = y;
@@ -869,8 +891,12 @@ implements Serializable, Regionlike {
                 for (int y = p[0]; y <= p[2]; y++) {
                     for (int x = p[1]; x <= p[3]; x++) {
                         pidx++;
-                        if (pidx >= pattern.length) pidx = 0;
-                        if (!pattern[pidx]) continue;
+                        if (pidx >= pattern.length) {
+                            pidx = 0;
+                        }
+                        if (!pattern[pidx]) {
+                            continue;
+                        }
                         if (!contains(y, x)) {
                             continue;
                         }
@@ -1000,7 +1026,7 @@ implements Serializable, Regionlike {
     }
 
     /**
-     * Move a block of cells.
+     * Move a block of cells within a single grid.
      * 
      * @param numRows number of rows to move
      * @param numCols number of columns to move
@@ -1017,24 +1043,24 @@ implements Serializable, Regionlike {
     }
 
     /**
-     * Move a block of cells.
+     * Move a block of cells between grids.
      * 
      * <p>There is different behavior if you're copying from the same Grid or
      * a different Grid. If it is the same Grid, we clear the source location
      * so that you can use this to move blocks around the screen. This is
      * usually what is desired and removes the need to have the caller perform
-     * "smear cleanup" before the Grid is presentable to the end-user.</p>
+     * "smear cleanup" before the Grid is presentable to the end-user.
      * 
      * <p>If you're copying from a different Grid, however, there's no issue
      * of smear. Copying from a Grid never causes visual smear, so there's no
      * need to perform smear cleanup. The source remains pristine and the 
-     * destination only gets modified due to the copy from the source.</p>
+     * destination only gets modified due to the copy from the source.
      * 
      * <p>Note that when dealing with the same Grid it sounds like identical
      * logic to what is performed by 
      * {@link #moveBlock(int, int, int, int, int, int, DirtyGridCell)}. There's
      * a reason for that. moveBlock() is a convenience function added for
-     * semantic clarity in the code.</p>
+     * semantic clarity in the code.
      * 
      * @param source source grid
      * @param numRows number of rows to move
@@ -1092,6 +1118,15 @@ implements Serializable, Regionlike {
         return this.subGrid(numRows, numCols, startY, startX);
     }
 
+    /**
+     * Create a subgrid that cuts (takes ownership of) the cells from this grid.
+     *
+     * @param numRows
+     * @param numCols
+     * @param y1
+     * @param x1
+     * @return
+     */
     public Grid<Z> cutSubGrid(int numRows, int numCols, int y1, int x1) {
         Grid<Z> ret = new Grid<>(null, numRows, numCols, y1, x1, true);
         for (int y = y1; y < y1 + numRows; y++) {
@@ -1111,5 +1146,33 @@ implements Serializable, Regionlike {
         setPosition(y, x);
         setSize(height, width);
     }
-    
+
+    /**
+     * Get the current cell copier.
+     *
+     * <p>Normally this shouldn't be needed except to directly access a
+     * particular cell copier implementation. To simply
+     * create a copy of a cell with the current cell copier, use
+     * {@link #copyCell(java.lang.Object)}
+     *
+     * @return
+     */
+    public GridCellCopier<Z> getCellCopier() {
+        return cellCopier;
+    }
+
+    /**
+     * Specify an alternative cell copier implementation.
+     *
+     * <p>This can be used to avoid introspection.
+     *
+     * @param cellCopier null to restore the default implementation
+     */
+    public void setCellCopier(GridCellCopier<Z> cellCopier) {
+        if (cellCopier == null) {
+            cellCopier = new FlexibleCellCopier<>();
+        }
+        this.cellCopier = cellCopier;
+    }
+
 }

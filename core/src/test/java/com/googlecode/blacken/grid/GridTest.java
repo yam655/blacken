@@ -1186,4 +1186,28 @@ public class GridTest {
         grid.wipe(size_y, size_x, start_y, start_x, empty2);
         this.checkSolid(empty2, empty2);
     }
+
+    @Test
+    @Covers({"public void setCellCopier(GridCellCopier<Z>)",
+        "public GridCellCopier<Z> getCellCopier()",
+    })
+    public void cellCopier() {
+        Integer v = 42;
+        Integer a = this.grid.copyCell(v);
+        assertSame(v, a);
+        assertEquals(v, a);
+        GridCellCopier<Integer> initialCopier = this.grid.getCellCopier();
+        assertNotNull(initialCopier);
+        a = initialCopier.copyCell(v);
+        assertSame(v, a);
+        assertEquals(v, a);
+        GridCellCopier<Integer> flexibleCopier = new Grid.FlexibleCellCopier<>();
+        this.grid.setCellCopier(flexibleCopier);
+        assertNotSame(flexibleCopier, initialCopier);
+        assertSame(flexibleCopier, grid.getCellCopier());
+        a = flexibleCopier.copyCell(v);
+        assertSame(v, a);
+        assertEquals(v, a);
+    }
+
 }

@@ -22,8 +22,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * A simple implementation of a {@link Containerlike} object.
  *
- * @param <T>
+ * <p>This holds things, with an optional size limit, and an optional (sub)type
+ * verifier.
+ *
+ * @param <T> type that is contained
  * @author Steven Black
  */
 public class SimpleContainer<T> implements Containerlike<T> {
@@ -31,14 +35,26 @@ public class SimpleContainer<T> implements Containerlike<T> {
     private int sizeLimit = -1;
     private List<T> storage;
 
+    /**
+     * Create a new container with no verifier and no size limit.
+     */
     public SimpleContainer() {
         this.verifier = null;
         this.storage = new ArrayList<>();
     }
+    /**
+     * Create a new container with no size limit, but with a verifier.
+     * @param verifier
+     */
     public SimpleContainer(ThingTypeCheck<T> verifier) {
         this.verifier = verifier;
         this.storage = new ArrayList<>();
     }
+    /**
+     * Create a new container with both a verifier and a size limit
+     * @param verifier
+     * @param limit
+     */
     public SimpleContainer(ThingTypeCheck<T> verifier, int limit) {
         this.verifier = verifier;
         this.storage = new ArrayList<>();
