@@ -15,8 +15,14 @@
 */
 package com.googlecode.blacken.grid;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import com.googlecode.blacken.core.Util;
 import com.googlecode.blacken.exceptions.IrregularGridException;
@@ -64,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Grid <Z>
 implements Serializable, Regionlike {
-    private static final long serialVersionUID = 709537762108750L;
+    private static final long serialVersionUID = 709537762108751L;
     private static transient Logger LOGGER = LoggerFactory.getLogger(Grid.class);
     private ArrayList<ArrayList<Z>> grid = null;
     private int start_x = 0;
@@ -73,7 +79,7 @@ implements Serializable, Regionlike {
     private int size_y = 0;
     protected Z empty = null;
     private boolean irregular = false;
-    private GridCellCopier<Z> cellCopier = new FlexibleCellCopier<>();
+    private transient GridCellCopier<Z> cellCopier = new FlexibleCellCopier<>();
 
     /**
      * GridCellCopier implementation that can handle complex and simple types.
@@ -84,6 +90,7 @@ implements Serializable, Regionlike {
      * types) as well as complex objects supporting {@link Object#clone()}.
      *
      * <p>This is currently the default cell copier.
+     * @param <Z> the cell type
      */
     public static class FlexibleCellCopier<Z> implements GridCellCopier<Z> {
         @Override
@@ -97,6 +104,7 @@ implements Serializable, Regionlike {
      * <p>This is a simple implementation that copies by value. That is,
      * the input is also the output. If this is usable, it is guaranteed to
      * be faster than the {@link FlexibleCellCopier}
+     * @param <Z> the cell type
      */
     public static class PrimitiveGridCellCopier<Z> implements GridCellCopier<Z> {
         @Override
@@ -123,6 +131,22 @@ implements Serializable, Regionlike {
         this.irregular = true;
     }
     
+    Grid(Map<String, Object> map) {
+        if (!map.get("__target__").equals(Grid.class.getName())) {
+            throw new IllegalArgumentException("Not my map.");
+        }
+        if (map.get("__version__") != 1) {
+            throw new IllegalArgumentException("Unsupported version");
+        }
+        grid = (ArrayList<ArrayList<Z>>) map.get("grid");
+        empty = (Z) map.get("empty");
+        size_x = (int) map.get("size_x");
+        size_y = (int) map.get("size_y");
+        start_x = (int) map.get("start_x");
+        start_y = (int) map.get("start_y");
+        irregular = (boolean) map.get("irregular");
+    }
+
     /**
      * Create a new grid.
      * 
@@ -1173,6 +1197,77 @@ implements Serializable, Regionlike {
             cellCopier = new FlexibleCellCopier<>();
         }
         this.cellCopier = cellCopier;
+    }
+
+    Object writeReplace() throws ObjectStreamException {
+        GridData1<Z> data = new GridData1<>();
+        Class myClass = this.getClass();
+        Field[] fields = myClass.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                if ("serialVersionUID".equals(field.getName())) {
+                    // special meaning in both places.
+                    continue;
+                }
+                if (!Modifier.isTransient(field.getModifiers())) {
+                    data.set(field.getName(), field.get(this));
+                }
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                throw new RuntimeException("failed to get member", ex);
+            }
+        }
+        return data;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 11 * hash + Objects.hashCode(this.grid);
+        hash = 11 * hash + this.start_x;
+        hash = 11 * hash + this.start_y;
+        hash = 11 * hash + Objects.hashCode(this.empty);
+        hash = 11 * hash + (this.irregular ? 1 : 0);
+        hash = 11 * hash + Objects.hashCode(this.cellCopier.getClass().toString());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Grid<Z> other = (Grid<Z>) obj;
+        if (!Objects.equals(this.grid, other.grid)) {
+            return false;
+        }
+        if (this.start_x != other.start_x) {
+            return false;
+        }
+        if (this.start_y != other.start_y) {
+            return false;
+        }
+        if (!Objects.equals(this.empty, other.empty)) {
+            return false;
+        }
+        if (this.irregular != other.irregular) {
+            return false;
+        }
+        if (!Objects.equals(this.cellCopier.getClass().getName(), other.cellCopier.getClass().getName())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Grid{" + "start_x=" + start_x + ", start_y=" + start_y +
+                ", size_x=" + size_x + ", size_y=" + size_y +
+                ", empty=" + empty + ", irregular=" + irregular + ", grid=@" +
+                grid.hashCode() + ", cellCopier=" +
+                cellCopier.getClass().getName() + "}";
     }
 
 }

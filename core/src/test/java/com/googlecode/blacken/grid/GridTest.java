@@ -15,6 +15,13 @@
 */
 package com.googlecode.blacken.grid;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.logging.Level;
 import org.junit.*;
 
 import com.googlecode.blacken.core.Coverage;
@@ -1210,4 +1217,99 @@ public class GridTest {
         assertEquals(v, a);
     }
 
+    @Test
+    @Covers("Object writeReplace() throws ObjectStreamException")
+    public void writeReplace() {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(grid);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        Grid<Integer> aGrid = null;
+        try {
+            ObjectInputStream ois = new ObjectInputStream(is);
+            aGrid = (Grid<Integer>) ois.readObject();
+        } catch (ClassNotFoundException | IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        assertNotNull(aGrid);
+        assertNotSame(grid, aGrid);
+        assertEquals(grid, aGrid);
+    }
+
+
+    @Test
+    @Covers("Object writeReplace() throws ObjectStreamException")
+    public void writeReplace_upgrade() {
+        GridData0<Integer> oldData = new GridData0<>();
+        ArrayList<ArrayList<Integer>> oldg = new ArrayList<>();
+        ArrayList<Integer> row = new ArrayList<>(2);
+        row.add(1);
+        row.add(2);
+        oldg.add(row);
+        row = new ArrayList<>(2);
+        row.add(3);
+        row.add(4);
+        oldg.add(row);
+        oldData.set("grid", oldg);
+        oldData.set("x1", 11);
+        oldData.set("y1", 7);
+        oldData.set("empty", new Integer(0));
+
+        Grid<Integer> modern = new Grid<>((Integer)0, 2, 2, 0, 0);
+        modern.set(0, 0, 1);
+        modern.set(0, 1, 2);
+        modern.set(1, 0, 3);
+        modern.set(1, 1, 4);
+        modern.setPosition(7, 11);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(oldData);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        Grid<Integer> oldGrid = null;
+        try {
+            ObjectInputStream ois = new ObjectInputStream(is);
+            oldGrid = (Grid<Integer>) ois.readObject();
+        } catch (ClassNotFoundException | IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        assertNotNull(oldGrid);
+        assertNotSame(modern, oldGrid);
+        assertEquals(modern, oldGrid);
+    }
+
+    @Test
+    @Covers("public String toString()")
+    public void testToString() {
+        String expect = "Grid{start_x=10, start_y=5, size_x=80, size_y=25, "
+                + "empty=0, irregular=false, grid=@-749148256, "
+                + "cellCopier=com.googlecode.blacken.grid.Grid$FlexibleCellCopier}";
+        assertEquals(expect, grid.toString());
+    }
+
+    @Test
+    @Covers("public boolean equals(Object)")
+    public void testEquals() {
+        setPattern(grid, size_y, size_x, start_y, start_x, start_y, start_x);
+        checkPattern(grid, size_y, size_x, start_y, start_x, start_y, start_x);
+        Grid<Integer> copy = grid.copySubGrid(size_y, size_x, start_y, start_x);
+        checkPattern(copy, size_y, size_x, start_y, start_x, start_y, start_x);
+        copy.makeRegular(this.empty);
+        assertEquals(grid, copy);
+    }
+
+    @Test
+    @Covers("public int hashCode()")
+    public void testHashCode() {
+        int expect = 1884005508;
+        assertEquals(expect, grid.hashCode());
+    }
 }
