@@ -1205,13 +1205,11 @@ implements Serializable, Regionlike {
         Field[] fields = myClass.getDeclaredFields();
         for (Field field : fields) {
             try {
-                if ("serialVersionUID".equals(field.getName())) {
-                    // special meaning in both places.
+                int modifiers = field.getModifiers();
+                if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers)) {
                     continue;
                 }
-                if (!Modifier.isTransient(field.getModifiers())) {
-                    data.set(field.getName(), field.get(this));
-                }
+                data.set(field.getName(), field.get(this));
             } catch (IllegalArgumentException | IllegalAccessException ex) {
                 throw new RuntimeException("failed to get member", ex);
             }
