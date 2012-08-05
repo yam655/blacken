@@ -18,8 +18,11 @@ package com.googlecode.blacken.dungeon;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
 /**
  * A simple implementation of a {@link Containerlike} object.
@@ -31,16 +34,14 @@ import java.util.List;
  * @author Steven Black
  */
 public class SimpleContainer<T> implements Containerlike<T> {
-    private ThingTypeCheck verifier;
+    private ThingTypeCheck verifier = null;
     private int sizeLimit = -1;
-    private List<T> storage;
+    private List<T> storage = new ArrayList<>();
 
     /**
      * Create a new container with no verifier and no size limit.
      */
     public SimpleContainer() {
-        this.verifier = null;
-        this.storage = new ArrayList<>();
     }
     /**
      * Create a new container with no size limit, but with a verifier.
@@ -48,7 +49,6 @@ public class SimpleContainer<T> implements Containerlike<T> {
      */
     public SimpleContainer(ThingTypeCheck<T> verifier) {
         this.verifier = verifier;
-        this.storage = new ArrayList<>();
     }
     /**
      * Create a new container with both a verifier and a size limit
@@ -57,7 +57,6 @@ public class SimpleContainer<T> implements Containerlike<T> {
      */
     public SimpleContainer(ThingTypeCheck<T> verifier, int limit) {
         this.verifier = verifier;
-        this.storage = new ArrayList<>();
         if (limit >= 0) {
             this.sizeLimit = limit;
         }
@@ -74,7 +73,7 @@ public class SimpleContainer<T> implements Containerlike<T> {
     }
 
     @Override
-    public Collection<T> getSimilar(ThingTypeCheck<T>judge) {
+    public Collection<T> findSimilar(ThingTypeCheck<T>judge) {
         List<T> ret = new ArrayList<>();
         if (judge == null) {
             throw new NullPointerException("Need a judge.");
@@ -82,6 +81,37 @@ public class SimpleContainer<T> implements Containerlike<T> {
         for (T thing : this) {
             if (judge.isSufficient(thing)) {
                 ret.add(thing);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Collection<T> removeUnfit() {
+        if (this.verifier == null) {
+            return Collections.emptyList();
+        }
+        Collection<T> unfit = new ArrayList<>();
+        ListIterator<T> iter = this.storage.listIterator();
+        while(iter.hasNext()) {
+            T thing = iter.next();
+            if (!verifier.isSufficient(thing)) {
+                unfit.add(thing);
+                iter.remove();
+            }
+        }
+        return unfit;
+    }
+    @Override
+    public boolean hasUnfit() {
+        if (this.verifier == null) {
+            return false;
+        }
+        boolean ret = false;
+        for (T thing : storage) {
+            if (!verifier.isSufficient(thing)) {
+                ret = true;
+                break;
             }
         }
         return ret;
@@ -127,13 +157,15 @@ public class SimpleContainer<T> implements Containerlike<T> {
     }
 
     @Override
-    public boolean add(Object o) {
+    public boolean add(T o) {
         if (o == null) {
             throw new NullPointerException("parameter cannot be null");
         }
         // throw a class cast exception sooner rather than later.
         T thing = (T)o;
-        if (this.canFit(thing)) {
+        if (sizeLimit >= 0 && storage.size() >= sizeLimit) {
+            throw new IllegalStateException("Already full");
+        } else if (this.canFit(thing)) {
             return this.storage.add(thing);
         } else {
             throw new IllegalStateException("Can't fit that there.");
@@ -141,7 +173,7 @@ public class SimpleContainer<T> implements Containerlike<T> {
     }
 
     @Override
-    public boolean offer(Object o) {
+    public boolean offer(T o) {
         if (o == null) {
             throw new NullPointerException("parameter cannot be null");
         }
@@ -170,17 +202,17 @@ public class SimpleContainer<T> implements Containerlike<T> {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return storage.iterator();
     }
 
     @Override
-    public Object[] toArray() {
-        return storage.toArray();
+    public T[] toArray() {
+        return (T[])storage.toArray();
     }
 
     @Override
-    public Object[] toArray(Object[] a) {
+    public <T> T[] toArray(T[] a) {
         return storage.toArray(a);
     }
 
@@ -196,6 +228,9 @@ public class SimpleContainer<T> implements Containerlike<T> {
 
     @Override
     public boolean addAll(Collection c) {
+        for (Object object : c) {
+            storage.add((T)object);
+        }
         return storage.addAll(c);
     }
 
@@ -212,6 +247,36 @@ public class SimpleContainer<T> implements Containerlike<T> {
     @Override
     public void clear() {
         storage.clear();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SimpleContainer<T> other = (SimpleContainer<T>) obj;
+        if (!Objects.equals(this.verifier, other.verifier)) {
+            return false;
+        }
+        if (this.sizeLimit != other.sizeLimit) {
+            return false;
+        }
+        if (!Objects.equals(this.storage, other.storage)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Objects.hashCode(this.verifier);
+        hash = 59 * hash + this.sizeLimit;
+        hash = 59 * hash + this.storage.hashCode();
+        return hash;
     }
 
 }

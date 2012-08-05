@@ -735,7 +735,9 @@ implements List<V>, Cloneable, Serializable {
      * @return true
      */
     public boolean addAll(ListMap<K, V> old) {
-        if (old.size() == 0) return false;
+        if (old.isEmpty()) {
+            return false;
+        }
         int add = this.size();
         for (V value : old) {
             add(value);
