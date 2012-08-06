@@ -15,6 +15,7 @@
 */
 package com.googlecode.blacken.grid;
 
+import com.googlecode.blacken.cell.GridCellCopier;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import org.junit.*;
 
+import com.googlecode.blacken.cell.FlexibleCellCopier;
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
 import org.slf4j.Logger;
@@ -1208,7 +1210,7 @@ public class GridTest {
         a = initialCopier.copyCell(v);
         assertSame(v, a);
         assertEquals(v, a);
-        GridCellCopier<Integer> flexibleCopier = new Grid.FlexibleCellCopier<>();
+        GridCellCopier<Integer> flexibleCopier = new FlexibleCellCopier<>();
         this.grid.setCellCopier(flexibleCopier);
         assertNotSame(flexibleCopier, initialCopier);
         assertSame(flexibleCopier, grid.getCellCopier());
@@ -1291,7 +1293,7 @@ public class GridTest {
     public void testToString() {
         String expect = "Grid{start_x=10, start_y=5, size_x=80, size_y=25, "
                 + "empty=0, irregular=false, grid=@-749148256, "
-                + "cellCopier=com.googlecode.blacken.grid.Grid$FlexibleCellCopier}";
+                + "cellCopier=com.googlecode.blacken.cell.FlexibleCellCopier}";
         assertEquals(expect, grid.toString());
     }
 
@@ -1309,7 +1311,7 @@ public class GridTest {
     @Test
     @Covers("public int hashCode()")
     public void testHashCode() {
-        int expect = 1884005508;
+        int expect = 1472593576;
         assertEquals(expect, grid.hashCode());
     }
 }

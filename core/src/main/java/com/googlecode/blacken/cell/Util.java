@@ -14,7 +14,7 @@
  * limitations under the License.
 */
 
-package com.googlecode.blacken.core;
+package com.googlecode.blacken.cell;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

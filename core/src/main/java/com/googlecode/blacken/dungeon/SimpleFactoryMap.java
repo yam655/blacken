@@ -19,9 +19,9 @@ package com.googlecode.blacken.dungeon;
 import java.util.Map;
 
 /**
- * Wrap a Map in a SimpleFactory.
+ * Wrap a Map in a SimpleFactorylike.
  *
- * <p>While in the general case, a custom SimpleFactory will be best, in other
+ * <p>While in the general case, a custom SimpleFactorylike will be best, in other
  * cases you can comfortably use an exact copy. These would be cases where you
  * use some sort of when-readonly-clone logic or when you just don't care if
  * you're dealing with the same reference in different locations (such as for
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author Steven Black
  */
-public class SimpleFactoryMap<D, T> implements SimpleFactory<D, T> {
+public class SimpleFactoryMap<D, T> implements SimpleFactorylike<D, T> {
     private Map<D, T> store = null;
 
     public SimpleFactoryMap(Map<D, T> backing) {
@@ -46,7 +46,7 @@ public class SimpleFactoryMap<D, T> implements SimpleFactory<D, T> {
     }
 
     @Override
-    public void setConfiguration(int y, int x, int depth, int flavor) {
+    public void setConfiguration(int z, int y, int x, int flavor) {
         // do nothing
     }
 

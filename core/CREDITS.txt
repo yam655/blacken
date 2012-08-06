@@ -10,6 +10,12 @@ Steven W. Black (yam655):
      without arrow keys as he had a dumb terminal in his bedroom connected to
      his father's Xenix/286 machine.
 
+XLambda (xlambda):
+
+     A devotee of roguelikes ever since his Nethack days. XLambda has played
+     and enjoyed many different rogue-like games, and his studies in software
+     engineering have reinforced his interest into developing them.
+
 Shout-outs and Thank Yous
 =========================
 

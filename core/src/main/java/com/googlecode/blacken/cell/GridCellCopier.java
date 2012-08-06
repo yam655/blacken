@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.googlecode.blacken.grid;
+package com.googlecode.blacken.cell;
 
 /**
  * Copy a grid's cell.

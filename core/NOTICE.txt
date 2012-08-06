@@ -1,0 +1,10 @@
+This product uses or extends upon the Blacken Roguelike Library.
+
+    https://sites.google.com/site/blackenlib/
+    https://code.google.com/p/blacken/
+
+Blacken is distributed under the Apache 2.0 License. A copy of this license
+should have been provided to you. It is also available online:
+
+    http://www.apache.org/licenses/LICENSE-2.0.html
+

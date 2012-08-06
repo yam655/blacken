@@ -31,15 +31,15 @@ import com.googlecode.blacken.grid.Regionlike;
  * @author Steven Black
  */
 public class RoomFactory<T> {
-    private class CheckDatum<T> {
-        CheckDatum(ThingTypeCheck<T> verifier, boolean sizeLimited) {
+    private class CheckData<T> {
+        CheckData(ThingTypeCheck<T> verifier, boolean sizeLimited) {
             this.verifier = verifier;
             this.sizeLimited = sizeLimited;
         }
         public ThingTypeCheck<T> verifier;
         public boolean sizeLimited;
     }
-    private Map<String, CheckDatum<T>> checks;
+    private Map<String, CheckData<T>> checks;
     private Random rng = Random.getInstance();
     private Map<String, T> config = Collections.emptyMap();
 
@@ -49,7 +49,7 @@ public class RoomFactory<T> {
      */
     public RoomFactory(ThingTypeCheck<T> simple) {
         checks = new LinkedHashMap<>(2);
-        checks.put("simple", new CheckDatum(simple, true));
+        checks.put("simple", new CheckData(simple, true));
     }
 
     /**
@@ -66,8 +66,8 @@ public class RoomFactory<T> {
      */
     public RoomFactory(ThingTypeCheck<T> large, ThingTypeCheck<T> small, boolean havePiles) {
         checks = new LinkedHashMap<>(2);
-        checks.put("large", new CheckDatum(large, true));
-        checks.put("small", new CheckDatum(small, !havePiles));
+        checks.put("large", new CheckData(large, true));
+        checks.put("small", new CheckData(small, !havePiles));
     }
 
     /**
@@ -88,9 +88,9 @@ public class RoomFactory<T> {
     public RoomFactory(ThingTypeCheck<T> terrain, ThingTypeCheck<T> large,
             ThingTypeCheck<T> small, boolean havePiles) {
         checks = new LinkedHashMap<>(2);
-        checks.put("terrain", new CheckDatum(terrain, true));
-        checks.put("large", new CheckDatum(large, true));
-        checks.put("small", new CheckDatum(small, !havePiles));
+        checks.put("terrain", new CheckData(terrain, true));
+        checks.put("large", new CheckData(large, true));
+        checks.put("small", new CheckData(small, !havePiles));
     }
 
     /**
@@ -101,7 +101,7 @@ public class RoomFactory<T> {
     public Room<T> createRoom(Regionlike region) {
         Room<T> ret = new Room<>(region);
         if (checks != null) {
-            for (Entry<String, CheckDatum<T>> check : checks.entrySet()) {
+            for (Entry<String, CheckData<T>> check : checks.entrySet()) {
                 ret.assignContainer(check.getKey(), new SimpleContainer(
                         check.getValue().verifier,
                         check.getValue().sizeLimited ? 1 : -1));

@@ -20,11 +20,12 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.googlecode.blacken.core.Util;
+import com.googlecode.blacken.cell.FlexibleCellCopier;
+import com.googlecode.blacken.cell.GridCellCopier;
+import com.googlecode.blacken.cell.Util;
 import com.googlecode.blacken.exceptions.IrregularGridException;
 import com.googlecode.blacken.grid.Bresenham.LineIterator;
 import org.slf4j.Logger;
@@ -80,38 +81,6 @@ implements Serializable, Regionlike {
     protected Z empty = null;
     private boolean irregular = false;
     private transient GridCellCopier<Z> cellCopier = new FlexibleCellCopier<>();
-
-    /**
-     * GridCellCopier implementation that can handle complex and simple types.
-     * 
-     * <p>This uses {@link Util#cloneOrCopy(java.lang.Object)}, so it uses
-     * introspection. It's quite flexible in terms of the types it can handle.
-     * It handles objects which can both by copied by value (like primitive
-     * types) as well as complex objects supporting {@link Object#clone()}.
-     *
-     * <p>This is currently the default cell copier.
-     * @param <Z> the cell type
-     */
-    public static class FlexibleCellCopier<Z> implements GridCellCopier<Z> {
-        @Override
-        public Z copyCell(Z source) {
-            return Util.cloneOrCopy(source);
-        }
-    }
-    /**
-     * GridCellCopier implementation that is suitable for primitive types.
-     *
-     * <p>This is a simple implementation that copies by value. That is,
-     * the input is also the output. If this is usable, it is guaranteed to
-     * be faster than the {@link FlexibleCellCopier}
-     * @param <Z> the cell type
-     */
-    public static class PrimitiveGridCellCopier<Z> implements GridCellCopier<Z> {
-        @Override
-        public Z copyCell(Z source) {
-            return source;
-        }
-    }
 
     /**
      * Create a new, zero height, zero width grid

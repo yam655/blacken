@@ -35,7 +35,7 @@ package com.googlecode.blacken.dungeon;
  * @param <D> simple dungeon identifier
  * @param <T> returned type
  */
-public interface SimpleFactory<D, T> {
+public interface SimpleFactorylike<D, T> {
 
     /**
      * Create a 'type' for a 'dungeon identifier'.
@@ -48,10 +48,11 @@ public interface SimpleFactory<D, T> {
     /**
      * Specify a location-specific configuration should be used.
      * 
+     * @param z depth in a particular dungeon (or generic 'z' coordinate)
      * @param y
      * @param x
-     * @param depth depth in a particular dungeon (or generic 'z' coordinate)
      * @param flavor flexible flavor identifier (no predefined meaning)
      */
-    public void setConfiguration(int y, int x, int depth, int flavor);
+
+    public void setConfiguration(int z, int y, int x, int flavor);
 }

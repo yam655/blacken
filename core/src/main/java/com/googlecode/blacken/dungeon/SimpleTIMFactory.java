@@ -19,6 +19,12 @@ package com.googlecode.blacken.dungeon;
 import java.util.Map;
 
 /**
+ * A factory to convert simple dungeon cells to terrain-item-monster (TIM) cells.
+ * 
+ * <p>The underlying logic behind this is a set of {@link SimpleFactorylike} 
+ * factories. This includes a convenience function accepting a Map instead of
+ * a SimpleFactorylike which -- using {@link SimpleFactoryMap} -- wraps the
+ * map automatically for you.
  *
  * @param <D> simple/flat dungeon type
  * @param <T> terrain type
@@ -27,16 +33,16 @@ import java.util.Map;
  * @author Steven Black
  */
 public class SimpleTIMFactory<D,T,I,M> {
-    private SimpleFactory<D,T> tFactory = null;
-    private SimpleFactory<D,I> iFactory = null;
-    private SimpleFactory<D,M> mFactory = null;
+    private SimpleFactorylike<D,T> tFactory = null;
+    private SimpleFactorylike<D,I> iFactory = null;
+    private SimpleFactorylike<D,M> mFactory = null;
     private int x = 0;
     private int y = 0;
     private int z = 0;
     private int f = 0;
 
     /**
-     * Create a new TIM factory
+     * Create a new TIM factory.
      */
     public SimpleTIMFactory() {
         // do nothing
@@ -45,39 +51,40 @@ public class SimpleTIMFactory<D,T,I,M> {
     /**
      * Create and configure a new TIM factory.
      *
+     * @param z depth in dungeon (as appropriate)
      * @param y
      * @param x
-     * @param depth depth in dungeon (or location on Z axis)
      * @param flavor generic flavor identifier (no default meaning)
      */
-    public SimpleTIMFactory(int y, int x, int depth, int flavor) {
+
+    public SimpleTIMFactory(int z, int y, int x, int flavor) {
         this.x = x;
         this.y = y;
-        this.z = depth;
+        this.z = z;
         this.f = flavor;
     }
 
     /**
      * Specify a configuration for the factories to use.
      *
+     * @param z depth in dungeon (or location on Z axis)
      * @param y
      * @param x
-     * @param depth depth in dungeon (or location on Z axis)
      * @param flavor generic flavor identifier (no default meaning)
      */
-    public void setConfiguration(int y, int x, int depth, int flavor) {
+    public void setConfiguration(int z, int y, int x, int flavor) {
         this.x = x;
         this.y = y;
-        this.z = depth;
+        this.z = z;
         this.f = flavor;
         if (tFactory != null) {
-            tFactory.setConfiguration(y, x, depth, flavor);
+            tFactory.setConfiguration(z, y, x, flavor);
         }
         if (mFactory != null) {
-            mFactory.setConfiguration(y, x, depth, flavor);
+            mFactory.setConfiguration(z, y, x, flavor);
         }
         if (iFactory != null) {
-            iFactory.setConfiguration(y, x, depth, flavor);
+            iFactory.setConfiguration(z, y, x, flavor);
         }
     }
 
@@ -85,7 +92,7 @@ public class SimpleTIMFactory<D,T,I,M> {
      * Get the current terrain factory.
      * @return null
      */
-    public SimpleFactory<D, T> getTerrainFactory() {
+    public SimpleFactorylike<D, T> getTerrainFactory() {
         return tFactory;
     }
 
@@ -106,8 +113,8 @@ public class SimpleTIMFactory<D,T,I,M> {
      * Set the terrain factory.
      * @param tFactory
      */
-    public void setTerrainFactory(SimpleFactory<D, T> tFactory) {
-        tFactory.setConfiguration(y, x, z, f);
+    public void setTerrainFactory(SimpleFactorylike<D, T> tFactory) {
+        tFactory.setConfiguration(z, y, x, f);
         this.tFactory = tFactory;
     }
 
@@ -115,7 +122,7 @@ public class SimpleTIMFactory<D,T,I,M> {
      * Get the current monster factory.
      * @return
      */
-    public SimpleFactory<D, M> getMonsterFactory() {
+    public SimpleFactorylike<D, M> getMonsterFactory() {
         return mFactory;
     }
 
@@ -123,8 +130,8 @@ public class SimpleTIMFactory<D,T,I,M> {
      * Set the monster factory.
      * @param mFactory null clears the setting
      */
-    public void setMonsterFactory(SimpleFactory<D, M> mFactory) {
-        mFactory.setConfiguration(y, x, z, f);
+    public void setMonsterFactory(SimpleFactorylike<D, M> mFactory) {
+        mFactory.setConfiguration(z, y, x, f);
         this.mFactory = mFactory;
     }
 
@@ -132,7 +139,7 @@ public class SimpleTIMFactory<D,T,I,M> {
      * Get the current item factory.
      * @return
      */
-    public SimpleFactory<D, I> getItemFactory() {
+    public SimpleFactorylike<D, I> getItemFactory() {
         return iFactory;
     }
 
@@ -141,9 +148,9 @@ public class SimpleTIMFactory<D,T,I,M> {
      *
      * @param iFactory null clears the setting
      */
-    public void setItemFactory(SimpleFactory<D, I> iFactory) {
+    public void setItemFactory(SimpleFactorylike<D, I> iFactory) {
         if (iFactory != null) {
-            iFactory.setConfiguration(y, x, z, f);
+            iFactory.setConfiguration(z, y, x, f);
         }
         this.iFactory = iFactory;
     }
