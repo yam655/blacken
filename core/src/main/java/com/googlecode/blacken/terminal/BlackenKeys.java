@@ -584,122 +584,566 @@ public class BlackenKeys {
 //  static final public int KEY_ = KEY_FIRST + 18;
 //  static final public int KEY_ = KEY_FIRST + 19;
 
+    // END OF PHYSICAL KEY SPACE
+    // START OF LOGICAL KEY SPACE
+    
+    /**
+     * We are done with whatever command was processing.
+     */
+    static final public int CMD_END_LOOP = KEY_FIRST + 1000;
+
+    
+    // END OF LOGICAL KEY SPACE
+
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_NUL = 0x00;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SOH = 0x01;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_STX = 0x02;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ETX = 0x03;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_EOT = 0x04;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ENQ = 0x05;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ACK = 0x06;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_BEL = 0x07;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_BS = 0x08;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_HT = 0x09;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_LF = 0x0a;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_VT = 0x0b;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_FF = 0x0c;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_CR = 0x0d;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SO = 0x0e;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SI = 0x0f;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DLE = 0x10;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DC1 = 0x11;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DC2 = 0x12;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DC3 = 0x13;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DC4 = 0x14;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_NAK = 0x15;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SYN = 0x16;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ETB = 0x17;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_CAN = 0x18;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_EM = 0x19;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SUB = 0x1a;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ESC = 0x1b;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_FS = 0x1c;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_GS = 0x1d;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_RS = 0x1e;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_US = 0x1f;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SP = 0x20;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DEL = 0x7f;
 
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PAD = 0x80;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_HOP = 0x81;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SPH = 0x82;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_NBH = 0x83;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_IND = 0x84;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_NEL = 0x85;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SSA = 0x86;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ESA = 0x87;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_HTS = 0x88;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_HTJ = 0x89;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_VTS = 0x8a;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PLD = 0x8b;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PLU = 0x8c;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_RI = 0x8d;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SS2 = 0x8e;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SS3 = 0x8f;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_DCS = 0x90;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PU1 = 0x91;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PU2 = 0x92;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_STS = 0x93;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_CCH = 0x94;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_MW = 0x95;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SPA = 0x96;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_EPA = 0x97;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SOS = 0x98;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SGCI = 0x99;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_SCI = 0x9a;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_CSI = 0x9b;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_ST = 0x9c;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_OSC = 0x9d;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_PM = 0x9e;
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_APC = 0x9f;
 
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_NBSP = 0xa0;
 
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_GRAVE_ACCENT = '\u0300';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_ACUTE_ACCENT = '\u0301';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT = '\u0302';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_TILDE = '\u0303';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_MACRON = '\u0304';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_OVERLINE = '\u0305';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_BREVE = '\u0306';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOT_ABOVE = '\u0307';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DIAERESIS = '\u0308';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_HOOK_ABOVE = '\u0309';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_RING_ABOVE = '\u030A';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT = '\u030B';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_CARON = '\u030C';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE = '\u030D';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOUBLE_VERTICAL_LINE_ABOVE = '\u030E';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOUBLE_GRAVE_ACCENT = '\u030F';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_CANDRABINDU = '\u0310';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_INVERTED_BREVE = '\u0311';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_TURNED_COMMA_ABOVE = '\u0312';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_COMMA_ABOVE = '\u0313';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_REVERSED_COMMA_ABOVE = '\u0314';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_COMMA_ABOVE_RIGHT = '\u0315';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_GRAVE_ACCENT_BELOW = '\u0316';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_ACUTE_ACCENT_BELOW = '\u0317';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_LEFT_TACK_BELOW = '\u0318';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_RIGHT_TACK_BELOW = '\u0319';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_LEFT_ANGLE_ABOVE = '\u031A';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_HORN = '\u031B';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_LEFT_HALF_RING_BELOW = '\u031C';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_UP_TACK_BELOW = '\u031D';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOWN_TACK_BELOW = '\u031E';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_PLUS_SIGN_BELOW = '\u031F';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_MINUS_SIGN_BELOW = '\u0320';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_PALATALIZED_HOOK_BELOW = '\u0321';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_RETROFLEX_HOOK_BELOW = '\u0322';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DOT_BELOW = '\u0323';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_DIAERESIS_BELOW = '\u0324';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_RING_BELOW = '\u0325';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_COMMA_BELOW = '\u0326';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_CEDILLA = '\u0327';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_OGONEK = '\u0328';
+    /**
+     * @deprecated Moved to BlackenCodePoints
+     */
+    @Deprecated
     static final public int CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI = '\u0345';
 
-    static final public int CODEPOINT_LIGHT_SHADE = '\u2591';
-    static final public int CODEPOINT_MEDIUM_SHADE = '\u2592';
-    static final public int CODEPOINT_DARK_SHADE = '\u2593';
     /**
      * Find the plane that a codepoint is on.
      * 
@@ -777,9 +1221,9 @@ public class BlackenKeys {
     public static String toString(int keycode) {
         StringBuilder keybuf = new StringBuilder();
         if (findPlane(keycode) != 0) {
-            keybuf.append(String.format("\\U%08x", keycode)); //$NON-NLS-1$
+            keybuf.append(String.format("\\U%08x", keycode));
         } else if (keycode < 0x20 || (keycode >= 0x7f && keycode < 0xa0)) {
-            keybuf.append(String.format("\\u%04x", keycode)); //$NON-NLS-1$
+            keybuf.append(String.format("\\u%04x", keycode));
         } else {
             keybuf.appendCodePoint(keycode);
         }
@@ -793,7 +1237,6 @@ public class BlackenKeys {
      */
     public static String getKeyName(int keycode) {
         StringBuilder keybuf = new StringBuilder();
-        keycode = removeModifier(keycode);
         int plane = findPlane(keycode);
         if (plane == 16) {
             keybuf.append(BlackenModifier.getModifierString(keycode));
@@ -805,8 +1248,7 @@ public class BlackenKeys {
                     // suppress this -- we want to print KEY_NO_KEY
                     continue;
                 }
-                if (fieldName.startsWith("KEY_") ||
-                    fieldName.startsWith("CODEPOINT_")) {
+                if (!fieldName.startsWith("CODEPOINT_")) {
                     try {
                         if (f.getInt(null) == keycode) {
                             name = f.getName();

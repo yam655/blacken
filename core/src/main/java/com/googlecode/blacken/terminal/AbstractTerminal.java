@@ -15,6 +15,7 @@
 */
 package com.googlecode.blacken.terminal;
 
+import com.googlecode.blacken.terminal.editing.SingleLine;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,7 +142,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public String getString(int y, int x, int length) {
-        return TerminalUtils.getString(this, y, x, length, null);
+        return SingleLine.getString(this, y, x, length, null);
     }
 
     @Override

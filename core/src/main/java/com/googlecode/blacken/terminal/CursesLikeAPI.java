@@ -15,6 +15,7 @@
 */
 package com.googlecode.blacken.terminal;
 
+import com.googlecode.blacken.terminal.editing.SingleLine;
 import java.util.EnumSet;
 
 import com.googlecode.blacken.colors.ColorHelper;
@@ -162,7 +163,7 @@ public class CursesLikeAPI implements TerminalInterface {
     
     @Override
     public String getString(int y, int x, int length) {
-        // return TerminalUtils.getString(this, y, x, length, null);
+        // return SingleLine.getString(this, y, x, length, null);
         return terminal.getString(y, x, length);
     }
 
@@ -249,7 +250,7 @@ public class CursesLikeAPI implements TerminalInterface {
      * @param str string to write
      */
     public void mvputs(int y, int x, String str) {
-        int[] pos = TerminalUtils.putString(terminal, y, x, str, this.curForeground, 
+        int[] pos = SingleLine.putString(terminal, y, x, str, this.curForeground,
                 this.curBackground);
         move(pos[0], pos[1]);
     }

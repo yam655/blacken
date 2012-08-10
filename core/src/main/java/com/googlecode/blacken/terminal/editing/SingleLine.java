@@ -13,67 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package com.googlecode.blacken.terminal;
+package com.googlecode.blacken.terminal.editing;
 
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.terminal.BlackenKeys;
+import com.googlecode.blacken.terminal.TerminalCellLike;
+import com.googlecode.blacken.terminal.TerminalInterface;
 
 /**
  *
  * @author Steven Black
  */
-public class TerminalUtils {
-    public enum EditorCommand {
-        /**
-         * Ignore the key that was pressed.
-         */
-        IGNORE_KEY,
-        /**
-         * Process the key that was just pressed.
-         */
-        PROCESS_KEY,
-        /**
-         * We're done entering the string. If the key is valid, it gets added. 
-         * If it was a keycode or modifier state it is ignored.
-         */
-        RETURN_STRING,
-        /**
-         * Treat the key pressed as if it were a destructive backspace.
-         */
-        PERFORM_BACKSPACE
-    }
-    /**
-     * Handle generic case of monitoring codepoints entered in another function
-     */
-    public interface EditorCodepointDispatcherInterface {
-        /**
-         * While processing keys in another function, this function is called
-         * first with codepoints so that they can be processed.
-         * 
-         * @param codepoint Unicode codepoint to process
-         * @return true to ignore the codepoint; false to process as usual
-         */
-        public EditorCommand dispatchEditorCodepoint(int codepoint);
-        public EditorCommand dispatchMouseEvent(BlackenMouseEvent mouse);
-        public EditorCommand dispatchWindowEvent(BlackenWindowEvent window);
-        public void dispatchResizeEvent();
-    }
+public class SingleLine {
     
     /**
      * Get a string from the window.
      *
-     * This caches the previous cursor position, then moves the cursor to the
+     * <p>This caches the previous cursor position, then moves the cursor to the
      * requested input location. It restores the cursor position after the
      * string has been entered.
-     * 
+     *
+     * <p>The following are codepoints handled specially when they're returned
+     * by <code>CodepointCallbackInterface</code>:
+     * <ul>
+     * <li> BlackenKeys.NO_KEY : ignore the event
+     * <li> BlackenKeys.CMD_END_LOOP : done with loop, return string
+     * <li> BlackenKeys.KEY_BACKSPACE : perform destructive backspace
+     * <li> (all others) : replace with key
+     * </ul>
+     *
      * @param terminal
      * @param y
      * @param x
      * @param length
+     * @param callback call back
      * @return
      */
     static public String getString(TerminalInterface terminal, int y, int x,
-            int length, EditorCodepointDispatcherInterface cd) {
+            int length, CodepointCallbackInterface callback) {
+        if (callback == null) {
+            callback = DefaultSingleLineCallback.getInstance();
+        }
         int firstX = x;
         // int firstY = y;
         if (length < 0 || terminal.getWidth() - x - length <= 0) {
@@ -93,55 +74,46 @@ public class TerminalUtils {
         boolean doQuit = false;
         while (!doQuit) {
             cp = terminal.getch();
-            if (cd != null) {
-                EditorCommand ec = EditorCommand.IGNORE_KEY;
-                if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
-                    ec = cd.dispatchMouseEvent(terminal.getmouse());
-                } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
-                    ec = cd.dispatchWindowEvent(terminal.getwindow());
-                } else if (cp == BlackenKeys.RESIZE_EVENT) {
-                    cd.dispatchResizeEvent();
-                } else {
-                    switch (cd.dispatchEditorCodepoint(cp)) {
-                        case IGNORE_KEY:
-                            continue;
-                        case PROCESS_KEY:
-                            // do nothing
-                            break;
-                        case RETURN_STRING:
-                            doQuit = true;
-                            break;
-                        case PERFORM_BACKSPACE:
-                            cp = BlackenKeys.KEY_BACKSPACE;
-                            break;
-                    }
-                }
+            int ec = BlackenKeys.NO_KEY;
+            if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
+                ec = callback.handleMouseEvent(terminal.getmouse());
+            } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
+                ec = callback.handleWindowEvent(terminal.getwindow());
+            } else if (cp == BlackenKeys.RESIZE_EVENT) {
+                callback.handleResizeEvent();
             } else {
-                if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
-                    terminal.getmouse();
+                ec = callback.handleEditorCodepoint(cp);
+            }
+            switch (ec) {
+                case BlackenKeys.NO_KEY:
                     continue;
-                } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
-                    terminal.getwindow();
-                    continue;
-                } else if (cp == BlackenKeys.RESIZE_EVENT) {
-                    continue;
-                }
+                case BlackenKeys.CMD_END_LOOP:
+                    doQuit = true;
+                    break;
+                case BlackenKeys.RESIZE_EVENT:
+                    // I have no idea why this would be returned
+                    callback.handleResizeEvent();
+                    break;
+                case BlackenKeys.MOUSE_EVENT:
+                    cp = BlackenKeys.NO_KEY; // illegal, so we ignore
+                    break;
+                case BlackenKeys.WINDOW_EVENT:
+                    cp = BlackenKeys.NO_KEY; // illegal, so we ignore
+                    break;
+                default:
+                    cp = ec;
+                    break;
             }
             if(cp == BlackenKeys.NO_KEY) {
                 continue;
             }
-            if (cp == '\r' || cp == BlackenKeys.KEY_ENTER || 
-                    cp == BlackenKeys.KEY_NP_ENTER) {
-                doQuit = true;
-                continue;
-            }
-            if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
+            if (cp == BlackenKeys.CMD_END_LOOP) {
                 doQuit = true;
                 continue;
             }
             TerminalCellLike c;
             // XXX add line-editing capabilities
-            if (cp == '\b' || cp == BlackenKeys.KEY_BACKSPACE) {
+            if (cp == BlackenKeys.KEY_BACKSPACE) {
                 if (x > firstX) {
                     x--;
                 }
@@ -196,7 +168,7 @@ public class TerminalUtils {
      * @param string
      * @param fore
      * @param back
-     * @return 
+     * @return int[] {y, x}
      */
     static public int[] putString(TerminalInterface terminal, int y, int x, String string, int fore, int back) {
         Grid<TerminalCellLike> grid = terminal.getGrid();

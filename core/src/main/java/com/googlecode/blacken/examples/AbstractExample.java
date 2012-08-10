@@ -25,7 +25,9 @@ import com.googlecode.blacken.terminal.TerminalInterface;
  * An abstract example class.
  * 
  * @author Steven Black
+ * @deprecated No longer used.
  */
+@Deprecated
 public abstract class AbstractExample {
     /**
      * TerminalInterface used by the example
