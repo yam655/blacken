@@ -435,6 +435,7 @@ public class Room<T> implements Regionlike {
                 T cell = grid.get(y0, x0);
                 if ((cell == config.get("diggable") || (cell != null && cell.equals(config.get("diggable")))) ||
                         (cell == config.get("hall:wall") || (cell != null && cell.equals(config.get("hall:wall"))))) {
+                    /*
                     if (count == 0) {
                         // cell = config.get("diggable"); // still set
                     } else if (isHorizontal) {
@@ -448,7 +449,6 @@ public class Room<T> implements Regionlike {
                             (cell == config.get("room:door") || (cell != null && cell.equals(config.get("room:door"))))) {
                         if (lastFloor || lastDoor) {
                             grid.setCopy(y0, x0, config.get("room:floor"));
-                            /*
                             if (lastDoor) {
                                 Positionable lastPos;
                                 if (isHorizontal) {
@@ -460,13 +460,13 @@ public class Room<T> implements Regionlike {
                                 lastFloor = true;
                                 lastDoor = false;
                             }
-                            */
                         } else {
                             grid.setCopy(y0, x0, config.get("room:door"));
                             lastDoor = true;
                         }
+                        grid.setCopy(y0, x0, config.get("room:floor"));
                         intr = true;
-                    } else {
+                    } else {*/
                         // LOGGER.debug("Position: {},{}", y0, x0);
                         if (side == 0 && firstOrLast) {
                             if (count == 0) {
@@ -483,7 +483,7 @@ public class Room<T> implements Regionlike {
                         } else {
                             grid.setCopy(y0, x0, roomWall);
                         }
-                    }
+                    //}
                 } else if ((cell == config.get("hall:floor") || (cell != null && cell.equals(config.get("hall:floor")))) ||
                         (cell == config.get("room:floor") || (cell != null && cell.equals(config.get("room:floor"))))) {
                     if (lastFloor || lastDoor) {
