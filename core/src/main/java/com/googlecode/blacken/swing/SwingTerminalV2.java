@@ -232,7 +232,7 @@ public class SwingTerminalV2 extends ReducedSwingTerminalV2
     @Override
     public void init(String name, int rows, int cols, String font) {
         if (frame != null) {
-            setFont(font);
+            setFont(font, false);
             resize(rows, cols);
             setCursorLocation(-1,-1);
             return;

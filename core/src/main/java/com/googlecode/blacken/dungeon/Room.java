@@ -403,7 +403,7 @@ public class Room<T> implements Regionlike {
             boolean lastDoor = false;
             boolean lastFloor = false;
             T roomWall;
-            LOGGER.debug("Coords: {}, isHoriz?: {}", coords, isHorizontal);
+            //LOGGER.debug("Coords: {}, isHoriz?: {}", coords, isHorizontal);
             if (coords[2] == coords[0] && coords[3] == coords[1]) {
                 side = -1;
                 roomWall = config.get("room:wall");
@@ -429,9 +429,9 @@ public class Room<T> implements Regionlike {
                 if (count == 0) {
                     firstOrLast = true;
                 }
-                if (!isHorizontal) {
-                    LOGGER.debug("Position: {},{}", y0, x0);
-                }
+                //if (!isHorizontal) {
+                //    LOGGER.debug("Position: {},{}", y0, x0);
+                //}
                 T cell = grid.get(y0, x0);
                 if ((cell == config.get("diggable") || (cell != null && cell.equals(config.get("diggable")))) ||
                         (cell == config.get("hall:wall") || (cell != null && cell.equals(config.get("hall:wall"))))) {

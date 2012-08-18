@@ -18,12 +18,16 @@ package com.googlecode.blacken.swing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -234,14 +238,7 @@ public class SwingTerminal extends AbstractTerminal
             try {
                 setFont(font);
             } catch (FontNotFoundException ex) {
-                LOGGER.error("Failed to set font", ex);
-                if (font != null) {
-                    try {
-                        setFont(null);
-                    } catch (FontNotFoundException ex1) {
-                        LOGGER.error("Failed to set backup font", ex1);
-                    }
-                }
+                LOGGER.error("Failed to change font", ex);
             }
             resize(rows, cols);
             setCursorLocation(-1,-1);
@@ -266,10 +263,27 @@ public class SwingTerminal extends AbstractTerminal
         frame.pack();
         
         AwtCell empty = new AwtCell();
-        if (font == null) {
-            font = Font.MONOSPACED;
+
+        Font fontObj = null;
+        try {
+            fontObj = findFont(font);
+        } catch (FontNotFoundException ex) {
+            LOGGER.error("Failed to set font", ex);
+            if (font != null) {
+                try {
+                    // should never fail
+                    fontObj = findFont(null);
+                } catch (FontNotFoundException ex1) {
+                    LOGGER.error("Failed to set backup font", ex1);
+                }
+            }
         }
-        Font fontObj = new Font(font, Font.PLAIN, 1);
+
+        if (fontObj == null) {
+            // make Java compiler happy
+            font = Font.MONOSPACED;
+            fontObj = new Font(font, Font.PLAIN, 1);
+        }
         gui.init(fontObj, rows, cols, empty);
         setCursorLocation(-1, -1);
                 
@@ -559,17 +573,74 @@ public class SwingTerminal extends AbstractTerminal
             gui.moveCursor(y, x);
         }
     }
-    
-    @Override
-    public void setFont(String font) throws FontNotFoundException {
+
+    private Font findFont(String font) throws FontNotFoundException {
+        boolean tryInternal = false;
+        String expectName = font;
+        LOGGER.debug("Setting font to {}", font);
         if (font == null) {
-            font = Font.MONOSPACED;
+            tryInternal = true;
+            font = "resource:/fonts/DejaVuSansMono.ttf";
         }
-        Font fontObj = new Font(font, Font.PLAIN, 1);
-        if (fontObj.getName().equals(font) || fontObj.getFamily().equals(font)) {
-            gui.setFont(fontObj);
+        Font fontObj = null;
+        if (font.contains(":")) {
+            expectName = null;
+            if (font.startsWith("resource:")) {
+                font = font.substring("resource:".length());
+            } else {
+                throw new FontNotFoundException("Unknown URI: " +
+                        font);
+            }
+            InputStream stream = null;
+            try {
+                stream = getClass().getResourceAsStream(font);
+                fontObj = Font.createFont(Font.TRUETYPE_FONT, stream);
+            } catch (FontFormatException ex) {
+                if (!tryInternal) {
+                    throw new FontNotFoundException("Font is invalid", ex);
+                } else {
+                    LOGGER.error("Failed to find font: {}", font, ex);
+                }
+            } catch (IOException ex) {
+                if (!tryInternal) {
+                    throw new FontNotFoundException("Font is not found", ex);
+                } else {
+                    LOGGER.error("Failed to find font: {}", font, ex);
+                }
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (IOException ex) {
+                        LOGGER.error("Failed to close font resource", ex);
+                    }
+                }
+            }
+        }
+        if (fontObj == null) {
+            if (tryInternal) {
+                font = Font.MONOSPACED;
+            }
+            fontObj = new Font(font, Font.PLAIN, 1);
+        }
+        if (expectName != null) {
+            // no good way to test the success of the change
+            if (fontObj.getName().equals(expectName) || fontObj.getFamily().equals(expectName)) {
+                // LOGGER.debug("Found expected font: {}", fontObj);
+            } else {
+                throw new FontNotFoundException("Font is not found");
+            }
         } else {
-            throw new FontNotFoundException("Font is not found");
+            // LOGGER.info("Set font to {} / {}", fontObj.getFamily(), fontObj.getName());
+        }
+        return fontObj;
+    }
+
+    @Override
+    public void setFont(String font, boolean checkFont) throws FontNotFoundException {
+        Font fontObj = findFont(font);
+        if (!checkFont) {
+            gui.setFont(fontObj);
         }
     }
 

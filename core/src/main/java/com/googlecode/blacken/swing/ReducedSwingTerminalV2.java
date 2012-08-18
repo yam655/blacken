@@ -339,7 +339,7 @@ public class ReducedSwingTerminalV2 extends AbstractTerminal {
     }
 
     @Override
-    public void setFont(String font) {
+    public void setFont(String font, boolean checkFont) {
         if (font == null) {
             font = Font.MONOSPACED;
         }

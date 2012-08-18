@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import com.googlecode.blacken.terminal.BlackenCodePoints;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
@@ -64,7 +65,7 @@ public class EventListener implements WindowListener, KeyListener,
         EnumSet.noneOf(BlackenEventType.class);
     private BlackenMouseEvent lastMouseEvent = null;
     private BlackenPanel gui;
-    private boolean variantKeyMode = true;
+    private boolean variantKeyMode = false;
 
     /**
      * Create the listener.
@@ -311,52 +312,52 @@ public class EventListener implements WindowListener, KeyListener,
             switch(e.getExtendedKeyCode()) {
                 // dead keys
                 case KeyEvent.VK_DEAD_ABOVEDOT:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOT_ABOVE);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_DOT_ABOVE);
                     break;
                 case KeyEvent.VK_DEAD_ABOVERING:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_RING_ABOVE);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_RING_ABOVE);
                     break;
                 case KeyEvent.VK_DEAD_ACUTE:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_ACUTE_ACCENT);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_ACUTE_ACCENT);
                     break;
                 case KeyEvent.VK_DEAD_BREVE:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_BREVE);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_BREVE);
                     break;
                 case KeyEvent.VK_DEAD_CARON:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CARON);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_CARON);
                     break;
                 case KeyEvent.VK_DEAD_CEDILLA:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_CEDILLA);
                     break;
                 case KeyEvent.VK_DEAD_CIRCUMFLEX:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
                     break;
                 case KeyEvent.VK_DEAD_DIAERESIS:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DIAERESIS);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_DIAERESIS);
                     break;
                 case KeyEvent.VK_DEAD_DOUBLEACUTE:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_DOUBLE_ACUTE_ACCENT);
                     break;
                 case KeyEvent.VK_DEAD_GRAVE:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GRAVE_ACCENT);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_GRAVE_ACCENT);
                     break;
                 case KeyEvent.VK_DEAD_IOTA:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI);
                     break;
                 case KeyEvent.VK_DEAD_MACRON:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MACRON);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_MACRON);
                     break;
                 case KeyEvent.VK_DEAD_OGONEK:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_OGONEK);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_OGONEK);
                     break;
                 case KeyEvent.VK_DEAD_SEMIVOICED_SOUND:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_MINUS_SIGN_BELOW);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_MINUS_SIGN_BELOW);
                     break;
                 case KeyEvent.VK_DEAD_TILDE:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_TILDE);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_TILDE);
                     break;
                 case KeyEvent.VK_DEAD_VOICED_SOUND:
-                    loadKey(e, BlackenKeys.CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE);
+                    loadKey(e, BlackenCodePoints.CODEPOINT_COMBINING_VERTICAL_LINE_ABOVE);
                     break;
 
                 // lock keys -- Java modifiers, but treated specially here
@@ -1104,33 +1105,10 @@ public class EventListener implements WindowListener, KeyListener,
 
     /**
      * Switch between two modes of processing incoming keys.
+     *
+     * <p>Currently experimental, and should not be changed.
      * 
-     * In Java you can't have right/left variant keys and use Unicode.
-     * 
-     * <p>The issue is there are two different types of key events, the
-     * low-level "keyPressed" and the higher-level "keyTyped" events.
-     * The keyTyped events don't get action keys and can't tell key
-     * locations. The keyPressed events don't get the full processing to get
-     * the full-set of characters (particularly some of the Unicode characters).
-     * </p>
-     * 
-     * <p>It would be nice if we could process the action keys in keyPressed
-     * and the keys that generate good, solid Unicode in keyTyped. 
-     * Unfortunately, Java makes that hard. We're stuck with one set of two
-     * bad options:</p>
-     * <ul>
-     * <li>We get no knowledge of keyboard variations for a number of
-     *     important keys (like those around the number pad). (When the
-     *     variantKeyMode is disabled.)</li>
-     * <li>We can't get full unicode processing done automatically. (When the
-     *     variantKeyMode is enabled, and the default.)</li>
-     * </ul>
-     * 
-     * <p>For the general Rogue-like use-case, we rarely care about full
-     * Unicode support. We need the option, of course, so that we can more
-     * easily support native non-English Roguelikes.
-     * 
-     * @param variantKeyMode the when true limit Unicode characters
+     * @param variantKeyMode 
      */
     public void setVariantKeyMode(boolean variantKeyMode) {
         this.variantKeyMode = variantKeyMode;

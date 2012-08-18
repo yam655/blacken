@@ -31,6 +31,12 @@ import java.util.Map;
 final class GridData1<Z> implements Serializable {
     private static final long serialVersionUID = 1212L;
 
+    /**
+     * Perform an upgrade from the test GridData0 format.
+     *
+     * @param map
+     * @return
+     */
     static Map<String, Object> upgrade(Map<String, Object> map) {
 
         int start_x = (int) map.remove("x1");
@@ -60,7 +66,7 @@ final class GridData1<Z> implements Serializable {
     Z empty = null;
     boolean irregular = false;
 
-    GridData1() {
+    public GridData1() {
         // for serialization
     }
 

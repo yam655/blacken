@@ -66,13 +66,17 @@ import org.slf4j.LoggerFactory;
  * avoid this, provide a {@link GridCellCopier} through
  * {@link #setCellCopier(GridCellCopier)}.
  *
+ * <p>Serialization of the Grid does nothing to store the GridCellCopier in 
+ * use. The GridCellCopier may change between versions, and the best 
+ * GridCellCopier for your cell type should be used in all cases.
+ *
  * @author Steven Black
  * @param <Z> an object implementing Cloneable or an object copied by reference
  */
 public class Grid <Z>
 implements Serializable, Regionlike {
     private static final long serialVersionUID = 709537762108751L;
-    private static transient Logger LOGGER = LoggerFactory.getLogger(Grid.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(Grid.class);
     private ArrayList<ArrayList<Z>> grid = null;
     private int start_x = 0;
     private int start_y = 0;
@@ -99,7 +103,11 @@ implements Serializable, Regionlike {
         this.start_y = 0;
         this.irregular = true;
     }
-    
+
+    /**
+     * This is undocumented because you should <em>not</em> use it.
+     * @param map map of your doom (if you use this function)
+     */
     Grid(Map<String, Object> map) {
         if (!map.get("__target__").equals(Grid.class.getName())) {
             throw new IllegalArgumentException("Not my map.");

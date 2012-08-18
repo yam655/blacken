@@ -513,8 +513,8 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public void setFont(String font) throws FontNotFoundException {
-        terminal.setFont(font);
+    public void setFont(String font, boolean checkFont) throws FontNotFoundException {
+        terminal.setFont(font, checkFont);
     }
     @Override
     public String setFont(String... font) throws FontNotFoundException {

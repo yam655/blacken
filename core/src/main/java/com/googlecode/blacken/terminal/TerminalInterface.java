@@ -340,9 +340,10 @@ public interface TerminalInterface {
     /**
      * Set the font to a name or a path
      * @param font name or path; default MONOSPACE if null
+     * @param checkFont when true, do not actually set the font; just check font presence
      * @throws FontNotFoundException requested font was not found
       */
-    public void setFont(String font) throws FontNotFoundException;
+    public void setFont(String font, boolean checkFont) throws FontNotFoundException;
     /**
      * Set the font to a name or a path
      * @param font a set of fonts to try in order; default MONOSPACE if null

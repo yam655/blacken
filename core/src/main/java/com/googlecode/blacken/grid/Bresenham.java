@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,9 @@ public class Bresenham {
          */
         @Override
         public boolean hasNext() {
-            if (start || x0 != x1 || y0 != y1) return true;
+            if (start || x0 != x1 || y0 != y1) {
+                return true;
+            }
             return false;
         }
 

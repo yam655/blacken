@@ -260,7 +260,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
     
     @Override
-    public void setFont(String font) throws FontNotFoundException {
+    public void setFont(String font, boolean checkFont) throws FontNotFoundException {
         throw new FontNotFoundException("Fonts unsupported here");
     }
     @Override
@@ -269,7 +269,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
         String used = null;
         for (String f : font) {
             try {
-                setFont(f);
+                setFont(f, false);
                 used = f;
                 break;
             } catch(FontNotFoundException ex) {
