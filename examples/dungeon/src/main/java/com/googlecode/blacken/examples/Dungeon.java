@@ -643,11 +643,6 @@ public class Dungeon {
         if (term == null) {
             term = new SwingTerminal();
             term.init("Blacken Example: Dungeon", 25, 80);
-            try {
-                term.setFont("Courier New", "Monospace");
-            } catch (FontNotFoundException ex) {
-                LOGGER.error("Failed to set font. Won't be pretty...", ex);
-            }
         }
         this.term = new CursesLikeAPI(term);
         if (palette == null) {

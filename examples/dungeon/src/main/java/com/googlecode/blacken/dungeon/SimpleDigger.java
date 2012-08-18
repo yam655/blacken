@@ -16,8 +16,6 @@
 
 package com.googlecode.blacken.dungeon;
 
-import java.util.Map;
-
 import com.googlecode.blacken.bsp.BSPTree;
 import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.grid.BoxRegion;
@@ -25,6 +23,7 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +127,16 @@ public class SimpleDigger<T> {
             room.dig(grid);
         }
     }
+
+    /**
+     * Not ready yet. The idea is to dig from one room to another avoiding
+     * other rooms and preferring to join existing halls without creating broad
+     * halls.
+     *
+     * @param bsp
+     * @param grid
+     * @param config
+     */
     public void digRoomAvoidanceHalls(BSPTree<Room> bsp, Grid<T> grid, Map<String, T> config) {
         SimpleDungeonConfig.cleanConfig(config);
         for (Room room : bsp.findContained(null)) {
@@ -209,7 +218,7 @@ public class SimpleDigger<T> {
 
     private boolean tunnel(Grid<T> grid, Point a, Point b,
             Map<String, T> config, Positionable cursor, boolean interruptable) {
-        LOGGER.info("tunnel: {} -> {}", a, b);
+        // LOGGER.info("tunnel: {} -> {}", a, b);
         int off_y = b.getY() - a.getY();
         int off_x = b.getX() - a.getX();
         if (off_y == 0) {
@@ -221,7 +230,7 @@ public class SimpleDigger<T> {
         } else if (rand.nextBoolean()) {
             int half_y = off_y / 2;
             boolean intr = false;
-            LOGGER.debug("To dig line? off_y: {}; half_y: {}", off_y, half_y);
+            // LOGGER.debug("To dig line? off_y: {}; half_y: {}", off_y, half_y);
             if (digLine(grid, a.getY(), a.getX(), a.getY() + half_y, a.getX(),
                     config, cursor, interruptable)) {
                 intr = true;
@@ -245,7 +254,7 @@ public class SimpleDigger<T> {
         } else {
             int half_x = off_x / 2;
             boolean intr = false;
-            LOGGER.debug("To dig line? off_x: {}; half_x: {}", off_x, half_x);
+            // LOGGER.debug("To dig line? off_x: {}; half_x: {}", off_x, half_x);
             if (digLine(grid, a.getY(), a.getX(), a.getY(), a.getX() + half_x,
                     config, cursor, interruptable)) {
                 intr = true;
@@ -272,7 +281,7 @@ public class SimpleDigger<T> {
     private boolean digLine(Grid<T> grid, int ya, int xa, int yb, int xb,
             Map<String, T> config,
             Positionable cursor, boolean interruptable) {
-        LOGGER.info("digging line: {},{}, -> {},{}", new Object[] {ya,xa, yb,xb});
+        // LOGGER.info("digging line: {},{}, -> {},{}", new Object[] {ya,xa, yb,xb});
         boolean intr = false;
         boolean isHorizontal = ya == yb ? true : false;
         int direction = isHorizontal ? (xa < xb ? +1 : -1) : (ya < yb ? +1 : -1);
@@ -285,12 +294,12 @@ public class SimpleDigger<T> {
         int y = ya;
         while (count-- > 0 && (!interruptable || !intr)) {
             T cell = grid.get(y, x);
-            boolean door_mode = false;
+            //boolean door_mode = false;
             if (cell == config.get("diggable") || (cell != null && cell.equals(config.get("diggable")))) {
                 cell = isHorizontal ? grid.get(y, x + direction) : grid.get(y + direction, x);
                 if (cell == config.get("room:floor") || (cell != null && cell.equals(config.get("room:floor")))) {
                     grid.setCopy(y, x, config.get("room:door"));
-                    door_mode = true;
+                    //door_mode = true;
                     intr = true;
                 } else if (cell == config.get("hall:floor") || (cell != null && cell.equals(config.get("hall:floor")))) {
                     grid.setCopy(y, x, config.get("hall:door"));
@@ -302,15 +311,15 @@ public class SimpleDigger<T> {
                 cell = isHorizontal ? grid.get(y, x + direction) : grid.get(y + direction, x);
                 if (cell == config.get("room:floor") || (cell != null && cell.equals(config.get("room:floor")))) {
                     grid.setCopy(y, x, config.get("room:door"));
-                    door_mode = true;
+                    //door_mode = true;
                     intr = true;
                 } else if (cell == config.get("hall:floor") || (cell != null && cell.equals(config.get("hall:floor")))) {
-                    if (x != xa && x != xb) {
+                    //if (x != xa && x != xb) {
                         intr = true;
                         grid.setCopy(y, x, config.get("hall:door"));
-                    } else {
-                        grid.setCopy(y, x, config.get("room:floor"));
-                    }
+                    //} else {
+                    //    grid.setCopy(y, x, config.get("room:floor"));
+                    //}
                 } else {
                     grid.setCopy(y, x, config.get("room:floor"));
                 }
@@ -334,6 +343,7 @@ public class SimpleDigger<T> {
                     if (cell == config.get("diggable") || (cell != null && cell.equals(config.get("diggable")))) {
                         cell = grid.get(y+side, x + direction);
                         if (cell == config.get("room:floor") || (cell != null && cell.equals(config.get("room:floor")))) {
+                            /*
                             if (door_mode) {
                                 grid.setCopy(y, x, config.get("room:floor"));
                             }
@@ -342,14 +352,15 @@ public class SimpleDigger<T> {
                             } else {
                                 grid.setCopy(y, x+side, door_mode ? config.get("room:floor") : config.get("room:door"));
                             }
+                            */
                             intr = true;
-                        } else {
+                        } //else {
                             if (isHorizontal) {
                                 grid.setCopy(y+side, x, config.get("hall:wall"));
                             } else {
                                 grid.setCopy(y, x+side, config.get("hall:wall"));
                             }
-                        }
+                        //}
                     } else if (cell == config.get("hall:wall") || (cell != null && cell.equals(config.get("hall:wall")))) {
                         // do nothing
                     } else {
