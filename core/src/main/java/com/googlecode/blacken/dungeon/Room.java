@@ -388,7 +388,7 @@ public class Room<T> implements Regionlike {
         itr = getEdgeIterator();
         int side;
         while(!itr.isDone()) {
-            int segment = itr.currentSegment(coords);
+            itr.currentSegment(coords);
             itr.next();
             //boolean[] ptrn = itr.currentPattern();
             boolean isHorizontal = coords[2] == coords[0] ? true : false;
@@ -448,6 +448,7 @@ public class Room<T> implements Regionlike {
                             (cell == config.get("room:door") || (cell != null && cell.equals(config.get("room:door"))))) {
                         if (lastFloor || lastDoor) {
                             grid.setCopy(y0, x0, config.get("room:floor"));
+                            /*
                             if (lastDoor) {
                                 Positionable lastPos;
                                 if (isHorizontal) {
@@ -459,6 +460,7 @@ public class Room<T> implements Regionlike {
                                 lastFloor = true;
                                 lastDoor = false;
                             }
+                            */
                         } else {
                             grid.setCopy(y0, x0, config.get("room:door"));
                             lastDoor = true;

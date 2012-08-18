@@ -601,7 +601,7 @@ public class TestUnboundTerminal {
              "public EnumSet<BlackenModifier> getLockingStates()",
              "public BlackenMouseEvent getmouse()",
              "public BlackenWindowEvent getwindow()",
-             "public void setFont(String) throws FontNotFoundException",
+             "public void setFont(String,boolean) throws FontNotFoundException",
              "public String setFont(String...) throws FontNotFoundException",
              "public void quit()",
              "public boolean setFullScreen(boolean)",
