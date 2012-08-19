@@ -437,25 +437,25 @@ public class BlackenPanel extends JPanel {
      * Recalculate the font bits.
      * 
      * <p>The logic this uses totally breaks down if a variable-width font is 
-     * used.</p>
+     * used.
      * 
      * <p>For a variable-width font, you'd need to walk every character you
      * plan to use, track the width, then use the max double-wide width or 2x 
      * the max single-wide width... That is, if you plan to do the 
-     * single-width / double-width logic traditionally found on terminals.</p>
+     * single-width / double-width logic traditionally found on terminals.
      *  
      * <p>If you want variable width fonts, it is probably best not to treat it 
      * as a traditional double-wide character and to instead treat it as a 
      * large single-width character -- so that <code>fontDblAdvance</code> and 
      * <code>fontSglAdvance</code> are the same and <code>fontHasDouble</code>
-     * is false.</p> 
+     * is false.
      */
     protected void recalculateFontBits() {
         if (this.getGraphics() == null) {
             return;
         }
         metrics = this.getGraphics().getFontMetrics(this.font);
-        fontAscent = metrics.getMaxAscent()+1;
+        fontAscent = metrics.getMaxAscent();
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
         if (fontDblAdvance == -1) {
@@ -582,31 +582,31 @@ public class BlackenPanel extends JPanel {
         float fsize = 0.5f;
         int idealAdvance = r.width / this.minX;
         int idealHeight = r.height / this.minY;
-        //System.out.printf("DEBUG(font2fit): ideal:%d height:%d\n", 
-        //                  idealAdvance, idealHeight);
+        //LOGGER.debug("ideal:{}, height:{}, idealAdvance, idealHeight");
         Font f = this.font.deriveFont(fsize);
         setFontNoUpdate(f);
         if (idealAdvance <= fontSglAdvance || idealHeight <= fontHeight) {
-            //System.out.printf("DEBUG(font2fit): BOGUS advance:%d height:%d\n", 
-            //                  fontSglAdvance, fontHeight);
+            //LOGGER.debug("BOGUS advance:{}; height:{}",
+                    //fontSglAdvance, fontHeight);
             // This is a real bogus size, but apparently we can't get 
             // anything better
             return;
         }
         Font lastFont = f;
-        //System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", 
-        //                  fsize, fontSglAdvance, fontHeight);
+        //LOGGER.debug("size:{}; advance:{}; height:{}",
+        //        new Object[] {fsize, fontSglAdvance, fontHeight});
         while (idealAdvance >= fontSglAdvance && idealHeight >= fontHeight) {
             lastFont = f;
             f = lastFont.deriveFont(fsize += 0.5f); 
             setFontNoUpdate(f);
-            //System.out.printf("DEBUG(font2fit): size:%f advance:%d height:%d\n", fsize, fontSglAdvance, fontHeight);
+            //LOGGER.debug("size:{}; advance:{}; height:{}",
+            //        new Object[] {fsize, fontSglAdvance, fontHeight});
         }
         setFont(lastFont, false);
         int newRows = r.height / fontHeight;
         int newCols = r.width / fontSglAdvance;
         grid.setSize(newRows, newCols);
-        //System.out.printf("DEBUG(font2fit): grid: ys:%d; xs:%d\n", newRows, newCols);
+        // LOGGER.debug("grid: ys:{}; xs:{}", newRows, newCols);
     }
     
     /**
