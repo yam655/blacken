@@ -427,7 +427,7 @@ public class TestCursesLikeAPI {
     }
 
     @Test
-    @Covers("public void init(String,int,int,String)")
+    @Covers("public void init(String,int,int,String...)")
     public void init_nameRowsColsFont() {
         UnboundTerminal ut = new UnboundTerminal();
         CursesLikeAPI term = new CursesLikeAPI(ut);
@@ -438,6 +438,38 @@ public class TestCursesLikeAPI {
         assertNotNull(term.getGrid());
         assertEquals(NUM_ROWS, term.getHeight());
         assertEquals(NUM_COLS, term.getWidth());
+        assertEquals(0, term.getCursorX());
+        assertEquals(0, term.getCursorY());
+    }
+
+    @Test
+    @Covers("public void init(String,int,int,TerminalScreenSize)")
+    public void init_nameRowsColsSize() {
+        UnboundTerminal ut = new UnboundTerminal();
+        CursesLikeAPI term = new CursesLikeAPI(ut);
+        assertNull(term.getGrid());
+        assertEquals(0, term.getHeight());
+        assertEquals(0, term.getWidth());
+        term.init("Java", NUM_ROWS+1, NUM_COLS+1, TerminalScreenSize.SIZE_LARGE);
+        assertNotNull(term.getGrid());
+        assertEquals(NUM_ROWS+1, term.getHeight());
+        assertEquals(NUM_COLS+1, term.getWidth());
+        assertEquals(0, term.getCursorX());
+        assertEquals(0, term.getCursorY());
+    }
+
+    @Test
+    @Covers("public void init(String,int,int,TerminalScreenSize,String...)")
+    public void init_nameRowsColsSizeFont() {
+        UnboundTerminal ut = new UnboundTerminal();
+        CursesLikeAPI term = new CursesLikeAPI(ut);
+        assertNull(term.getGrid());
+        assertEquals(0, term.getHeight());
+        assertEquals(0, term.getWidth());
+        term.init("Java", NUM_ROWS+1, NUM_COLS+1, TerminalScreenSize.SIZE_SMALL, "Monospace");
+        assertNotNull(term.getGrid());
+        assertEquals(NUM_ROWS+1, term.getHeight());
+        assertEquals(NUM_COLS+1, term.getWidth());
         assertEquals(0, term.getCursorX());
         assertEquals(0, term.getCursorY());
     }
@@ -821,6 +853,7 @@ public class TestCursesLikeAPI {
              "public boolean setFullScreen(boolean)",
              "public boolean getFullScreen()",
              "public void inhibitFullScreen(boolean)",
+             "public void setSize(TerminalScreenSize)",
             })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

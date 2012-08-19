@@ -98,6 +98,7 @@ public class TestBSP {
              "public BSPTree getRightChild()",
              "public BSPTree getLeftChild()",
     })
+    @Deprecated
     public void testTraversePreorder() {
         List<BSPTree> nodelist = t.traversePreorder(null);
         assertSame(t,nodelist.get(0));
@@ -107,6 +108,7 @@ public class TestBSP {
 
     @Test
     @Covers("public List<BSPTree> traverseInorder(List<BSPTree>)")
+    @Deprecated
     public void testTraverseInorder() {
         List<BSPTree> nodelist = t.traverseInorder(null);
         assertSame(t.getLeftChild(),nodelist.get(0));
@@ -116,6 +118,7 @@ public class TestBSP {
 
     @Test
     @Covers("public List<BSPTree> traversePostorder(List<BSPTree>)")
+    @Deprecated
     public void testTraversePostorder() {
         List<BSPTree> nodelist = t.traversePostorder(null);
         assertSame(t.getLeftChild(),nodelist.get(0));
@@ -125,6 +128,7 @@ public class TestBSP {
 
     @Test
     @Covers("public List<BSPTree> traverseLevelOrder(List<BSPTree>)")
+    @Deprecated
     public void testTraverseLevelOrder() {
         List<BSPTree> nodelist = t.traverseLevelOrder(null);
         assertSame(t,nodelist.get(0));

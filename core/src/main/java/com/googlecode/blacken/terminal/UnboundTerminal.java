@@ -23,7 +23,7 @@ import com.googlecode.blacken.grid.Grid;
 /**
  * An unbound terminal -- no user-interface attached
  * 
- * @author yam655
+ * @author Steven Black
  */
  public class UnboundTerminal extends AbstractTerminal {
 
@@ -113,17 +113,9 @@ import com.googlecode.blacken.grid.Grid;
         return false;
     }
 
-    /*
     @Override
-    public TerminalInterface getGlass() {
-        return null;
+    public void setSize(TerminalScreenSize size) {
+        // do nothing (legal)
     }
-
-    @Override
-    public TerminalInterface initGlass(int rows, int cols, String font) {
-        throw new UnsupportedOperationException("Does not make sense.");
-    }
-    *
-    */
 
 }

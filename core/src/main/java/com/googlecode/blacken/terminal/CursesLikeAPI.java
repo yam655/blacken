@@ -450,7 +450,7 @@ public class CursesLikeAPI implements TerminalInterface {
     }
     
     @Override
-    public void init(String name, int rows, int cols, String font) {
+    public void init(String name, int rows, int cols, String... font) {
         terminal.init(name, rows, cols, font);
         terminal.setCursorLocation(0, 0);
     }
@@ -575,21 +575,21 @@ public class CursesLikeAPI implements TerminalInterface {
         return terminal;
     }
 
-    /*
     @Override
-    public TerminalInterface getGlass() {
-        return terminal.getGlass();
+    public void init(String name, int rows, int cols, TerminalScreenSize size, String... font) {
+        terminal.init(name, rows, cols, size, font);
+        terminal.setCursorLocation(0, 0);
     }
 
     @Override
-    public TerminalInterface initGlass(int rows, int cols) {
-        return terminal.initGlass(rows, cols);
+    public void init(String name, int rows, int cols, TerminalScreenSize size) {
+        terminal.init(name, rows, cols, size);
+        terminal.setCursorLocation(0, 0);
     }
 
     @Override
-    public TerminalInterface initGlass(int rows, int cols, String font) {
-        return terminal.initGlass(rows, cols, font);
+    public void setSize(TerminalScreenSize size) {
+        terminal.setSize(size);
     }
-    */
 
 }

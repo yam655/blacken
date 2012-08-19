@@ -383,13 +383,43 @@ public class TestUnboundTerminal {
     }
 
     @Test
-    @Covers("public void init(String,int,int,String)")
+    @Covers("public void init(String,int,int,String...)")
     public void init_nameRowsColsFont() {
         UnboundTerminal term = new UnboundTerminal();
         assertNull(term.getGrid());
         assertEquals(0, term.getHeight());
         assertEquals(0, term.getWidth());
         term.init("Java", NUM_ROWS+1, NUM_COLS+1, "Monospace");
+        assertNotNull(term.getGrid());
+        assertEquals(NUM_ROWS+1, term.getHeight());
+        assertEquals(NUM_COLS+1, term.getWidth());
+        assertEquals(-1, term.getCursorX());
+        assertEquals(-1, term.getCursorY());
+    }
+
+    @Test
+    @Covers("public void init(String,int,int,TerminalScreenSize)")
+    public void init_nameRowsColsSize() {
+        UnboundTerminal term = new UnboundTerminal();
+        assertNull(term.getGrid());
+        assertEquals(0, term.getHeight());
+        assertEquals(0, term.getWidth());
+        term.init("Java", NUM_ROWS+1, NUM_COLS+1, TerminalScreenSize.SIZE_LARGE);
+        assertNotNull(term.getGrid());
+        assertEquals(NUM_ROWS+1, term.getHeight());
+        assertEquals(NUM_COLS+1, term.getWidth());
+        assertEquals(-1, term.getCursorX());
+        assertEquals(-1, term.getCursorY());
+    }
+
+    @Test
+    @Covers("public void init(String,int,int,TerminalScreenSize,String...)")
+    public void init_nameRowsColsSizeFont() {
+        UnboundTerminal term = new UnboundTerminal();
+        assertNull(term.getGrid());
+        assertEquals(0, term.getHeight());
+        assertEquals(0, term.getWidth());
+        term.init("Java", NUM_ROWS+1, NUM_COLS+1, TerminalScreenSize.SIZE_SMALL, "Monospace");
         assertNotNull(term.getGrid());
         assertEquals(NUM_ROWS+1, term.getHeight());
         assertEquals(NUM_COLS+1, term.getWidth());
@@ -607,9 +637,7 @@ public class TestUnboundTerminal {
              "public boolean setFullScreen(boolean)",
              "public boolean getFullScreen()",
              "public void inhibitFullScreen(boolean)",
-             //"public TerminalInterface getGlass()",
-             //"public TerminalInterface initGlass(int,int,String)",
-             //"public TerminalInterface initGlass(int,int)",
+             "public void setSize(TerminalScreenSize)",
     })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

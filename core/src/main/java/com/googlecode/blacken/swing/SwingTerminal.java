@@ -17,22 +17,22 @@ package com.googlecode.blacken.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import javax.swing.JFrame;
 
@@ -57,6 +57,8 @@ public class SwingTerminal extends AbstractTerminal
     protected JFrame frame;
     protected HashMap<String, GraphicAttribute> replacement = null;
     protected DropTarget dropTarget;
+    protected String defaultFont = null;
+    protected TerminalScreenSize defaultSize = TerminalScreenSize.SIZE_MEDIUM;
 
     /**
      * Create and initialize the function at once.
@@ -233,10 +235,14 @@ public class SwingTerminal extends AbstractTerminal
     }
     
     @Override
-    public void init(String name, int rows, int cols, String font) {
+    public void init(String name, int rows, int cols, TerminalScreenSize size,
+            String... fonts) {
+        if (this.defaultFont != null && (fonts == null || fonts.length==1 && fonts[0] == null)) {
+            fonts = new String[] {defaultFont};
+        }
         if (frame != null) {
             try {
-                setFont(font);
+                setFont(fonts);
             } catch (FontNotFoundException ex) {
                 LOGGER.error("Failed to change font", ex);
             }
@@ -244,7 +250,7 @@ public class SwingTerminal extends AbstractTerminal
             setCursorLocation(-1,-1);
             return;
         }
-        super.init(name, rows, cols, font);
+        super.init(name, rows, cols, size, fonts);
         frame = new JFrame(name);
         frame.setIgnoreRepaint(true);
         frame.setFocusTraversalKeysEnabled(false);
@@ -254,7 +260,6 @@ public class SwingTerminal extends AbstractTerminal
         gui.setDoubleBuffered(true);
         listener = new EventListener(gui);
 
-        frame.setSize(600, 450);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -265,24 +270,25 @@ public class SwingTerminal extends AbstractTerminal
         AwtCell empty = new AwtCell();
 
         Font fontObj = null;
-        try {
-            fontObj = findFont(font);
-        } catch (FontNotFoundException ex) {
-            LOGGER.error("Failed to set font", ex);
-            if (font != null) {
-                try {
-                    // should never fail
-                    fontObj = findFont(null);
-                } catch (FontNotFoundException ex1) {
-                    LOGGER.error("Failed to set backup font", ex1);
-                }
+        for (String font : fonts) {
+            try {
+                fontObj = findFont(font);
+            } catch (FontNotFoundException ex) {
+                LOGGER.error("Failed to set font", ex);
+            }
+        }
+        if (fonts != null && (fonts.length == 0 || fonts[0] != null)) {
+            try {
+                // should never fail
+                fontObj = findFont(null);
+            } catch (FontNotFoundException ex1) {
+                LOGGER.error("Failed to set backup font", ex1);
             }
         }
 
         if (fontObj == null) {
             // make Java compiler happy
-            font = Font.MONOSPACED;
-            fontObj = new Font(font, Font.PLAIN, 1);
+            fontObj = new Font(Font.MONOSPACED, Font.PLAIN, 1);
         }
         gui.init(fontObj, rows, cols, empty);
         setCursorLocation(-1, -1);
@@ -297,9 +303,67 @@ public class SwingTerminal extends AbstractTerminal
         frame.addComponentListener(this);
         frame.addInputMethodListener(listener);
 
-        frame.setSize(600, 450);
-        frame.setLocationRelativeTo(null); // places window in center of screen
+        if (size == null) {
+            size = this.defaultSize;
+            if (size == null) {
+                size = TerminalScreenSize.SIZE_MEDIUM;
+            }
+        }
+        switch(size) {
+            case SIZE_FULLSCREEN:
+            case SIZE_MAX:
+                setSize(TerminalScreenSize.SIZE_MEDIUM);
+                frame.setLocationRelativeTo(null);
+                setSize(size);
+                break;
+            default:
+                setSize(size);
+                frame.setLocationRelativeTo(null);
+                break;
+        }
+
         frame.setVisible(true);
+    }
+
+    @Override
+    public void setSize(TerminalScreenSize size) {
+        if (frame == null) {
+            this.defaultSize = size;
+            return;
+        }
+        Dimension screenSize = frame.getToolkit().getScreenSize();
+        Insets insets = frame.getToolkit().getScreenInsets(frame.getGraphicsConfiguration());
+        int ys = screenSize.height - insets.top - insets.bottom;
+        int xs = screenSize.width - insets.left - insets.right;
+        if (xs / ys > 2 || ys / xs > 2) {
+            if (xs > ys) {
+                xs = ys;
+            } else {
+                ys = xs;
+            }
+        }
+        Rectangle bounds = frame.getBounds();
+        int x1 = bounds.x;
+        int y1 = bounds.y;
+        switch(size) {
+            case SIZE_FULLSCREEN:
+                setFullScreen(true);
+                break;
+            case SIZE_MAX:
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                break;
+            default:
+                int newX = (int)Math.floor(xs * size.getSize());
+                int newY = (int)Math.floor(ys * size.getSize());
+                if (x1 + newX > screenSize.width - insets.right) {
+                    x1 = screenSize.width - insets.right - newX;
+                }
+                if (y1 + newY > screenSize.height - insets.top) {
+                    y1 = screenSize.height - insets.top - newY;
+                }
+                frame.setBounds(x1, y1, newX, newY);
+                break;
+        }
     }
 
     @Override
@@ -341,11 +405,6 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void inhibitFullScreen(boolean state) {
         this.inhibitFullScreen = state;
-    }
-
-    @Override
-    public void init(String name, int rows, int cols) {
-        init(name, rows, cols, null);
     }
 
     /**
@@ -640,7 +699,11 @@ public class SwingTerminal extends AbstractTerminal
     public void setFont(String font, boolean checkFont) throws FontNotFoundException {
         Font fontObj = findFont(font);
         if (!checkFont) {
-            gui.setFont(fontObj);
+            if (gui == null) {
+                this.defaultFont = font;
+            } else {
+                gui.setFont(fontObj);
+            }
         }
     }
 

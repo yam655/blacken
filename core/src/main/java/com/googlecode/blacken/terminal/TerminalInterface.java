@@ -18,9 +18,9 @@ package com.googlecode.blacken.terminal;
 import java.util.EnumSet;
 
 import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.Regionlike;
 
 /**
  * The interface for terminal-like views.
@@ -240,9 +240,12 @@ public interface TerminalInterface {
      * @param name window name
      * @param rows terminal rows
      * @param cols terminal columns
+     * @param font the fonts to try
      */
-    public void init(String name, int rows, int cols, String font);
-    
+    public void init(String name, int rows, int cols, String... font);
+    public void init(String name, int rows, int cols, TerminalScreenSize size, String... font);
+    public void init(String name, int rows, int cols, TerminalScreenSize size);
+
     /**
      * Move a block of cells
      * 
@@ -339,6 +342,12 @@ public interface TerminalInterface {
     public void setEmpty(TerminalCellLike empty);
     /**
      * Set the font to a name or a path
+     *
+     * <p>This can be called before calling init, but if you do and you specify
+     * a different font to init, that font will be used instead. (If you pass
+     * (String)null or use one of the init forms without a font parameter it
+     * will use the last found font.
+     *
      * @param font name or path; default MONOSPACE if null
      * @param checkFont when true, do not actually set the font; just check font presence
      * @throws FontNotFoundException requested font was not found
@@ -346,7 +355,13 @@ public interface TerminalInterface {
     public void setFont(String font, boolean checkFont) throws FontNotFoundException;
     /**
      * Set the font to a name or a path
-     * @param font a set of fonts to try in order; default MONOSPACE if null
+     *
+     * <p>This can be called before calling init, but if you do and you specify
+     * a different font to init, that font will be used instead. (If you pass
+     * (String)null or use one of the init forms without a font parameter it
+     * will use the last found font.
+     *
+     * @param font a set of fonts to try in order; default if null
      * @return the font used.
      * @throws FontNotFoundException requested font was not found
       */
@@ -439,37 +454,13 @@ public interface TerminalInterface {
      */
     public TerminalInterface getBackingTerminalInterface();
 
-    /*
-     * The "glass" TerminalInterface sits on top of the normal one and should
-     * be mostly transparent.
-     * @return current glass terminal interface (if any) or <code>null</code>
-     * @since COMING IN BLACKEN 2.0
-     */
-    //public TerminalInterface getGlass();
-
-    /*
-     * Create a new "glass" TerminalInterface with the default font.
+    /**
+     * Set the physical window size (if possible).
      *
-     * @param rows
-     * @param cols
-     * @since COMING IN BLACKEN 2.0
-     * @return
-     */
-    //public TerminalInterface initGlass(int rows, int cols);
-
-    /*
-     * Creates a translucent terminal interface on top of the current one.
+     * <p>It is legal to call this before calling init().
      *
-     * <p>A different resolution and font size can be used. This allows big
-     * a blocky tile-like font for the map with the other text smaller as
-     * well as super tiny font for the map and normal text for the rest.</p>
-     *
-     * @param rows
-     * @param cols
-     * @param font
-     * @since COMING IN BLACKEN 2.0
-     * @return
+     * @param size size of the window
      */
-    //public TerminalInterface initGlass(int rows, int cols, String font);
+    public void setSize(TerminalScreenSize size);
 
 }

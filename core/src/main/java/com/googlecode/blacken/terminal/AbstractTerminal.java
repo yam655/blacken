@@ -182,7 +182,17 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void init(String name, int rows, int cols) {
-        init(name, rows, cols, null);
+        init(name, rows, cols, (TerminalScreenSize)null, (String)null);
+    }
+
+    @Override
+    public void init(String name, int rows, int cols, TerminalScreenSize size) {
+        init(name, rows, cols, size, (String)null);
+    }
+
+    @Override
+    public void init(String name, int rows, int cols, String... font) {
+        init(name, rows, cols, (TerminalScreenSize)null, font);
     }
 
     /*
@@ -199,7 +209,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     */
 
     @Override
-    public void init(String name, int rows, int cols, String font) {
+    public void init(String name, int rows, int cols, TerminalScreenSize size, String... font) {
         if (grid == null) {
             grid = new Grid<>(this.empty, rows, cols);
         } else {
@@ -505,4 +515,10 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public TerminalInterface getBackingTerminalInterface() {
         return this;
     }
+
+    @Override
+    public void setSize(TerminalScreenSize size) {
+        // do nothing (legal)
+    }
+
 }
