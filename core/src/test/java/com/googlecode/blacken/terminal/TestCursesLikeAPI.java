@@ -524,11 +524,11 @@ public class TestCursesLikeAPI {
         terminal.addch('c');
         assertEquals(0, terminal.getCursorY());
         assertEquals(1, terminal.getCursorX());
-        terminal.overlaych(BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
+        terminal.overlaych(BlackenCodePoints.CODEPOINT_COMBINING_CEDILLA);
         assertEquals(0, terminal.getCursorY());
         assertEquals(1, terminal.getCursorX());
         StringBuilder buf = new StringBuilder();
-        char ch[] = {'c', BlackenKeys.CODEPOINT_COMBINING_CEDILLA};
+        char ch[] = {'c', BlackenCodePoints.CODEPOINT_COMBINING_CEDILLA};
         buf.append(String.valueOf(ch));
         assertEquals(buf.toString(), terminal.get(0, 0).getSequence().toString());
     }
@@ -633,7 +633,7 @@ public class TestCursesLikeAPI {
         StringBuilder buf = new StringBuilder();
         String a1;
         buf.append('a');
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_DIAERESIS);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_DIAERESIS);
         a1 = buf.toString();
         terminal.mvputs(0, 0, a1);
         assertEquals(a1, terminal.get(0, 0).getSequence());
@@ -645,8 +645,8 @@ public class TestCursesLikeAPI {
         assertEquals("", buf.toString());
 
         buf.append('b');
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_RING_ABOVE);
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_RING_BELOW);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_RING_ABOVE);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_RING_BELOW);
         String b1 = buf.toString();
         terminal.mvputs(0, 1, b1);
         assertEquals(b1, terminal.get(0, 1).getSequence());
@@ -656,10 +656,10 @@ public class TestCursesLikeAPI {
         buf.setLength(0);
 
         buf.append('c');
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_CEDILLA);
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_INVERTED_BREVE);
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
-        buf.append((char)BlackenKeys.CODEPOINT_COMBINING_BREVE);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_CEDILLA);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_INVERTED_BREVE);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_BREVE);
         String c1 = buf.toString();
         terminal.mvputs(0, 2, c1);
         assertEquals(c1, terminal.get(0, 2).getSequence());

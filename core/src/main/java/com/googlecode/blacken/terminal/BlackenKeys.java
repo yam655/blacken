@@ -1151,9 +1151,13 @@ public class BlackenKeys {
      * @return -1 if codepoint isn't a legal codepoint (as of Unicode 5.2)
      */
     public static int findPlane(int codepoint) {
-        if (codepoint < 0) return -1;
+        if (codepoint < 0) {
+            return -1;
+        }
         codepoint >>= 16;
-        if (codepoint > 16) codepoint = -1;
+        if (codepoint > 16) {
+            codepoint = -1;
+        }
         return codepoint;
     }
 
@@ -1214,7 +1218,11 @@ public class BlackenKeys {
     }
 
     /**
-     * Turn a keycode in to a string
+     * Turn a keycode in to a string.
+     *
+     * <p>This turns a keycode in to 7-bit encoding using "\\u0000" or
+     * "\\U0000000" notation. It makes zero attempt to get the name of anything.
+     *
      * @param keycode codepoint
      * @return string
      */
@@ -1248,15 +1256,13 @@ public class BlackenKeys {
                     // suppress this -- we want to print KEY_NO_KEY
                     continue;
                 }
-                if (!fieldName.startsWith("CODEPOINT_")) {
-                    try {
-                        if (f.getInt(null) == keycode) {
-                            name = f.getName();
-                            break;
-                        }
-                    } catch (IllegalArgumentException | IllegalAccessException e) {
-                        continue;
+                try {
+                    if (f.getInt(null) == keycode) {
+                        name = f.getName();
+                        break;
                     }
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    continue;
                 }
             }
             keybuf.append(name);
