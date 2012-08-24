@@ -4,14 +4,20 @@
 
   <groupId>com.googlecode.blacken.examples</groupId>
   <artifactId>boarder</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-
   <name>boarder</name>
   <url>http://blacken.googlecode.com</url>
+  <organization>
+    <name>Blacken Roguelike Library Developers</name>
+    <url>https://sites.google.com/site/blackenlib/</url>
+  </organization>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.webstart.version>1.0-beta-3</maven.webstart.version>
+    <project.mainClass>com.googlecode.blacken.examples.Boarder</project.mainClass>
+    <project.j2seVersion>1.7</project.j2seVersion>
   </properties>
 
   <dependencies>
@@ -34,8 +40,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>${project.j2seVersion}</source>
+          <target>${project.j2seVersion}</target>
             <encoding>${project.build.sourceEncoding}</encoding>
           <showDeprecation>true</showDeprecation>
         </configuration>
@@ -86,18 +92,69 @@
                         <classpathMavenRepositoryLayout/>
                         <classpathPrefix>lib/</classpathPrefix>
                         <customClasspathLayout/>
-                        <mainClass>com.googlecode.blacken.examples.Boarder</mainClass>
+                        <mainClass>${project.mainClass}</mainClass>
                         <packageName/>
                     </manifest>
-                    <manifestEntries>
-                        <key>value</key>
-                    </manifestEntries>
                     <manifestFile/>
                     <pomPropertiesFile/>
                 </archive>
             </configuration>
         </plugin>
-
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.1.2</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.8.1</version>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>webstart-maven-plugin</artifactId>
+          <version>${maven.webstart.version}</version>
+          <configuration>
+              <jnlp>
+                <outputFile>launch-${project.name}.jnlp</outputFile>
+                <mainClass>${project.mainClass}</mainClass>
+                <j2seVersion>${project.j2seVersion}+</j2seVersion>
+                <offlineAllowed>true</offlineAllowed>
+                <allPermissions>false</allPermissions>
+              </jnlp>
+              <excludeTransitive>false</excludeTransitive>
+              <verbose>true</verbose>
+              <pack200>true</pack200>
+              <codebase>http://blacken.googlecode.com/svn/jnlp</codebase>
+              <jnlpExtensions>
+              </jnlpExtensions>
+          </configuration>
+          <executions>
+            <execution>
+              <id>create-jnlp</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jnlp-inline</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
     </plugins>
   </build>
     <description>A user-interface to test the keyboard and keyboard codes.

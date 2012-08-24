@@ -19,7 +19,6 @@ import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.swing.SwingTerminal;
-import com.googlecode.blacken.swing.SwingTerminalV2;
 import com.googlecode.blacken.terminal.*;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -688,7 +687,8 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         palette.putMapping(ColorNames.SVG_COLORS);
         term.setPalette(palette);
         Boarder cmd = new Boarder(term, palette);
-        cmd.loop();
+        // cmd.loop();
+        cmd.showKeys();
         term.quit();
     }
 }
