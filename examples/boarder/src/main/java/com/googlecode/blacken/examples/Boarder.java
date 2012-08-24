@@ -566,8 +566,8 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 term.setCurBackground("DimGray");
                 term.clear();
                 if (isUS) {
-                    term.mvputs(23, 0, "zeigen Tasten. (F10) Abschluss.");
-                    term.mvputs(22, 0, "Deustchland   - DE");
+                    term.mvputs(23, 0, "Tasten zeigen. (F10) Schließen.");
+                    term.mvputs(22, 0, "Deutschland - DE");
                     this.loadDeGermanyKeys();
                     isUS = false;
                 } else {
