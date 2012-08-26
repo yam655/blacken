@@ -104,17 +104,18 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void componentMoved(ComponentEvent e) {
-        // do nothing
+        gui.requestFocusInWindow();
     }
 
     @Override
     public void componentResized(ComponentEvent e) {
         listener.loadKey(BlackenKeys.RESIZE_EVENT);
+        gui.requestFocusInWindow();
     }
 
     @Override
     public void componentShown(ComponentEvent e) {
-        // do nothing
+        gui.requestFocusInWindow();
     }
     
     @Override
@@ -163,12 +164,51 @@ public class SwingTerminal extends AbstractTerminal
     }
 
     @Override
+    public boolean keyWaiting() {
+        if (!gui.hasFocus()) {
+            gui.requestFocusInWindow();
+        }
+        return listener.peekKey();
+    }
+    
+    @Override
+    public int getch(int millis) {
+        if (!gui.hasFocus()) {
+            gui.requestFocusInWindow();
+        }
+        this.refresh();
+        int activeModifier = this.lastModifier;
+        int ch = listener.blockingPopKey(millis);
+        if (BlackenKeys.isModifier(ch)) {
+            this.lastModifier = ch;
+        } else {
+            this.lastModifier = BlackenKeys.NO_KEY;
+        }
+        if (ch == BlackenKeys.RESIZE_EVENT) {
+            gui.windowResized();
+            getGrid().setBounds(gui.getGridBounds());
+        } else if (ch == BlackenKeys.KEY_ENTER) {
+            // Set<BlackenModifier> mods = BlackenModifier.getAsSet(activeModifier);
+            if (activeModifier == BlackenModifier.MODIFIER_KEY_ALT.getAsCodepoint()) {
+                if (!this.inhibitFullScreen) {
+                    this.setFullScreen(!this.getFullScreen());
+                    ch = BlackenKeys.NO_KEY;
+                }
+            }
+        }
+        return ch;
+    }
+
+    @Override
     public int getch() {
+        if (!gui.hasFocus()) {
+            gui.requestFocusInWindow();
+        }
         this.refresh();
         int ch = listener.popKey();
         int activeModifier = this.lastModifier;
         if (ch == BlackenKeys.NO_KEY) {
-            this.refresh();
+            //this.refresh();
             try {
                 ch = listener.blockingPopKey();
             } catch (InterruptedException e) {
@@ -259,6 +299,10 @@ public class SwingTerminal extends AbstractTerminal
         gui.setIgnoreRepaint(true);
         gui.setDoubleBuffered(true);
         listener = new EventListener(gui);
+        gui.setFocusTraversalKeysEnabled(false);
+        gui.setRequestFocusEnabled(true);
+        gui.setFocusCycleRoot(true);
+        gui.addKeyListener(listener);
 
         frame.getContentPane().setLayout(new BorderLayout());
         frame.setBackground(Color.BLACK);
@@ -323,6 +367,7 @@ public class SwingTerminal extends AbstractTerminal
         }
 
         frame.setVisible(true);
+        gui.requestFocusInWindow();
     }
 
     @Override
@@ -379,7 +424,11 @@ public class SwingTerminal extends AbstractTerminal
             frame.addNotify();
             frame.setResizable(false);
             frame.setSize(frame.getToolkit().getScreenSize().width, frame.getToolkit().getScreenSize().height);
-            frame.setAlwaysOnTop(true);
+            try {
+                frame.setAlwaysOnTop(true);
+            } catch(SecurityException e) {
+                // do nothing
+            }
             frame.setLocation(0, 0);
             frame.setVisible(true);
         } else {
@@ -388,7 +437,11 @@ public class SwingTerminal extends AbstractTerminal
             frame.setUndecorated(false);
             frame.addNotify();
             frame.setResizable(true);
-            frame.setAlwaysOnTop(false);
+            try {
+                frame.setAlwaysOnTop(false);
+            } catch(SecurityException e) {
+                // do nothing
+            }
             frame.setBounds(windowedBounds);
             frame.setVisible(true);
             windowedBounds = null;

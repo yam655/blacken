@@ -33,6 +33,8 @@ import java.awt.event.WindowListener;
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import com.googlecode.blacken.terminal.BlackenCodePoints;
 import com.googlecode.blacken.terminal.BlackenEventType;
@@ -73,6 +75,16 @@ public class EventListener implements WindowListener, KeyListener,
      */
     public EventListener(BlackenPanel gui) {
         this.gui = gui;
+    }
+
+    public int blockingPopKey(int millis) {
+        int ret;
+        try {
+            ret = keyEvents.poll(millis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex) {
+            ret = BlackenKeys.NO_KEY;
+        }
+        return ret;
     }
 
     /**
@@ -939,6 +951,9 @@ public class EventListener implements WindowListener, KeyListener,
      */
     @Override
     public void mouseEntered(MouseEvent e) {
+        if (!gui.hasFocus()) {
+            gui.requestFocusInWindow();
+        }
         if (enabled.contains(BlackenEventType.MOUSE_ENTERED)) {
             BlackenMouseEvent m = 
                 new BlackenMouseEvent(BlackenEventType.MOUSE_ENTERED);
@@ -1025,6 +1040,14 @@ public class EventListener implements WindowListener, KeyListener,
             // XXX log this
             mouseEvents.remove(m);
         }
+    }
+
+    /**
+     * Are there any keys waiting?
+     * @return true if keys waiting; false otherwise.
+     */
+    public boolean peekKey() {
+        return !keyEvents.isEmpty();
     }
 
     /**
@@ -1127,6 +1150,7 @@ public class EventListener implements WindowListener, KeyListener,
 
     @Override
     public void windowActivated(WindowEvent e) {
+        gui.requestFocusInWindow();
         if (enabled.contains(BlackenEventType.WINDOW_ACTIVATED)) {
             BlackenWindowEvent w =
                 new BlackenWindowEvent(BlackenEventType.WINDOW_ACTIVATED);
@@ -1172,6 +1196,7 @@ public class EventListener implements WindowListener, KeyListener,
 
     @Override
     public void windowGainedFocus(WindowEvent e) {
+        gui.requestFocusInWindow();
         if (enabled.contains(BlackenEventType.WINDOW_GAINED_FOCUS)) {
             BlackenWindowEvent w =
                 new BlackenWindowEvent(BlackenEventType.WINDOW_GAINED_FOCUS);
@@ -1199,6 +1224,7 @@ public class EventListener implements WindowListener, KeyListener,
 
     @Override
     public void windowOpened(WindowEvent e) {
+        gui.requestFocusInWindow();
         if (enabled.contains(BlackenEventType.WINDOW_OPENED)) {
             BlackenWindowEvent w =
                 new BlackenWindowEvent(BlackenEventType.WINDOW_OPENED);

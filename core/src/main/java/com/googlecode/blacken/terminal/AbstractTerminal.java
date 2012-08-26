@@ -92,6 +92,12 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public abstract int getch();
 
     @Override
+    public abstract int getch(int millis);
+
+    @Override
+    public abstract boolean keyWaiting();
+
+    @Override
     @Deprecated
     public int[] getCursorLocation() {
         int[] ret = {cursorY, cursorX};
@@ -295,7 +301,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     @Deprecated
     public ColorPalette setPalette(ColorPalette palette, int white, int black) {
-        return this.coercePalette(palette, white, black);
+        return this.coerceToPalette(palette, white, black);
     }
 
     @Override
@@ -373,8 +379,22 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
 
     @Override
-    public ColorPalette coercePalette(ColorPalette palette, int white, 
-            int black) {
+    public ColorPalette coerceToPalette(ColorPalette palette, String white,
+            String black) {
+        Integer w = null;
+        Integer b = null;
+        if (white != null) {
+            w = palette.indexOfKey(white);
+        }
+        if (black != null) {
+            b = palette.indexOfKey(black);
+        }
+        return coerceToPalette(palette, w, b);
+    }
+
+    @Override
+    public ColorPalette coerceToPalette(ColorPalette palette, Integer white,
+            Integer black) {
         ColorPalette oldPalette = this.palette;
         if (palette == null) {
             palette = this.palette;
@@ -385,6 +405,54 @@ public abstract class AbstractTerminal implements TerminalInterface {
         Map<Integer, Integer> inversePalette = new HashMap<>();
         for (int i = 0; i < palette.size(); i++) {
             inversePalette.put(palette.get(i), i);
+        }
+        if (white == null) {
+            for (int i = 15; i >= 0; i--) {
+                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 240 + i, null));
+                if (white != null) { break; }
+                if (i == 15) {
+                    continue;
+                }
+                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 255, null));
+                if (white != null) { break; }
+                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 240 + i, null));
+                if (white != null) { break; }
+                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 255, null));
+                if (white != null) { break; }
+                white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 240 + i, null));
+                if (white != null) { break; }
+                white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 255, null));
+                if (white != null) { break; }
+                white = inversePalette.get(ColorHelper.colorFromComponents(255, 255, 240 + i, null));
+                if (white != null) { break; }
+            }
+            if(white == null) {
+                white = 1;
+            }
+        }
+        if (black == null) {
+            for (int i = 0; i <= 15; i++) {
+                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0 + i, null));
+                if (black != null) { break; }
+                if (i == 0) {
+                    continue;
+                }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0, null));
+                if (black != null) { break; }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0 + i, null));
+                if (black != null) { break; }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0, null));
+                if (black != null) { break; }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0 + i, null));
+                if (black != null) { break; }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0, null));
+                if (black != null) { break; }
+                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0, 0 + i, null));
+                if (black != null) { break; }
+            }
+            if(black == null) {
+                black = 0;
+            }
         }
         if (white > palette.size()) {
             throw new IllegalArgumentException(

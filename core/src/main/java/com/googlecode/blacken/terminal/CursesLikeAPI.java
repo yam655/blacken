@@ -385,6 +385,14 @@ public class CursesLikeAPI implements TerminalInterface {
     public int getch() {
         return terminal.getch();
     }
+    @Override
+    public int getch(int millis) {
+        return terminal.getch(millis);
+    }
+    @Override
+    public boolean keyWaiting() {
+        return terminal.keyWaiting();
+    }
 
     @Override
     public Regionlike getBounds() {
@@ -541,14 +549,19 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public ColorPalette coercePalette(ColorPalette palette, int white, int black) {
-        return terminal.coercePalette(palette, white, black);
+    public ColorPalette coerceToPalette(ColorPalette palette, Integer white, Integer black) {
+        return terminal.coerceToPalette(palette, white, black);
+    }
+
+    @Override
+    public ColorPalette coerceToPalette(ColorPalette palette, String white, String black) {
+        return terminal.coerceToPalette(palette, white, black);
     }
 
     @Override
     @Deprecated
     public ColorPalette setPalette(ColorPalette palette, int white, int black) {
-        return terminal.coercePalette(palette, white, black);
+        return terminal.coerceToPalette(palette, white, black);
     }
 
     @Override

@@ -102,8 +102,23 @@ public interface TerminalInterface {
      * Get a character without visible user-feedback.
      * 
      * @return character returned.
+     * @since 1.0
      */
     public int getch();
+    /**
+     * Get a character without visible user-feedback.
+     *
+     * @param millis amount to wait for key before continuing
+     * @return character returned; NO_KEY if timeout occured
+     * @since 1.1
+     */
+    public int getch(int millis);
+    /**
+     * Is a key currently waiting?
+     * @return true if a key is waiting; false otherwise.
+     * @since 1.1
+     */
+    public boolean keyWaiting();
     /**
      * get the Grid's bounds
      * @return a concise representation of the bounds
@@ -395,7 +410,7 @@ public interface TerminalInterface {
      * @param palette
      * @param white
      * @param black
-     * @deprecated Use {@link #coercePalette(ColorPalette, int, int)} instead
+     * @deprecated Use {@link #coerceToPalette(ColorPalette, Integer, Integer)} instead
      * @return 
      */
     @Deprecated
@@ -412,9 +427,26 @@ public interface TerminalInterface {
      * @param white index to use for white or null
      * @param black index to use for black or null
      * @return old palette
+     * @since 1.1
      */
-    public ColorPalette coercePalette(ColorPalette palette, int white, 
-            int black);
+    public ColorPalette coerceToPalette(ColorPalette palette, Integer white,
+            Integer black);
+
+    /**
+     * Set the palette, converting existing colors to the palette or to
+     * white or black.
+     *
+     * <p>This makes sure that any color present is guaranteed to be a part
+     * of the palette.<p>
+     *
+     * @param palette new palette
+     * @param white name of white or null
+     * @param black name of black or null
+     * @return old palette
+     * @since 1.1
+     */
+    public ColorPalette coerceToPalette(ColorPalette palette, String white,
+            String black);
 
     /**
      * This attempts to switch to full-screen mode.

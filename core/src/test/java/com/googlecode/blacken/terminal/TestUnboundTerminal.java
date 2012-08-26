@@ -140,10 +140,10 @@ public class TestUnboundTerminal {
     }
 
     @Test
-    @Covers({"public ColorPalette coercePalette(ColorPalette,int,int)",
+    @Covers({"public ColorPalette coerceToPalette(ColorPalette,Integer,Integer)",
              "public ColorPalette setPalette(ColorPalette,int,int)",
             })
-    public void coercePalette_palette_int_int() {
+    public void coerceToPalette_palette_num_num() {
         assertEquals(-1, terminal.getCursorY());
         assertEquals(-1, terminal.getCursorX());
         assertNull(terminal.getPalette());
@@ -158,7 +158,42 @@ public class TestUnboundTerminal {
                 terminal.set(y, x, null, palette.get(x % 5), palette.get(y % 5));
             }
         }
-        terminal.coercePalette(palette, 0, 1);
+        terminal.coerceToPalette(palette, 0, 1);
+        for (int y = 0; y < NUM_ROWS; y++) {
+            for (int x = 0; x < NUM_COLS; x++) {
+                terminal.set(y, x, null, x % 5, y % 5);
+            }
+        }
+        assertSame(palette, terminal.getPalette());
+        assertEquals(5, palette.size());
+        assertEquals(0xFF000000, (int)palette.get(0));
+        assertEquals(0xFF808080, (int)palette.get(1));
+        assertEquals(0xFF800000, (int)palette.get(2));
+        assertEquals(0xFF008000, (int)palette.get(3));
+        assertEquals(0xFF000080, (int)palette.get(4));
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
+    }
+
+    @Test
+    @Covers({"public ColorPalette coerceToPalette(ColorPalette,String,String)",
+            })
+    public void coerceToPalette_palette_name_name() {
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
+        assertNull(terminal.getPalette());
+        ColorPalette palette = new ColorPalette();
+        palette.add("black", 0xFF000000);
+        palette.add("white", 0xFF808080);
+        palette.add(0xFF800000);
+        palette.add(0xFF008000);
+        palette.add(0xFF000080);
+        for (int y = 0; y < NUM_ROWS; y++) {
+            for (int x = 0; x < NUM_COLS; x++) {
+                terminal.set(y, x, null, palette.get(x % 5), palette.get(y % 5));
+            }
+        }
+        terminal.coerceToPalette(palette, "black", "white");
         for (int y = 0; y < NUM_ROWS; y++) {
             for (int x = 0; x < NUM_COLS; x++) {
                 terminal.set(y, x, null, x % 5, y % 5);
@@ -239,6 +274,26 @@ public class TestUnboundTerminal {
         assertEquals(-1, terminal.getCursorX());
         assertEquals(-1, terminal.getCursorY());
         assertEquals(BlackenKeys.NO_KEY, terminal.getch());
+        assertEquals(-1, terminal.getCursorX());
+        assertEquals(-1, terminal.getCursorY());
+    }
+
+    @Test
+    @Covers("public int getch(int)")
+    public void getch_int() {
+        assertEquals(-1, terminal.getCursorX());
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(BlackenKeys.NO_KEY, terminal.getch(1000));
+        assertEquals(-1, terminal.getCursorX());
+        assertEquals(-1, terminal.getCursorY());
+    }
+
+    @Test
+    @Covers("public boolean keyWaiting()")
+    public void keyWaiting() {
+        assertEquals(-1, terminal.getCursorX());
+        assertEquals(-1, terminal.getCursorY());
+        assertFalse(terminal.keyWaiting());
         assertEquals(-1, terminal.getCursorX());
         assertEquals(-1, terminal.getCursorY());
     }
@@ -338,7 +393,7 @@ public class TestUnboundTerminal {
         palette.add(0xFF800000);
         palette.add(0xFF008000);
         palette.add(0xFF000080);
-        terminal.coercePalette(palette, 0xFF808080, 0xFF000000);
+        terminal.coerceToPalette(palette, 0xFF808080, 0xFF000000);
         assertSame(palette, terminal.getPalette());
         assertEquals(5, palette.size());
         assertEquals(0xFF000000, (int)palette.get(0));

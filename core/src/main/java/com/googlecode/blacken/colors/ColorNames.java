@@ -58,25 +58,45 @@ public final class ColorNames {
     };
 
     /**
-     * The color names defined for the SVG (and HTML5 legacy)
+     * The color names defined for SVG (and HTML5 legacy)
      * 
      * <p>Prior to HTML5 there was no HTML standard for named colors. HTML5 
-     * specifies the named colors come from the SVG named colors.</p>
+     * specifies the named colors come from the SVG named colors.
      * 
-     * <p>These come from http://www.w3.org/TR/SVG/types.html</p> 
+     * <p>These come from http://www.w3.org/TR/SVG/types.html
+     *
+     * <p>While these colors primarily exist for the names (and in previous
+     * versions had an undefined order), this has changed so that first 16
+     * colors are VGA-standard in their order, and the 17th is the Orange
+     * added for HTML. This means you can go from a 16 color indexed palette
+     * to this palette cleanly.
      */
     static public String[] SVG_COLORS = 
     {
+        "Black -> #000000",
+        "Maroon -> #800000",
+        "Green -> #008000",
+        "Olive -> #808000",
+        "Navy -> #000080",
+        "Purple -> #800080",
+        "Teal -> #008080",
+        "Silver -> #c0c0c0",
+        "Gray / Grey -> #808080",
+        "Red -> #ff0000",
+        "Lime -> #00ff00",
+        "Yellow -> #ffff00",
+        "Blue -> #0000ff",
+        "Fuchsia / Magenta -> #ff00ff",
+        "Aqua / Cyan -> #00ffff",
+        "White -> #ffffff",
+        "Orange -> #ffa500",
         "AliceBlue -> #f0f8ff",
         "AntiqueWhite -> #faebd7",
-        "Aqua / Cyan -> #00ffff",
         "Aquamarine -> #7fffd4",
         "Azure -> #f0ffff",
         "Beige -> #f5f5dc",
         "Bisque -> #ffe4c4",
-        "Black -> #000000",
         "BlanchedAlmond -> #ffebcd",
-        "Blue -> #0000ff",
         "BlueViolet -> #8a2be2",
         "Brown -> #a52a2a",
         "BurlyWood -> #deb887",
@@ -111,13 +131,10 @@ public final class ColorNames {
         "Firebrick / FireBrick -> #b22222",
         "FloralWhite -> #fffaf0",
         "ForestGreen -> #228b22",
-        "Fuchsia -> #ff00ff",
         "Gainsboro -> #dcdcdc",
         "GhostWhite -> #f8f8ff",
         "Gold -> #ffd700",
         "Goldenrod / GoldenRod -> #daa520",
-        "Gray / Grey -> #808080",
-        "Green -> #008000",
         "GreenYellow -> #adff2f",
         "Honeydew / HoneyDew -> #f0fff0",
         "HotPink -> #ff69b4",
@@ -142,11 +159,8 @@ public final class ColorNames {
         "LightSlateGray / LightSlateGrey -> #778899",
         "LightSteelBlue -> #b0c4de",
         "LightYellow -> #ffffe0",
-        "Lime -> #00ff00",
         "LimeGreen -> #32cd32",
         "Linen -> #faf0e6",
-        "Magenta -> #ff00ff",
-        "Maroon -> #800000",
         "MediumAquaMarine -> #66cdaa",
         "MediumBlue -> #0000cd",
         "MediumOrchid -> #ba55d3",
@@ -161,11 +175,8 @@ public final class ColorNames {
         "MistyRose -> #ffe4e1",
         "Moccasin -> #ffe4b5",
         "NavajoWhite -> #ffdead",
-        "Navy -> #000080",
         "OldLace -> #fdf5e6",
-        "Olive -> #808000",
         "OliveDrab -> #6b8e23",
-        "Orange -> #ffa500",
         "OrangeRed -> #ff4500",
         "Orchid -> #da70d6",
         "PaleGoldenrod / PaleGoldenRod -> #eee8aa",
@@ -178,8 +189,6 @@ public final class ColorNames {
         "Pink -> #ffc0cb",
         "Plum -> #dda0dd",
         "PowderBlue -> #b0e0e6",
-        "Purple -> #800080",
-        "Red -> #ff0000",
         "RosyBrown -> #bc8f8f",
         "RoyalBlue -> #4169e1",
         "SaddleBrown -> #8b4513",
@@ -188,7 +197,6 @@ public final class ColorNames {
         "SeaGreen -> #2e8b57",
         "SeaShell / Seashell -> #fff5ee",
         "Sienna -> #a0522d",
-        "Silver -> #c0c0c0",
         "SkyBlue -> #87ceeb",
         "SlateBlue -> #6a5acd",
         "SlateGray / SlateGrey -> #708090",
@@ -196,15 +204,12 @@ public final class ColorNames {
         "SpringGreen -> #00ff7f",
         "SteelBlue -> #4682b4",
         "Tan -> #d2b48c",
-        "Teal -> #008080",
         "Thistle -> #d8bfd8",
         "Tomato -> #ff6347",
         "Turquoise -> #40e0d0",
         "Violet -> #ee82ee",
         "Wheat -> #f5deb3",
-        "White -> #ffffff",
         "WhiteSmoke -> #f5f5f5",
-        "Yellow -> #ffff00",
         "YellowGreen -> #9acd32",
     };
 
@@ -279,7 +284,7 @@ public final class ColorNames {
      * <p>To use:
      * <pre>
      *       palette.addAll(XTERM_256_COLORS, false);
-     * </pre></p>
+     * </pre>
      * 
      * <p>The first 16 colors are all the same.
      * However the later colors are computed by a formula.
@@ -402,7 +407,6 @@ public final class ColorNames {
      * optional.</p>
      * 
      */
-    @SuppressWarnings("nls")
     static public String[] CGA_16_COLORS = 
     {
      "COLOR_BLACK / black -> #000000",

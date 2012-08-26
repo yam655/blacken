@@ -76,6 +76,17 @@ import com.googlecode.blacken.grid.Grid;
     }
 
     @Override
+    public int getch(int millis) {
+        this.refresh();
+        return BlackenKeys.NO_KEY;
+    }
+
+    @Override
+    public boolean keyWaiting() {
+        return false;
+    }
+
+    @Override
     public EnumSet<BlackenModifier> getLockingStates() {
         return null;
     }
