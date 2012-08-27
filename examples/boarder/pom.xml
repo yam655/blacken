@@ -40,10 +40,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
-          <source>${project.j2seVersion}</source>
-          <target>${project.j2seVersion}</target>
+            <source>${project.j2seVersion}</source>
+            <target>${project.j2seVersion}</target>
             <encoding>${project.build.sourceEncoding}</encoding>
-          <showDeprecation>true</showDeprecation>
+            <showDeprecation>true</showDeprecation>
         </configuration>
       </plugin>
         <plugin>
