@@ -316,7 +316,7 @@ public class BlackenKeys {
     /**
      * key
      */
-    static public int KEY_BACKSPACE = KEY_FIRST + 62;
+    static final public int KEY_BACKSPACE = KEY_FIRST + 62;
     /**
      * key
      */

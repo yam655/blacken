@@ -193,11 +193,6 @@ public class ColorPalette extends ListMap<String, Integer> {
      * This is designed as a helper to load a palette based upon color
      * values. It does not wipe the existing palette.
      * 
-     * <p>It is optimized for reuse of the Integer objects, if available. This
-     * means it will walk your indexed palette as well as your nameMap, as
-     * there is never any guarantee that they will have the same colors.
-     * (However it walks these only once.)</p>
-     * 
      * @param colors an array colors stored as ints (0xRRGGBB or 0xAARRGGBB)
      * @param has_alpha indicates whether a valid alpha channel is present
      * @return true if the Collection was modified
@@ -206,7 +201,8 @@ public class ColorPalette extends ListMap<String, Integer> {
         if (colors.length == 0) {
             return false;
         }
-        for (int c : colors) {
+        for (int clr : colors) {
+            int c = clr;
             if (!has_alpha) {
                 c = ColorHelper.neverTransparent(c);
                 // regardless of has_alpha, c now contains RGBA data
