@@ -78,10 +78,13 @@ public class EventListener implements WindowListener, KeyListener,
     }
 
     public int blockingPopKey(int millis) {
-        int ret;
+        Integer ret;
         try {
             ret = keyEvents.poll(millis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
+            ret = BlackenKeys.NO_KEY;
+        }
+        if (ret == null) {
             ret = BlackenKeys.NO_KEY;
         }
         return ret;
