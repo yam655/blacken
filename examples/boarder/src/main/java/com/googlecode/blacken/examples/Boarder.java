@@ -18,10 +18,13 @@ package com.googlecode.blacken.examples;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.*;
 import java.util.EnumSet;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example program for the keyboard functions.
@@ -30,6 +33,7 @@ import java.util.HashMap;
  *
  */
 public class Boarder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Boarder.class);
 
     private CursesLikeAPI term = null;
     private boolean quit = false;
@@ -687,8 +691,77 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         palette.putMapping(ColorNames.SVG_COLORS);
         term.setPalette(palette);
         Boarder cmd = new Boarder(term, palette);
+        cmd.splash();
         // cmd.loop();
         cmd.showKeys();
         term.quit();
+    }
+
+    private void centerOnLine(int y, String string) {
+        int offset = term.getWidth() / 2 - string.length() / 2;
+        term.mvputs(y, offset, string);
+    }
+
+    private void splash() {
+        boolean ready = false;
+        while (!ready) {
+            term.clear();
+            term.setCurBackground(0);
+            term.setCurForeground(7);
+            centerOnLine(0, "Boarder");
+            centerOnLine(1, "An awesome demonstration of the keyboard");
+            centerOnLine(3, "Copyright (C) 2010-2012 Steven Black");
+            centerOnLine(5, "An example for the Blacken Roguelike Library.");
+            centerOnLine(6, "Released under the Apache 2.0 License.");
+            term.mvputs(8, 0, "HOW TO PLAY");
+            term.mvputs(9, 0, "-----------");
+            term.mvputs(10,0, "A representation of the keyboard is shown.  Press keys to highlight");
+            term.mvputs(10,0, "the key.  It showcases that there are different returned values for");
+            term.mvputs(11,0, "all of the important keys, and verifies that your keyboard is working");
+            term.mvputs(12,0, "as expected.");
+            term.mvputs(14,0, "Modifier keys by themselves are currently shown on the keyboard, but");
+            term.mvputs(15,0, "not returned.  They are, however, properly returned when used to modify");
+            term.mvputs(16,0, "another key.  All keycodes are valid Unicode codepoints.");
+            int last = term.getHeight() - 1;
+            term.mvputs(last-3, 0, "Press 'L' for the Apache 2.0 License used by Blacken.");
+            term.mvputs(last-2, 0, "Press 'N' for the NOTICES file included with Blacken.");
+            term.mvputs(last-1, 0, "Press 'F' for the Deja Vu Font License.");
+            term.mvputs(last-0, 0, "Press any other key to continue.");
+            int key = BlackenKeys.NO_KEY;
+            while(key == BlackenKeys.NO_KEY) {
+                // This works around an issue with the AWT putting focus someplace weird
+                // if the window is not in focus when it is shown. It only happens on
+                // startup, so a splash screen is the perfect place to fix it.
+                // A normal game might want an animation at such a spot.
+                key = term.getch(200);
+            }
+            // int modifier = BlackenKeys.NO_KEY;
+            if (BlackenKeys.isModifier(key)) {
+                // modifier = key;
+                key = term.getch(); // should be immediate
+            }
+            switch(key) {
+                case BlackenKeys.NO_KEY:
+                case BlackenKeys.RESIZE_EVENT:
+                    // should be safe
+                    break;
+                case 'l':
+                case 'L':
+                    // show Apache 2.0 License
+                    break;
+                case 'n':
+                case 'N':
+                    // show Notices file
+                    // This is the only one that needs to be shown for normal games.
+                    break;
+                case 'f':
+                case 'F':
+                    // show the font license
+                    break;
+                default:
+                    ready = true;
+                    break;
+            }
+        }
     }
 }
