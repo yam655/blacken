@@ -27,37 +27,15 @@ import com.googlecode.blacken.grid.Regionlike;
  * 
  * @author Steven Black
  */
-public interface TerminalInterface {
-    /**
-     * Set the cell to the value, assigning ownership
-     * @since EXPERIMENTAL
-     * @param y
-     * @param x
-     * @param cell
-     */
+public interface TerminalInterface extends TerminalViewInterface {
+    @Override
     public TerminalCellLike assign(int y, int x, TerminalCellLike cell);
-    /**
-     * Clear the screen.
-     */
+    @Override
     public void clear();
-    /**
-     * Clear the screen with a specific cell value.
-     * 
-     * @param empty new empty cell value.
-     */
+    @Override
     public void clear(TerminalCellLike empty);
-    /**
-     * Copy from another TerminalInterface
-     * 
-     * @param oterm original TerminalInterface
-     * @param numRows number of rows to copy
-     * @param numCols number of columns to copy
-     * @param startY starting Y offset in <code>oterm</code>
-     * @param startX starting X offset in <code>oterm</code>
-     * @param destY destination Y offset in <code>this</code>
-     * @param destX destination X offset in <code>this</code>
-     */
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols,
+    @Override
+    public void copyFrom(TerminalViewInterface oterm, int numRows, int numCols,
                   int startY, int startX, int destY, int destX);
     /**
      * Disable a type of event notice.
@@ -90,39 +68,15 @@ public interface TerminalInterface {
      * TODO change this to setEventNotices
      */
     public void enableEventNotices(EnumSet<BlackenEventType> events);
-    /**
-     * Get a cell from the terminal
-     * 
-     * @param y row
-     * @param x column
-     * @return the terminal cell
-     */
+    @Override
     public TerminalCellLike get(int y, int x);
-    /**
-     * Get a character without visible user-feedback.
-     * 
-     * @return character returned.
-     * @since 1.0
-     */
+    @Override
     public int getch();
-    /**
-     * Get a character without visible user-feedback.
-     *
-     * @param millis amount to wait for key before continuing
-     * @return character returned; NO_KEY if timeout occured
-     * @since 1.1
-     */
+    @Override
     public int getch(int millis);
-    /**
-     * Is a key currently waiting?
-     * @return true if a key is waiting; false otherwise.
-     * @since 1.1
-     */
+    @Override
     public boolean keyWaiting();
-    /**
-     * get the Grid's bounds
-     * @return a concise representation of the bounds
-     */
+    @Override
     public Regionlike getBounds();
     /**
      * Get the cursor location
@@ -132,65 +86,24 @@ public interface TerminalInterface {
      */
     @Deprecated
     public int[] getCursorLocation();
-    /**
-     * Get cursor position
-     * @return cursor location as a concise Positionable
-     */
-    public Positionable getCursorPosition();
-    /**
-     * Get the cursor's X location.
-     * 
-     * @return cursor's X location.
-     */
-    public int getCursorX();
-    /**
-     * Get the cursor's Y location.
-     * 
-     * @return cursor's Y location.
-     */
-    public int getCursorY();
-    /**
-     * Get the template cell used for new and clear cells.
-     * 
-     * @return template cell
-     */
-    public TerminalCellLike getEmpty();
-    
-    /**
-     * Get the current terminal max Y size
-     * 
-     * @return terminal's max Y size
-     */
-    public int getHeight();
 
-    /**
-     * Don't depend on this function.
-     * 
-     * This exists to facilitate the 
-     * {@link #copyFrom(TerminalInterface, int, int, int, int, int, int)} 
-     * function. It allows direct modification of the underlying grid, but
-     * such uses break the visual interface it is bound to.
-     * 
-     * @return the underlying grid
-     */
+    @Override
+    public Positionable getCursorPosition();
+    @Override
+    public int getCursorX();
+    @Override
+    public int getCursorY();
+    @Override
+    public TerminalCellLike getEmpty();
+    @Override
+    public int getHeight();
+    @Override
     public Grid<TerminalCellLike> getGrid();
-    /**
-     * Get the current locking states/modifiers
-     * 
-     * If the locking states are available to the interface, this should
-     * return them. It may or may not also include the other modifiers.
-     * 
-     * @return set of locking states enabled
-     */
+
+    @Override
     public EnumSet<BlackenModifier> getLockingStates();
-    /**
-     * Get the latest mouse event.
-     * 
-     * This function should only be called after a KEY_MOUSE keycode 
-     * is returned by getch().
-     * 
-     * @return new mouse event
-     */
+
+    @Override
     public BlackenMouseEvent getmouse();
     /**
      * Get a copy of the palette used.
@@ -198,29 +111,13 @@ public interface TerminalInterface {
      * @return a valid ColorPalette object
      */
     public ColorPalette getPalette();
-    /**
-     * Read a string from the screen.
-     * 
-     * @param length length of string to read
-     * @return new string
-     */
+    @Override
     public String getString(int y, int x, int length);
 
-    /**
-     * Get the latest window event.
-     * 
-     * This function should only be called after a KEY_WINDOW keycode 
-     * is returned by getch().
-     * 
-     * @return new window event
-     */
+    @Override
     public BlackenWindowEvent getwindow();
 
-    /**
-     * Get the current terminal max X size
-     * 
-     * @return terminal's max X size
-     */
+    @Override
     public int getWidth();
 
     /**
@@ -250,7 +147,7 @@ public interface TerminalInterface {
     public void init(String name, int rows, int cols);
 
     /**
-     * Initialize the terminal with a specific window name and size.
+     * Initialize the terminal with a specific window name, size, and font
      * 
      * @param name window name
      * @param rows terminal rows
@@ -261,16 +158,7 @@ public interface TerminalInterface {
     public void init(String name, int rows, int cols, TerminalScreenSize size, String... font);
     public void init(String name, int rows, int cols, TerminalScreenSize size);
 
-    /**
-     * Move a block of cells
-     * 
-     * @param numRows number of rows to move
-     * @param numCols number of columns to move
-     * @param origY origin Y location
-     * @param origX origin X location
-     * @param newY new Y location
-     * @param newX new X location
-     */
+    @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX);
     
@@ -278,9 +166,7 @@ public interface TerminalInterface {
      * Quit the backing window and the application if it was the last one.
      */
     public void quit();
-    /**
-     * Redraw the terminal
-     */
+    @Override
     public void refresh();
     /**
      * Resize the terminal without resizing the window
@@ -288,53 +174,18 @@ public interface TerminalInterface {
      * @param cols 
      */
     public void resize(int rows, int cols);
-    /**
-     * Set a cell to explicit contents
-     * 
-     * Any of the arguments can be null. When they are null, that part of the
-     * cell remains untouched.
-     * 
-     * @param y row
-     * @param x column
-     * @param sequence UTF-16 sequence to display; null to leave untouched
-     * @param foreground color index or 0xAARRGGBB value; null to not change
-     * @param background color index or 0xAARRGGBB value; null to not change
-     * @param style cell terminal style; can be null
-     * @param walls cell walls; can be null
-     */
+    @Override
     public void set(int y, int x, String sequence, 
                     Integer foreground, Integer background,
                     EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls);
 
-    /**
-     * Simplified set cell command.
-     * 
-     * Any of the arguments can be null. When they are null, that part of the
-     * cell remains untouched.
-     * 
-     * @param y row
-     * @param x column
-     * @param sequence UTF-16 sequence to display; null to leave untouched
-     * @param foreground color index or 0xAARRGGBB value; null to not change
-     * @param background color index or 0xAARRGGBB value; null to not change
-     */
+    @Override
     public void set(int y, int x, String sequence, Integer foreground, 
             Integer background);
-    
-    /**
-     * Set a cell to explicit contents, using a CellLike
-     * 
-     * @param y cell Y location
-     * @param x cell X location
-     * @param cell example cell
-     */
+
+    @Override
     public void set(int y, int x, TerminalCellLike cell);
-    /**
-     * Set the cursor location.
-     * 
-     * @param y new Y location
-     * @param x new X location
-     */
+    @Override
     public void setCursorLocation(int y, int x);
     /**
      * Set the cursor position.
@@ -344,16 +195,9 @@ public interface TerminalInterface {
      */
     @Deprecated
     public void setCursorLocation(int[] position);
-    /**
-     * Set the cursor position.
-     * @param position 
-     */
+    @Override
     public void setCursorPosition(Positionable position);
-    /**
-     * Set the template cell used for new and clear cells.
-     * 
-     * @param empty new empty cell
-     */
+    @Override
     public void setEmpty(TerminalCellLike empty);
     /**
      * Set the font to a name or a path
@@ -402,7 +246,7 @@ public interface TerminalInterface {
      */
     public ColorPalette setPalette(ColorPalette palette);
     /**
-     * Use {@link #coercePalette(ColorPalette, int, int)} instead.
+     * Use {@link #coerceToPalette(ColorPalette, int, int)} instead.
      * 
      * <p>This does a lot more than just set the palette. We made that more 
      * explicit by changing the name.</p>
@@ -421,7 +265,7 @@ public interface TerminalInterface {
      * white or black.
      * 
      * <p>This makes sure that any color present is guaranteed to be a part
-     * of the palette.<p>
+     * of the palette.
      * 
      * @param palette new palette
      * @param white index to use for white or null
@@ -479,12 +323,14 @@ public interface TerminalInterface {
      */
     public void inhibitFullScreen(boolean state);
 
-    /**
-     * We're entering a land of wrapper interfaces. This function is supposed
-     * to return the backing TerminalInterface for wrapper classes.
-     * @return
-     */
+    @Deprecated
     public TerminalInterface getBackingTerminalInterface();
+
+    @Override
+    public TerminalInterface getBackingTerminal();
+
+    @Override
+    TerminalViewInterface getBackingTerminalView();
 
     /**
      * Set the physical window size (if possible).

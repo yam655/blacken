@@ -20,6 +20,7 @@ import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
+import com.googlecode.blacken.terminal.TerminalViewInterface;
 
 /**
  *
@@ -52,6 +53,7 @@ public class SingleLine {
      */
     static public String getString(TerminalInterface terminal, int y, int x,
             int length, CodepointCallbackInterface callback) {
+        // XXX needs updated for BreakableLoop class.
         if (callback == null) {
             callback = DefaultSingleLineCallback.getInstance();
         }
@@ -82,7 +84,7 @@ public class SingleLine {
             } else if (cp == BlackenKeys.RESIZE_EVENT) {
                 callback.handleResizeEvent();
             } else {
-                ec = callback.handleEditorCodepoint(cp);
+                ec = callback.handleCodepoint(cp);
             }
             switch (ec) {
                 case BlackenKeys.NO_KEY:
@@ -170,7 +172,7 @@ public class SingleLine {
      * @param back
      * @return int[] {y, x}
      */
-    static public int[] putString(TerminalInterface terminal, int y, int x, String string, int fore, int back) {
+    static public int[] putString(TerminalViewInterface terminal, int y, int x, String string, int fore, int back) {
         Grid<TerminalCellLike> grid = terminal.getGrid();
         if (grid == null) {
             throw new NullPointerException("TerminalInterface wasn't initialized.");
@@ -214,7 +216,7 @@ public class SingleLine {
                         cell.setSequence("\u0000");
                         terminal.set(y, x, cell);
                     } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
-                        x = x + 8;
+                        x += 8;
                         x -= x % 8;
                     } else {
                         cell = terminal.get(y, x);

@@ -21,6 +21,7 @@ import java.util.EnumSet;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
+import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
@@ -348,7 +349,7 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols, int startY, int startX, int destY, int destX) {
+    public void copyFrom(TerminalViewInterface oterm, int numRows, int numCols, int startY, int startX, int destY, int destX) {
         terminal.copyFrom(oterm, numRows, numCols, startY, startX, destY, destX);
     }
 
@@ -584,7 +585,7 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public TerminalInterface getBackingTerminalInterface() {
+    public TerminalInterface getBackingTerminal() {
         return terminal;
     }
 
@@ -603,6 +604,43 @@ public class CursesLikeAPI implements TerminalInterface {
     @Override
     public void setSize(TerminalScreenSize size) {
         terminal.setSize(size);
+    }
+
+    @Override
+    @Deprecated
+    public TerminalInterface getBackingTerminalInterface() {
+        return terminal;
+    }
+
+    @Override
+    public TerminalViewInterface getBackingTerminalView() {
+        return terminal;
+    }
+
+    @Override
+    public void setBounds(Regionlike bounds) {
+        Regionlike origBounds = getBounds();
+        int cursor_y = getCursorY() - origBounds.getY() + bounds.getY();
+        int cursor_x = getCursorX() - origBounds.getX() + bounds.getX();
+        terminal.setBounds(bounds);
+        if (bounds.contains(cursor_y, cursor_x)) {
+            move(cursor_y, cursor_x);
+        } else {
+            move(0, 0);
+        }
+    }
+
+    @Override
+    public void setBounds(int rows, int cols, int y1, int x1) {
+        Regionlike origBounds = getBounds();
+        int cursor_y = getCursorY() - origBounds.getY() + y1;
+        int cursor_x = getCursorX() - origBounds.getX() + x1;
+        terminal.setBounds(rows, cols, y1, x1);
+        if (new BoxRegion(rows, cols, y1, x1).contains(cursor_y, cursor_x)) {
+            move(cursor_y, cursor_x);
+        } else {
+            move(0, 0);
+        }
     }
 
 }

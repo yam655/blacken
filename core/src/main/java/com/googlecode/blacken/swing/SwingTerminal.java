@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,13 +120,13 @@ public class SwingTerminal extends AbstractTerminal
     }
     
     @Override
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols, 
+    public void copyFrom(TerminalViewInterface oterm, int numRows, int numCols,
                          int startY, int startX, int destY, int destX) {
         if (oterm == this) {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
         } else {
             getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
-                           destY, destX, new TerminalCell().new ResetCell());
+                           destY, destX, new TerminalCell.ResetCell());
             forceRefresh(numRows, numCols, destY, destX);
         }
     }
@@ -475,7 +476,7 @@ public class SwingTerminal extends AbstractTerminal
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX) {
         getGrid().moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                       new TerminalCell().new ResetCell());
+                       new TerminalCell.ResetCell());
         gui.moveBlock(numRows, numCols, origY, origX, newY, newX);
     }
 
@@ -500,7 +501,7 @@ public class SwingTerminal extends AbstractTerminal
     }
 
     @Override
-    public void set(int y, int x, String glyph, Integer foreground,
+    public void set(int y, int x, String sequence, Integer foreground,
                     Integer background, EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
         TerminalCellLike tcell = getGrid().get(y,x);
         if (walls != null) {
@@ -515,8 +516,8 @@ public class SwingTerminal extends AbstractTerminal
         if (background != null) {
             tcell.setBackground(background);
         }
-        if (glyph != null) {
-            tcell.setSequence(glyph);
+        if (sequence != null) {
+            tcell.setSequence(sequence);
         }
         gui.set(y, x, this.setAwtFromTerminal(null, tcell));
         tcell.setDirty(true);

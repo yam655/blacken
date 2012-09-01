@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.googlecode.blacken.core.ListMap;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
@@ -273,6 +275,26 @@ public class ColorPalette extends ListMap<String, Integer> {
             ret = indexOrColor;
         }
         return ret;
+    }
+    /**
+     * This is sort of a companion to {@link #getColor(int)}. The
+     * <code>keyOrColor</codde> should either be a key (or color label) in to
+     * the palette or it should be a legal color definition that
+     * {@link ColorHelper#makeColor(java.lang.String)} can parse.
+     *
+     * @param keyOrColor
+     * @return
+     * @since 1.1
+     */
+    public int getColorOrIndex(String keyOrColor) {
+        if (this.containsKey(keyOrColor)) {
+            return this.indexOfKey(keyOrColor);
+        }
+        try {
+            return ColorHelper.makeColor(keyOrColor);
+        } catch (InvalidStringFormatException ex) {
+            throw new IllegalArgumentException("Not in palette and illegal color definition" + keyOrColor);
+        }
     }
 
     /**

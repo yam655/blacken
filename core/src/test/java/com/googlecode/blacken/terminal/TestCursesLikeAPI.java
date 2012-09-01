@@ -204,7 +204,7 @@ public class TestCursesLikeAPI {
     }
 
     @Test
-    @Covers("public void copyFrom(TerminalInterface,int,int,int,int,int,int)")
+    @Covers("public void copyFrom(TerminalViewInterface,int,int,int,int,int,int)")
     public void copyFrom() {
         assertEquals(0, terminal.getCursorX());
         assertEquals(0, terminal.getCursorY());
@@ -239,10 +239,25 @@ public class TestCursesLikeAPI {
     }
 
     @Test
+    @Deprecated
     @Covers("public TerminalInterface getBackingTerminalInterface()")
     public void getBackingTerminalInterface() {
         assertNotNull(terminal.getBackingTerminalInterface());
         assertNotSame(terminal, terminal.getBackingTerminalInterface());
+    }
+
+    @Test
+    @Covers("public TerminalInterface getBackingTerminal()")
+    public void getBackingTerminal() {
+        assertNotNull(terminal.getBackingTerminal());
+        assertNotSame(terminal, terminal.getBackingTerminal());
+    }
+
+    @Test
+    @Covers("public TerminalViewInterface getBackingTerminalView()")
+    public void getBackingTerminalView() {
+        assertNotNull(terminal.getBackingTerminalView());
+        assertNotSame(terminal, terminal.getBackingTerminalView());
     }
 
     @Test
@@ -932,4 +947,45 @@ public class TestCursesLikeAPI {
         }
     }
 
+    @Test
+    @Covers("public void setBounds(Regionlike)")
+    public void setBounds_Regionlike() {
+        assertEquals(0, terminal.getCursorY());
+        assertEquals(0, terminal.getCursorX());
+        BoxRegion region = new BoxRegion(NUM_ROWS+1, NUM_COLS+1, 1, 1);
+        terminal.setBounds(region);
+        assertEquals(NUM_ROWS+1, terminal.getHeight());
+        assertEquals(NUM_COLS+1, terminal.getWidth());
+        TerminalCellLike cleanEmpty = terminal.getEmpty().clone();
+        cleanEmpty.setDirty(false);
+        assertEquals(cleanEmpty, terminal.get(NUM_ROWS+1, NUM_COLS+1));
+        try {
+            terminal.get(0, 0);
+            fail("Failed to move the terminal");
+        } catch(IndexOutOfBoundsException ex) {
+            // expected
+        }
+        assertEquals(1, terminal.getCursorY());
+        assertEquals(1, terminal.getCursorX());
+    }
+    @Test
+    @Covers("public void setBounds(int,int,int,int)")
+    public void setBounds_h_w_y_x() {
+        assertEquals(0, terminal.getCursorY());
+        assertEquals(0, terminal.getCursorX());
+        terminal.setBounds(NUM_ROWS+1, NUM_COLS+1, 1, 1);
+        assertEquals(NUM_ROWS+1, terminal.getHeight());
+        assertEquals(NUM_COLS+1, terminal.getWidth());
+        TerminalCellLike cleanEmpty = terminal.getEmpty().clone();
+        cleanEmpty.setDirty(false);
+        assertEquals(cleanEmpty, terminal.get(NUM_ROWS+1, NUM_COLS+1));
+        try {
+            terminal.get(0, 0);
+            fail("Failed to move the terminal");
+        } catch(IndexOutOfBoundsException ex) {
+            // expected
+        }
+        assertEquals(1, terminal.getCursorY());
+        assertEquals(1, terminal.getCursorX());
+    }
 }

@@ -46,7 +46,7 @@ public interface CodepointCallbackInterface {
      * @param codepoint Unicode codepoint to process
      * @return codepoint to replace it with
      */
-    public int handleEditorCodepoint(int codepoint);
+    public int handleCodepoint(int codepoint);
     public int handleMouseEvent(BlackenMouseEvent mouse);
     public int handleWindowEvent(BlackenWindowEvent window);
     /**

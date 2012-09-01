@@ -37,7 +37,7 @@ public class DefaultSingleLineCallback implements CodepointCallbackInterface {
     }
 
     @Override
-    public int handleEditorCodepoint(int codepoint) {
+    public int handleCodepoint(int codepoint) {
         if (codepoint == '\r' || codepoint == BlackenKeys.KEY_NP_ENTER ||
                 codepoint == BlackenKeys.KEY_ENTER) {
             codepoint = BlackenKeys.CMD_END_LOOP;

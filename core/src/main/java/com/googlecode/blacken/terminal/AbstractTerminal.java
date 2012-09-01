@@ -15,7 +15,6 @@
 */
 package com.googlecode.blacken.terminal;
 
-import com.googlecode.blacken.terminal.editing.SingleLine;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +28,7 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.terminal.editing.SingleLine;
 
 /**
  * An abstract terminal to handle common terminal functions.
@@ -65,10 +65,10 @@ public abstract class AbstractTerminal implements TerminalInterface {
     }
     
     @Override
-    public void copyFrom(TerminalInterface oterm, int numRows, int numCols, int startY,
+    public void copyFrom(TerminalViewInterface oterm, int numRows, int numCols, int startY,
             int startX, int destY, int destX) {
         grid.copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, destY, destX,
-                new TerminalCell().new ResetCell());
+                new TerminalCell.ResetCell());
     }
 
     @Override
@@ -229,7 +229,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX) {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                       new TerminalCell().new ResetCell());
+                       new TerminalCell.ResetCell());
     }
 
     @Override
@@ -576,17 +576,44 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void inhibitFullScreen(boolean state) {
-        // do nothing
+        if (state) {
+            // by default we do nothing -- but we don't want IDEs to complain
+        }
     }
 
     @Override
+    @Deprecated
     public TerminalInterface getBackingTerminalInterface() {
         return this;
     }
 
     @Override
+    public TerminalInterface getBackingTerminal() {
+        return this;
+    }
+
+    @Override
+    public TerminalViewInterface getBackingTerminalView() {
+        return this;
+    }
+
+    @Override
     public void setSize(TerminalScreenSize size) {
-        // do nothing (legal)
+        if (size == null) {
+            // don't let Netbeans complain
+        }
+        // doing nothing is safe/valid for the default
+    }
+    @Override
+    public void setBounds(Regionlike bounds) {
+        this.resize(bounds.getHeight(), bounds.getWidth());
+        this.getGrid().setPosition(bounds.getY(), bounds.getY());
+    }
+
+    @Override
+    public void setBounds(int rows, int cols, int y1, int x1) {
+        this.resize(rows, cols);
+        this.getGrid().setPosition(y1, x1);
     }
 
 }

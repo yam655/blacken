@@ -47,12 +47,15 @@ public class Obligations {
         return buf.toString();
     }
     public static String getBlackenLicense() {
-        return new Obligations().getResourceContents("LICENSE.txt");
+        return getResourceContents("LICENSE.txt");
     }
     public static String getBlackenNotice() {
-        return new Obligations().getResourceContents("NOTICE.txt");
+        return getResourceContents("NOTICE.txt");
+    }
+    public static String getFontName() {
+        return "DejaVu";
     }
     public static String getFontLicense() {
-        return new Obligations().getResourceContents("/fonts/LICENSE-dejavu.txt");
+        return getResourceContents("/fonts/LICENSE-dejavu.txt");
     }
 }

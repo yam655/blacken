@@ -32,10 +32,10 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
     /**
      * Helper class to reset the cell to known-good values.
      * 
-     * @author yam655
+     * @author Steven Black
      *
      */
-    public class ResetCell implements DirtyGridCell<TerminalCellLike> {
+    public static class ResetCell implements DirtyGridCell<TerminalCellLike> {
         /*
          * (non-Javadoc)
          * @see com.googlecode.blacken.grid.ResetGridCell#reset(com.googlecode.blacken.grid.Copyable)
