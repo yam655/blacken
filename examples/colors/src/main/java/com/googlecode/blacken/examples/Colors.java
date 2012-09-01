@@ -19,9 +19,9 @@ import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.ListMap;
+import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the color system.
@@ -38,6 +40,7 @@ import java.util.Objects;
  * @author Steven Black
  */
 public class Colors {
+    static private final Logger LOGGER = LoggerFactory.getLogger(Colors.class);
     /**
      * TerminalInterface used by the example
      */
@@ -59,6 +62,23 @@ public class Colors {
      * The current palette.
      */
     private int palIndex = 0;
+    // XXX should be moved to a text resource
+    private String helpMessage =
+"Awesome Color Example Commands\n" +
+"============================================================================\n" +
+"SPACE, * : Switch to next palette    | BACKSPACE, / : Previous palette\n" +
+"Shift+Up : Switch to next palette    | Shift+Down : Previous palette\n" +
+"+ : Switch to next display mode      | - : Switch to previous display mode\n" +
+"LEFT : active color index decrement  | RIGHT : active color index increment\n" +
+"UP : other color index decrement     | DOWN : other color index increment\n" +
+"PAGE_UP : active color index -16     | PAGE_DOWN : active color index +16\n" +
+"HOME: active color to first index    | END : active color to last index\n" +
+"\n" +
+"L, l (ell) : My License              | N, n : Legal notices\n" +
+"\n" +
+"Q, q, F10, ESCAPE : quit             | . : exit to test console\n" +
+"\n" +
+"?, H, h : this help screen\n";
 
     /**
      * Create a new, uninitialized instance
@@ -84,6 +104,11 @@ public class Colors {
         return quit;
     }
 
+    private void switchToPalette(String name) {
+        this.palIndex = this.palettes.indexOfKey(name);
+        this.palette = this.palettes.get(name);
+        term.setPalette(palette);
+    }
     /**
      * Initialize the example
      *
@@ -92,12 +117,11 @@ public class Colors {
     public void init(TerminalInterface term) {
         if (term == null) {
             term = new SwingTerminal();
-            term.init("Example Program", 21, 52);
+            term.init("Example Program", 21, 80);
         }
         this.term = new CursesLikeAPI(term);
         this.loadPalettes();
-        this.palette = palettes.get(palIndex);
-        this.term.setPalette(palette);
+        this.switchToPalette("SVG");
     }
     /**
      * Quit the application.
@@ -108,7 +132,7 @@ public class Colors {
         term.quit();
     }
 
-    public void help() {
+    public void commandMode_help() {
         term.puts("Terminal Interface\n");
         term.puts("Command keys include:\n");
         term.puts("F1  - this help text\n");
@@ -222,7 +246,7 @@ public class Colors {
             }
             term.setCurForeground(normal);
             term.setCurBackground(0);
-            term.puts("Use arrow keys to browse grid or period (.) to end.\n");
+            term.puts("Use arrow keys to browse grid; Q to quit; H for help.\n");
             term.puts("Use +/- to change mode.  Current mode:\n        ");
             switch(mode) {
             case 0: 
@@ -397,6 +421,33 @@ public class Colors {
                     start_f = this.palette.size() - 16;
                 }
                 break;
+            case 'l':
+            case 'L':
+                // show Apache 2.0 License
+                new ViewerHelper(term, "License", Obligations.getBlackenLicense()).run();
+                break;
+            case 'n':
+            case 'N':
+                // show Notices file
+                // This is the only one that needs to be shown for normal games.
+                new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice()).run();
+                break;
+            case 'f':
+            case 'F':
+                // show the font license
+                    new ViewerHelper(term,
+                            Obligations.getFontName() + " Font License",
+                            Obligations.getFontLicense()).run();
+                break;
+            case '?':
+            case 'h':
+            case 'H':
+                new ViewerHelper(term, "Help", helpMessage).run();
+                break;
+            case 'q':
+            case 'Q':
+                ch = BlackenKeys.KEY_F10;
+                break;
             case BlackenKeys.KEY_KP_DELETE:
             case BlackenKeys.KEY_NP_SEPARATOR:
                 ch = '.';
@@ -483,7 +534,7 @@ public class Colors {
         int back = 0;
         term.setCurForeground(fore);
         term.setCurBackground(back);
-        help();
+        commandMode_help();
         quit = false;
         while (!quit) {
             term.puts(">");
@@ -492,7 +543,7 @@ public class Colors {
             switch(ch) {
             case BlackenKeys.KEY_F01:
                 term.puts("<F1 / HELP>\n");
-                help();
+                commandMode_help();
                 break;
             case BlackenKeys.KEY_F02:
                 term.puts("<F2 / SHOW COLORS>\n");
@@ -603,9 +654,96 @@ public class Colors {
     public static void main(String[] args) {
         Colors that = new Colors();
         that.init(null);
-        // that.loop();
-        that.showColors();
+        that.splash();
+        if (!that.showColors()) {
+            that.loop();
+        }
         that.quit();
+    }
+
+
+    private void centerOnLine(int y, String string) {
+        int offset = term.getWidth() / 2 - string.length() / 2;
+        term.mvputs(y, offset, string);
+    }
+    private void alignRight(int y, String string) {
+        int offset = term.getWidth() - string.length();
+        if (term.getHeight() -1 == y) {
+            offset--;
+        }
+        term.mvputs(y, offset, string);
+    }
+
+    private void splash() {
+        boolean ready = false;
+        boolean showHelp = false;
+        while (!ready) {
+            term.clear();
+            term.setCurBackground(0);
+            term.setCurForeground(7);
+            centerOnLine(0, "Colors");
+            centerOnLine(1, "An awesome demonstration of the palette functions.");
+            centerOnLine(3, "Copyright (C) 2010-2012 Steven Black");
+            centerOnLine(5, "An example for the Blacken Roguelike Library.");
+            centerOnLine(6, "Released under the Apache 2.0 License.");
+            term.mvputs(8, 0, "HOW TO PLAY");
+            term.mvputs(9, 0, "-----------");
+            term.mvputs(10,0, "Blacken supports both arbitary colors as well as standard and custom");
+            term.mvputs(11,0,"palettes.  This application demonstrates some of the built-in palettes.");
+            term.mvputs(12,0,"It does not (at all) showcase the range of options available when");
+            term.mvputs(13,0,"colors can be in palettes of arbitrary size, support palette-standard");
+            term.mvputs(14,0,"such as palette rotation, and still have easy-to-remember names.");
+            int last = term.getHeight() - 1;
+            alignRight(last, "Press any other key to continue.");
+            term.mvputs(last, 0, "'?' for help.");
+            int key = BlackenKeys.NO_KEY;
+            while(key == BlackenKeys.NO_KEY) {
+                // This works around an issue with the AWT putting focus someplace weird
+                // if the window is not in focus when it is shown. It only happens on
+                // startup, so a splash screen is the perfect place to fix it.
+                // A normal game might want an animation at such a spot.
+                key = term.getch(200);
+            }
+            // int modifier = BlackenKeys.NO_KEY;
+            if (BlackenKeys.isModifier(key)) {
+                // modifier = key;
+                key = term.getch(); // should be immediate
+            }
+            switch(key) {
+                case BlackenKeys.NO_KEY:
+                case BlackenKeys.RESIZE_EVENT:
+                    // should be safe
+                    break;
+                case 'l':
+                case 'L':
+                    // show Apache 2.0 License
+                    new ViewerHelper(term, "License", Obligations.getBlackenLicense()).run();
+                    break;
+                case 'n':
+                case 'N':
+                    // show Notices file
+                    // This is the only one that needs to be shown for normal games.
+                    new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice()).run();
+                    break;
+                case 'f':
+                case 'F':
+                    // show the font license
+                    new ViewerHelper(term, 
+                            Obligations.getFontName() + " Font License",
+                            Obligations.getFontLicense()).run();
+                    break;
+                case '?':
+                    showHelp = true;
+                    ready = true;
+                    break;
+                default:
+                    ready = true;
+                    break;
+            }
+        }
+        if (showHelp) {
+            new ViewerHelper(term, "Help", helpMessage).run();
+        }
     }
 
 }
