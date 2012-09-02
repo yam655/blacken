@@ -18,6 +18,7 @@ package com.googlecode.blacken.examples;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.colors.GimpPalette;
 import com.googlecode.blacken.core.ListMap;
 import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.swing.SwingTerminal;
@@ -158,7 +159,19 @@ public class Colors {
         int start_b = 0;
         int start_f = 0;
         int mode = 0;
+        term.setCurBackground(0);
+        term.getEmpty().setBackground(0);
         do {
+            Integer normal = palette.get("Silver");
+            if (normal == null) {
+                normal = palette.get("White");
+            }
+            if (normal == null) {
+                normal = palette.get("white");
+            }
+            if (normal == null) {
+                normal = 7;
+            }
             term.clear();
             term.move(0, 0);
             if (mode == 0 || mode == 1) {
@@ -234,16 +247,6 @@ public class Colors {
                         term.addch('\n');
                     }
                 }
-            }
-            Integer normal = palette.get("Silver");
-            if (normal == null) {
-                normal = palette.get("White");
-            }
-            if (normal == null) {
-                normal = palette.get("white");
-            }
-            if (normal == null) {
-                normal = 7;
             }
             term.setCurForeground(normal);
             term.setCurBackground(0);
@@ -535,6 +538,13 @@ public class Colors {
         }
         this.palettes.put("from CustomColorMapping.txt", p);
         this.nameMaps.put("from CustomColorMapping.txt", inverseMap(p));
+        try {
+            p = new GimpPalette(this.getClass(), "yam655-old-photo.gpl");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        this.palettes.put("from GIMP Palette yam655-old-photo.gpl", p);
+        this.nameMaps.put("from GIMP Palette yam655-old-photo.gpl", inverseMap(p));
     }
 
     public boolean loop() {

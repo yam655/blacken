@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.examples;
 
+import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
@@ -36,8 +37,8 @@ import java.util.EnumSet;
  */
 public class ViewerHelper implements CodepointCallbackInterface {
     private final TerminalInterface term;
-    private int foreground = 0xFFa0a0a0;
-    private int background = 0xFF000000;
+    private int foreground;
+    private int background;
     private TerminalViewInterface view;
     private StringViewer viewer;
     private TerminalViewInterface helpView;
@@ -54,15 +55,14 @@ public class ViewerHelper implements CodepointCallbackInterface {
         viewer = new StringViewer(view, message, this);
         helpView = new TerminalView(term);
         helpViewer = new StringViewer(helpView, helpMessage, null);
+        background = term.getEmpty().getBackground();
+        foreground = ColorHelper.makeVisible(background);
 
     }
     public void setColor(int foreground, int background) {
         this.foreground = foreground;
         this.background = background;
-        TerminalCellLike cell = term.getEmpty().clone();
-        cell.setBackground(background);
-        cell.setForeground(foreground);
-        term.setEmpty(cell);
+        term.getEmpty().setBackground(background);
         viewer.setColor(foreground, background);
     }
     public void setColor(String foreground, String background) {
