@@ -15,6 +15,9 @@
 */
 package com.googlecode.blacken.colors;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,10 +25,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.googlecode.blacken.core.ListMap;
+import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
@@ -250,6 +252,44 @@ public class ColorPalette extends ListMap<String, Integer> {
     public boolean addMapping(String[] colors) {
         return processMapping(colors, true);
     }
+
+    /**
+     * Load a mapping by resource filename.
+     *
+     * @param forLoader
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public boolean addMappingResource(Class forLoader, String name) throws IOException {
+        InputStream stream = forLoader.getResourceAsStream(name);
+        byte[] bytebuf = new byte[4096];
+        int cnt;
+        StringBuilder buf = new StringBuilder();
+        while ((cnt = stream.read(bytebuf)) != -1) {
+            buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
+        }
+        return addMapping(buf.toString().split("[\n\r]+"));
+    }
+
+    /**
+     * Load a mapping by resource filename.
+     *
+     * @param forLoader
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public boolean putMappingResource(Class forLoader, String name) throws IOException {
+        InputStream stream = forLoader.getResourceAsStream(name);
+        byte[] bytebuf = new byte[4096];
+        int cnt;
+        StringBuilder buf = new StringBuilder();
+        while ((cnt = stream.read(bytebuf)) != -1) {
+            buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
+        }
+        return putMapping(buf.toString().split("[\r\n]+"));
+    }
     /**
      * Helper function to bypass the palette if it wasn't used.
      * 
@@ -314,14 +354,14 @@ public class ColorPalette extends ListMap<String, Integer> {
             Collections.sort(sortKeys);
             for (String key : sortKeys) {
                 if (buf.length() > 0) {
-                    buf.append(" / "); //$NON-NLS-1$
+                    buf.append(" / ");
                 }
                 buf.append(key);
             }
             if (buf.length() > 0) {
-                buf.append(" -> "); //$NON-NLS-1$
+                buf.append(" -> ");
             }
-            buf.append(String.format("%#08x", e.getValue())); //$NON-NLS-1$
+            buf.append(String.format("%#08x", e.getValue()));
             ret.add(buf.toString());
         }
         return ret.toArray(new String[0]);
@@ -338,7 +378,7 @@ public class ColorPalette extends ListMap<String, Integer> {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
+            final String s[] = color.split("[ \t]+->[ \t]+", 2);
             final String names[];
             final String colorDef;
             if (s.length == 1) {
@@ -347,11 +387,11 @@ public class ColorPalette extends ListMap<String, Integer> {
                     names = new String[0];
                 } else {
                     throw new RuntimeException(String.format
-                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                           ("Color format lacked '->': %s", 
                                             color));
                 }
             } else {
-                names = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
+                names = s[0].split("[ \t]+/[ \t]+");
                 colorDef = s[1];
             }
             Integer colr;

@@ -30,6 +30,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -996,7 +997,7 @@ implements List<V>, Cloneable, Serializable {
         Map<Integer, ConsolidatedListMapEntry<K, V>> c = new HashMap<>();
         consolidateEntries(c);
         for (Integer i = 0; i < c.size(); i++) {
-            ret = ret * 31 + c.get(i).hashCode();
+            ret = ret * 31 + Objects.hashCode(c.get(i));
         }
         return ret;
     }
