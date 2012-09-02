@@ -25,6 +25,9 @@ import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -117,7 +120,7 @@ public class Colors {
     public void init(TerminalInterface term) {
         if (term == null) {
             term = new SwingTerminal();
-            term.init("Example Program", 21, 80);
+            term.init("Colors Demonstration", 21, 80);
         }
         this.term = new CursesLikeAPI(term);
         this.loadPalettes();
@@ -526,6 +529,14 @@ public class Colors {
         p.putMapping(ColorNames.LIBTCOD_COLORS);
         this.palettes.put("LIBTCOD", p);
         this.nameMaps.put("LIBTCOD", inverseMap(p));
+        p = new ColorPalette();
+        try {
+            p.putMappingResource(this.getClass(), "CustomColorMapping.txt");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        this.palettes.put("from CustomColorMapping.txt", p);
+        this.nameMaps.put("from CustomColorMapping.txt", inverseMap(p));
     }
 
     public boolean loop() {

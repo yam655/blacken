@@ -1,0 +1,11 @@
+Black -> #000
+White -> #fff
+#112
+#114
+#116
+#118
+#22A
+#22C
+#22E
+Fuzzy Cat -> #AA2244
+Black Bear -> #222
