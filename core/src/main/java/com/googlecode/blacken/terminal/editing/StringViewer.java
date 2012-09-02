@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.terminal.editing;
 
+import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenKeys;
@@ -35,18 +36,22 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     private TerminalViewInterface term;
     private CodepointCallbackInterface secondaryCallback = null;
     private int startLine = 0;
-    private int foreground = 0xFFa0a0a0;
-    private int background = 0xFF000000;
+    private int foreground;
+    private int background;
     private String[] lines;
     private Integer maxCol = null;
     public StringViewer(TerminalViewInterface term, String message) {
         this.term = term;
         this.lines = message.split("\n");
+        background = term.getEmpty().getBackground();
+        foreground = ColorHelper.makeVisible(background);
     }
     public StringViewer(TerminalViewInterface term, String message, CodepointCallbackInterface callback) {
         this.term = term;
         this.lines = message.split("\n");
         this.secondaryCallback = callback;
+        background = term.getEmpty().getBackground();
+        foreground = ColorHelper.makeVisible(background);
     }
     public int getLines() {
         return lines.length;

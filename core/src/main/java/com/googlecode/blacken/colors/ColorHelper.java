@@ -390,8 +390,13 @@ public class ColorHelper {
             } else if (color.length() == 8) {
                 return c;
             }
-        } else if (color.contains(",")) {
-            String[] parts = color.split(",");
+        } else if (color.contains(",") || color.contains(" ")) {
+            String[] parts;
+            if (color.contains(",")) {
+                parts = color.split(",");
+            } else {
+                parts = color.split("[ \t]+");
+            }
             int[] components = new int[4];
             try {
                 components[0] = Integer.parseInt(parts[0], 10);

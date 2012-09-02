@@ -232,7 +232,7 @@ public class TerminalView implements TerminalViewInterface {
     @Override
     public TerminalCellLike getEmpty() {
         if (this.empty == null) {
-            return term.getEmpty();
+            empty = term.getEmpty().clone();
         }
         return empty;
     }

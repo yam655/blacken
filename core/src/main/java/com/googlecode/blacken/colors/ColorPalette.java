@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.googlecode.blacken.core.ListMap;
-import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 
 /**
@@ -47,6 +46,7 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
  * ListMap<String, Integer>, but there will be more there as well.</p?
  *
  * @author Steven W. Black
+ * @since 1.0
  */
 public class ColorPalette extends ListMap<String, Integer> {
     // XXX Version 2: Add cache value to normalize with AwtPalette
@@ -343,14 +343,14 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @return mapping array
      */
     public String[] getMapping() {
-        List<String> ret = new ArrayList<String>(size());
+        List<String> ret = new ArrayList<>(size());
         Map<Integer, ConsolidatedListMapEntry<String, Integer>> ce = 
-            new HashMap<Integer, ConsolidatedListMapEntry<String, Integer>>();
+            new HashMap<>();
         this.consolidateEntries(ce );
         for (Integer i = 0; i < ce.size(); i++) {
             ConsolidatedListMapEntry<String, Integer> e = ce.get(i);
-            StringBuffer buf = new StringBuffer();
-            List<String> sortKeys = new ArrayList<String>(e.getKeys());
+            StringBuilder buf = new StringBuilder();
+            List<String> sortKeys = new ArrayList<>(e.getKeys());
             Collections.sort(sortKeys);
             for (String key : sortKeys) {
                 if (buf.length() > 0) {
@@ -373,10 +373,11 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @param onlyAdd true: only do add; false: do put or add
      * @return true if change, false otherwise
      */
-    private boolean processMapping(String[] colors, boolean onlyAdd) {
+    protected boolean processMapping(String[] colors, boolean onlyAdd) {
         if (colors == null || colors.length == 0) {
             return false;
         }
+        int firstColors = this.size();
         for (final String color : colors) {
             final String s[] = color.split("[ \t]+->[ \t]+", 2);
             final String names[];
@@ -405,7 +406,12 @@ public class ColorPalette extends ListMap<String, Integer> {
                 for (final String n : names) {
                     if (this.containsKey(n)) {
                         idx = this.indexOfKey(n);
-                        break;
+                        // Do not stomp on a color from the new set
+                        if (idx >= firstColors) {
+                            idx = -1;
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
