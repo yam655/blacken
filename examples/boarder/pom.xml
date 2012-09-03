@@ -141,7 +141,7 @@
               <excludeTransitive>false</excludeTransitive>
               <verbose>true</verbose>
               <pack200>true</pack200>
-              <codebase>http://blacken.googlecode.com/svn/jnlp</codebase>
+              <codebase>https://sites.google.com/site/blackenlib/try-it-out/jnlp</codebase>
               <jnlpExtensions>
               </jnlpExtensions>
           </configuration>

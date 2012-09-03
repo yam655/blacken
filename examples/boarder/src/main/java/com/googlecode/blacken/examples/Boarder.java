@@ -37,8 +37,22 @@ public class Boarder {
 
     private CursesLikeAPI term = null;
     private boolean quit = false;
+    private static boolean nextToConsole = false;
     private ColorPalette palette;
-
+    private String helpMessage =
+"Awesome Color Example Commands\n" +
+"============================================================================\n" +
+"\n" +
+"L, l (ell) : My License              | N, n : Legal notices\n" +
+"\n" +
+"Q, q : quit                          | . : exit to test console\n" +
+"\n" +
+"? : this help screen\n" +
+"\n" +
+"IMPORTANT: THESE KEYS DO NOTHING IN THE MAIN SCREEN\n" +
+"\n" +
+"This application tests the keyboard. To change keyboard layouts or quit the\n" +
+"application please use your mouse.\n";
     /**
      * Create a new instance, using an existing terminal and palette.
      *
@@ -46,7 +60,6 @@ public class Boarder {
      * @param palette color palette to use
      */
     public Boarder(TerminalInterface term, ColorPalette palette) {
-        this.loadEnUnitedStatesKeys();
         this.term = new CursesLikeAPI(term);
         this.palette = palette;
     }
@@ -55,6 +68,7 @@ public class Boarder {
      * Show the help text.
      */
     public void showHelp() {
+        this.term.clear();
         this.term.puts("F2 for Keyboard Mode\n");
         this.term.puts("F10 to quit\n");
     }
@@ -64,12 +78,12 @@ public class Boarder {
      *
      * @param codepoint to press.
      */
-    public void changeKey(Integer codepoint) {
+    public void changeKey(Integer codepoint, boolean hit) {
         if (BlackenKeys.isModifier(codepoint)) {
             EnumSet<BlackenModifier> allMods = BlackenModifier.getAsSet(codepoint);
             if (allMods.size() > 1) {
                 for (BlackenModifier mod : allMods) {
-                    changeKey(mod.getAsCodepoint());
+                    changeKey(mod.getAsCodepoint(), hit);
                 }
                 return;
             }
@@ -82,44 +96,32 @@ public class Boarder {
         int x = loc.x;
         String what = loc.name;
         TerminalCellLike tcell = term.get(y, x);
-        if (tcell.getSequence().equals("\u0000")
-                || tcell.getSequence().equals(" ")) {
-            int back = 1;
-            int fore = ColorHelper.makeVisible(this.palette.get(back));
-            int i = 0;
-            term.setCurBackground(back);
-            term.setCurForeground(fore);
-            term.mvputs(y, x, what);
-            while (i < what.codePointCount(0, what.length())) {
-                tcell.clearCellWalls();
-                tcell.setBackground(back);
-                tcell.setForeground(fore);
-                tcell.setCellWalls(EnumSet.of(CellWalls.BOTTOM, CellWalls.TOP));
-                if (i == 0) {
-                    tcell.addCellWalls(CellWalls.LEFT);
-                }
-                if (i == what.codePointCount(0, what.length()) - 1) {
-                    tcell.addCellWalls(CellWalls.RIGHT);
-                }
-                tcell.setSequence(what.codePointAt(i));
-                term.set(y, x, tcell);
-                tcell = term.get(y, ++x);
-                i++;
+
+        if (hit) {
+            loc.hit ++;
+            if (loc.hit >= palette.size()) {
+                loc.hit = 0;
             }
-        } else if (!loading) {
-            int back = tcell.getBackground() + 1;
-            if (back >= palette.size()) {
-                back = 0;
+        }
+        int back = loc.hit;
+        int fore = ColorHelper.makeVisible(this.palette.get(back));
+        int i = 0;
+
+        while (i < what.codePointCount(0, what.length())) {
+            tcell.clearCellWalls();
+            tcell.setBackground(back);
+            tcell.setForeground(fore);
+            tcell.setCellWalls(EnumSet.of(CellWalls.BOTTOM, CellWalls.TOP));
+            if (i == 0) {
+                tcell.addCellWalls(CellWalls.LEFT);
             }
-            int fore = ColorHelper.makeVisible(this.palette.get(back));
-            int i = 0;
-            while (i < what.codePointCount(0, what.length())) {
-                tcell.setBackground(back);
-                tcell.setForeground(fore);
-                term.set(y, x, tcell);
-                tcell = term.get(y, ++x);
-                i++;
+            if (i == what.codePointCount(0, what.length()) - 1) {
+                tcell.addCellWalls(CellWalls.RIGHT);
             }
+            tcell.setSequence(what.codePointAt(i));
+            term.set(y, x, tcell);
+            tcell = term.get(y, ++x);
+            i++;
         }
     }
 
@@ -131,18 +133,23 @@ public class Boarder {
         public int y;
         public int x;
         public String name;
+        public int hit;
 
         KeyLocation(int y, int x, String name) {
             this.y = y;
             this.x = x;
             this.name = name;
+            hit = 1;
         }
     }
     HashMap<Integer, KeyLocation> keys = null;
-    private boolean loading;
 
     private void loadDeGermanyKeys() {
+        if (keys != null && keys.containsKey(-1) && keys.get(-1).name.equals("DE-DE")) {
+            return;
+        }
         keys = new HashMap<>();
+        keys.put(-1, new KeyLocation(-1, -1, "DE-DE"));
         /*
 ESC F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12       Einfg Entf   Nm // ** --    #0
 ^° 1! 2" 3§ 4$ 5% 6& 7/ 8( 9) 0= ß? ´` Rück       Pos1 Ende   77 88 99 ++    #2
@@ -308,7 +315,8 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         keys.put(BlackenKeys.KEY_KP_UP, new KeyLocation(14, 60, "⇑"));
         keys.put(BlackenKeys.KEY_KP_PAGE_UP, new KeyLocation(14, 62, "⇗"));
         keys.put(BlackenKeys.KEY_KP_LEFT, new KeyLocation(16, 58, "⇐"));
-        keys.put(BlackenKeys.KEY_KP_B2, new KeyLocation(16, 60, "∎"));
+        keys.put(BlackenKeys.KEY_KP_B2, new KeyLocation(16, 60,
+                BlackenCodePoints.asString(BlackenCodePoints.CODEPOINT_WHITE_SMALL_SQUARE)));
         keys.put(BlackenKeys.KEY_KP_RIGHT, new KeyLocation(16, 62, "⇒"));
         keys.put(BlackenKeys.KEY_KP_END, new KeyLocation(18, 58, "⇙"));
         keys.put(BlackenKeys.KEY_KP_DOWN, new KeyLocation(18, 60, "⇓"));
@@ -351,7 +359,11 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
     }
 
     private void loadEnUnitedStatesKeys() {
+        if (keys != null && keys.containsKey(-1) && keys.get(-1).name.equals("EN-US")) {
+            return;
+        }
         keys = new HashMap<>();
+        keys.put(-1, new KeyLocation(-1, -1, "EN-US"));
         /*
 ESC F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12   Ins  Del    Nm // ** --    #0
 `~ 1! 2@ 3# 4$ 5% 6^ 7& 8* 9( 0) -_ =+ BkSp  Home End    77 88 99 ++    #2
@@ -545,57 +557,113 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         keys.put(BlackenKeys.KEY_NP_SEPARATOR, new KeyLocation(8, 64, ".."));
     }
 
+    public void outline(boolean state, int y, int x, int length) {
+        if (!state) {
+            for (int xx = x; xx < x + length; xx++) {
+                term.refresh(y, xx);
+                term.get(y, xx).clearCellWalls();
+            }
+        } else {
+            term.get(y, x).setCellWalls(EnumSet.of(CellWalls.BOTTOM, CellWalls.TOP, CellWalls.LEFT));
+            term.get(y, x+length-1).setCellWalls(EnumSet.of(CellWalls.BOTTOM, CellWalls.TOP, CellWalls.RIGHT));
+            for (int xx = x+1; xx < x + length - 1; xx++) {
+                term.get(y, xx).setCellWalls(EnumSet.of(CellWalls.BOTTOM, CellWalls.TOP));
+            }
+            for (int xx = x; xx < x + length; xx++) {
+                term.refresh(y, xx);
+            }
+        }
+    }
+
     /**
      * Show the key screen.
      */
     public void showKeys() {
         term.disableEventNotices();
-        term.setCurBackground("DimGray");
-        term.clear();
-        term.mvputs(22, 0, "(F3) United States - EN");
-        term.mvputs(23, 0, "Show keys. (F10) Quit.");
+        term.enableEventNotices(EnumSet.of(BlackenEventType.MOUSE_CLICKED,
+                BlackenEventType.MOUSE_MOVED));
         boolean isUS = true;
-        this.loading = true;
-        this.loadEnUnitedStatesKeys();
-        for (Integer codepoint : keys.keySet()) {
-            // System.err.printf("Found key: %d\n", codepoint);
-            changeKey(codepoint);
-        }
-        this.loading = false;
-        int ch = BlackenKeys.NO_KEY;
-        term.refresh();
-        while (ch != BlackenKeys.KEY_F10) {
-            ch = term.getch();
-            if (ch == BlackenKeys.KEY_F03) {
-                term.setCurBackground("DimGray");
-                term.clear();
-                if (isUS) {
-                    term.mvputs(23, 0, "Tasten zeigen. (F10) Schließen.");
-                    term.mvputs(22, 0, "Deutschland - DE");
-                    this.loadDeGermanyKeys();
-                    isUS = false;
+        refresh_showKeys(isUS);
+        boolean isDone = false;
+        while (!isDone) {
+            int ch = term.getch();
+            if (ch == BlackenKeys.RESIZE_EVENT) {
+                refresh_showKeys(isUS);
+            } else if (ch == BlackenKeys.MOUSE_EVENT) {
+                BlackenMouseEvent mouse = term.getmouse();
+                // LOGGER.debug("Mouse: {}", mouse);
+                if (mouse.getType() == BlackenEventType.MOUSE_MOVED) {
+                    updateButtonBorders(mouse);
                 } else {
-                    term.mvputs(23, 0, "Show keys. (F10) Close.");
-                    term.mvputs(22, 0, "United States - EN");
-                    this.loadEnUnitedStatesKeys();
-                    isUS = true;
+                    // LOGGER.debug("Mouse: {}", mouse);
+                    if (mouse.getType() == BlackenEventType.MOUSE_CLICKED
+                            && mouse.getActingButton().equals(BlackenMouseButton.BUTTON_1)) {
+                        if (mouse.getY() == 22) {
+                            if (mouse.getX() < 20) {
+                                isUS = !isUS;
+                                refresh_showKeys(isUS);
+                            }
+                        } else if (mouse.getY() == 23) {
+                            if (mouse.getX() < 20) {
+                                isDone = true;
+                            }
+                        }
+                    }
                 }
-                this.loading = true;
-                for (Integer codepoint : keys.keySet()) {
-                    // System.err.printf("Found key: %d\n", codepoint);
-                    changeKey(codepoint);
-                }
-                this.loading = false;
             }
             if (BlackenKeys.isModifier(ch)) {
                 for (BlackenModifier m : BlackenModifier.getAsSet(ch)) {
-                    changeKey(m.getAsCodepoint());
+                    changeKey(m.getAsCodepoint(), true);
                 }
             } else {
-                changeKey(ch);
+                changeKey(ch, true);
             }
         }
         term.clear();
+    }
+    private void updateButtonBorders(BlackenMouseEvent mouse) {
+        boolean found = false;
+        if (!mouse.getRemainingButtons().isEmpty()) {
+            return;
+        }
+        if (mouse.getY() == 22) {
+            if (mouse.getX() < 20) {
+                this.outline(true, 22, 0, 20);
+                this.outline(false, 23, 0, 20);
+                found = true;
+            }
+        } else if (mouse.getY() == 23) {
+            if (mouse.getX() < 20) {
+                this.outline(false, 22, 0, 20);
+                this.outline(true, 23, 0, 20);
+                found = true;
+            }
+        }
+        if (!found) {
+            this.outline(false, 22, 0, 20);
+            this.outline(false, 23, 0, 20);
+        }
+    }
+    private void refresh_showKeys(boolean isUS) {
+        term.setCurBackground("DimGray");
+        term.setCurForeground(ColorHelper.makeVisible(this.palette.get("DimGray")));
+        term.clear();
+        // The padding is a cheat to get the foreground consistent.
+        if (isUS) {
+            term.mvputs(22, 0, "United States   - EN");
+            term.mvputs(23, 0, "Quit.               ");
+            this.loadEnUnitedStatesKeys();
+        } else {
+            term.mvputs(22, 0, "Deutschland     - DE");
+            term.mvputs(23, 0, "Schließen.          ");
+            this.loadDeGermanyKeys();
+        }
+        for (Integer codepoint : keys.keySet()) {
+            if (codepoint < 0) {
+                continue;
+            }
+            changeKey(codepoint, false);
+        }
     }
 
     /**
@@ -619,7 +687,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                     TerminalCell empty = new TerminalCell(null,
                             0xFF000000, 0xFFaaaaaa,
                             null, false);
-                    term.clear(empty);
+                    term.clear();
                     showKeys();
                     continue;
                 }
@@ -687,18 +755,29 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
         SwingTerminal term = new SwingTerminal();
         term.init("Boarder", 25, 80);
         ColorPalette palette = new ColorPalette();
-        palette.addAll(ColorNames.XTERM_256_COLORS, false);
+        // palette.addAll(ColorNames.XTERM_256_COLORS, false);
         palette.putMapping(ColorNames.SVG_COLORS);
         term.setPalette(palette);
         Boarder cmd = new Boarder(term, palette);
         cmd.splash();
-        // cmd.loop();
-        cmd.showKeys();
+        if (nextToConsole) {
+            cmd.loop();
+        } else {
+            cmd.showKeys();
+        }
         term.quit();
     }
 
     private void centerOnLine(int y, String string) {
         int offset = term.getWidth() / 2 - string.length() / 2;
+        term.mvputs(y, offset, string);
+    }
+
+    private void alignRight(int y, String string) {
+        int offset = term.getWidth() - string.length();
+        if (term.getHeight() -1 == y) {
+            offset--;
+        }
         term.mvputs(y, offset, string);
     }
 
@@ -716,17 +795,17 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
             term.mvputs(8, 0, "HOW TO PLAY");
             term.mvputs(9, 0, "-----------");
             term.mvputs(10,0, "A representation of the keyboard is shown.  Press keys to highlight");
-            term.mvputs(10,0, "the key.  It showcases that there are different returned values for");
-            term.mvputs(11,0, "all of the important keys, and verifies that your keyboard is working");
-            term.mvputs(12,0, "as expected.");
-            term.mvputs(14,0, "Modifier keys by themselves are currently shown on the keyboard, but");
-            term.mvputs(15,0, "not returned.  They are, however, properly returned when used to modify");
-            term.mvputs(16,0, "another key.  All keycodes are valid Unicode codepoints.");
+            term.mvputs(11,0, "the key.  It showcases that there are different returned values for");
+            term.mvputs(12,0, "all of the important keys, and verifies that your keyboard is working");
+            term.mvputs(13,0, "as expected.");
+            term.mvputs(15,0, "Modifier keys by themselves are currently shown on the keyboard, but");
+            term.mvputs(16,0, "not returned.  They are, however, properly returned when used to modify");
+            term.mvputs(17,0, "another key.  All keycodes are valid Unicode codepoints.");
             int last = term.getHeight() - 1;
-            term.mvputs(last-3, 0, "Press 'L' for the Apache 2.0 License used by Blacken.");
-            term.mvputs(last-2, 0, "Press 'N' for the NOTICES file included with Blacken.");
-            term.mvputs(last-1, 0, "Press 'F' for the Deja Vu Font License.");
-            term.mvputs(last-0, 0, "Press any other key to continue.");
+            term.mvputs(last-3, 0, "Press 'L' for our license (Apache 2.0)");
+            term.mvputs(last-2, 0, "Press 'N' for the legal notices.");
+            term.mvputs(last-1, 0, "Press '?' for Help.");
+            alignRight(last-0, "Press any other key to continue.");
             int key = BlackenKeys.NO_KEY;
             while(key == BlackenKeys.NO_KEY) {
                 // This works around an issue with the AWT putting focus someplace weird
@@ -748,15 +827,33 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 case 'l':
                 case 'L':
                     // show Apache 2.0 License
+                    new ViewerHelper(term, "License", Obligations.getBlackenLicense()).run();
                     break;
                 case 'n':
                 case 'N':
                     // show Notices file
                     // This is the only one that needs to be shown for normal games.
+                    new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice()).run();
                     break;
                 case 'f':
                 case 'F':
                     // show the font license
+                    new ViewerHelper(term,
+                            Obligations.getFontName() + " Font License",
+                            Obligations.getFontLicense()).run();
+                    break;
+                case '?':
+                    new ViewerHelper(term, "Help", helpMessage).run();
+                    break;
+                case 'q':
+                case 'Q':
+                    term.quit();
+                    break;
+                case '.':
+                case BlackenKeys.KEY_NP_SEPARATOR:
+                case BlackenKeys.KEY_KP_DELETE:
+                    nextToConsole = true;
+                    ready = true;
                     break;
                 default:
                     ready = true;
