@@ -159,8 +159,6 @@ public class Colors {
         int start_b = 0;
         int start_f = 0;
         int mode = 0;
-        term.setCurBackground(0);
-        term.getEmpty().setBackground(0);
         do {
             Integer normal = palette.get("Silver");
             if (normal == null) {
@@ -172,6 +170,8 @@ public class Colors {
             if (normal == null) {
                 normal = 7;
             }
+            term.setCurBackground(0);
+            term.setCurForeground(normal);
             term.clear();
             term.move(0, 0);
             if (mode == 0 || mode == 1) {
