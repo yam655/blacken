@@ -50,13 +50,13 @@ public class DefaultSingleLineCallback implements CodepointCallbackInterface {
     }
 
     @Override
-    public int handleMouseEvent(BlackenMouseEvent mouse) {
-        return BlackenKeys.NO_KEY;
+    public boolean handleMouseEvent(BlackenMouseEvent mouse) {
+        return false;
     }
 
     @Override
-    public int handleWindowEvent(BlackenWindowEvent window) {
-        return BlackenKeys.NO_KEY;
+    public boolean handleWindowEvent(BlackenWindowEvent window) {
+        return false;
     }
 
     @Override
