@@ -47,8 +47,18 @@ public interface CodepointCallbackInterface {
      * @return codepoint to replace it with
      */
     public int handleCodepoint(int codepoint);
-    public int handleMouseEvent(BlackenMouseEvent mouse);
-    public int handleWindowEvent(BlackenWindowEvent window);
+    /**
+     *
+     * @param mouse
+     * @return true if the event is complete; false to keep processing
+     */
+    public boolean handleMouseEvent(BlackenMouseEvent mouse);
+    /**
+     *
+     * @param window
+     * @return true if the event is complete; false to keep processing
+     */
+    public boolean handleWindowEvent(BlackenWindowEvent window);
     /**
      * This is called for any RESIZE_EVENT.
      */

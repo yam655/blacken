@@ -281,7 +281,9 @@ public class BlackenPanel extends JPanel {
     public void paintComponent(Graphics g) {
         AwtCell c;
         boolean need_cursor = false;
+        getTopLevelAncestor().setBackground(getEmpty().getBackgroundColor());
         Graphics2D graphics = (Graphics2D)g;
+        graphics.setPaint(getEmpty().getBackgroundColor());
 
         synchronized(this) {
             if (this.refreshedCnt == this.repaintedCnt) {
@@ -294,7 +296,7 @@ public class BlackenPanel extends JPanel {
         try {
             long startTime = System.currentTimeMillis();
             if (refresh_all) {
-                graphics.setPaint(Color.BLACK);
+                graphics.setPaint(this.getEmpty().getBackgroundColor());
                 graphics.fill(getBounds());
             } else {
                 if (lastCursorX != -1 && lastCursorY != -1) {
@@ -532,6 +534,10 @@ public class BlackenPanel extends JPanel {
             }
         }
     }
+    public void forceRefresh() {
+        this.refresh_all = true;
+        refresh();
+    }
     /**
      * Refresh a row/line.
      * @param y the line to refresh
@@ -701,8 +707,8 @@ public class BlackenPanel extends JPanel {
      * @param empty new empty cell
      */
     public void setEmpty(AwtCell empty) {
-        if (this.empty != empty) {
-            this.empty.set(empty);
+        if (empty != null) {
+            this.empty = empty;
         }
     }
     /*

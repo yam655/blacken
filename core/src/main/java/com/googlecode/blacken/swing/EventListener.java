@@ -34,12 +34,12 @@ import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import com.googlecode.blacken.terminal.BlackenCodePoints;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenModifier;
+import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.BlackenWindowState;
@@ -810,17 +810,7 @@ public class EventListener implements WindowListener, KeyListener,
         m.setPosition(p[0], p[1]);
         m.setClickCount(e.getClickCount());
         m.setModifiers(BlackenModifier.getAsSet(makeModifierNotice(e)));
-        int b = e.getButton();
-        if (b == MouseEvent.NOBUTTON) {
-            b = 0;
-        } else if (b == MouseEvent.BUTTON1) {
-            b = 1;
-        } else if (b == MouseEvent.BUTTON2) {
-            b = 2;
-        } else if (b == MouseEvent.BUTTON3) {
-            b = 3;
-        }
-        m.setButton(b);
+        setButtons(m, e.getModifiersEx(), e.getButton());
         if (m.equals(this.lastMouseEvent)) {
             return;
         }
@@ -828,13 +818,13 @@ public class EventListener implements WindowListener, KeyListener,
         try {
             mouseEvents.add(m);
         } catch(IllegalStateException err) {
-            // XXX log this
+            LOGGER.error("Failed to add mouse event to mouse queue", err);
             return;
         }
         try {
             keyEvents.add(BlackenKeys.MOUSE_EVENT);
         } catch(IllegalStateException err) {
-            // XXX log this
+            LOGGER.error("failed to add MOUSE_EVENT to key queue");
             mouseEvents.remove(m);
         }
     }
@@ -918,7 +908,9 @@ public class EventListener implements WindowListener, KeyListener,
         if ((mods & KeyEvent.SHIFT_DOWN_MASK) != 0) {
             mod.add(BlackenModifier.MODIFIER_KEY_SHIFT);
         }
-        if (mod.isEmpty()) return BlackenKeys.NO_KEY;
+        if (mod.isEmpty()) {
+            return BlackenKeys.NO_KEY;
+        }
         return BlackenModifier.getAsCodepoint(mod);
     }
 
@@ -1018,29 +1010,34 @@ public class EventListener implements WindowListener, KeyListener,
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        if (!enabled.contains(BlackenEventType.MOUSE_WHEEL)) {
+            return;
+        }
         BlackenMouseEvent m = 
             new BlackenMouseEvent(BlackenEventType.MOUSE_WHEEL);
-        int rot = e.getWheelRotation();
-        if (rot < 0) {
-            m.setButton(4);
-            rot *= -1;
+        double rot = e.getPreciseWheelRotation();
+        this.setButtons(m, e.getModifiersEx(), null);
+        if (rot < 0.0) {
+            m.setActingButton(BlackenMouseButton.WHEEL_UP);
+            rot *= -1.0;
         } else {
-            m.setButton(5);
+            m.setActingButton(BlackenMouseButton.WHEEL_DOWN);
         }
         int[] p = gui.findPositionForWindow(e.getY(), e.getX());
         m.setPosition(p[0], p[1]);
-        m.setClickCount(rot);
+        m.setClickCount((int)Math.floor(rot));
+        m.setRotation(rot);
         m.setModifiers(BlackenModifier.getAsSet(makeModifierNotice(e)));
         try {
             mouseEvents.add(m);
         } catch(IllegalStateException err) {
-            // XXX log this
+            LOGGER.error("Failed to load mouse event", err);
             return;
         }
         try {
             keyEvents.add(BlackenKeys.MOUSE_EVENT);
         } catch(IllegalStateException err) {
-            // XXX log this
+            LOGGER.error("Failed to load MOUSE_EVENT", err);
             mouseEvents.remove(m);
         }
     }
@@ -1049,7 +1046,14 @@ public class EventListener implements WindowListener, KeyListener,
      * Are there any keys waiting?
      * @return true if keys waiting; false otherwise.
      */
-    public boolean peekKey() {
+    public int peekKey() {
+        Integer key = keyEvents.peek();
+        if (key == null) {
+            key = BlackenKeys.NO_KEY;
+        }
+        return key;
+    }
+    public boolean hasKeys() {
         return !keyEvents.isEmpty();
     }
 
@@ -1232,6 +1236,47 @@ public class EventListener implements WindowListener, KeyListener,
             BlackenWindowEvent w =
                 new BlackenWindowEvent(BlackenEventType.WINDOW_OPENED);
             loadWindow(e, w);
+        }
+    }
+
+    private void setButtons(BlackenMouseEvent m, int modifiersEx, Integer button) {
+        if (button != null) {
+            switch (button) {
+                case 1:
+                    m.setActingButton(BlackenMouseButton.BUTTON_1);
+                    break;
+                case 2:
+                    m.setActingButton(BlackenMouseButton.BUTTON_2);
+                    break;
+                case 3:
+                    m.setActingButton(BlackenMouseButton.BUTTON_3);
+                    break;
+                case 4:
+                    m.setActingButton(BlackenMouseButton.BUTTON_4);
+                    break;
+                case 5:
+                    m.setActingButton(BlackenMouseButton.BUTTON_5);
+                    break;
+                default:
+                    m.setActingButton(BlackenMouseButton.NO_BUTTON);
+                    break;
+            }
+        }
+        EnumSet<BlackenMouseButton> buttons = EnumSet.noneOf(BlackenMouseButton.class);
+        if ((modifiersEx & InputEvent.BUTTON1_DOWN_MASK) != 0) {
+            buttons.add(BlackenMouseButton.BUTTON_1);
+        }
+        if ((modifiersEx & InputEvent.BUTTON2_DOWN_MASK) != 0) {
+            buttons.add(BlackenMouseButton.BUTTON_2);
+        }
+        if ((modifiersEx & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+            buttons.add(BlackenMouseButton.BUTTON_3);
+        }
+        if ((modifiersEx & InputEvent.getMaskForButton(4)) != 0) {
+            buttons.add(BlackenMouseButton.BUTTON_4);
+        }
+        if ((modifiersEx & InputEvent.getMaskForButton(5)) != 0) {
+            buttons.add(BlackenMouseButton.BUTTON_5);
         }
     }
 

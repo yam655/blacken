@@ -168,6 +168,8 @@ public interface TerminalInterface extends TerminalViewInterface {
     public void quit();
     @Override
     public void refresh();
+    @Override
+    public void refresh(int y, int x);
     /**
      * Resize the terminal without resizing the window
      * @param rows
@@ -340,5 +342,8 @@ public interface TerminalInterface extends TerminalViewInterface {
      * @param size size of the window
      */
     public void setSize(TerminalScreenSize size);
+
+    @Override
+    public void doUpdate();
 
 }

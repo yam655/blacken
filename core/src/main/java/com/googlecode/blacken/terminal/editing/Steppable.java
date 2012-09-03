@@ -37,9 +37,14 @@ public interface Steppable  {
     /**
      * Perform a step in an operation or perform one loop in an operation that
      * will require more than one.
-     *
-     * @return true to continue; false when done
      */
-    public boolean step();
+    public void step();
+
+    /**
+     * Are we complete?
+     *
+     * @return false if more steps; true if complete
+     */
+    public boolean isComplete();
 
 }

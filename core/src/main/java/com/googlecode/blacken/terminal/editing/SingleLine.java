@@ -78,9 +78,9 @@ public class SingleLine {
             cp = terminal.getch();
             int ec = BlackenKeys.NO_KEY;
             if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
-                ec = callback.handleMouseEvent(terminal.getmouse());
+                callback.handleMouseEvent(terminal.getmouse());
             } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
-                ec = callback.handleWindowEvent(terminal.getwindow());
+                callback.handleWindowEvent(terminal.getwindow());
             } else if (cp == BlackenKeys.RESIZE_EVENT) {
                 callback.handleResizeEvent();
             } else {

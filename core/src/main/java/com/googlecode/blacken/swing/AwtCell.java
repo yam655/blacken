@@ -582,7 +582,11 @@ public class AwtCell implements Cloneable {
      */
     public void setCellWalls(Set<CellWalls> walls) {
         if (walls != null && !walls.equals(this.cellWalls)) {
-            cellWalls = EnumSet.copyOf(walls);
+            if (walls.isEmpty()) {
+                cellWalls = EnumSet.noneOf(CellWalls.class);
+            } else {
+                cellWalls = EnumSet.copyOf(walls);
+            }
             dirty = true;
         }
     }

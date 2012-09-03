@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.googlecode.blacken.terminal;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.googlecode.blacken.grid.DirtyGridCell;
@@ -24,7 +25,9 @@ import com.googlecode.blacken.grid.DirtyGridCell;
 /**
  * A concrete terminal cell.
  * 
- * @author yam655
+ * <p>Note that the {@link Set}s returned by this are all read-only.
+ *
+ * @author Steven Black
  *
  */
 public class TerminalCell implements Cloneable, TerminalCellLike {
@@ -89,7 +92,7 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         if (sequence != null) {
             this.sequence = sequence;
         }
-        if (style != null) {
+        if (style != null && !style.isEmpty()) {
             this.style = EnumSet.copyOf(style);
         }
         if (foreground != null) {
@@ -102,6 +105,7 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
             this.dirty = dirty;
         }
     }
+
     /**
      * Create a new cell.
      * 
@@ -113,9 +117,6 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         set(cell);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#addCellWalls(com.googlecode.blacken.terminal.CellWalls)
-     */
     @Override
     public void addCellWalls(CellWalls walls) {
         if (walls == null) return;
@@ -123,49 +124,36 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         this.walls.add(walls);
     }
 
-
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#addSequence(int)
-     */
     @Override
     public void addSequence(int codepoint) {
         if (this.sequence.equals("\u0000")) {
             this.sequence = "\u25cc";
         }
-        this.sequence = this.sequence + String.copyValueOf(Character.toChars(codepoint));
+        this.sequence += String.copyValueOf(Character.toChars(codepoint));
         dirty = true;
     }
-    
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#addSequence(java.lang.String)
-     */
+
     @Override
     public void addSequence(String sequence) {
         if (this.sequence.equals("\u0000")) {
             this.sequence = "\u25cc";
         }
-        this.sequence = this.sequence + sequence;
+        this.sequence += sequence;
         dirty = true;
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#clearCellWalls()
-     */
+
     @Override
     public void clearCellWalls() {
         this.walls = EnumSet.noneOf(CellWalls.class);
         dirty = true;
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#clearStyle()
-     */
+
     @Override
     public void clearStyle() {
         this.style = EnumSet.noneOf(TerminalStyle.class);
         dirty = true;
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#clone()
-     */
+
     @Override
     public TerminalCell clone() {
         TerminalCell ret;
@@ -204,6 +192,18 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         }
         return true;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.sequence);
+        hash = 89 * hash + this.fg_color;
+        hash = 89 * hash + this.bg_color;
+        hash = 89 * hash + Objects.hashCode(this.style);
+        hash = 89 * hash + Objects.hashCode(this.walls);
+        hash = 89 * hash + (this.dirty ? 1 : 0);
+        return hash;
+    }
     
     @Override
     public int getBackground() {
@@ -218,25 +218,16 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         return Collections.unmodifiableSet(this.walls);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#getForeground()
-     */
     @Override
     public int getForeground() {
         return fg_color;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#getSequence()
-     */
     @Override
     public String getSequence() {
         return sequence;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#getStyle()
-     */
     @Override
     public Set<TerminalStyle> getStyle() {
         if (this.style == null) {
@@ -245,17 +236,11 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         return Collections.unmodifiableSet(this.style);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#isDirty()
-     */
     @Override
     public boolean isDirty() {
         return dirty;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#set(com.googlecode.blacken.terminal.TerminalCell)
-     */
     @Override
     public void set(TerminalCellLike same) {
         this.sequence = same.getSequence();
@@ -266,17 +251,12 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         this.dirty = true;
     }
     
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setBackground(int)
-     */
     @Override
     public void setBackground(int background) {
         this.bg_color = background;
         dirty = true;
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setCellWalls(com.googlecode.blacken.terminal.CellWalls)
-     */
+
     @Override
     public void setCellWalls(CellWalls walls) {
         if (walls == null) {
@@ -287,46 +267,33 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         this.walls = EnumSet.of(walls);
     }
     
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setCellWalls(java.util.EnumSet)
-     */
     @Override
     public void setCellWalls(Set<CellWalls> walls) {
-        if (walls == null) {
+        if (walls == null || walls.isEmpty()) {
             clearCellWalls();
             return;
         }
         dirty = true;
         this.walls = EnumSet.copyOf(walls);
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setDirty(boolean)
-     */
+
     @Override
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setForeground(int)
-     */
     @Override
     public void setForeground(int foreground) {
         this.fg_color = foreground;
         dirty = true;
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setSequence(int)
-     */
+
     @Override
     public void setSequence(int sequence) {
         this.sequence = String.copyValueOf(Character.toChars(sequence));
         dirty = true;
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setSequence(java.lang.String)
-     */
     @Override
     public void setSequence(String sequence) {
         if (sequence == null) {
@@ -337,21 +304,16 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         dirty = true;
     }
     
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setStyle(java.util.EnumSet)
-     */
     @Override
     public void setStyle(Set<TerminalStyle> style) {
-        if (style == null) {
+        if (style == null || style.isEmpty()) {
             clearStyle();
             return;
         }
         dirty = true;
         this.style = EnumSet.copyOf(style);
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#setStyle(com.googlecode.blacken.terminal.TerminalStyle)
-     */
+
     @Override
     public void setStyle(TerminalStyle style) {
         if (style == null) {
@@ -361,12 +323,10 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
         dirty = true;
         this.style = EnumSet.of(style);
     }
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.terminal.TerminalCellLike#toString()
-     */
-    @Override 
+
+    @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (sequence == null) {
             buf.append("null");
         } else {

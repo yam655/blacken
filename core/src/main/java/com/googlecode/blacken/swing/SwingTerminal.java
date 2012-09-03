@@ -17,14 +17,18 @@ package com.googlecode.blacken.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
@@ -39,7 +43,6 @@ import javax.swing.JFrame;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author yam655
  */
 public class SwingTerminal extends AbstractTerminal
-                    implements ComponentListener {
+                    implements ComponentListener, MouseListener {
     static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
     protected BlackenPanel gui;
     protected HashMap<Integer, Color> swingColor = new HashMap<>();
@@ -90,14 +93,19 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void clear() {
         super.clear();
+        gui.clear();
+    }
+
+    @Override
+    public void setEmpty(TerminalCellLike empty) {
+        super.setEmpty(empty);
         Font f = gui.getEmpty().getFont();
         AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
         awtempty.setDirty(true);
         awtempty.setFont(f);
         gui.setEmpty(awtempty);
-        gui.clear();
     }
-    
+
     @Override
     public void componentHidden(ComponentEvent e) {
         // do nothing
@@ -106,6 +114,7 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void componentMoved(ComponentEvent e) {
         gui.requestFocusInWindow();
+        // LOGGER.debug("event: {}", e);
     }
 
     @Override
@@ -117,6 +126,7 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void componentShown(ComponentEvent e) {
         gui.requestFocusInWindow();
+        // LOGGER.debug("event: {}", e);
     }
     
     @Override
@@ -169,7 +179,7 @@ public class SwingTerminal extends AbstractTerminal
         if (!gui.hasFocus()) {
             gui.requestFocusInWindow();
         }
-        return listener.peekKey();
+        return listener.hasKeys();
     }
     
     @Override
@@ -180,6 +190,12 @@ public class SwingTerminal extends AbstractTerminal
         this.refresh();
         int activeModifier = this.lastModifier;
         int ch = listener.blockingPopKey(millis);
+        if (ch == BlackenKeys.RESIZE_EVENT) {
+            // Debounce RESIZE_EVENTs
+            while (listener.peekKey() == BlackenKeys.RESIZE_EVENT) {
+                listener.popKey();
+            }
+        }
         if (BlackenKeys.isModifier(ch)) {
             this.lastModifier = ch;
         } else {
@@ -207,6 +223,12 @@ public class SwingTerminal extends AbstractTerminal
         }
         this.refresh();
         int ch = listener.popKey();
+        if (ch == BlackenKeys.RESIZE_EVENT) {
+            // Debounce RESIZE_EVENTs
+            while (listener.peekKey() == BlackenKeys.RESIZE_EVENT) {
+                listener.popKey();
+            }
+        }
         int activeModifier = this.lastModifier;
         if (ch == BlackenKeys.NO_KEY) {
             //this.refresh();
@@ -341,6 +363,7 @@ public class SwingTerminal extends AbstractTerminal
         frame.setResizable(true);
         frame.addKeyListener(listener);
         frame.addMouseListener(listener);
+        frame.addMouseListener(this);
         frame.addMouseMotionListener(listener);
         frame.addMouseWheelListener(listener);
         frame.addWindowListener(listener);
@@ -417,6 +440,7 @@ public class SwingTerminal extends AbstractTerminal
         if (state == this.nowFullscreen) {
             return this.nowFullscreen;
         }
+        frame.setIgnoreRepaint(false);
         if (state) {
             this.windowedBounds = frame.getBounds();
             frame.setVisible(false);
@@ -447,6 +471,8 @@ public class SwingTerminal extends AbstractTerminal
             frame.setVisible(true);
             windowedBounds = null;
         }
+        frame.setIgnoreRepaint(true);
+
         this.nowFullscreen = state;
         return this.nowFullscreen;
     }
@@ -487,6 +513,26 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void refresh() {
+        super.refresh();
+        gui.refresh();
+    }
+
+    @Override
+    public void refresh(int y, int x) {
+        TerminalCellLike tcell = get(y, x);
+        if (!tcell.isDirty()) {
+            return;
+        }
+        AwtCell acell = gui.get(y, x);
+        AwtCell r = this.setAwtFromTerminal(acell, tcell);
+        if (acell == null) {
+            gui.set(y, x, r);
+        }
+        tcell.setDirty(false);
+    }
+
+    @Override
+    public void doUpdate() {
         gui.refresh();
     }
 
@@ -784,4 +830,33 @@ public class SwingTerminal extends AbstractTerminal
         throw new UnsupportedOperationException("Not supported yet.");
     }
     */
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        if (this.nowFullscreen) {
+            return;
+        }
+        if ((frame.getExtendedState()) != Frame.NORMAL) {
+            return;
+        }
+        Rectangle b = frame.getBounds();
+        frame.setSize(b.width-1, b.height);
+        frame.setSize(b.width, b.height);
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
 }

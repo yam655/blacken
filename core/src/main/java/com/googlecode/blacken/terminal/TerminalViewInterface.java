@@ -11,6 +11,7 @@ import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
 
 /**
+ * Lightweight view in to a terminal.
  *
  * This interface was pulled from {@link TerminalInterface} for Blacken 1.1.
  * Some of the functions list that they've been around since Blacken 1.0, and
@@ -22,7 +23,7 @@ import com.googlecode.blacken.grid.Regionlike;
 public interface TerminalViewInterface {
 
     /**
-     * Set the cell to the value, assigning ownership
+     * Set the cell to the value, assigning ownership.
      * @since EXPERIMENTAL
      * @param y
      * @param x
@@ -159,6 +160,8 @@ public interface TerminalViewInterface {
     /**
      * Read a string from the screen.
      *
+     * @param y
+     * @param x
      * @param length length of string to read
      * @return new string
      * @since 1.0
@@ -233,10 +236,40 @@ public interface TerminalViewInterface {
     public void moveBlock(int numRows, int numCols, int origY, int origX, int newY, int newX);
 
     /**
-     * Redraw the terminal
+     * Scan for dirty cells, updating the for-display buffer, and refresh the
+     * screen.
+     *
+     * <p>If you're using the {@link #get(int, int)} function and directly
+     * modifying the cell values you need to call {@link #refresh()} so that
+     * the dirty cells are noticed and the for-screen buffer is updated.
+     *
+     * <p>If you only use the set(...) family of calls to change the cell states
+     * you can use {@link #doUpdate()} to refresh the display more efficiently.
+     *
+     * @see #doUpdate()
      * @since 1.0
      */
     public void refresh();
+
+    /**
+     * Clean up a cell that has been updated outside of the set(...) family of
+     * calls without scanning the whole grid.
+     *
+     * <p>This does the work of checking to see if a terminal cell is dirty,
+     * and updating the for-display representation. It does <em>not</em> tell
+     * the display to refresh, so you want to use this in conjunction with
+     * {@link #doUpdate()}.
+     *
+     * <p>If you only use the set(...) family of calls to change the cell states
+     * you can ignore this call and just use {@link #doUpdate()} to refresh the
+     * display more efficiently.
+     *
+     * @param y row
+     * @param x column
+     * @see #doUpdate()
+     * @since 1.1
+     */
+    public void refresh(int y, int x);
 
     /**
      * Set a cell to explicit contents
@@ -269,17 +302,20 @@ public interface TerminalViewInterface {
      * the other's backing store.
      * 
      * @param bounds new bounds
+     * @since 1.1
      */
     public void setBounds(Regionlike bounds);
 
     /**
-     * See {@link #setBounds(com.googlecode.blacken.grid.Regionlike)}. This
+     * See {@link #setBounds(Regionlike)}. This
      * calls that function after wrapping its arguments in a {@link BoxRegion}.
      *
      * @param rows number of rows
      * @param cols number of columns
      * @param y1 starting row number
      * @param x1 starting column number
+     * @see #setBounds(Regionlike)
+     * @since 1.1
      */
     public void setBounds(int rows, int cols, int y1, int x1);
 
@@ -331,5 +367,21 @@ public interface TerminalViewInterface {
      * @since 1.0
      */
     public void setEmpty(TerminalCellLike empty);
+
+    /**
+     * If you are using TerminalInterface functions to modify the screen we can
+     * automatically track the changes to the for-display buffer, and in those
+     * cases you can use doUpdate() instead of refresh().
+     *
+     * If you're using the {@link #get(int, int)} function and directly
+     * modifying the cell values without doing a
+     * {@link #set(int, int, TerminalCellLike)} (which is legal) you need to
+     * call {@link #refresh()} so that the dirty cells are scanned and the
+     * for-screen buffer is updated.
+     *
+     * @see #refresh()
+     * @since 1.1
+     */
+    public void doUpdate();
 
 }

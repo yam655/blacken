@@ -232,6 +232,11 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_MEDIUM_SHADE = '\u2592';
     static final public int CODEPOINT_DARK_SHADE = '\u2593';
 
+    static final public int CODEPOINT_BLACK_SQUARE = '\u25a0';
+    static final public int CODEPOINT_WHITE_SQUARE = '\u25a1';
+    static final public int CODEPOINT_BLACK_SMALL_SQUARE = '\u25aa';
+    static final public int CODEPOINT_WHITE_SMALL_SQUARE = '\u25ab';
+    
     private static Map<Integer, String> shortMap = null;
     
     private static void createShortMap() {
@@ -316,4 +321,7 @@ public class BlackenCodePoints {
         return name;
     }
 
+    public static String asString(int codepoint) {
+        return String.copyValueOf(Character.toChars(codepoint));
+    }
 }

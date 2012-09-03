@@ -526,7 +526,27 @@ public class TestUnboundTerminal {
     @Test
     @Covers("public void refresh()")
     public void refresh() {
-        // unimplemented in UnboundTerminal
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
+        assertFalse(terminal.get(0, 0).isDirty());
+        assertFalse(terminal.get(0, 1).isDirty());
+        assertFalse(terminal.get(0, 2).isDirty());
+        assertFalse(terminal.get(0, 3).isDirty());
+        terminal.get(0, 0).setSequence("N");
+        terminal.get(0, 1).setSequence("i");
+        terminal.get(0, 2).setSequence("c");
+        terminal.get(0, 3).setSequence("e");
+        assertTrue(terminal.get(0, 0).isDirty());
+        assertTrue(terminal.get(0, 1).isDirty());
+        assertTrue(terminal.get(0, 2).isDirty());
+        assertTrue(terminal.get(0, 3).isDirty());
+        terminal.refresh();
+        assertFalse(terminal.get(0, 0).isDirty());
+        assertFalse(terminal.get(0, 1).isDirty());
+        assertFalse(terminal.get(0, 2).isDirty());
+        assertFalse(terminal.get(0, 3).isDirty());
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
     }
 
     @Test
@@ -773,4 +793,37 @@ public class TestUnboundTerminal {
         assertEquals(-1, terminal.getCursorX());
     }
 
+    @Test
+    @Covers("public void doUpdate()")
+    public void doUpdate() {
+        // can not test with UnboundTerminal
+    }
+    @Test
+    @Covers("public void refresh(int,int)")
+    public void refresh_y_x() {
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
+        assertFalse(terminal.get(0, 0).isDirty());
+        assertFalse(terminal.get(0, 1).isDirty());
+        assertFalse(terminal.get(0, 2).isDirty());
+        assertFalse(terminal.get(0, 3).isDirty());
+        terminal.get(0, 0).setSequence("N");
+        terminal.get(0, 1).setSequence("i");
+        terminal.get(0, 2).setSequence("c");
+        terminal.get(0, 3).setSequence("e");
+        assertTrue(terminal.get(0, 0).isDirty());
+        assertTrue(terminal.get(0, 1).isDirty());
+        assertTrue(terminal.get(0, 2).isDirty());
+        assertTrue(terminal.get(0, 3).isDirty());
+        terminal.refresh(0, 0);
+        terminal.refresh(0, 1);
+        terminal.refresh(0, 2);
+        terminal.refresh(0, 3);
+        assertFalse(terminal.get(0, 0).isDirty());
+        assertFalse(terminal.get(0, 1).isDirty());
+        assertFalse(terminal.get(0, 2).isDirty());
+        assertFalse(terminal.get(0, 3).isDirty());
+        assertEquals(-1, terminal.getCursorY());
+        assertEquals(-1, terminal.getCursorX());
+    }
 }

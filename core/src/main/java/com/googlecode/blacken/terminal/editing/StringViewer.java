@@ -19,7 +19,9 @@ package com.googlecode.blacken.terminal.editing;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
+import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.TerminalCellLike;
@@ -113,9 +115,14 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     }
 
     @Override
-    public boolean step() {
+    public void step() {
         term.clear();
         Regionlike bounds = term.getBounds();
+        if (startLine < 0) {
+            startLine = 0;
+        } else if (startLine >= lines.length) {
+            startLine = lines.length -1;
+        }
         for (int y = 0; y < term.getHeight(); y++) {
             String msg = "";
             if (lines.length > startLine + y) {
@@ -128,7 +135,6 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
             SingleLine.putString(term, y  + bounds.getY(), bounds.getX(),
                     msg, foreground, background);
         }
-        return true;
     }
 
     @Override
@@ -182,26 +188,31 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
                 codepoint = BlackenKeys.CMD_END_LOOP;
                 break;
         }
-        if (startLine < 0) {
-            startLine = 0;
-        } else if (startLine >= lines.length) {
-            startLine = lines.length -1;
-        }
         return codepoint;
     }
 
     @Override
-    public int handleMouseEvent(BlackenMouseEvent mouse) {
-        int ret = BlackenKeys.NO_KEY;
+    public boolean handleMouseEvent(BlackenMouseEvent mouse) {
+        boolean ret = false;
         if (this.secondaryCallback != null) {
             ret = secondaryCallback.handleMouseEvent(mouse);
+        }
+        if (!ret) {
+            if (mouse.getType() == BlackenEventType.MOUSE_WHEEL) {
+                //LOGGER.debug("Mouse Event: {}", mouse);
+                if (mouse.getActingButton() == BlackenMouseButton.WHEEL_UP) {
+                    this.startLine -= mouse.getClickCount();
+                } else if (mouse.getActingButton() == BlackenMouseButton.WHEEL_DOWN) {
+                    this.startLine += mouse.getClickCount();
+                }
+            }
         }
         return ret;
     }
 
     @Override
-    public int handleWindowEvent(BlackenWindowEvent window) {
-        int ret = BlackenKeys.NO_KEY;
+    public boolean handleWindowEvent(BlackenWindowEvent window) {
+        boolean ret = false;
         if (this.secondaryCallback != null) {
             ret = secondaryCallback.handleWindowEvent(window);
         }
@@ -213,5 +224,10 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         if (this.secondaryCallback != null) {
             secondaryCallback.handleResizeEvent();
         }
+    }
+
+    @Override
+    public boolean isComplete() {
+        return false;
     }
 }

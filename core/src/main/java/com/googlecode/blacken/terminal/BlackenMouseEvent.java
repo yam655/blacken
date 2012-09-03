@@ -16,6 +16,7 @@
 package com.googlecode.blacken.terminal;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 /**
  * The Blacken mouse event.
@@ -27,35 +28,16 @@ public class BlackenMouseEvent {
     private int y = -1;
     private int x = -1;
     private int clickCount = 0;
-    private EnumSet<BlackenModifier> modifiers;
-    private int button;
-    
-    /**
-     * Check for equality
-     * @param e event to check against
-     * @return true on success; false on failure
-     */
-    public boolean equals(BlackenMouseEvent e) {
-        if (e == null) return false;
-        if (!this.type.equals(e.type)) return false;
-        if (this.y != e.y) return false;
-        if (this.x != e.x) return false;
-        if (this.clickCount != e.clickCount) return false;
-        if (!this.modifiers.equals(e.modifiers)) return false;
-        if (this.button != e.button) return false;
-        return true;
+    private EnumSet<BlackenModifier> modifiers = EnumSet.noneOf(BlackenModifier.class);
+    private EnumSet<BlackenMouseButton> remainingButtons = EnumSet.noneOf(BlackenMouseButton.class);
+    private BlackenMouseButton actingButton = BlackenMouseButton.NO_BUTTON;
+    private double rotation = 0.0;
         
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return String.format("Mouse: %s %d, %d, %s%d x%d", type.name(), y, x,   //$NON-NLS-1$
-                      BlackenModifier.getModifierString(modifiers), button, 
-                      clickCount);
+        return String.format("Mouse: %s %d, %d, %s (%s) %s x%d", type.name(), y, x,
+                      BlackenModifier.getModifierString(modifiers), remainingButtons,
+                      actingButton, clickCount);
     }
     
     /**
@@ -169,12 +151,150 @@ public class BlackenMouseEvent {
         return modifiers;
     }
 
-    /**
-     * Set the button
-     * @param button the button
-     */
-    public void setButton(int button) {
-        this.button = button;
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 41 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 41 * hash + this.y;
+        hash = 41 * hash + this.x;
+        hash = 41 * hash + this.clickCount;
+        hash = 41 * hash + Objects.hashCode(this.modifiers);
+        hash = 41 * hash + Objects.hashCode(this.remainingButtons);
+        hash = 41 * hash + (this.actingButton != null ? this.actingButton.hashCode() : 0);
+        hash = 41 * hash + (int) (Double.doubleToLongBits(this.rotation) ^ (Double.doubleToLongBits(this.rotation) >>> 32));
+        return hash;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BlackenMouseEvent other = (BlackenMouseEvent) obj;
+        if (this.type != other.type) {
+            return false;
+        }
+        if (this.y != other.y) {
+            return false;
+        }
+        if (this.x != other.x) {
+            return false;
+        }
+        if (this.clickCount != other.clickCount) {
+            return false;
+        }
+        if (!Objects.equals(this.modifiers, other.modifiers)) {
+            return false;
+        }
+        if (!Objects.equals(this.remainingButtons, other.remainingButtons)) {
+            return false;
+        }
+        if (this.actingButton != other.actingButton) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.rotation) != Double.doubleToLongBits(other.rotation)) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Get the acting button.
+     * @return
+     * @deprecated Use {@link #getActingButton()} instead.
+     */
+    @Deprecated
+    public int getButton() {
+        int b = 0;
+        switch(actingButton) {
+            case BUTTON_1: 
+                b = 1;
+                break;
+            case BUTTON_2: 
+                b = 2;
+                break;
+            case BUTTON_3: 
+                b = 3;
+                break;
+            case WHEEL_UP: 
+                b = 4;
+                break;
+            case WHEEL_DOWN: 
+                b = 5;
+                break;
+        }
+        return b;
+    }
+
+    /**
+     *
+     * @param b
+     * @deprecated Use {@link #setActingButton(BlackenMouseButton)} instead.
+     */
+    @Deprecated
+    public void setButton(int b) {
+        switch (b) {
+            case 1:
+                actingButton = BlackenMouseButton.BUTTON_1;
+                break;
+            case 2:
+                actingButton = BlackenMouseButton.BUTTON_2;
+                break;
+            case 3:
+                actingButton = BlackenMouseButton.BUTTON_3;
+                break;
+            case 4:
+                actingButton = BlackenMouseButton.WHEEL_UP;
+                break;
+            case 5:
+                actingButton = BlackenMouseButton.WHEEL_DOWN;
+                break;
+            default:
+                actingButton = BlackenMouseButton.NO_BUTTON;
+                break;
+        }
+    }
+
+    /**
+     * Set the acting button
+     * @param button
+     */
+    public void setActingButton(BlackenMouseButton button) {
+        this.actingButton = button;
+    }
+    
+    public BlackenMouseButton getActingButton() {
+        return actingButton;
+    }
+
+    /**
+     * Set the state of the buttons after the event.
+     * @param buttons buttons
+     */
+    public void setRemainingButtons(EnumSet<BlackenMouseButton> buttons) {
+        if (buttons == null) {
+            this.remainingButtons = EnumSet.noneOf(BlackenMouseButton.class);
+        } else {
+            this.remainingButtons = buttons;
+        }
+    }
+
+    /**
+     * Get the state of the buttons after the event.
+     * @return button set
+     */
+    public EnumSet<BlackenMouseButton> getRemainingButtons() {
+        return remainingButtons;
+    }
+
+    public void setRotation(double rot) {
+        this.rotation = rot;
+    }
+    public double getRotation() {
+        return rotation;
+    }
 }

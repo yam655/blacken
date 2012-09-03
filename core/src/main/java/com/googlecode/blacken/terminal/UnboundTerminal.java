@@ -129,4 +129,9 @@ import com.googlecode.blacken.grid.Grid;
         // do nothing (legal)
     }
 
+    @Override
+    public void refresh(int y, int x) {
+        getGrid().get(y, x).setDirty(false);
+    }
+
 }

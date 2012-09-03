@@ -287,8 +287,23 @@ public class TerminalView implements TerminalViewInterface {
 
     @Override
     public void refresh() {
-        term.refresh();
+        Grid<TerminalCellLike> grid = getGrid();
+        for (int y = bounds.getY(); y < bounds.getHeight() + bounds.getY(); y++) {
+            for (int x = bounds.getX(); x < bounds.getWidth() + bounds.getX(); x++) {
+                refresh(y, x);
+            }
+        }
+        term.doUpdate();
     }
+
+    public void refresh(int y, int x) {
+        if (bounds.contains(y, x)) {
+            term.refresh(y, x);
+        } else {
+            throw new IndexOutOfBoundsException(String.format("%s, %s not within %s", y, x, bounds));
+        }
+    }
+
 
     @Override
     public void set(int y, int x, String sequence, Integer foreground, Integer background, EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
@@ -365,4 +380,8 @@ public class TerminalView implements TerminalViewInterface {
         return term.getBackingTerminalView();
     }
 
+    @Override
+    public void doUpdate() {
+        term.doUpdate();
+    }
 }

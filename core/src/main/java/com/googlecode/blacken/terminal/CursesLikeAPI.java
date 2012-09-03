@@ -15,7 +15,6 @@
 */
 package com.googlecode.blacken.terminal;
 
-import com.googlecode.blacken.terminal.editing.SingleLine;
 import java.util.EnumSet;
 
 import com.googlecode.blacken.colors.ColorHelper;
@@ -25,6 +24,7 @@ import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.terminal.editing.SingleLine;
 
 /**
  * This is just vaguely similar to the Curses API.
@@ -281,6 +281,9 @@ public class CursesLikeAPI implements TerminalInterface {
 
     public void setCurBackground(int c) {
         this.curBackground = c;
+        TerminalCellLike empty = this.getEmpty();
+        empty.setBackground(curBackground);
+        this.setEmpty(empty);
     }
 
     public void setCurBackground(String c) {
@@ -302,10 +305,14 @@ public class CursesLikeAPI implements TerminalInterface {
                 }
             }
         }
+        setCurBackground(curBackground);
     }
 
     public void setCurForeground(int c) {
         this.curForeground = c;
+        TerminalCellLike empty = this.getEmpty();
+        empty.setForeground(curForeground);
+        this.setEmpty(empty);
     }
 
     public void setCurForeground(String c) {
@@ -327,6 +334,7 @@ public class CursesLikeAPI implements TerminalInterface {
                 }
             }
         }
+        setCurForeground(curForeground);
     }
 
     /**
@@ -356,6 +364,18 @@ public class CursesLikeAPI implements TerminalInterface {
     @Override
     public void disableEventNotice(BlackenEventType event) {
         terminal.disableEventNotice(event);
+    }
+
+    /**
+     * Curses-like alias for doUpdate.
+     */
+    public void doupdate() {
+        terminal.doUpdate();
+    }
+
+    @Override
+    public void doUpdate() {
+        terminal.doUpdate();
     }
 
     @Override
@@ -643,4 +663,8 @@ public class CursesLikeAPI implements TerminalInterface {
         }
     }
 
+    @Override
+    public void refresh(int y, int x) {
+        terminal.refresh(y, x);
+    }
 }

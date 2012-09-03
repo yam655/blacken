@@ -17,7 +17,8 @@
 package com.googlecode.blacken.terminal.editing;
 
 import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.TerminalInterface;
+import com.googlecode.blacken.terminal.BlackenMouseEvent;
+import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
 
 /**
@@ -64,6 +65,64 @@ public class BreakableLoop {
             this.millis = frequencyMillis;
         }
     }
+
+    /**
+     * The BreakableLoop can be run interactively or driven by the program.
+     *
+     * <p>This is the same as:
+     * <pre>
+     * drive(codePoint, null, null);
+     * </pre>
+     *
+     * @param codePoint
+     * @see #drive(int, BlackenMouseEvent, BlackenWindowEvent)
+     * @return
+     */
+    public boolean drive(int codePoint) {
+        return drive(codePoint, null, null);
+    }
+
+    /**
+     * The BreakableLoop can be run interactively or driven by the program.
+     *
+     * @param codePoint
+     * @param mouseEvent only used for KEY_MOUSE_EVENT
+     * @param windowEvent only used for KEY_WINDOW_EVENT
+     * @see TerminalViewInterface#getmouse()}
+     * @see TerminalViewInterface#getwindow()}
+     * @return
+     */
+    public boolean drive(int codePoint, BlackenMouseEvent mouseEvent,
+            BlackenWindowEvent windowEvent) {
+        boolean doQuit = false;
+        int ec = BlackenKeys.NO_KEY;
+        if (codePoint == BlackenKeys.KEY_MOUSE_EVENT) {
+            if (mouseEvent == null) {
+                throw new NullPointerException("KEY_MOUSE_EVENT requires a BlackenMouseEvent object");
+            }
+            callback.handleMouseEvent(mouseEvent);
+        } else if (codePoint == BlackenKeys.KEY_WINDOW_EVENT) {
+            if (windowEvent == null) {
+                throw new NullPointerException("KEY_WINDOW_EVENT requires a BlackenWindowEvent object");
+            }
+            callback.handleWindowEvent(term.getwindow());
+        } else if (codePoint == BlackenKeys.RESIZE_EVENT) {
+            callback.handleResizeEvent();
+        } else {
+            ec = callback.handleCodepoint(codePoint);
+        }
+        switch (ec) {
+            case BlackenKeys.CMD_END_LOOP:
+                doQuit = true;
+                break;
+            case BlackenKeys.RESIZE_EVENT:
+                // I have no idea why this would be returned
+                callback.handleResizeEvent();
+                break;
+        }
+        stepper.step();
+        return doQuit;
+    }
     /**
      * Run the stepper, checking for keystrokes.
      *
@@ -82,52 +141,22 @@ public class BreakableLoop {
         int cp;
         int i = 0;
         boolean doQuit = false;
-        while (!doQuit && stepper.step()) {
+        boolean firstPass = true;
+        while (!doQuit && !stepper.isComplete()) {
+            if (firstPass) {
+                // Get some action before the getch() sleep
+                stepper.step();
+                firstPass = false;
+            }
             cp = term.getch(millis);
-            int ec = BlackenKeys.NO_KEY;
+            BlackenMouseEvent mouseEvent = null;
+            BlackenWindowEvent windowEvent = null;
             if (cp == BlackenKeys.KEY_MOUSE_EVENT) {
-                ec = callback.handleMouseEvent(term.getmouse());
+                mouseEvent = term.getmouse();
             } else if (cp == BlackenKeys.KEY_WINDOW_EVENT) {
-                ec = callback.handleWindowEvent(term.getwindow());
-            } else if (cp == BlackenKeys.RESIZE_EVENT) {
-                callback.handleResizeEvent();
-            } else {
-                ec = callback.handleCodepoint(cp);
+                windowEvent = term.getwindow();
             }
-            switch (ec) {
-                case BlackenKeys.NO_KEY:
-                    continue;
-                case BlackenKeys.CMD_END_LOOP:
-                    doQuit = true;
-                    break;
-                case BlackenKeys.RESIZE_EVENT:
-                    // I have no idea why this would be returned
-                    callback.handleResizeEvent();
-                    break;
-                case BlackenKeys.MOUSE_EVENT:
-                    cp = BlackenKeys.NO_KEY; // illegal, so we ignore
-                    break;
-                case BlackenKeys.WINDOW_EVENT:
-                    cp = BlackenKeys.NO_KEY; // illegal, so we ignore
-                    break;
-                default:
-                    cp = ec;
-                    break;
-            }
-            if(cp == BlackenKeys.NO_KEY) {
-                continue;
-            }
-            if (cp == BlackenKeys.CMD_END_LOOP) {
-                doQuit = true;
-                continue;
-            }
-            if (BlackenKeys.isSpecial(cp)) {
-                continue;
-            }
-            if (doQuit) {
-                continue;
-            }
-            i++;
+            doQuit = drive(cp, mouseEvent, windowEvent);
         }
 
     }

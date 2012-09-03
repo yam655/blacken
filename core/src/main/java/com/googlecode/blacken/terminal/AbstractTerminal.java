@@ -239,8 +239,16 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void refresh() {
-        /* do nothing */;
+        Grid<TerminalCellLike> grid = getGrid();
+        for (int y = grid.getY(); y < grid.getHeight() + grid.getY(); y++) {
+            for (int x = grid.getX(); x < grid.getWidth() + grid.getX(); x++) {
+                refresh(y, x);
+            }
+        }
     }
+
+    @Override
+    abstract public void refresh(int y, int x);
 
     @Override
     public void set(int y, int x, String sequence, 
@@ -616,4 +624,12 @@ public abstract class AbstractTerminal implements TerminalInterface {
         this.getGrid().setPosition(y1, x1);
     }
 
+    @Override
+    public void doUpdate() {
+        int i = 0;
+        if (i > 0) {
+            // The default implementation should do nothing.
+            // Silence the NetBeans warning.
+        }
+    }
 }
