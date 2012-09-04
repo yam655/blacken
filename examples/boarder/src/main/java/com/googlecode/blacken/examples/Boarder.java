@@ -819,6 +819,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 // modifier = key;
                 key = term.getch(); // should be immediate
             }
+            ViewerHelper vh = null;
             switch(key) {
                 case BlackenKeys.NO_KEY:
                 case BlackenKeys.RESIZE_EVENT:
@@ -827,13 +828,17 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                 case 'l':
                 case 'L':
                     // show Apache 2.0 License
-                    new ViewerHelper(term, "License", Obligations.getBlackenLicense()).run();
+                    vh = new ViewerHelper(term, "License", Obligations.getBlackenLicense());
+                    vh.setColor(7, 0);
+                    vh.run();
                     break;
                 case 'n':
                 case 'N':
                     // show Notices file
                     // This is the only one that needs to be shown for normal games.
-                    new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice()).run();
+                    vh = new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice());
+                    vh.setColor(7, 0);
+                    vh.run();
                     break;
                 case 'f':
                 case 'F':
@@ -843,7 +848,14 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                             Obligations.getFontLicense()).run();
                     break;
                 case '?':
-                    new ViewerHelper(term, "Help", helpMessage).run();
+                    vh = new ViewerHelper(term, "Help", helpMessage);
+                    vh.setColor("White", "DimGrey");
+                    vh.setMessageColor(palette.get("Silver"), 
+                            ColorHelper.lerp(palette.get("DimGrey"),
+                                             palette.get("Black"), 0.667F));
+                    vh.run();
+                    term.setCurBackground(0);
+                    term.setCurForeground(7);
                     break;
                 case 'q':
                 case 'Q':

@@ -19,10 +19,10 @@ package com.googlecode.blacken.examples;
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.terminal.BlackenEventType;
-import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.CellWalls;
+import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalView;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
@@ -62,7 +62,13 @@ public class ViewerHelper implements CodepointCallbackInterface {
     public void setColor(int foreground, int background) {
         this.foreground = foreground;
         this.background = background;
-        term.getEmpty().setBackground(background);
+        TerminalCellLike e = term.getEmpty();
+        e.setBackground(background);
+        term.setEmpty(e);
+        viewer.setColor(foreground, background);
+        helpViewer.setColor(foreground, background);
+    }
+    public void setMessageColor(int foreground, int background) {
         viewer.setColor(foreground, background);
     }
     public void setColor(String foreground, String background) {
