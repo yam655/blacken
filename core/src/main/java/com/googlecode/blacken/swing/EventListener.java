@@ -134,7 +134,7 @@ public class EventListener implements WindowListener, KeyListener,
      * @return events enabled
      */
     public EnumSet<BlackenEventType> getEnabled() {
-        return enabled;
+        return enabled.clone();
     }
 
     /**

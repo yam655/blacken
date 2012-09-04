@@ -389,6 +389,7 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
+    @Deprecated
     public void enableEventNotices(EnumSet<BlackenEventType> events) {
         terminal.enableEventNotices(events);
     }
@@ -666,5 +667,15 @@ public class CursesLikeAPI implements TerminalInterface {
     @Override
     public void refresh(int y, int x) {
         terminal.refresh(y, x);
+    }
+
+    @Override
+    public void setEventNotices(EnumSet<BlackenEventType> events) {
+        terminal.setEventNotices(events);
+    }
+
+    @Override
+    public EnumSet<BlackenEventType> getEventNotices() {
+        return terminal.getEventNotices();
     }
 }

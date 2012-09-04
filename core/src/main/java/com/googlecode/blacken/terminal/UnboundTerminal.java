@@ -65,6 +65,7 @@ import com.googlecode.blacken.grid.Grid;
     }
 
     @Override
+    @Deprecated
     public void enableEventNotices(EnumSet<BlackenEventType> events) {
         // do nothing
     }
@@ -132,6 +133,16 @@ import com.googlecode.blacken.grid.Grid;
     @Override
     public void refresh(int y, int x) {
         getGrid().get(y, x).setDirty(false);
+    }
+
+    @Override
+    public void setEventNotices(EnumSet<BlackenEventType> events) {
+        // do nothing
+    }
+
+    @Override
+    public EnumSet<BlackenEventType> getEventNotices() {
+        return EnumSet.noneOf(BlackenEventType.class);
     }
 
 }

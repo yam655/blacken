@@ -157,11 +157,25 @@ public class SwingTerminal extends AbstractTerminal
     }
 
     @Override
+    @Deprecated
     public void enableEventNotices(EnumSet<BlackenEventType> events) {
         if (events == null) {
             events = EnumSet.allOf(BlackenEventType.class);
         }
         listener.setEnabled(events);
+    }
+
+    @Override
+    public void setEventNotices(EnumSet<BlackenEventType> events) {
+        if (events == null) {
+            events = EnumSet.noneOf(BlackenEventType.class);
+        }
+        listener.setEnabled(events);
+    }
+
+    @Override
+    public EnumSet<BlackenEventType> getEventNotices() {
+        return listener.getEnabled();
     }
 
     private void forceRefresh(int numRows, int numCols, int startY, int startX) {

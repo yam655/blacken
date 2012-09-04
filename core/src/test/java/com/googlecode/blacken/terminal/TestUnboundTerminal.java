@@ -728,6 +728,8 @@ public class TestUnboundTerminal {
              "public boolean getFullScreen()",
              "public void inhibitFullScreen(boolean)",
              "public void setSize(TerminalScreenSize)",
+             "public void setEventNotices(EnumSet<BlackenEventType>)",
+             "public EnumSet<BlackenEventType> getEventNotices()",
     })
     public void unsupportedByUnboundTerminal() {
         // unsupported by UnboundTerminal

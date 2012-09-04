@@ -64,10 +64,23 @@ public interface TerminalInterface extends TerminalViewInterface {
      * 
      * <p>This changes all event notices to match <code>events</code>.</p>
      *  
-     * @param events new event mask
-     * TODO change this to setEventNotices
+     * @param events new event mask; null for <em>all</em> notices
+     * @deprecated Use {@link #setEventNotices(java.util.EnumSet)} instead.
      */
     public void enableEventNotices(EnumSet<BlackenEventType> events);
+    /**
+     * Set specific event notices
+     *
+     * <p>This changes all event notices to match <code>events</code>.</p>
+     *
+     * @param events new event mask; null for <em>no</em> notices
+     */
+    public void setEventNotices(EnumSet<BlackenEventType> events);
+    /**
+     * Get the current set of event notices.
+     * @return current notices
+     */
+    public EnumSet<BlackenEventType> getEventNotices();
     @Override
     public TerminalCellLike get(int y, int x);
     @Override
