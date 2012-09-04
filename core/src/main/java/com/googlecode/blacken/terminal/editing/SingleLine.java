@@ -123,6 +123,11 @@ public class SingleLine {
                 c.setSequence("\u0000");
                 terminal.set(y, x, c);
                 terminal.setCursorLocation(y, x);
+                if (Character.isSurrogate(out.charAt(out.length()-1))) {
+                    out.delete(out.length()-2, out.length());
+                } else {
+                    out.deleteCharAt(out.length()-1);
+                }
             }
             // When the limit is reached, we don't force a return.
             // We should be able to incorporate some line-editing
