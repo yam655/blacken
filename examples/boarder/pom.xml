@@ -91,7 +91,6 @@
                         <classpathLayoutType/>
                         <classpathMavenRepositoryLayout/>
                         <classpathPrefix>lib/</classpathPrefix>
-                        <customClasspathLayout/>
                         <mainClass>${project.mainClass}</mainClass>
                         <packageName/>
                     </manifest>
