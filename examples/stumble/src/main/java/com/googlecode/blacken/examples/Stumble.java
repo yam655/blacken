@@ -15,16 +15,15 @@
 */
 package com.googlecode.blacken.examples;
 
-import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorNames;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.extras.PerlinNoise;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.swing.SwingTerminal;
-import com.googlecode.blacken.swing.SwingTerminalV2;
 import com.googlecode.blacken.terminal.*;
 import java.util.EnumSet;
 import org.slf4j.Logger;
@@ -57,8 +56,35 @@ public class Stumble {
     private boolean dirtyStatus = false;
     private String message;
     private float noisePlane;
-    private TerminalInterface glass;
-    
+    private String helpMessage =
+"Stumble\n" +
+"A stupidly simple Grid demonstration\n" +
+"Copyright (C) 2010-2012 Steven Black\n" +
+"\n" +
+"An example for the Blacken Roguelike Library.\n" +
+"\n" +
+"Released under the Apache 2.0 License.\n" +
+"\n" +
+"How to Play\n" +
+"============================================================================\n" +
+"A representation of a map is shown.  You (the player) are the\n" +
+"at sign (@).  The object is to run around collecting the numbers\n" +
+"in order.  The numbers have walls around them that only open up\n" +
+"if you've collected the previous number.\n" +
+"Use the arrow keys to move around.  There are no opponents.\n" +
+"\n" +
+"Stumble Example Commands\n" +
+"============================================================================\n" +
+"Ctrl+L : recenter and redisplay the screen\n" +
+"j, Down : move down                  | k, Up : move up\n" +
+"h, Left : move left                  | l (ell), Right: move right\n" +
+"\n" +
+"Q, q, Escape : quit\n" +
+"\n" +
+"L : show my license                  | N : show legal notices\n" +
+"\n" +
+"? : this help screen\n";
+
     /**
      * Create a new instance
      */
@@ -175,7 +201,7 @@ public class Stumble {
         movePlayerBy(0,0);
         this.message = "Welcome to Stumble!";
         term.move(-1, -1);
-        while (ch != BlackenKeys.KEY_F10) {
+        while (!this.quit) {
             if (dirtyStatus) {
                 updateStatus();
             }
@@ -242,7 +268,7 @@ public class Stumble {
         } else {
             term.mvputs(term.getHeight(), 0, "You won!");
         }
-        String msg = "F10 to quit.";
+        String msg = "? for help.";
         term.mvputs(term.getHeight(), term.getWidth()-msg.length()-1, msg);
     }
 
@@ -289,10 +315,27 @@ public class Stumble {
         case BlackenKeys.KEY_KP_RIGHT:
             movePlayerBy(0,  +1);
             break;
-        case BlackenKeys.KEY_F10:
+        case 'q':
+        case 'Q':
         case BlackenKeys.KEY_ESCAPE:
             this.quit = true;
-            // fall-through to 'default'
+            return false;
+        case 'L':
+            showMyLicense();
+            refreshScreen();
+            break;
+        case 'N':
+            showLegalNotices();
+            refreshScreen();
+            break;
+        case 'F':
+            showFontLicense();
+            refreshScreen();
+            break;
+        case '?':
+            showHelp();
+            refreshScreen();
+            break;
         default:
             return false;
         }
@@ -378,16 +421,6 @@ public class Stumble {
             palette.putMapping(ColorNames.SVG_COLORS);
         } 
         this.term.setPalette(palette);
-        try {
-            this.glass = term.initGlass(20, 40);
-        } catch (UnsupportedOperationException e) {
-            this.glass = null;
-        }
-        if (this.glass != null) {
-            TerminalCellLike cell = this.glass.getEmpty();
-            cell.setBackground(0x013f3f3f);
-            this.glass.clear(cell);
-        }
     }
     
     /**
@@ -409,6 +442,38 @@ public class Stumble {
      */
     public void quit() {
         term.quit();
+    }
+
+    private void showLegalNotices() {
+        // show Notices file
+        // This is the only one that needs to be shown for normal games.
+        ViewerHelper vh;
+        vh = new ViewerHelper(term, "Legal Notices", Obligations.getBlackenNotice());
+        vh.setColor(7, 0);
+        vh.run();
+    }
+
+    private void showFontLicense() {
+        // show the font license
+        ViewerHelper vh;
+        new ViewerHelper(term,
+                Obligations.getFontName() + " Font License",
+                Obligations.getFontLicense()).run();
+    }
+
+    private void showHelp() {
+        ViewerHelper vh;
+        vh = new ViewerHelper(term, "Help", helpMessage);
+        vh.setColor(7, 0);
+        vh.run();
+    }
+
+    private void showMyLicense() {
+        // show Apache 2.0 License
+        ViewerHelper vh;
+        vh = new ViewerHelper(term, "License", Obligations.getBlackenLicense());
+        vh.setColor(7, 0);
+        vh.run();
     }
 
 }
