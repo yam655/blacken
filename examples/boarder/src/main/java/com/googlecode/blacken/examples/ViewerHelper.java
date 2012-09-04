@@ -79,11 +79,12 @@ public class ViewerHelper implements CodepointCallbackInterface {
     }
 
     public void run() {
-        term.disableEventNotices();
-        term.enableEventNotices(EnumSet.of(BlackenEventType.MOUSE_WHEEL));
+        EnumSet<BlackenEventType> oldNotices = term.getEventNotices();
+        term.setEventNotices(EnumSet.of(BlackenEventType.MOUSE_WHEEL));
         term.clear();
         displayFrame();
         viewer.run();
+        term.setEventNotices(oldNotices);
     }
 
     @Override

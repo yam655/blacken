@@ -859,7 +859,7 @@ WindowEvent MouseEvent UnknownKey ResizeEvent                           #12
                     break;
                 case 'q':
                 case 'Q':
-                    term.quit();
+                    this.quit = true;
                     break;
                 case '.':
                 case BlackenKeys.KEY_NP_SEPARATOR:
