@@ -12,6 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.j2seVersion>1.7</project.j2seVersion>
   </properties>
 
   <dependencies>
@@ -34,8 +35,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+            <source>${project.j2seVersion}</source>
+            <target>${project.j2seVersion}</target>
             <encoding>${project.build.sourceEncoding}</encoding>
           <showDeprecation>true</showDeprecation>
         </configuration>

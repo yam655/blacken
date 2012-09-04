@@ -21,7 +21,6 @@ import com.googlecode.blacken.swing.SwingTerminal;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.CursesLikeAPI;
 import com.googlecode.blacken.terminal.TerminalInterface;
-import com.googlecode.blacken.terminal.TerminalUtils;
 
 /**
  * QandA example application.
@@ -64,7 +63,7 @@ public class QandA {
             } else if ("END".equals(got.toUpperCase())) {
                 term.puts("\nI'm not ending yet. Case matters. Type 'END' to quit.\n");
             } else {
-                term.puts(String.format("\nI saw: %s\n", name));
+                term.puts(String.format("\nI saw: %s\n", got));
             }
             
             term.puts("\n");
