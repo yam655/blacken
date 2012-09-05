@@ -425,14 +425,8 @@ public class Dungeon {
         if (ey <= 0) {
             ey += term.getHeight();
         }
-        if (ey > grid.getHeight()) {
-            ey = grid.getHeight();
-        }
         if (ex <= 0) {
             ex += term.getWidth();
-        }
-        if (ex > grid.getWidth()) {
-            ex = grid.getWidth();
         }
         Map<Integer, Representation> currentRep = this.representations.get(this.represent);
         for (int y = MAP_START.getY(); y < ey; y++) {
