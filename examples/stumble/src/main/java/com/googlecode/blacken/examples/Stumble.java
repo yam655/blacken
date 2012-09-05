@@ -133,14 +133,8 @@ public class Stumble {
         if (ey <= 0) {
             ey += term.getHeight();
         }
-        if (ey > grid.getHeight()) {
-            ey = grid.getHeight();
-        }
         if (ex <= 0) {
             ex += term.getWidth();
-        }
-        if (ex > grid.getWidth()) {
-            ex = grid.getWidth();
         }
         for (int y = MAP_START.getY(); y < ey; y++) {
             for (int x = MAP_START.getX(); x < ex; x++) {
