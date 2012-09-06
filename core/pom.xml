@@ -5,8 +5,8 @@
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
-  <name>Blacken Roguelike Library</name>
+  <version>1.2-SNAPSHOT</version>
+  <name>Blacken Roguelike Library: Core</name>
   <description>A Java user-interface library for roguelike games.</description>
   <url>http://blacken.googlecode.com/</url>
   <licenses>
@@ -87,6 +87,11 @@
               </goals>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.3.2</version>
         </plugin>
     </plugins>
   </build>
