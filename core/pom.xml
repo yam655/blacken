@@ -4,7 +4,7 @@
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.2</version>
+  <version>1.3-SNAPSHOT</version>
   <name>Blacken Roguelike Library: Core</name>
   <description>A Java user-interface library for roguelike games.</description>
   <url>http://blacken.googlecode.com/</url>
@@ -16,9 +16,9 @@
       </license>
   </licenses>
   <scm>
-      <connection>scm:svn:http://blacken.googlecode.com/svn/tags/blacken-core-1.2</connection>
-      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/tags/blacken-core-1.2</developerConnection>
-      <url>https://code.google.com/p/blacken/source/browse/tags/blacken-core-1.2</url>
+      <connection>scm:svn:http://blacken.googlecode.com/svn/</connection>
+      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/</developerConnection>
+      <url>https://code.google.com/p/blacken/source/browse/</url>
   </scm>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
