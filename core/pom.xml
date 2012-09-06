@@ -1,11 +1,10 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <name>Blacken Roguelike Library: Core</name>
   <description>A Java user-interface library for roguelike games.</description>
   <url>http://blacken.googlecode.com/</url>
@@ -17,9 +16,9 @@
       </license>
   </licenses>
   <scm>
-      <connection>scm:svn:http://blacken.googlecode.com/svn/</connection>
-      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/</developerConnection>
-      <url>https://code.google.com/p/blacken/source/browse/</url>
+      <connection>scm:svn:http://blacken.googlecode.com/svn/tags/blacken-core-1.2</connection>
+      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/tags/blacken-core-1.2</developerConnection>
+      <url>https://code.google.com/p/blacken/source/browse/tags/blacken-core-1.2</url>
   </scm>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
