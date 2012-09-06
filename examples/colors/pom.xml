@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.googlecode.blacken.examples</groupId>
   <artifactId>colors</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>colors</name>
@@ -80,24 +79,24 @@
             <version>2.4</version>
             <configuration>
                 <archive>
-                    <addMavenDescriptor/>
-                    <compress/>
-                    <forced/>
-                    <index/>
+                    <addMavenDescriptor />
+                    <compress />
+                    <forced />
+                    <index />
                     <manifest>
                         <addClasspath>true</addClasspath>
-                        <addDefaultImplementationEntries/>
-                        <addDefaultSpecificationEntries/>
-                        <addExtensions/>
-                        <classpathLayoutType/>
-                        <classpathMavenRepositoryLayout/>
+                        <addDefaultImplementationEntries />
+                        <addDefaultSpecificationEntries />
+                        <addExtensions />
+                        <classpathLayoutType />
+                        <classpathMavenRepositoryLayout />
                         <classpathPrefix>lib/</classpathPrefix>
-                        <customClasspathLayout/>
+                        <customClasspathLayout />
                         <mainClass>${project.mainClass}</mainClass>
-                        <packageName/>
+                        <packageName />
                     </manifest>
-                    <manifestFile/>
-                    <pomPropertiesFile/>
+                    <manifestFile />
+                    <pomPropertiesFile />
                 </archive>
             </configuration>
         </plugin>
