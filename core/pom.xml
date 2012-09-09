@@ -15,6 +15,14 @@
       <distribution>repo</distribution>
       </license>
   </licenses>
+
+  <parent>
+      <groupId>com.googlecode.blacken</groupId>
+      <artifactId>blacken</artifactId>
+      <version>1.2-SNAPSHOT</version>
+      <relativePath>..</relativePath>
+  </parent>
+
   <!--
   <scm>
       <connection>scm:svn:http://blacken.googlecode.com/svn/trunk</connection>
