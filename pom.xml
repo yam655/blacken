@@ -94,6 +94,12 @@
     </plugins>
   </build>
 
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <developers>
     <developer>
       <id>yam655</id>
