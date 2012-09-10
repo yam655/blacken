@@ -6,7 +6,7 @@
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.1</version>
+  <version>1.1-SNAPSHOT</version>
 
   <name>Blacken Roguelike Library: Core</name>
   <description>A Java user-interface library for roguelike games.</description>
@@ -19,16 +19,16 @@
       </license>
   </licenses>
   <scm>
-      <connection>scm:svn:http://blacken.googlecode.com/svn/trunk</connection>
-      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/trunk</developerConnection>
+      <connection>scm:svn:http://blacken.googlecode.com/svn/branches/blacken-1.1</connection>
+      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/branches/blacken-1.1</developerConnection>
       <url>https://code.google.com/p/blacken/source/browse/</url>
   </scm>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <issueManagement>
-  	<url>http://code.google.com/p/blacken/issues/list</url>
-  	<system>Google Code</system>
+      <url>http://code.google.com/p/blacken/issues/list</url>
+      <system>Google Code</system>
   </issueManagement>
   <dependencies>
     <dependency>
@@ -95,7 +95,10 @@
           <artifactId>maven-release-plugin</artifactId>
           <version>2.3.2</version>
           <configuration>
-            <tagBase>https://blacken.googlecode.com/svn/tags</tagBase>
+             <autoVersionSubmodules>true</autoVersionSubmodules>
+             <commitByProject>true</commitByProject>
+             <remoteTagging>false</remoteTagging>
+             <suppressCommitBeforeTag>true</suppressCommitBeforeTag>
           </configuration>
         </plugin>
     </plugins>
