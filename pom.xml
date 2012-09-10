@@ -3,7 +3,7 @@
 
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Blacken Roguelike Library</name>
