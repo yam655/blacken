@@ -495,4 +495,70 @@ public final class PerlinNoise {
         // Sum up and scale the result to cover the range [-1,1]
         return 27.0 * (n0 + n1 + n2 + n3 + n4);
     }
+
+    public double fbmNoise(int octaves, double x, double y) {
+        return fbmNoise(octaves, null, null, x, y, null, null);
+    }
+
+    public double fbmNoise(int octaves, double x, double y, double z) {
+        return fbmNoise(octaves, null, null, x, y, z, null);
+    }
+
+    public double fbmNoise(int octaves, double x, double y, double z, double w) {
+        return fbmNoise(octaves, null, null, x, y, z, w);
+    }
+
+    /**
+     * Very flexibly create fbmNoise.
+     *
+     * @param octaves number of octaves
+     * @param damp divisor used to scale each octave
+     * @param jump multiplier used for coords in each octave
+     * @param x
+     * @param y
+     * @param z optional third axis
+     * @param w optional fourth axis
+     * @return
+     */
+    public double fbmNoise(int octaves, Double damp, Double jump, double x, double y, Double z, Double w) {
+        double ret = 0;
+        double scale = 1;
+        if (damp == null) {
+            damp = 2.0;
+        }
+        if (jump == null) {
+            jump = 2.0;
+        }
+        if (w != null && z == null) {
+            z = w;
+            w = null;
+        }
+        // This could be done smaller, but I think this will be faster
+        if (z == null) {
+            for (int i = 0; i < octaves; i++) {
+                ret += noise(x, y) / scale;
+                scale *= damp;
+                x *= jump;
+                y *= jump;
+            }
+        } else if (w == null) {
+            for (int i = 0; i < octaves; i++) {
+                ret += noise(x, y, z) / scale;
+                scale *= damp;
+                x *= jump;
+                y *= jump;
+                z *= jump;
+            }
+        } else {
+            for (int i = 0; i < octaves; i++) {
+                ret += noise(x, y, z, w) / scale;
+                scale *= damp;
+                x *= jump;
+                y *= jump;
+                z *= jump;
+                w *= jump;
+            }
+        }
+        return ret;
+    }
 }
