@@ -15,17 +15,17 @@
 */
 package com.googlecode.blacken.colors;
 
-import java.util.Map;
-import org.junit.Test;
-
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
- * @author yam655
+ * @author Steven Black
  *
  */
 public class TestColorHelper {
@@ -217,6 +217,7 @@ public class TestColorHelper {
     
     /**
      * Make an opaque RGB color -- color components have upper value of 255.
+     * @deprecated testing deprecated function
      */
     @Test
     @Covers("public static int makeColor(int,int,int)")
@@ -362,6 +363,7 @@ public class TestColorHelper {
 
     /**
      * Make an RGBA color -- color components have upper value of 1.0.
+     * @deprecated testing deprecated function
      */
     @Test
     @Covers("public static int makeColor(float,float,float,float)")
@@ -753,5 +755,229 @@ public class TestColorHelper {
         assertEquals(NEAR_BLACK, ColorHelper.colorFromHSV(result));
     }
 
+    @Test
+    @Covers("public static List<Integer> createGradient(List<Integer>,int,List<Integer>)")
+    public void createGradient_out_n_List() {
+        List<Integer> grads = new ArrayList<>();
+        grads.add(BLACK);
+        grads.add(WHITE);
+        List<Integer> gradient = ColorHelper.createGradient(null, 5, grads);
+        assertEquals(5, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(WHITE, (int)gradient.get(4));
+        assertEquals("0xff7f7f7f", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xff3f3f3f", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffbfbfbf", String.format("0x%8x", gradient.get(3)));
+
+        grads.clear();
+        grads.add(BLACK);
+        grads.add(BLUE);
+        grads.add(RED);
+        grads.add(GREEN);
+        grads.add(WHITE);
+        gradient = ColorHelper.createGradient(null, 3, grads);
+        assertEquals(3, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(RED, (int)gradient.get(1));
+        assertEquals(WHITE, (int)gradient.get(2));
+
+        grads.clear();
+        grads.add(BLACK);
+        grads.add(RED);
+        grads.add(WHITE);
+        gradient = ColorHelper.createGradient(null, 4, grads);
+        assertEquals(4, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals("0xffaa0000", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffff5555", String.format("0x%8x", gradient.get(2)));
+        assertEquals(WHITE, (int)gradient.get(3));
+
+        List<Integer> out = new ArrayList<>();
+        out.add(GREEN);
+        grads.clear();
+        grads.add(BLACK);
+        grads.add(RED);
+        grads.add(WHITE);
+        gradient = ColorHelper.createGradient(out, 4, grads);
+        assertSame(out, gradient);
+        assertEquals(5, gradient.size());
+        assertEquals(GREEN, (int)gradient.get(0));
+        assertEquals(BLACK, (int)gradient.get(1));
+        assertEquals("0xffaa0000", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xffff5555", String.format("0x%8x", gradient.get(3)));
+        assertEquals(WHITE, (int)gradient.get(4));
+    }
+    @Test
+    @Covers("public static List<Integer> createGradient(int,Integer...)")
+    public void createGradient_int_Integers() {
+        List<Integer> gradient = ColorHelper.createGradient(5, BLACK, WHITE);
+        assertEquals(5, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(WHITE, (int)gradient.get(4));
+        assertEquals("0xff7f7f7f", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xff3f3f3f", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffbfbfbf", String.format("0x%8x", gradient.get(3)));
+
+        gradient = ColorHelper.createGradient(3, BLACK, BLUE, RED, GREEN, WHITE);
+        assertEquals(3, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(RED, (int)gradient.get(1));
+        assertEquals(WHITE, (int)gradient.get(2));
+
+        gradient = ColorHelper.createGradient(4, BLACK, RED, WHITE);
+        assertEquals(4, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals("0xffaa0000", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffff5555", String.format("0x%8x", gradient.get(2)));
+        assertEquals(WHITE, (int)gradient.get(3));
+    }
+
+    @Test
+    @Covers("public static List<Integer> lookup(ColorPalette,Integer...)")
+    public void lookup_in_Integers() {
+        ColorPalette in = new ColorPalette();
+        in.add("Black", BLACK);
+        in.add("White", WHITE);
+        in.add("Red", RED);
+        in.add("Green", GREEN);
+        in.add("Blue", BLUE);
+
+        List<Integer> got = ColorHelper.lookup(in, 0, 1);
+        assertNotSame(in, got);
+        assertEquals(2, got.size());
+        assertEquals(BLACK, (int)got.get(0));
+        assertEquals(WHITE, (int)got.get(1));
+
+        got = ColorHelper.lookup(in, 0, 4, 2, 3, 1);
+        assertNotSame(in, got);
+        assertEquals(5, got.size());
+        assertEquals(BLACK, (int)got.get(0));
+        assertEquals(BLUE, (int)got.get(1));
+        assertEquals(RED, (int)got.get(2));
+        assertEquals(GREEN, (int)got.get(3));
+        assertEquals(WHITE, (int)got.get(4));
+
+        got = ColorHelper.lookup(null, BLACK);
+        assertNotNull(got);
+        assertEquals(1, got.size());
+        assertEquals(BLACK, (int)got.get(0));
+    }
+
+    @Test
+    @Covers("public static List<Integer> lookup(ColorPalette,String...) throws InvalidStringFormatException")
+    public void lookup_in_Strings() {
+        ColorPalette in = new ColorPalette();
+        in.add("Black", BLACK);
+        in.add("White", WHITE);
+        in.add("Red", RED);
+        in.add("Green", GREEN);
+        in.add("Blue", BLUE);
+
+        List<Integer> got;
+        try {
+            got = ColorHelper.lookup(in, "Black", "White");
+        } catch (InvalidStringFormatException ex) {
+            throw new RuntimeException(ex);
+        }
+        assertNotSame(in, got);
+        assertEquals(2, got.size());
+        assertEquals(BLACK, (int)got.get(0));
+        assertEquals(WHITE, (int)got.get(1));
+
+        try {
+            got = ColorHelper.lookup(in, "Black", "Blue", "Red", "Green", "White");
+        } catch (InvalidStringFormatException ex) {
+            throw new RuntimeException(ex);
+        }
+        assertNotSame(in, got);
+        assertEquals(5, got.size());
+        assertEquals(BLACK, (int)got.get(0));
+        assertEquals(BLUE, (int)got.get(1));
+        assertEquals(RED, (int)got.get(2));
+        assertEquals(GREEN, (int)got.get(3));
+        assertEquals(WHITE, (int)got.get(4));
+
+        try {
+            got = ColorHelper.lookup(null, "#fff");
+        } catch (InvalidStringFormatException ex) {
+            throw new RuntimeException(ex);
+        }
+        assertNotNull(got);
+        assertEquals(1, got.size());
+        assertEquals(WHITE, (int)got.get(0));
+    }
+
+    @Test
+    @Covers("public static List<Integer> extendGradient(List<Integer>,int,List<Integer>)")
+    public void extendGradient_out_n_List() {
+        List<Integer> out = new ArrayList<>();
+        out.add(BLACK);
+        List<Integer> grads = new ArrayList<>();
+        grads.add(WHITE);
+        List<Integer> gradient = ColorHelper.extendGradient(out, 5, grads);
+        assertSame(gradient, out);
+        assertEquals(5, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(WHITE, (int)gradient.get(4));
+        assertEquals("0xff7f7f7f", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xff3f3f3f", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffbfbfbf", String.format("0x%8x", gradient.get(3)));
+
+        out.clear();
+        out.add(BLACK);
+        grads.clear();
+        grads.add(BLUE);
+        grads.add(RED);
+        grads.add(GREEN);
+        grads.add(WHITE);
+        gradient = ColorHelper.extendGradient(out, 3, grads);
+        assertSame(gradient, out);
+        assertEquals(3, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(RED, (int)gradient.get(1));
+        assertEquals(WHITE, (int)gradient.get(2));
+
+        out.clear();
+        out.add(BLACK);
+        grads.clear();
+        grads.add(RED);
+        grads.add(WHITE);
+        gradient = ColorHelper.extendGradient(out, 4, grads);
+        assertSame(gradient, out);
+        assertEquals(4, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals("0xffaa0000", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffff5555", String.format("0x%8x", gradient.get(2)));
+        assertEquals(WHITE, (int)gradient.get(3));
+
+        out.clear();
+        out.add(GREEN);
+        out.add(BLACK);
+        grads.clear();
+        grads.add(RED);
+        grads.add(WHITE);
+        gradient = ColorHelper.extendGradient(out, 4, grads);
+        assertSame(out, gradient);
+        assertEquals(5, gradient.size());
+        assertEquals(GREEN, (int)gradient.get(0));
+        assertEquals(BLACK, (int)gradient.get(1));
+        assertEquals("0xffaa0000", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xffff5555", String.format("0x%8x", gradient.get(3)));
+        assertEquals(WHITE, (int)gradient.get(4));
+    }
+
+    @Covers("public static List<Integer> extendGradient(List<Integer>,int,int)")
+    public void extendGradient_out_n_value() {
+        List<Integer> out = new ArrayList<>();
+        out.add(BLACK);
+        List<Integer> gradient = ColorHelper.extendGradient(out, 5, WHITE);
+        assertSame(gradient, out);
+        assertEquals(5, gradient.size());
+        assertEquals(BLACK, (int)gradient.get(0));
+        assertEquals(WHITE, (int)gradient.get(4));
+        assertEquals("0xff7f7f7f", String.format("0x%8x", gradient.get(2)));
+        assertEquals("0xff3f3f3f", String.format("0x%8x", gradient.get(1)));
+        assertEquals("0xffbfbfbf", String.format("0x%8x", gradient.get(3)));
+    }
 
 }

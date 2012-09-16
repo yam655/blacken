@@ -15,10 +15,14 @@
 */
 package com.googlecode.blacken.colors;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A container class for a number of color-related convenience functions.
@@ -26,33 +30,34 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
  * @author Steven Black
  */
 public class ColorHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ColorHelper.class);
     /**
      * This exists to help prevent spelling errors in Strings where the
      * compiler cannot catch them.
      *
-     * @see {@link #colorToHSV(int, java.util.Map)}
+     * @see #colorToHSV(int, Map)
      */
     public static final String HUE = "hue";
     /**
      * This exists to help prevent spelling errors in Strings where the
      * compiler cannot catch them.
      *
-     * @see {@link #colorToHSV(int, java.util.Map)}
+     * @see #colorToHSV(int, Map)
      */
     public static final String SATURATION = "saturation";
     /**
      * This exists to help prevent spelling errors in Strings where the
      * compiler cannot catch them.
      *
-     * @see {@link #colorToHSV(int, java.util.Map)}
+     * @see #colorToHSV(int, Map)
      */
     public static final String VALUE = "value";
     /**
      * This exists to help prevent spelling errors in Strings where the
      * compiler cannot catch them.
      *
-     * @see {@link #colorToHSV(int, java.util.Map)}
-     * @see {@link #colorToComponents(int, java.util.Map)}
+     * @see #colorToHSV(int, Map)
+     * @see #colorToComponents(int, Map)
      */
     public static final String ALPHA = "alpha";
     /**
@@ -356,6 +361,7 @@ public class ColorHelper {
      */
     public static int makeColor(String color)
             throws InvalidStringFormatException {
+        color = color.trim();
         if (color.startsWith("#")) {
             color = color.substring(1);
             int c;
@@ -390,7 +396,7 @@ public class ColorHelper {
             } else if (color.length() == 8) {
                 return c;
             }
-        } else if (color.contains(",") || color.contains(" ")) {
+        } else if (color.contains(",") || color.contains("\t") || color.contains(" ")) {
             String[] parts;
             if (color.contains(",")) {
                 parts = color.split(",");
@@ -399,11 +405,11 @@ public class ColorHelper {
             }
             int[] components = new int[4];
             try {
-                components[0] = Integer.parseInt(parts[0], 10);
-                components[1] = Integer.parseInt(parts[1], 10);
-                components[2] = Integer.parseInt(parts[2], 10);
+                components[0] = Integer.parseInt(parts[0].trim(), 10);
+                components[1] = Integer.parseInt(parts[1].trim(), 10);
+                components[2] = Integer.parseInt(parts[2].trim(), 10);
                 if (parts.length > 3) {
-                    components[3] = Integer.parseInt(parts[3], 10);
+                    components[3] = Integer.parseInt(parts[3].trim(), 10);
                 } else {
                     components[3] = 255;
                 }
@@ -1072,11 +1078,170 @@ public class ColorHelper {
                 components.get(GREEN), components.get(BLUE), alpha);
     }
 
+    /**
+     * Create a color from an array of color components.
+     *
+     * @param components {r, g, b} or {r, g, b, a}
+     * @return
+     */
     public static int colorFromComponents(int[] components) {
         int alpha = 255;
         if (components.length >= 3) {
             alpha = components[3];
         }
         return colorFromComponents(components[0], components[1], components[2], alpha);
+    }
+
+    /**
+     * Create a gradient from a set of RGBA colors.
+     *
+     * @param colors number of colors in the gradient
+     * @param rgbaColors
+     * @return
+     */
+    public static List<Integer> createGradient(int colors, Integer... rgbaColors) {
+        return createGradient(null, colors, Arrays.asList(rgbaColors));
+    }
+
+    /**
+     * Lookup a set of names (from a palette) or color definitions.
+     *
+     * @param in palette to look up names from (may be null)
+     * @param namesOrColorDefs
+     * @return list of color values
+     * @throws InvalidStringFormatException color definition is invalid
+     */
+    public static List<Integer> lookup(ColorPalette in, String... namesOrColorDefs) throws InvalidStringFormatException {
+        List<Integer> preparedList = new ArrayList<>();
+        if (in != null) {
+            for (String name : namesOrColorDefs) {
+                if (in.containsKey(name)) {
+                    preparedList.add(in.get(name));
+                } else {
+                    preparedList.add(makeColor(name));
+                }
+            }
+        } else {
+            for (String def : namesOrColorDefs) {
+                preparedList.add(makeColor(def));
+            }
+        }
+        return preparedList;
+    }
+
+    /**
+     * Take a selection of indexes or colors and look them up returning the
+     * color values.
+     *
+     * @param in if null, <code>indexesOrColors</code> must be colors
+     * @param indexesOrColors set of indexes or colors
+     * @return
+     */
+    public static List<Integer> lookup(ColorPalette in, Integer... indexesOrColors) {
+        List<Integer> preparedList;
+        if (in != null) {
+            preparedList = new ArrayList<>();
+            for (int i : indexesOrColors) {
+                preparedList.add(in.getColor(i));
+            }
+        } else {
+            preparedList = Arrays.asList(indexesOrColors);
+        }
+        return preparedList;
+    }
+
+    /**
+     * Extend an existing gradient.
+     *
+     * <p>Simply adding one gradient to an existing gradient causes
+     * duplication in the last-color-of-first-gradient and the
+     * first-color-of-second-gradient. This function automatically
+     * takes care of that issue.
+     *
+     * <p>This always creates the gradient starting from the last color
+     * of <code>out</code>, so if you duplicate that color in your
+     * <code>colorValues</code> you will have a solid block of colors.
+     *
+     * @param out existing palette to extend
+     * @param colors number of colors in gradient
+     * @param colorValues set of colors in new gradient segment
+     * @return <code>out</code> is always returned
+     */
+    public static List<Integer> extendGradient(List<Integer> out, int colors, List<Integer> colorValues) {
+        List<Integer> i = new ArrayList<>(colorValues);
+        i.add(0, out.get(out.size()-1));
+        i = createGradient(null, colors, i);
+        i.remove(0);
+        out.addAll(i);
+        return out;
+    }
+
+    /**
+     * Extend an existing gradient.
+     * 
+     * <p>Simply adding one gradient to an existing gradient causes 
+     * duplication in the last-color-of-first-gradient and the 
+     * first-color-of-second-gradient. This function automatically
+     * takes care of that issue.
+     * 
+     * <p>This always creates the gradient starting from the last color
+     * of <code>out</code>. This is why we can extend the gradient with
+     * just a single value.
+     * 
+     * @param out existing palette to extend
+     * @param colors number of colors in gradient
+     * @param colorValue the color in new gradient segment
+     * @return <code>out</code> is always returned
+     */
+    public static List<Integer> extendGradient(List<Integer> out, int colors, int colorValue) {
+        List<Integer> i = new ArrayList<>(2);
+        i.add(out.get(out.size()-1));
+        i.add(colorValue);
+        i = createGradient(null, colors, i);
+        i.remove(0);
+        out.addAll(i);
+        return out;
+    }
+
+    /**
+     * Create a gradient as a simple list of color values from a simple list of
+     * color values.
+     *
+     * @param out an existing list to add the colors to
+     * @param colors how many colors in the gradient
+     * @param rgbaColors colors specifying range of the gradient
+     * @return
+     */
+    public static List<Integer> createGradient(List<Integer> out, int colors,
+            List<Integer> rgbaColors) {
+        int rgbaCount = rgbaColors.size();
+        if (colors - rgbaCount == 0) {
+            return rgbaColors;
+        }
+        int step;
+        List<Integer> ret = out;
+        if (ret == null) {
+            ret = new ArrayList<>(colors);
+        }
+        // XXX This can be improved
+        step = colors - 1;
+        List<Integer> col = new ArrayList<>();
+        float lerpStep = 1.0F / step;
+        //LOGGER.debug("Colors: {}; RgbaColors: {}", colors, rgbaCount);
+        for (int m = 0; m < rgbaCount-1; m++) {
+            float e = 0;
+            for (int s = 0; s < step; s++) {
+                col.add(lerp(rgbaColors.get(m), rgbaColors.get(m+1), e));
+                e += lerpStep;
+            }
+        }
+        col.add(rgbaColors.get(rgbaCount-1));
+        step = rgbaCount -1;
+        //LOGGER.debug("ColSize: {}; Step: {}; EndSize: {}", new Object[]
+        //          {col.size(), rgbaCount, (float)col.size() / (float)step});
+        for (int i = 0; i < col.size(); i += step) {
+            ret.add(col.get(i));
+        }
+        return ret;
     }
 }

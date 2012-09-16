@@ -730,7 +730,7 @@ implements List<V>, Cloneable, Serializable {
      * and adds or updates the names to point to the newly added indexed 
      * entries. This always adds all of the indexes to the end of the current
      * ListMap, and the new/updated keys always only point to the new 
-     * entries.</p>
+     * entries.
      * 
      * @param old the old ListMap
      * @return true

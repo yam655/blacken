@@ -25,6 +25,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
+import java.util.Arrays;
 
 /**
  * @author yam655
@@ -40,15 +41,15 @@ public class TestColorPalette {
     public void add_Name_ColorDef() {
         ColorPalette cp1 = new ColorPalette();
         try {
-            cp1.add("white", "#fff"); //$NON-NLS-1$ //$NON-NLS-2$
-            cp1.add("black", "#000000"); //$NON-NLS-1$ //$NON-NLS-2$
-            cp1.add("invisible", "0x001000"); //$NON-NLS-1$ //$NON-NLS-2$
+            cp1.add("white", "#fff");
+            cp1.add("black", "#000000");
+            cp1.add("invisible", "0x001000");
         } catch (InvalidStringFormatException e) {
             throw new RuntimeException(e);
         } 
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF001000), cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertEquals(new Integer(0xFF001000), cp1.get("invisible"));
         assertEquals(3, cp1.size());
     }
 
@@ -58,13 +59,13 @@ public class TestColorPalette {
     @Test
     public void add_Name_RGBA() {
         ColorPalette cp1 = new ColorPalette();
-        cp1.add("white", 0xFFffffff); //$NON-NLS-1$
-        cp1.add("black", 0xFF000000); //$NON-NLS-1$
-        cp1.add("invisible", 0x1000); //$NON-NLS-1$
+        cp1.add("white", 0xFFffffff);
+        cp1.add("black", 0xFF000000);
+        cp1.add("invisible", 0x1000);
         assertEquals(3, cp1.size());
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF001000), cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertEquals(new Integer(0xFF001000), cp1.get("invisible"));
     }
 
     /**
@@ -73,13 +74,13 @@ public class TestColorPalette {
     @Test
     public void add_Name_RGBA_Boolean() {
         ColorPalette cp1 = new ColorPalette();
-        cp1.add("white", 0xFFffffff, true); //$NON-NLS-1$
-        cp1.add("black", 0xFF000000, true); //$NON-NLS-1$
-        cp1.add("invisible", 0x1000, true); //$NON-NLS-1$
+        cp1.add("white", 0xFFffffff, true);
+        cp1.add("black", 0xFF000000, true);
+        cp1.add("invisible", 0x1000, true);
         assertEquals(3, cp1.size());
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0x1000), cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertEquals(new Integer(0x1000), cp1.get("invisible"));
     }
 
     /**
@@ -116,32 +117,32 @@ public class TestColorPalette {
     @Test
     public void addMapping_StringArray() {
         String[] mapping = {
-                    "black / Black -> #000", //$NON-NLS-1$
-                    "white / White -> #fff", //$NON-NLS-1$
-                    "name with spaces -> #00aa22", //$NON-NLS-1$
-                    "name / alternate name -> #ffffff", //$NON-NLS-1$
-                    "Name / Case Sensitive -> #a98765", //$NON-NLS-1$
-                    "remember hex works, too -> 0x12ab9f", //$NON-NLS-1$
-                    "hex supports alpha -> 0x11335577", //$NON-NLS-1$
-                    "space/is->needed -> #098abd", //$NON-NLS-1$
-                    "web shorthand -> #39f" //$NON-NLS-1$
+                    "black / Black -> #000",
+                    "white / White -> #fff",
+                    "name with spaces -> #00aa22",
+                    "name / alternate name -> #ffffff",
+                    "Name / Case Sensitive -> #a98765",
+                    "remember hex works, too -> 0x12ab9f",
+                    "hex supports alpha -> 0x11335577",
+                    "space/is->needed -> #098abd",
+                    "web shorthand -> #39f"
         };
         ColorPalette cp1 = new ColorPalette();
-        cp1.add("black", 0xf0000000); //$NON-NLS-1$
-        cp1.add("white", 0xf0ffffff); //$NON-NLS-1$
+        cp1.add("black", 0xf0000000);
+        cp1.add("white", 0xf0ffffff);
         cp1.addMapping(mapping);
         assertEquals(mapping.length + 2, cp1.size());
         assertEquals(new Integer(0xf0000000), cp1.get(0));
         assertEquals(new Integer(0xf0ffffff), cp1.get(1));
-        assertEquals(new Integer(0xff000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0xffffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces")); //$NON-NLS-1$
-        assertEquals(new Integer(0xffffffff), cp1.get("name")); //$NON-NLS-1$
-        assertEquals(new Integer(0xffa98765), cp1.get("Name")); //$NON-NLS-1$
-        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff000000), cp1.get("black"));
+        assertEquals(new Integer(0xffffffff), cp1.get("white"));
+        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces"));
+        assertEquals(new Integer(0xffffffff), cp1.get("name"));
+        assertEquals(new Integer(0xffa98765), cp1.get("Name"));
+        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too"));
         assertEquals(new Integer(0x11335577), cp1.get(8));
-        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed")); //$NON-NLS-1$
-        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed"));
+        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand"));
     }
 
 
@@ -152,44 +153,53 @@ public class TestColorPalette {
     @Test
     public void getMapping_StringArray() {
         String[] origMapping = {
-                    "black / Black -> #000", //$NON-NLS-1$
-                    "white / White -> #fff", //$NON-NLS-1$
-                    "name with spaces -> #00aa22", //$NON-NLS-1$
-                    "name / alternate name -> #ffffff", //$NON-NLS-1$
-                    "Name / Case Sensitive -> #a98765", //$NON-NLS-1$
-                    "remember hex works, too -> 0x12ab9f", //$NON-NLS-1$
-                    "hex supports alpha -> 0x11335577", //$NON-NLS-1$
-                    "space/is->needed -> #098abd", //$NON-NLS-1$
-                    "web shorthand -> #39f" //$NON-NLS-1$
+                    "black / Black -> #000",
+                    "white / White -> #fff",
+                    "name with spaces -> #00aa22",
+                    "name / alternate name -> #ffffff",
+                    "Name / Case Sensitive -> #a98765",
+                    "remember hex works, too -> 0x12ab9f",
+                    "hex supports alpha -> 0x11335577",
+                    "space/is->needed -> #098abd",
+                    "web shorthand -> #39f"
         };
         String[] expectedMapping = {
-                                "Black / black -> 0xff000000", //$NON-NLS-1$
-                                "White / white -> 0xffffffff", //$NON-NLS-1$
-                                "name with spaces -> 0xff00aa22", //$NON-NLS-1$
-                                "alternate name / name -> 0xffffffff", //$NON-NLS-1$
-                                "Case Sensitive / Name -> 0xffa98765", //$NON-NLS-1$
-                                "remember hex works, too -> 0xff12ab9f", //$NON-NLS-1$
-                                "hex supports alpha -> 0x11335577", //$NON-NLS-1$
-                                "space/is->needed -> 0xff098abd", //$NON-NLS-1$
-                                "web shorthand -> 0xff3399ff" //$NON-NLS-1$
-                    };
+                    "Black / black -> 0xff000000",
+                    "White / white -> 0xffffffff",
+                    "name with spaces -> 0xff00aa22",
+                    "alternate name / name -> 0xffffffff",
+                    "Case Sensitive / Name -> 0xffa98765",
+                    "remember hex works, too -> 0xff12ab9f",
+                    "hex supports alpha -> 0x11335577",
+                    "space/is->needed -> 0xff098abd",
+                    "web shorthand -> 0xff3399ff"
+        };
         ColorPalette cp2 = new ColorPalette();
         cp2.addMapping(origMapping);
-        String[] gotMapping = cp2.getMapping();
+        List<String> gotList = new ArrayList<>(Arrays.asList(cp2.getMapping()));
+        assertTrue(gotList.get(0).startsWith("#"));
+        gotList.remove(0);
+        assertEquals(String.format("TYPE=%s",
+                ColorPalette.BLACKEN_COLOR_MAPPING_TYPE), gotList.get(0));
+        gotList.remove(0);
+        assertEquals(String.format("VERSION=%s",
+                ColorPalette.BLACKEN_COLOR_MAPPING_VERSION), gotList.get(0));
+        gotList.remove(0);
+        String[] gotMapping = gotList.toArray(new String[0]);
         ColorPalette cp1 = new ColorPalette();
         cp1.addMapping(gotMapping);
         assertEquals(expectedMapping.length, cp1.size());
-        assertEquals(new Integer(0xff000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(cp1.indexOf("Black"), cp1.indexOf("black"));  //$NON-NLS-1$//$NON-NLS-2$
-        assertEquals(new Integer(0xffffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(cp1.indexOf("White"), cp1.indexOf("white"));  //$NON-NLS-1$//$NON-NLS-2$
-        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces")); //$NON-NLS-1$
-        assertEquals(new Integer(0xffffffff), cp1.get("name")); //$NON-NLS-1$
-        assertEquals(new Integer(0xffa98765), cp1.get("Name")); //$NON-NLS-1$
-        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff000000), cp1.get("black"));
+        assertEquals(cp1.indexOf("Black"), cp1.indexOf("black"));
+        assertEquals(new Integer(0xffffffff), cp1.get("white"));
+        assertEquals(cp1.indexOf("White"), cp1.indexOf("white"));
+        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces"));
+        assertEquals(new Integer(0xffffffff), cp1.get("name"));
+        assertEquals(new Integer(0xffa98765), cp1.get("Name"));
+        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too"));
         assertEquals(new Integer(0x11335577), cp1.get(6));
-        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed")); //$NON-NLS-1$
-        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand")); //$NON-NLS-1$
+        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed"));
+        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand"));
         assertArrayEquals(expectedMapping, gotMapping);
     }
 
@@ -253,14 +263,14 @@ public class TestColorPalette {
     public void ColorPalette_ListMap_StringArray() {
         ColorPalette cp1 = new ColorPalette();
         cp1.putMapping(ColorNames.STANDARD_16_COLORS);
-        String[] newOrder = { "red",  //$NON-NLS-1$
-                              "green",  //$NON-NLS-1$
-                              "blue" }; //$NON-NLS-1$
+        String[] newOrder = { "red", 
+                              "green", 
+                              "blue" };
         ColorPalette cp2 = new ColorPalette(cp1, newOrder);
         assertEquals(3, cp2.size());
-        assertEquals(cp1.get("red"), cp2.get(0)); //$NON-NLS-1$
-        assertEquals(cp1.get("green"), cp2.get(1)); //$NON-NLS-1$
-        assertEquals(cp1.get("blue"), cp2.get(2)); //$NON-NLS-1$
+        assertEquals(cp1.get("red"), cp2.get(0));
+        assertEquals(cp1.get("green"), cp2.get(1));
+        assertEquals(cp1.get("blue"), cp2.get(2));
     }
 
     /**
@@ -269,14 +279,14 @@ public class TestColorPalette {
     @Test
     public void ColorPalette_MapColors() {
         Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("white", 0xFFffffff); //$NON-NLS-1$
-        map.put("black", 0xFF000000); //$NON-NLS-1$
-        map.put("invisible", 0x1000); //$NON-NLS-1$
+        map.put("white", 0xFFffffff);
+        map.put("black", 0xFF000000);
+        map.put("invisible", 0x1000);
         ColorPalette cp1 = new ColorPalette(map);
         assertEquals(3, cp1.size());
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0x1000), cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertEquals(new Integer(0x1000), cp1.get("invisible"));
     }
 
     /**
@@ -285,15 +295,15 @@ public class TestColorPalette {
     @Test
     public void ColorPalette_MapColors_StringArray() {
         Map<String, Integer> map = new HashMap<String, Integer>();
-        String[] a = {"white", "black"}; //$NON-NLS-1$ //$NON-NLS-2$
-        map.put("white", 0xFFffffff); //$NON-NLS-1$
-        map.put("black", 0xFF000000); //$NON-NLS-1$
-        map.put("invisible", 0x1000); //$NON-NLS-1$
+        String[] a = {"white", "black"};
+        map.put("white", 0xFFffffff);
+        map.put("black", 0xFF000000);
+        map.put("invisible", 0x1000);
         ColorPalette cp1 = new ColorPalette(map, a);
         assertEquals(2, cp1.size());
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertNull(cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertNull(cp1.get("invisible"));
     }
 
     /**
@@ -328,18 +338,18 @@ public class TestColorPalette {
     @Test
     public void put_Name_ColorDef() {
         ColorPalette cp1 = new ColorPalette();
-        cp1.add("white", 0xff888888); //$NON-NLS-1$
-        cp1.add("black", 0xff888888); //$NON-NLS-1$
+        cp1.add("white", 0xff888888);
+        cp1.add("black", 0xff888888);
         try {
-            cp1.put("white", "#fff"); //$NON-NLS-1$ //$NON-NLS-2$
-            cp1.put("black", "#000000"); //$NON-NLS-1$ //$NON-NLS-2$
-            cp1.put("invisible", "0x001000"); //$NON-NLS-1$ //$NON-NLS-2$
+            cp1.put("white", "#fff");
+            cp1.put("black", "#000000");
+            cp1.put("invisible", "0x001000");
         } catch (InvalidStringFormatException e) {
             throw new RuntimeException(e);
         } 
-        assertEquals(new Integer(0xFFffffff), cp1.get("white")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF000000), cp1.get("black")); //$NON-NLS-1$
-        assertEquals(new Integer(0xFF001000), cp1.get("invisible")); //$NON-NLS-1$
+        assertEquals(new Integer(0xFFffffff), cp1.get("white"));
+        assertEquals(new Integer(0xFF000000), cp1.get("black"));
+        assertEquals(new Integer(0xFF001000), cp1.get("invisible"));
         assertEquals(3, cp1.size());
     }
 
@@ -350,33 +360,38 @@ public class TestColorPalette {
     @Test
     public void putMapping_StringArray() {
         String[] mapping = {
-                            "black / Black -> #000", //$NON-NLS-1$
-                            "white / White -> #fff", //$NON-NLS-1$
-                            "name with spaces -> #00aa22", //$NON-NLS-1$
-                            "name / alternate name -> #ffffff", //$NON-NLS-1$
-                            "Name / Case Sensitive -> #a98765", //$NON-NLS-1$
-                            "remember hex works, too -> 0x12ab9f", //$NON-NLS-1$
-                            "hex supports alpha -> 0x11335577", //$NON-NLS-1$
-                            "space/is->needed -> #098abd", //$NON-NLS-1$
-                            "web shorthand -> #39f" //$NON-NLS-1$
-                };
-                ColorPalette cp1 = new ColorPalette();
-                cp1.add("black", 0xf0000000); //$NON-NLS-1$
-                cp1.putKey("even blacker", "black"); //$NON-NLS-1$ //$NON-NLS-2$
-                cp1.add("white", 0xf0ffffff); //$NON-NLS-1$
-                cp1.putMapping(mapping);
-                assertEquals(mapping.length, cp1.size());
-                assertEquals(new Integer(0xff000000), cp1.get(0));
-                assertEquals(new Integer(0xffffffff), cp1.get(1));
-                assertEquals(new Integer(0xff000000), cp1.get("black")); //$NON-NLS-1$
-                assertEquals(cp1.get("Black"), cp1.get("even blacker"));  //$NON-NLS-1$//$NON-NLS-2$
-                assertEquals(new Integer(0xffffffff), cp1.get("white")); //$NON-NLS-1$
-                assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces")); //$NON-NLS-1$
-                assertEquals(new Integer(0xffffffff), cp1.get("name")); //$NON-NLS-1$
-                assertEquals(new Integer(0xffa98765), cp1.get("Name")); //$NON-NLS-1$
-                assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too")); //$NON-NLS-1$
-                assertEquals(new Integer(0x11335577), cp1.get(6));
-                assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed")); //$NON-NLS-1$
-                assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand")); //$NON-NLS-1$
+            "", "",
+            "black / Black -> #000",
+            "white / White -> #fff",
+            "name with spaces -> #00aa22",
+            "name / alternate name -> #ffffff",
+            "Name / Case Sensitive -> #a98765",
+            "remember hex works, too -> 0x12ab9f",
+            "hex supports alpha -> 0x11335577",
+            "space/is->needed -> #098abd",
+            "web shorthand -> #39f"
+        };
+        mapping[0] = String.format("TYPE=%s",
+            ColorPalette.BLACKEN_COLOR_MAPPING_TYPE);
+        mapping[1] = String.format("VERSION=%s",
+            ColorPalette.BLACKEN_COLOR_MAPPING_VERSION);
+        ColorPalette cp1 = new ColorPalette();
+        cp1.add("black", 0xf0000000);
+        cp1.putKey("even blacker", "black");
+        cp1.add("white", 0xf0ffffff);
+        cp1.putMapping(mapping);
+        assertEquals(mapping.length - 2, cp1.size());
+        assertEquals(new Integer(0xff000000), cp1.get(0));
+        assertEquals(new Integer(0xffffffff), cp1.get(1));
+        assertEquals(new Integer(0xff000000), cp1.get("black"));
+        assertEquals(cp1.get("Black"), cp1.get("even blacker"));
+        assertEquals(new Integer(0xffffffff), cp1.get("white"));
+        assertEquals(new Integer(0xff00aa22), cp1.get("name with spaces"));
+        assertEquals(new Integer(0xffffffff), cp1.get("name"));
+        assertEquals(new Integer(0xffa98765), cp1.get("Name"));
+        assertEquals(new Integer(0xff12ab9f), cp1.get("remember hex works, too"));
+        assertEquals(new Integer(0x11335577), cp1.get(6));
+        assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed"));
+        assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand"));
     }
 }

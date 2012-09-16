@@ -1,0 +1,256 @@
+TYPE=blacken-color-mapping
+VERSION=1
+
+# Red-Violet Series
+
+一斤染 / Ikkonzome / One kin / One kin (0.6 kg) dye -> 240,143,144 
+桃色 / Momo-iro / Peach / Peach-colored -> 244,121,131 
+紅梅色 / Kōbai-iro / Red plum / Red plum colored -> 219,90,107 
+中紅 / Nakabeni / Medium crimson / Medium crimson (dye) -> 201,55,86 
+桜色 / Sakura-iro / Cherry blossom color -> 252,201,185 
+退紅 / Arazome / Washed-out crimson / Washed-out crimson (dye) -> 255,179,167 
+薄紅 / Usubeni / Pale crimson / Pale crimson (dye) -> 242,102,108
+
+# Red Series
+
+鴇羽色 / Tokiha-iro / Ibis-wing color -> 245,143,132 
+桜鼠 / Sakuranezumi / Cherry-blossom mouse -> 172,129,118 
+長春色 / Chōshun-iro / Long spring / Long spring (season) -> 185,87,84 
+唐紅/韓紅 / Karakurenai / Foreign crimson -> 201,31,55 
+臙脂色 / Enji-iro / Cochineal rouge / Cochineal red / Cochineal red/rouge -> 157,41,51 
+深緋 / Kokiake / Deep scarlet -> 123,59,58 
+甚三紅 / Jinzamomi / Thrice-dyed crimson -> 247,102,90 
+水がき / Mizugaki / Water persimmon -> 181,108,96 
+梅鼠 / Umenezumi / Plum-blossom mouse -> 151,100,90 
+蘇芳香 / Suōkō / Sappanwood incense -> 162,79,70 
+赤紅 / Akabeni / Pure crimson / Pure crimson (dye) -> 195,39,43 
+真朱 / Shinshu / True red -> 143,29,33 
+小豆色 / Azuki-iro / Red bean / Red bean color -> 103,36,34 
+銀朱 / Ginshu / Greyed red / Silvered red / Greyed red (lit. silvered red) -> 188,45,41 
+海老茶 / Ebicha / Maroon / Shrimp brown / Maroon (Shrimp brown) -> 94,40,36 
+栗梅 / Kiriume / Red-brown / Chestnut-plum / Red-brown (lit. chestnut-plum) -> 139,53,45 
+曙色 / Akebono-iro / Dawn / Dawn-color -> 250,123,98 
+珊瑚色 / Sango-iro / Coral / Coral color -> 248,103,79 
+猩々緋 / Shōjōhi / Orangutan / Red-orange / Red-orange (lit. orangutan-colored) -> 220,48,35 
+芝翫茶 / Shikancha / Wilted brown / Wilted lawn-clippings / Wilted brown (lit. wilted lawn-clippings) -> 171,76,61 
+柿渋色 / Kakishibu-iro / Persimmon-juice / Persimmon-juice color -> 147,67,55 
+紅樺 / Benikaba / Red birch -> 157,43,34 
+紅鳶 / Benitobi / Red kite / Red kite (bird species) -> 145,50,40 
+紅檜皮 / Benihibata / Cypress bark red -> 111,48,40 
+黒鳶 / Kurotobi / Black kite / Black kite (bird species) -> 53,30,28 
+紅緋 / Benihi / Blood red -> 243,83,54 
+照柿 / Terigaki / Glazed persimmon -> 211,78,54 
+緋 / Ake / Scarlet / Blood / Scarlet (blood) -> 207,58,36 
+江戸茶 / Edocha / Red-brown / Edo brown / Red-brown (Edo brown) -> 161,61,45 
+紅柄色 / Bengara-iro / Dyestalk red / Color from dying with the stalk of the beni plant / Dyestalk red (lit. the color from dying with the stalk of the beni plant) -> 145,50,37 
+檜皮色 / Hihada-iro / Cypress bark color -> 117,46,35 
+宍色 / Shishi-iro / Meat / Meat-color -> 249,144,111 
+洗朱 / Araishu / Rinsed-out red -> 255,121,82 
+赤香色 / Akakō-iro / Red incense / Red incense-colored -> 240,127,94 
+ときがら茶 / Tokigaracha / Brewed mustard-brown -> 230,131,100 
+黄丹 / Ōtan / Ochre / Ochre (earthen yellow-red-brown) -> 255,78,32 
+蘇比 / Sohi / Overdyed / refreshed red-brown -> 227,92,56 
+遠州茶 / Enshūcha / Muddy brown / Brown of a distant river / Muddy brown (lit. the brown of a distant river) -> 203,102,73 
+唐茶 / Karacha / Spicy red-brown / Chinese tea brown / Spicy red-brown (Chinese tea brown) -> 179,92,68 
+樺茶 / Kabacha / Birch brown -> 177,74,48 
+宗傳唐茶 / Sōdenkaracha / Faded spicy red-brown -> 155,83,63 
+雀茶 / Suzumecha / Sparrow-brown -> 140,71,54 
+栗皮茶 / Kurikawacha / Chestnut-leather brown -> 96,40,30 
+百塩茶 / Momoshiocha / Boiled red bean brown -> 84,45,36 
+鳶色 / Tobi-iro / Ibis / Ibis-color -> 76,34,27
+
+# Yellow Red Series
+
+胡桃染 / Kurumizome / Walnut-dyed -> 159,116,98 
+蒲色 / Kaba-iro / Cattail / Cattail color / Cattail color (the plant) -> 182,73,37 
+黄櫨染 / Kōrozen / Sumac-dyed -> 89,43,31 
+焦茶 / Kogecha / Scorched brown -> 53,31,25 
+深支子 / Kokikuchinashi / Rich gardenia -> 245,127,79 
+洗柿 / Araigaki / Washed-out persimmon -> 236,130,84 
+代赭色 / Taisha-iro / Red ochre / Red ochre color -> 159,82,51 
+赤白橡 / Akashirotsurubami / Sawtooth oak -> 236,149,108 
+礪茶 / Tonocha / Polished brown -> 152,85,56 
+煎茶色 / Sencha-iro / Green tea / Green tea-colored -> 130,75,53 
+洒落柿 / Sharegaki / Stylish persimmon -> 255,162,107 
+薄柿 / Usugaki / Pale persimmon -> 252,164,116 
+萱草色 / Kanzō-iro / Daylily / Daylily-colored -> 255,137,54 
+梅染 / Umezome / Plum-dyed -> 250,146,88 
+紅鬱金 / Beniukon / Red-bronze / Red dye and tumeric / Red-bronze (lit. red dye and turmeric) -> 251,129,54 
+丁子茶 / Chōjicha / Clove-brown -> 143,88,60 
+憲法染 / Kenpōzome / Legal dye / Legal dye (from when color use was regulated by class) -> 46,33,27 
+枇杷茶 / Biwacha / Loquat brown / Loquat (tree) brown -> 171,97,52 
+琥珀色 / Kohaku-iro / Amber -> 202,105,36 
+淡香 / Usukō / Pale incense -> 255,165,101 
+朽葉色 / Kuchiba-iro / Decaying leaves / Decaying leaves color -> 213,120,53 
+金茶 / Kincha / Golden brown -> 198,107,39 
+丁子染 / Chōjizome / Clove-dyed -> 169,98,50 
+狐色 / Kitsune-iro / Fox Fox-color -> 152,86,41 
+柴染 / Fushizome / Brushwood-dyed -> 140,89,57 
+伽羅色 / Kyara-iro / Aloewood / Aloewood-color -> 106,67,45 
+煤竹色 / Susutake-iro / Sooty / Weathered bamboo / Weathered bamboo (lit. "sooty") -> 89,58,39 
+白茶 / Shiracha / White tea / White tea-colored -> 196,142,105 
+黄土色 / Ōdo-iro / Earthen yellow / Ochre / Ochre (lit. earthen yellow) -> 190,127,81 
+銀煤竹 / Kinsusutake / Golden-grey bamboo / Golden-grey bamboo (dried and weathered) -> 125,78,45 
+黄唐茶 / Kigaracha / Chinese yellow tea / Chinese yellow tea-colored -> 183,112,45 
+媚茶 / Kobicha / Brown of flattery / Brown-nosers' brown / Brown-nosers' brown (lit. "the brown of flattery") -> 107,68,35
+
+# Yellow Series
+
+浅黄 / Asagi / Light yellow -> 247,187,125 
+山吹色 / Yamabuki-iro / Bright golden yellow / Bright golden yellow (and a particular rose varietal) -> 255,164,0 
+玉子色 / Tamago-iro / Egg / Egg-colored -> 255,166,49 
+櫨染 / Hajizome / Sumac-dyed -> 224,138,30 
+山吹茶 / Yamabukicha / Bright gold-brown -> 203,126,31 
+桑染 / Kuwazome / Mulberry-dyed -> 197,127,46 
+生壁色 / Namakabe-iro / The color of an undried wall -> 120,94,73 
+梔子 / Kuchinashi / Cape jasmine or gardenia -> 255,185,90 
+玉蜀黍色 / Tōmorokoshi-iro / Corn / Corn-colored -> 250,169,69 
+白橡 / Shirotsurubami / White oak -> 206,159,111 
+黄橡 / Kitsurubami / Golden oak -> 187,129,65 
+藤黄 / Tō'ō / Gamboge -> 255,182,30 
+花葉色 / Hanaba-iro / Kayou-iro / Floral leaf / Floral leaf-colored -> 255,185,78 
+鳥の子色 / Torinoko-iro / Eggshell paper / Eggshell paper-colored -> 226,190,159 
+鬱金色 / Ukon-iro / Turmeric / Turmeric-colored -> 230,155,58 
+黄朽葉 / Kikuchiba / Golden fallen leaves -> 226,156,69 
+利休白茶 / Rikyūshiracha / Faded Sen no Rikyu's tea -> 176,146,122 
+利休茶 / Rikyūcha / Sen no Rikyu's tea -> 130,107,88 
+灰汁色 / Aku-iro / Lye / Lye-colored -> 127,107,93 
+肥後煤竹 / Higosusutake / Japanese iris / Sooty bamboo -> 127,93,59 
+路考茶 / Rokōcha / Contemplation in a tea garden -> 102,83,67 
+海松茶 / Mirucha / Simmered seaweed -> 76,61,48 
+菜種油色 / Nataneyu-iro / Rapeseed oil / Rapeseed oil-colored -> 161,121,23 
+黄海松茶 / Kimirucha / Yellow Sea pine-brown -> 137,108,57 
+鶯茶 / Uguisucha / Nightingale-brown / Greenish brown / Nightingale-brown (greenish brown) -> 92,72,39 
+菜の花色 / Nanohanacha / Rape-blossom brown -> 227,177,48 
+苅萱 / Kariyasu / Japanese triandra grass / Japanese triandra grass (Themeda japonica) -> 226,177,60 
+黄蘗 / Kihada / Amur cork tree / Amur cork tree (Phellodendron amurense) -> 243,193,58 
+蒸栗色 / Mushikuri-iro / Steamed chestnut color -> 211,177,125 
+青朽葉 / Aokuchiba / Pale fallen leaves -> 170,135,54 
+鶸茶 / Hiwacha / Finch-brown / Finch-brown (Cardueline finch) -> 149,123,56 
+女郎花 / Ominaeshi / Patrinia flowers / Patrinia flowers (Patrinia scabiosaefolia) -> 217,182,17 
+鶯色 / Uguisu-iro / Nightingale / Nightingale-colored -> 100,85,48
+
+# Yellow Green Series
+
+鶸色 / Hiwa-iro / Greenfinch / Greenfinch color -> 189,169,40 
+青白橡 / Aoshiroturubami / Pale oak -> 187,164,109 
+柳茶 / Yanagicha / Willow tea -> 156,138,77 
+璃寛茶 / Rikancha / Rikan brown -> 83,74,50 
+藍媚茶 / Aikobicha / Flirtatious indigo tea -> 71,63,45 
+苔色 / Koke-iro / Moss / Moss color -> 139,125,58 
+海松色 / Miru-iro / Codium fragile seaweed / Codium fragile seaweed color -> 82,75,42 
+千歳茶 / Sensaicha / Thousand year old brown -> 59,52,41 
+梅幸茶 / Baikōcha / Baiko brown -> 133,124,85 
+岩井茶 / Iwaicha / Iwai brown -> 94,85,69 
+鶸萌黄 / Hiwamoegi / Siskin sprout yellow -> 122,148,46 
+柳煤竹 / Yanagisusutake / Sooty willow bamboo -> 77,75,58 
+裏柳 / Urahayanagi / Underside of willow leaves -> 188,181,140
+淡萌黄 / Usumoegi / Pale young green onion -> 141,178,85 
+柳染 / Yanagizome / Willow dye -> 140,158,94 
+萌黄 / Moegi / Fresh onion -> 91,137,48 
+青丹 / Aoni / Blue Black Crayfish -> 82,89,59 
+松葉色 / Matsuba-iro / Pine needle color -> 69,77,50
+
+# Green/Blue Green Series
+
+薄青 / Usuao / Pale blue -> 140,156,118 
+若竹色 / Wakatake-iro / Young bamboo color -> 107,147,98 
+柳鼠 / Yanaginezumi / Willow grey -> 129,123,105 
+老竹色 / Oitake-iro / Old bamboo color -> 94,100,79 
+千歳緑 / Sensaimidori / Thousand year old green -> 55,66,49 
+緑 / Midori / Green -> 42,96,59 
+白緑 / Byakuroku / Whitish green -> 165,186,147 
+錆青磁 / Sabiseiji / Rusty celadon -> 137,138,116 
+緑青 / Rokushō / Patina -> 64,122,82 
+木賊色 / Tokusa-iro / Horsetail / Horsetail color -> 61,93,66 
+御納戸茶 / Onandocha / Storeroom brown -> 61,64,53 
+青竹色 / Aotake-iro / Green bamboo / Green bamboo color -> 0,100,66 
+利休鼠 / Rikyūnezumi / Greyish dark green -> 101,98,85 
+びろうど / Birōdo / Velvet -> 34,70,52 
+虫襖 / Mushiao / Insect screen -> 45,68,54 
+藍海松茶 / Aimirucha / Indigo Codium fragile seaweed brown -> 46,55,46 
+沈香茶 / Tonocha / Aloeswood brown -> 90,100,87 
+水浅葱 / Mizuasagi / Pale green onion -> 116,159,141 
+青磁色 / Seiji-iro / Celadon / Celadon color -> 129,156,139 
+青碧 / Seiheki / Blue-green -> 58,105,96 
+錆鉄御納戸 / Sabitetsuonando / Rusty storeroom -> 58,64,59 
+鉄色 / Tetsu-iro / Iron / Iron color -> 43,55,51 
+御召茶 / Omeshicha / Silk crepe brown -> 53,78,75 
+高麗納戸 / Kōrainando / Goryeo storeroom -> 32,56,56 
+
+# Blue/Blue Violet Series
+
+湊鼠 / Minatonezumi / Harbor rat -> 117,125,117 
+青鈍 / Aonibi / Dull blue -> 79,73,68 
+鉄御納戸 / Tetsuonando / Iron storage -> 43,55,54 
+水色 / Mizu-iro / Water / Water color -> 134,171,165 
+錆浅葱 / Sabiasagi / Rusted light-blue -> 106,127,122 
+瓶覗 / Kamenozoki / Inside of a bottle -> 198,194,182 
+浅葱色 / Asagi-iro / Light blue / Light blue color -> 72,146,155 
+新橋色 / Shinbashi-iro / New bridge / New bridge color -> 0,108,127 
+錆御納戸 / Sabionando / Rusty storage -> 69,88,89 
+藍鼠 / Ainezumi / Mousy indigo -> 92,84,78 
+藍色 / Ai-iro / Indigo / Indigo color -> 38,67,72 
+御納戸色 / Onando-iro / Onando / Onando color -> 54,65,65 
+花浅葱 / Hana'asagi / Light blue flower -> 29,105,124 
+千草色 / Chigusa-iro / Thousand herb / Thousand herb color -> 49,117,137 
+舛花色 / Masuhana-iro / Opposite flower / Opposite flower color -> 77,100,108 
+縹 / Hanada / Light blue silk -> 4,79,103 
+熨斗目花色 / Noshimehana-iro / Iron head flower / Iron head flower color -> 52,77,86 
+御召御納戸 / Omeshionando / Kimono storage -> 61,76,81 
+空色 / Sora-iro / Sky / Sky color -> 77,143,172 
+黒橡 / Kurotsurubami / Black chestnut oak -> 37,35,33 
+群青色 / Gunjō-iro / Ultramarine / Ultramarine color -> 93,140,174 
+紺 / Kon / Dark blue -> 25,34,54 
+褐色 / Kachi-iro / Coarse wool / Coarse wool color -> 24,27,38 
+瑠璃色 / Ruri-iro / Lapis lazuli / Lapis lazuli color -> 31,71,136 
+紺青色 / Konjō-iro / Navy blue / Navy blue color -> 0,49,113 
+瑠璃紺 / Rurikon / Dark blue lapis lazuli -> 27,41,75 
+紅碧 / Benimidori / Stained red -> 120,119,155 
+紺桔梗 / Konkikyō / Navy blue bellflower -> 25,31,69 
+藤鼠 / Fujinezumi / Mousy wisteria -> 118,105,128 
+紅掛花色 / Benikakehana-iro / Safflower color -> 90,79,116 
+藤色 / Fuji-iro / Wisteria / Wisteria color -> 137,114,158 
+二藍 / Futaai / Dark indigo -> 97,78,110 
+
+# Violet Series
+
+藤紫 / Fujimurasaki / Wisteria purple -> 135,95,154 
+桔梗色 / Kikyō-iro / Bellflower / Bellflower color -> 93,63,106 
+紫苑色 / Shion-iro / Tatarian aster / Tatarian aster color -> 151,110,154 
+滅紫 / Metsushi / Disappearing purple -> 63,49,58 
+紫紺 / Shikon / Blue violet -> 43,32,40 
+深紫 / Kokimurasaki / Deep purple -> 58,36,59 
+薄色 / Usu-iro / Thin / Thin color -> 168,124,160 
+半色 / Hashita-iro / Half / Half color -> 141,96,140 
+菫色 / Sumire-iro / Violet / Violet color -> 91,50,86 
+紫 / Murasaki / Purple -> 79,40,75 
+黒紅 / Kurobeni / Dark red -> 35,25,30 
+菖蒲色 / Ayame-iro / Iris / Iris color -> 118,53,104 
+紅藤 / Benifuji / Red wisteria -> 187,119,150 
+杜若 / Kakitsubata / Rabbit-ear iris -> 73,30,60 
+鳩羽鼠 / Hatobanezumi / Dove feather grey -> 117,93,91
+葡萄鼠 / Budōnezumi / Grape mouse -> 99,66,75 
+蒲萄 / Ebizome / Vine grape -> 109,43,80 
+藤煤竹 / Fujisusutake / Wisteria / burnt-bamboo -> 77,59,60 
+牡丹 / Bōtan / Tree peony -> 164,52,93 
+梅紫 / Umemurasaki / Plum purple -> 143,65,85 
+似せ紫 / Nisemurasaki / Fake purple -> 67,36,42 
+紫鳶 / Murasakitobi / Purple kite -> 81,44,49 
+蘇芳 / Suō / Sappanwood -> 126,38,57 
+桑染 / Kuwazome / Mulberry dye -> 89,41,44 
+紅消鼠 / Benikeshinezumi / Vanishing red mouse -> 68,49,46
+
+# Achromatic Series
+
+白練 / Shironeri / Unbleached silk -> 255,221,202 
+白鼠 / Shironezumi / White mouse -> 185,161,147 
+銀鼠 / Ginnezumi / Silver-grey -> 151,134,124 
+素鼠 / Sunezumi / Plain mouse -> 110,95,87 
+丼鼠 / Dobunezumi / Brown rat grey -> 75,60,57 
+藍墨茶 / Aisumicha / Indigo ink brown -> 57,52,50 
+檳榔子染 / Binrōjizome / Betel nut dye -> 53,41,37 
+墨色 / Sumi-iro / Ink color -> 39,34,31 
+黒色 / Kokushoku / Black -> 23,20,18 
+藍白 / Aijiro / Indigo white -> 235, 246, 247 
+

@@ -15,6 +15,8 @@
 */
 package com.googlecode.blacken.colors;
 
+import com.googlecode.blacken.core.ListMap;
+import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -25,9 +27,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.googlecode.blacken.core.ListMap;
-import com.googlecode.blacken.exceptions.InvalidStringFormatException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A named and indexed color palette.
@@ -51,10 +54,35 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 public class ColorPalette extends ListMap<String, Integer> {
     // XXX Version 2: Add cache value to normalize with AwtPalette
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ColorPalette.class);
     /**
      * serial ID
      */
     private static final long serialVersionUID = 3453955962929981683L;
+    /**
+     * Constant string used to identify color mapping file. (Useful for syntax
+     * highlighting and file-format sanity checks.)
+     */
+    public static final String BLACKEN_COLOR_MAPPING_TYPE="blacken-color-mapping";
+    /**
+     * The current Blacken color mapping version. This increments when there
+     * are changes.
+     *
+     * <ul>
+     * <li>0 - Prior to Blacken 1.2 there was no type or version information.
+     * <li>1 - First version number used. Color formats: #RGB, #RRGGBB,
+     *         0xRRGGBB. 0xAARRGGBB, "rrr,ggg,bbb", "rrr ggg bbb",
+     *         "rrr,ggg,bbb,aaa", "rrr ggg bbb aaa". (Uppercase denotes hex,
+     *         lowercase denotes decimal.) First version to support comments,
+     *         and to have generalized configuration variable support.
+     * </ul>
+     */
+    public static final Integer BLACKEN_COLOR_MAPPING_VERSION=1;
+    /**
+     * For the current color mapping version, what version of Blacken was it
+     * released with? (Older versions of Blacken will be incompatible.)
+     */
+    public static final String BLACKEN_COLOR_MAPPING_MIN_BLACKEN="1.2";
 
     /**
      * Create a new empty palette.
@@ -347,6 +375,9 @@ public class ColorPalette extends ListMap<String, Integer> {
         Map<Integer, ConsolidatedListMapEntry<String, Integer>> ce = 
             new HashMap<>();
         this.consolidateEntries(ce );
+        ret.add(String.format("# Blacken color mapping version %s appeared in Blacken %s", BLACKEN_COLOR_MAPPING_VERSION, BLACKEN_COLOR_MAPPING_MIN_BLACKEN));
+        ret.add("TYPE=" + BLACKEN_COLOR_MAPPING_TYPE);
+        ret.add("VERSION=" + BLACKEN_COLOR_MAPPING_VERSION.toString());
         for (Integer i = 0; i < ce.size(); i++) {
             ConsolidatedListMapEntry<String, Integer> e = ce.get(i);
             StringBuilder buf = new StringBuilder();
@@ -378,7 +409,34 @@ public class ColorPalette extends ListMap<String, Integer> {
             return false;
         }
         int firstColors = this.size();
+        Pattern varPattern = Pattern.compile("^[A-Z]+[=].*$");
         for (final String color : colors) {
+            if (color.matches("^\\s*(#.*)?$")) {
+                continue;
+            }
+            Matcher varMatcher = varPattern.matcher(color);
+            if (varMatcher.matches()) {
+                String[] v = color.split("=", 2);
+                switch (v[0]) {
+                case "TYPE":
+                    if (!BLACKEN_COLOR_MAPPING_TYPE.equals(v[1])) {
+                        throw new RuntimeException(
+                                "Failed to find expected type: " + v[1]);
+                    }
+                    break;
+                case "VERSION":
+                    int found = Integer.parseInt(v[1]);
+                    if (found > BLACKEN_COLOR_MAPPING_VERSION) {
+                        throw new RuntimeException(
+                                "Unsupported color mapping version: " + v[1]);
+                    }
+                    break;
+                default:
+                    throw new RuntimeException(
+                            "Unsupported configuration variable: " + color);
+                }
+                continue;
+            }
             final String s[] = color.split("[ \t]+->[ \t]+", 2);
             final String names[];
             final String colorDef;
