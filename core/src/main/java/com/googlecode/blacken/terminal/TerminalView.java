@@ -384,4 +384,19 @@ public class TerminalView implements TerminalViewInterface {
     public void doUpdate() {
         term.doUpdate();
     }
+
+    @Override
+    public Positionable putString(int y, int x, String string) {
+        return term.putString(y, x, string);
+    }
+
+    @Override
+    public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
+        term.applyTemplate(y, x, template, length);
+    }
+
+    @Override
+    public Positionable putString(Positionable pos, String string) {
+        return term.putString(pos, string);
+    }
 }

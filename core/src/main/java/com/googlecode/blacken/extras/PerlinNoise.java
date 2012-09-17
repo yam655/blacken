@@ -496,15 +496,15 @@ public final class PerlinNoise {
         return 27.0 * (n0 + n1 + n2 + n3 + n4);
     }
 
-    public double fbmNoise(int octaves, double x, double y) {
+    static public double fbmNoise(int octaves, double x, double y) {
         return fbmNoise(octaves, null, null, x, y, null, null);
     }
 
-    public double fbmNoise(int octaves, double x, double y, double z) {
+    static public double fbmNoise(int octaves, double x, double y, double z) {
         return fbmNoise(octaves, null, null, x, y, z, null);
     }
 
-    public double fbmNoise(int octaves, double x, double y, double z, double w) {
+    static public double fbmNoise(int octaves, double x, double y, double z, double w) {
         return fbmNoise(octaves, null, null, x, y, z, w);
     }
 
@@ -520,7 +520,7 @@ public final class PerlinNoise {
      * @param w optional fourth axis
      * @return
      */
-    public double fbmNoise(int octaves, Double damp, Double jump, double x, double y, Double z, Double w) {
+    static public double fbmNoise(int octaves, Double damp, Double jump, double x, double y, Double z, Double w) {
         double ret = 0;
         double scale = 1;
         if (damp == null) {

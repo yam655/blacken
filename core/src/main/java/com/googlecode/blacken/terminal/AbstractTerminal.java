@@ -632,4 +632,20 @@ public abstract class AbstractTerminal implements TerminalInterface {
             // Silence the NetBeans warning.
         }
     }
+
+    @Override
+    public Positionable putString(int y, int x, String string) {
+        return SingleLine.putString(this, new Point(y, x), null, string, null);
+    }
+
+    @Override
+    public Positionable putString(Positionable pos, String string) {
+        return SingleLine.putString(this, pos, null, string, null);
+    }
+
+    @Override
+    public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
+        SingleLine.applyTemplate(this, y, x, template, length);
+    }
+
 }

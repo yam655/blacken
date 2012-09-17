@@ -15,12 +15,11 @@
 */
 package com.googlecode.blacken.terminal;
 
-import java.util.EnumSet;
-
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import java.util.EnumSet;
 
 /**
  * The interface for terminal-like views.
@@ -126,6 +125,16 @@ public interface TerminalInterface extends TerminalViewInterface {
     public ColorPalette getPalette();
     @Override
     public String getString(int y, int x, int length);
+
+    @Override
+    public Positionable putString(int y, int x, String string);
+
+    @Override
+    public Positionable putString(Positionable pos, String string);
+
+    @Override
+    public void applyTemplate(int y, int x, TerminalCellTemplate template,
+                              int length);
 
     @Override
     public BlackenWindowEvent getwindow();

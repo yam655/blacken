@@ -1047,4 +1047,113 @@ public class TestCursesLikeAPI {
         assertEquals(0, terminal.getCursorY());
         assertEquals(0, terminal.getCursorX());
     }
+
+
+    @Test
+    @Covers({"public Positionable putString(int,int,String)", "public Positionable putString(Positionable,String)"})
+    public void putString() {
+        assertEquals(0, terminal.getCursorY()); assertEquals(0, terminal.getCursorX());
+        terminal.putString(0, 0, "+");
+        Positionable newPos = terminal.putString(0, 3, "_");
+        assertEquals(0, terminal.getCursorY()); assertEquals(4, terminal.getCursorX());
+        assertEquals("baseline failure", "+", terminal.get(0, 0).getSequence());
+        assertEquals("overwrite test failure", "_", terminal.get(0, 3).getSequence());
+        newPos = terminal.putString(newPos, "\r...\r");
+        assertEquals("CR test failure.", ".", terminal.get(0, 0).getSequence());
+        assertEquals("CR test overwrite failure.", "_", terminal.get(0, 3).getSequence());
+        assertEquals(0, terminal.getCursorY()); assertEquals(0, terminal.getCursorX());
+        newPos = terminal.putString(newPos, "ABC");
+        assertEquals(0, terminal.getCursorY()); assertEquals(3, terminal.getCursorX());
+        assertEquals("Simple puts failure","A", terminal.get(0, 0).getSequence());
+        assertEquals("Simple puts failure","B", terminal.get(0, 1).getSequence());
+        assertEquals("Simple puts failure","C", terminal.get(0, 2).getSequence());
+        assertEquals("Simple puts overwrite failure","_", terminal.get(0, 3).getSequence());
+        StringBuilder buf = new StringBuilder();
+        String a1;
+        buf.append('a');
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_DIAERESIS);
+        a1 = buf.toString();
+        newPos = terminal.putString(0, 0, a1);
+        assertEquals(a1, terminal.get(0, 0).getSequence());
+        assertEquals("B", terminal.get(0, 1).getSequence());
+        assertEquals("C", terminal.get(0, 2).getSequence());
+        assertEquals(0, terminal.getCursorY()); assertEquals(1, terminal.getCursorX());
+        assertEquals(0, newPos.getY()); assertEquals(1, newPos.getX());
+
+        buf.setLength(0);
+        assertEquals("", buf.toString());
+
+        buf.append('b');
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_RING_ABOVE);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_RING_BELOW);
+        String b1 = buf.toString();
+        newPos = terminal.putString(0, 1, b1);
+        assertEquals(b1, terminal.get(0, 1).getSequence());
+        assertEquals("C", terminal.get(0, 2).getSequence());
+        assertEquals(0, terminal.getCursorY()); assertEquals(2, terminal.getCursorX());
+        assertEquals(0, newPos.getY()); assertEquals(2, newPos.getX());
+
+        buf.setLength(0);
+
+        buf.append('c');
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_CEDILLA);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_INVERTED_BREVE);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_CIRCUMFLEX_ACCENT);
+        buf.appendCodePoint(BlackenCodePoints.CODEPOINT_COMBINING_BREVE);
+        String c1 = buf.toString();
+        newPos = terminal.putString(0, 2, c1);
+        assertEquals(c1, terminal.get(0, 2).getSequence());
+        assertEquals("_", terminal.get(0, 3).getSequence());
+        assertEquals(0, terminal.getCursorY()); assertEquals(3, terminal.getCursorX());
+        assertEquals(0, newPos.getY()); assertEquals(3, newPos.getX());
+
+        newPos = terminal.putString(1, 3, "_");
+        assertEquals(1, terminal.getCursorY()); assertEquals(4, terminal.getCursorX());
+        assertEquals("_", terminal.get(0, 3).getSequence());
+        buf.setLength(0);
+        buf.append("\r");
+        buf.append(a1);
+        buf.append(b1);
+        buf.append(c1);
+        buf.append("\n");
+        terminal.puts(buf.toString());
+        assertEquals(2, terminal.getCursorY()); assertEquals(0, terminal.getCursorX());
+        assertEquals(a1, terminal.get(1, 0).getSequence());
+        assertEquals(b1, terminal.get(1, 1).getSequence());
+        assertEquals(c1, terminal.get(1, 2).getSequence());
+        assertEquals("_", terminal.get(1, 3).getSequence());
+    }
+
+    @Test
+    @Covers("public void applyTemplate(int,int,TerminalCellTemplate,int)")
+    public void applyTemplate() {
+        assertEquals(0, terminal.getCursorY());
+        assertEquals(0, terminal.getCursorX());
+        terminal.putString(0, 0, "Test");
+        terminal.move(0, 0);
+        TerminalCellTemplate template = new TerminalCellTemplate(null, 0xFFaaaaaa, 0xFF000000);
+        terminal.applyTemplate(0, 0, template, NUM_COLS);
+        TerminalCellLike c = terminal.get(0, 0);
+        assertEquals(0xFFaaaaaa, c.getForeground());
+        assertEquals(0xFF000000, c.getBackground());
+        assertEquals("T", c.getSequence());
+        c = terminal.get(0, 1);
+        assertEquals(0xFFaaaaaa, c.getForeground());
+        assertEquals(0xFF000000, c.getBackground());
+        assertEquals("e", c.getSequence());
+        c = terminal.get(0, 2);
+        assertEquals(0xFFaaaaaa, c.getForeground());
+        assertEquals(0xFF000000, c.getBackground());
+        assertEquals("s", c.getSequence());
+        c = terminal.get(0, 3);
+        assertEquals(0xFFaaaaaa, c.getForeground());
+        assertEquals(0xFF000000, c.getBackground());
+        assertEquals("t", c.getSequence());
+        c = terminal.get(0, 4);
+        assertEquals(0xFFaaaaaa, c.getForeground());
+        assertEquals(0xFF000000, c.getBackground());
+        assertEquals(EMPTY_SEQUENCE, c.getSequence());
+        assertEquals(0, terminal.getCursorY());
+        assertEquals(0, terminal.getCursorX());
+    }
 }

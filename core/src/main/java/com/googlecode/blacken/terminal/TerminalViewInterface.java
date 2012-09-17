@@ -165,8 +165,52 @@ public interface TerminalViewInterface {
      * @param length length of string to read
      * @return new string
      * @since 1.0
+     * @see SingleLine#getString(TerminalViewInterface, int, int, int, CodepointCallbackInterface)
      */
     public String getString(int y, int x, int length);
+
+    /**
+     * Write a string without attributes.
+     *
+     * <p>This exists to be symmetrical with {@link #getString(int, int, int)}.
+     *
+     * @param y
+     * @param x
+     * @param string
+     * @return last position after string processing
+     * @see SingleLine#putString(TerminalViewInterface, Positionable, Positionable, String, TerminalCellTemplate)
+     * @see SingleLine#putString(TerminalViewInterface, int, int, String, int, int)
+     * @since 1.2
+     */
+    public Positionable putString(int y, int x, String string);
+
+    /**
+     * Write a string without attributes.
+     *
+     * <p>This allows you to string multiple putString calls together to
+     * function like you have a cursor position.
+     *
+     * @param pos starting position
+     * @param string
+     * @return last position after string processing
+     * @see SingleLine#putString(TerminalViewInterface, Positionable, Positionable, String, TerminalCellTemplate)
+     * @see SingleLine#putString(TerminalViewInterface, int, int, String, int, int)
+     * @since 1.2
+     */
+    public Positionable putString(Positionable pos, String string);
+
+    /**
+     * Apply color, attributes, a texture, or some other template over part of
+     * a line.
+     *
+     * @param y
+     * @param x
+     * @param template
+     * @param length
+     * @since 1.2
+     */
+    public void applyTemplate(int y, int x, TerminalCellTemplate template,
+                              int length);
 
     /**
      * Get the current terminal max X size
