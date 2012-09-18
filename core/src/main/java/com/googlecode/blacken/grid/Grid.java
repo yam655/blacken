@@ -109,6 +109,7 @@ implements Serializable, Regionlike {
      * @param map map of your doom (if you use this function)
      */
     Grid(Map<String, Object> map) {
+        // This is used by deserialization.
         if (!map.get("__target__").equals(Grid.class.getName())) {
             throw new IllegalArgumentException("Not my map.");
         }
