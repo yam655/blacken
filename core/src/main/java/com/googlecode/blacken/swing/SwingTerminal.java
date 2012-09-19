@@ -15,9 +15,12 @@
 */
 package com.googlecode.blacken.swing;
 
+import com.googlecode.blacken.colors.ColorHelper;
+import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.terminal.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -37,20 +40,15 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JFrame;
-
-import com.googlecode.blacken.colors.ColorHelper;
-import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.terminal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Create a new Terminal using Swing.
  * 
- * @author yam655
+ * @author Steven Black
+ * @since 1.0
  */
 public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener, MouseListener {
@@ -872,5 +870,10 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public BlackenImageLoader getImageLoader() {
+        return new AwtImageLoader();
     }
 }

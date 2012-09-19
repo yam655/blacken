@@ -16,9 +16,6 @@
 
 package com.googlecode.blacken.resources;
 
-import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.core.ListMap;
-import com.googlecode.blacken.core.Obligations;
 import com.googlecode.blacken.grid.Grid;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +65,7 @@ public class ResourceUtils {
     }
 
     public static Grid<Integer> getResourceAsGrid(Class resourceLoader,
-            String name, ListMap<String,Integer> transform, boolean doTrim)
+            String name, Map<String,Integer> transform, boolean doTrim)
             throws ResourceMissingException {
         String s = getResourceAsString(resourceLoader, name);
         Grid<Integer> grid = new Grid<>();

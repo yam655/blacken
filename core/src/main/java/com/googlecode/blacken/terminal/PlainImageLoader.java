@@ -22,7 +22,8 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.resources.ResourceMissingException;
 import com.googlecode.blacken.resources.ResourceUtils;
-import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -30,12 +31,31 @@ import java.util.Properties;
  * @author Steven Black
  */
 public class PlainImageLoader implements BlackenImageLoader {
-    public static Grid<Integer> loadPlainImage(Class resourceLoader, String resourceName) throws ResourceMissingException {
+    private static PlainImageLoader instance = null;
+    private PlainImageLoader() {
+        // do nothing
+    }
+    public static PlainImageLoader getInstance() {
+        if (instance == null) {
+            instance = new PlainImageLoader();
+        }
+        return instance;
+    }
+    private Grid<Integer> loadPlainImage(Class resourceLoader, String resourceName) throws ResourceMissingException {
         String propname = resourceName.replaceFirst("[.][^.]*$", ".properties");
-        ListMap<String,Integer> mapping = null;
-        if (ResourceUtils.hasResource(resourceLoader, propname)) {
-            mapping = new ListMap<>();
-            Properties prop = ResourceUtils.getResourceAsProperties(resourceLoader, propname);
+        if (!ResourceUtils.hasResource(resourceLoader, propname)) {
+            propname = null;
+        }
+        return loadPlainImage(resourceLoader, resourceName, propname);
+    }
+
+    private Grid<Integer> loadPlainImage(Class resourceLoader,
+            String resourceName, String propertiesName)
+            throws ResourceMissingException {
+        Map<String,Integer> mapping = null;
+        if (propertiesName != null) {
+            mapping = new HashMap<>();
+            Properties prop = ResourceUtils.getResourceAsProperties(resourceLoader, propertiesName);
             for (String key : prop.stringPropertyNames()) {
                 String rKey = key;
                 if (key.startsWith("0x") || key.startsWith("0X")) {
@@ -67,7 +87,28 @@ public class PlainImageLoader implements BlackenImageLoader {
     @Override
     public Grid<Integer> loadImage(Class resourceLoader, String resourceName, 
             int height, int width) throws ResourceMissingException {
-        throw new UnsupportedOperationException("Plain images do not support resizing.");
+        Grid<Integer> ret = loadImage(resourceLoader, resourceName);
+        if (ret.getHeight() != height || ret.getWidth() != width) {
+            throw new UnsupportedOperationException("Plain images do not support resizing.");
+        }
+        return ret;
+    }
+
+    @Override
+    public Grid<Integer> loadImage(Class resourceLoader, String resourceName, String propertiesName) throws ResourceMissingException {
+        if (resourceName.endsWith(".txt")) {
+            return loadPlainImage(resourceLoader, resourceName, propertiesName);
+        }
+        throw new UnsupportedOperationException("Unsupported image type.");
+    }
+
+    @Override
+    public Grid<Integer> loadImage(Class resourceLoader, String resourceName, String propertiesName, int height, int width) throws ResourceMissingException {
+        Grid<Integer> ret = loadImage(resourceLoader, resourceName, propertiesName);
+        if (ret.getHeight() != height || ret.getWidth() != width) {
+            throw new UnsupportedOperationException("Plain images do not support resizing.");
+        }
+        return ret;
     }
 
 }

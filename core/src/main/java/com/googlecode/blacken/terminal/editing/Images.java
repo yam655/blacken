@@ -27,14 +27,20 @@ import java.util.Map;
 public class Images {
     public static void imageToBackground(TerminalViewInterface term, int yo, int xo, Grid<Integer> grid, Integer indexStart) {
         for (int y = 0; y < grid.getHeight(); y++) {
+            if (y + yo < 0) {
+                continue;
+            }
             if (y + yo >= term.getHeight()) {
                 break;
             }
             for (int x = 0; x < grid.getWidth(); x++) {
+                if (x + xo < 0) {
+                    continue;
+                }
                 if (x + xo >= term.getWidth()) {
                     break;
                 }
-                Integer v = grid.get(y, x);
+                Integer v = grid.get(y + grid.getY(), x + grid.getX());
                 if (v == null) {
                     continue;
                 }

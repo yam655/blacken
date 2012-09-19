@@ -399,4 +399,9 @@ public class TerminalView implements TerminalViewInterface {
     public Positionable putString(Positionable pos, String string) {
         return term.putString(pos, string);
     }
+
+    @Override
+    public BlackenImageLoader getImageLoader() {
+        return term.getImageLoader();
+    }
 }

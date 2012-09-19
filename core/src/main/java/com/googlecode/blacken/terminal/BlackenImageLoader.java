@@ -30,4 +30,10 @@ public interface BlackenImageLoader {
             throws ResourceMissingException;
     public Grid<Integer> loadImage(Class resourceLoader, String resourceName,
             int height, int width) throws ResourceMissingException;
+
+    public Grid<Integer> loadImage(Class resourceLoader, String resourceName,
+            String propertiesName) throws ResourceMissingException;
+    public Grid<Integer> loadImage(Class resourceLoader, String resourceName,
+            String propertiesName, int height, int width)
+            throws ResourceMissingException;
 }

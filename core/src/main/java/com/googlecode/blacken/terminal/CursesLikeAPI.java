@@ -32,6 +32,7 @@ import java.util.EnumSet;
  * the glory of the Curses API.</p>
  *
  * @author Steven Black
+ * @since 1.1
  */
 public class CursesLikeAPI implements TerminalInterface {
     private int curForeground = 0xffffffff;
@@ -695,5 +696,10 @@ public class CursesLikeAPI implements TerminalInterface {
         Positionable pos1 = terminal.putString(pos, string);
         setCursorPosition(pos1);
         return pos1;
+    }
+
+    @Override
+    public BlackenImageLoader getImageLoader() {
+        return terminal.getImageLoader();
     }
 }

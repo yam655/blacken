@@ -428,4 +428,10 @@ public interface TerminalViewInterface {
      */
     public void doUpdate();
 
+    /**
+     * Get the terminal's image loader instance.
+     * @return
+     * @since 1.2
+     */
+    public BlackenImageLoader getImageLoader();
 }
