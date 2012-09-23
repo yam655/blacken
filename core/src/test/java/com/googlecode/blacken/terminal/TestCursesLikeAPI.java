@@ -15,10 +15,6 @@
 */
 package com.googlecode.blacken.terminal;
 
-import java.util.EnumSet;
-
-import org.junit.*;
-
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
@@ -27,7 +23,8 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
-
+import java.util.EnumSet;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 /**
@@ -1155,5 +1152,12 @@ public class TestCursesLikeAPI {
         assertEquals(EMPTY_SEQUENCE, c.getSequence());
         assertEquals(0, terminal.getCursorY());
         assertEquals(0, terminal.getCursorX());
+    }
+
+    @Test
+    @Covers("public BlackenImageLoader getImageLoader()")
+    public void getImageLoader() {
+        BlackenImageLoader imageLoader = terminal.getImageLoader();
+        assertNotNull(imageLoader);
     }
 }

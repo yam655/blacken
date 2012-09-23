@@ -200,7 +200,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
         } else {
             getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
-                           destY, destX, new AwtCell().new ResetCell());
+                           destY, destX, new AwtCell.ResetCell());
             forceRefresh(numRows, numCols, destY, destX);
         }
     }
@@ -424,7 +424,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                       new AwtCell().new ResetCell());
+                       new AwtCell.ResetCell());
     }
     
     /* (non-Javadoc)

@@ -15,7 +15,6 @@
 */
 package com.googlecode.blacken.swing;
 
-import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.terminal.*;
@@ -32,14 +31,9 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.GraphicAttribute;
-import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.JFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +48,8 @@ public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener, MouseListener {
     static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
     protected BlackenPanel gui;
-    protected HashMap<Integer, Color> swingColor = new HashMap<>();
     protected EventListener listener;
     protected JFrame frame;
-    protected HashMap<String, GraphicAttribute> replacement = null;
     protected DropTarget dropTarget;
     protected String defaultFont = null;
     protected TerminalScreenSize defaultSize = TerminalScreenSize.SIZE_MEDIUM;
@@ -80,6 +72,8 @@ public class SwingTerminal extends AbstractTerminal
     private Rectangle windowedBounds = null;
     private boolean inhibitFullScreen = false;
     private int lastModifier;
+    private boolean windows7VerticalMaxFix = false;
+    private int ignoreResize;
 
     /**
      * Create a new terminal
@@ -97,10 +91,8 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void setEmpty(TerminalCellLike empty) {
         super.setEmpty(empty);
-        Font f = gui.getEmpty().getFont();
-        AwtCell awtempty = setAwtFromTerminal(gui.getEmpty(), getEmpty());
+        AwtCell awtempty = AwtCell.makeAwtFromTerminal(getEmpty());
         awtempty.setDirty(true);
-        awtempty.setFont(f);
         gui.setEmpty(awtempty);
     }
 
@@ -119,6 +111,20 @@ public class SwingTerminal extends AbstractTerminal
     public void componentResized(ComponentEvent e) {
         listener.loadKey(BlackenKeys.RESIZE_EVENT);
         gui.requestFocusInWindow();
+        if (this.ignoreResize > 0) {
+            this.ignoreResize --;
+        } else {
+            try {
+                if (System.getProperty("os.name", "Other").contains("Win")) {
+                    // LOGGER.debug("Preping Windows 7 fix.");
+                    this.windows7VerticalMaxFix = true;
+                }
+            } catch(SecurityException ex) {
+                // When in doubt...
+                // LOGGER.debug("Preping Windows 7 fix because of unknown OS.");
+                this.windows7VerticalMaxFix = true;
+            }
+        }
     }
 
     @Override
@@ -180,7 +186,8 @@ public class SwingTerminal extends AbstractTerminal
         Grid<TerminalCellLike> grid = getGrid();
         for (int y = startY; y < numRows + startY; y++) {
             for (int x = startX; x < numCols + startX; x++) {
-                this.setAwtFromTerminal(gui.get(y, x), grid.get(y, x));
+                AwtCell acell = AwtCell.makeAwtFromTerminal(grid.get(y, x));
+                gui.assign(y, x, acell);
                 grid.get(y, x).setDirty(false);
             }
         }
@@ -288,21 +295,6 @@ public class SwingTerminal extends AbstractTerminal
         return e;
     }
 
-    protected Color getSwingColor(int c) {
-        Color clr;
-        ColorPalette palette = getPalette();
-        if (palette != null) {
-            c = palette.getColor(c);
-        }
-        if (swingColor.containsKey(c)) {
-            clr = swingColor.get(c);
-        } else {
-            clr = new Color(c);
-            swingColor.put(c, clr);
-        }
-        return clr;
-    }
-
     @Override
     public BlackenWindowEvent getwindow() {
         BlackenWindowEvent e = listener.popWindow();
@@ -327,11 +319,11 @@ public class SwingTerminal extends AbstractTerminal
         }
         super.init(name, rows, cols, size, fonts);
         frame = new JFrame(name);
-        frame.setIgnoreRepaint(true);
+        // frame.setIgnoreRepaint(true);
         frame.setFocusTraversalKeysEnabled(false);
 
         gui = new BlackenPanel();
-        gui.setIgnoreRepaint(true);
+        // gui.setIgnoreRepaint(true);
         gui.setDoubleBuffered(true);
         listener = new EventListener(gui);
         gui.setFocusTraversalKeysEnabled(false);
@@ -346,7 +338,7 @@ public class SwingTerminal extends AbstractTerminal
         frame.setCursor(null);
         frame.pack();
         
-        AwtCell empty = new AwtCell();
+        AwtCell empty = AwtCell.makeAwtFromTerminal(null);
 
         Font fontObj = null;
         for (String font : fonts) {
@@ -499,17 +491,6 @@ public class SwingTerminal extends AbstractTerminal
         this.inhibitFullScreen = state;
     }
 
-    /**
-     * We do not cache the entire dim palette at palette-load as it isn't
-     * expected that many applications will make use of it.
-     * 
-     * @param color standard (opaque) color in an 
-     * @return
-     */
-    protected int makeDim(final int color) {
-        return ColorHelper.increaseAlpha(color, -0.20);
-    }
-
     @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX) {
@@ -535,11 +516,8 @@ public class SwingTerminal extends AbstractTerminal
         if (!tcell.isDirty()) {
             return;
         }
-        AwtCell acell = gui.get(y, x);
-        AwtCell r = this.setAwtFromTerminal(acell, tcell);
-        if (acell == null) {
-            gui.set(y, x, r);
-        }
+        AwtCell acell = AwtCell.makeAwtFromTerminal(tcell);
+        gui.assign(y, x, acell);
         tcell.setDirty(false);
     }
 
@@ -577,17 +555,15 @@ public class SwingTerminal extends AbstractTerminal
         if (sequence != null) {
             tcell.setSequence(sequence);
         }
-        gui.set(y, x, this.setAwtFromTerminal(null, tcell));
-        tcell.setDirty(true);
+        AwtCell acell = AwtCell.makeAwtFromTerminal(tcell);
+        gui.assign(y, x, acell);
+        tcell.setDirty(false);
     }
 
     @Override
     public void set(int y, int x, TerminalCellLike tcell) {
-        AwtCell acell = gui.get(y, x);
-        AwtCell r = this.setAwtFromTerminal(acell, tcell);
-        if (acell == null) {
-            gui.set(y, x, r);
-        }
+        AwtCell acell = AwtCell.makeAwtFromTerminal(tcell);
+        gui.assign(y, x, acell);
         Grid<TerminalCellLike> grid = getGrid();
         grid.get(y, x).set(tcell);
         grid.get(y, x).setDirty(false);
@@ -595,146 +571,11 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public TerminalCellLike assign(int y, int x, TerminalCellLike tcell) {
-        AwtCell acell = gui.get(y, x);
-        AwtCell r = this.setAwtFromTerminal(acell, tcell);
-        if (acell == null) {
-            gui.set(y, x, r);
-        }
+        AwtCell acell = AwtCell.makeAwtFromTerminal(tcell);
+        gui.assign(y, x, acell);
         Grid<TerminalCellLike> grid = getGrid();
         tcell.setDirty(false);
         return grid.set(y, x, tcell);
-    }
-
-    protected AwtCell setAwtFromTerminal(AwtCell awt, final TerminalCellLike term) {
-        if (term == null && awt != null) {
-            awt.set(null);
-            return awt;
-        }
-        if (awt == null) {
-            awt = new AwtCell();
-            awt.setFont(gui.getEmpty().getFont());
-            if (term == null) {
-                return awt;
-            }
-        } else {
-            awt.setFont(gui.getEmpty().getFont());
-        }
-        if (term == null) {
-            throw new NullPointerException();
-        }
-        awt.setSequence(term.getSequence());
-        awt.setCellWalls(term.getCellWalls());
-        awt.clearTextAttributes();
-        Set<TerminalStyle> styles = term.getStyle();
-        int fore = term.getForeground();
-        int back = term.getBackground();
-        if (styles.contains(TerminalStyle.STYLE_REVERSE)) {
-            int r = fore;
-            fore = back;
-            back = r;
-        }
-        if (styles.contains(TerminalStyle.STYLE_DIM)) {
-            fore = makeDim(fore);
-        }
-        awt.setBackgroundColor(getSwingColor(back));
-        awt.setForegroundColor(getSwingColor(fore));
-        Map<TextAttribute, Object> attrs = awt.getAttributes();
-        // attrs.put(TextAttribute.FAMILY, Font.MONOSPACED);
-        if (styles.contains(TerminalStyle.STYLE_LIGHT)) {
-            if (styles.contains(TerminalStyle.STYLE_BOLD)) {
-                if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                    // STYLE_LIGHT | STYLE_BOLD | STYLE_HEAVY
-                    // This is currently undefined.                
-                } else {
-                    // STYLE_LIGHT | STYLE_BOLD
-                    attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_LIGHT);
-                }
-            } else if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                // STYLE_LIGHT | STYLE_HEAVY
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_MEDIUM);
-            } else {
-                // STYLE_LIGHT
-                attrs.put(TextAttribute.WEIGHT, 
-                          TextAttribute.WEIGHT_EXTRA_LIGHT);
-            }
-        } else if (styles.contains(TerminalStyle.STYLE_BOLD)) {
-            if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-                // STYLE_BOLD | STYLE_HEAVY
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_ULTRABOLD);
-            } else {
-                // STYLE_BOLD
-                attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
-            }
-    
-        } else if (styles.contains(TerminalStyle.STYLE_HEAVY)) {
-            // STYLE_HEAVY
-            attrs.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_HEAVY);
-        } 
-        for(TerminalStyle style : styles) {
-            switch (style) {
-            case STYLE_LIGHT:
-            case STYLE_BOLD:
-            case STYLE_HEAVY:
-                break; // handled elsewhere
-            
-            case STYLE_NARROW:
-                attrs.put(TextAttribute.WIDTH, TextAttribute.WIDTH_CONDENSED);
-                break;
-            case STYLE_WIDE:
-                attrs.put(TextAttribute.WIDTH, TextAttribute.WIDTH_EXTENDED);
-                break;
-            // What is STYLE_NARROW | STYLE_WIDE ?
-            
-            case STYLE_ITALIC:
-                attrs.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
-                break;
-            
-            // Mapped to SUPERSCRIPT (possibly *unclean* mapping)
-            case STYLE_SUPERSCRIPT: // SUPERSCRIPT_SUPER
-                attrs.put(TextAttribute.SUPERSCRIPT, 
-                          TextAttribute.SUPERSCRIPT_SUPER);
-                break;
-            case STYLE_SUBSCRIPT: // SUPERSCRIPT_SUB
-                attrs.put(TextAttribute.SUPERSCRIPT, 
-                          TextAttribute.SUPERSCRIPT_SUB);
-                break;
-            // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
-    
-            case STYLE_INVISIBLE:
-                awt.setSequence("\u0000");
-                break;
-            case STYLE_REPLACEMENT:
-                awt.setSequence("\uFFFC");
-                String s = term.getSequence();
-                if (replacement != null && replacement.containsKey(s)) {
-                    attrs.put(TextAttribute.CHAR_REPLACEMENT, replacement.get(s));
-                }
-                break;
-            
-            // Mapped to UNDERLINE
-            case STYLE_UNDERLINE: // UNDERLINE_ON
-                attrs.put(TextAttribute.UNDERLINE,
-                          TextAttribute.UNDERLINE_ON);
-                break;
-            
-            // Mapped to STRIKETHROUGH
-            case STYLE_STRIKETHROUGH: // STRIKETHROUGH_ON
-                attrs.put(TextAttribute.STRIKETHROUGH, 
-                          TextAttribute.STRIKETHROUGH_ON);
-                break;
-            
-            // Mapped to SWAP_COLORS
-            case STYLE_REVERSE: // SWAP_COLORS_ON
-                attrs.put(TextAttribute.SWAP_COLORS, 
-                          TextAttribute.SWAP_COLORS_ON);
-                break;
-            case STYLE_DIM:
-                /* handled elsewhere */
-                break;
-            }
-        }
-        awt.setTextAttributes(attrs);
-        return awt;
     }
 
     @Override
@@ -822,26 +663,9 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public ColorPalette setPalette(ColorPalette palette) {
         ColorPalette old = super.setPalette(palette);
-        swingColor.clear();
-        if (palette != null) {
-            for (int c : palette) {
-                swingColor.put(c, new Color(c));
-            }
-        }
+        AwtCell.setPalette(palette);
         return old;
     }
-
-    /*
-    @Override
-    public TerminalInterface getGlass() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public TerminalInterface initGlass(int rows, int cols, String font) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    */
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -863,9 +687,14 @@ public class SwingTerminal extends AbstractTerminal
         if ((frame.getExtendedState()) != Frame.NORMAL) {
             return;
         }
-        Rectangle b = frame.getBounds();
-        frame.setSize(b.width-1, b.height);
-        frame.setSize(b.width, b.height);
+        if (this.windows7VerticalMaxFix) {
+            // LOGGER.debug("Tweaking window.");
+            Rectangle b = frame.getBounds();
+            this.ignoreResize += 2;
+            frame.setSize(b.width-1, b.height);
+            frame.setSize(b.width, b.height);
+            this.windows7VerticalMaxFix = false;
+        }
     }
 
     @Override

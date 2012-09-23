@@ -15,11 +15,6 @@
 */
 package com.googlecode.blacken.terminal;
 
-import java.util.EnumSet;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
@@ -28,8 +23,10 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
-
+import java.util.EnumSet;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -942,5 +939,12 @@ public class TestUnboundTerminal {
         assertEquals(EMPTY_SEQUENCE, c.getSequence());
         assertEquals(-1, terminal.getCursorY());
         assertEquals(-1, terminal.getCursorX());
+    }
+
+    @Test
+    @Covers("public BlackenImageLoader getImageLoader()")
+    public void getImageLoader() {
+        BlackenImageLoader imageLoader = terminal.getImageLoader();
+        assertNotNull(imageLoader);
     }
 }

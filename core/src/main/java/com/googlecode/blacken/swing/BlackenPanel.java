@@ -94,12 +94,15 @@ public class BlackenPanel extends JPanel {
     private transient long displaySpeed = 0;
     private int refreshedCnt = 0;
     private int repaintedCnt = 0;
+    private Grid<AwtCell> gridView;
+    private boolean refreshAlways = false;
 
     /**
      * Create a new panel.
      */
     public BlackenPanel() {
         super(true);
+        checkForWorkarounds();
     }
     
     /**
@@ -108,6 +111,13 @@ public class BlackenPanel extends JPanel {
      */
     public BlackenPanel(LayoutManager layout) {
         super(layout, true);
+        checkForWorkarounds();
+    }
+
+    private void checkForWorkarounds() {
+        if (System.getProperty("os.name", "Other").contains("Mac")) {
+            this.refreshAlways = true;
+        }
     }
 
     /**
@@ -197,10 +207,7 @@ public class BlackenPanel extends JPanel {
 
     @Override
     public Font getFont() {
-        if (empty == null) {
-            return null;
-        }
-        return empty.getFont();
+        return AwtCell.getGlobalFont();
     }
     /**
      * Get the grid size
@@ -231,7 +238,7 @@ public class BlackenPanel extends JPanel {
         setBounds(0, 0, width, height);
         this.minY = rows;
         this.minX = cols;
-        setFont(font, false);
+        setFont(font);
         grid.reset(rows, cols, empty);
         repaint();
     }
@@ -249,7 +256,7 @@ public class BlackenPanel extends JPanel {
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                       new AwtCell().new ResetCell());
+                       new AwtCell.ResetCell());
     }
     
     /**
@@ -284,13 +291,32 @@ public class BlackenPanel extends JPanel {
         getTopLevelAncestor().setBackground(getEmpty().getBackgroundColor());
         Graphics2D graphics = (Graphics2D)g;
         graphics.setPaint(getEmpty().getBackgroundColor());
+        if (AwtCell.getGlobalFont() != null) {
+            graphics.setFont(AwtCell.getGlobalFont());
+        }
 
+        if (this.refreshAlways) {
+            refresh_all = true;
+        }
+        Grid<AwtCell> grid = null;
         synchronized(this) {
             if (this.refreshedCnt == this.repaintedCnt) {
-                LOGGER.error("Dropped an paintComponent update -- didn't come through refresh()");
-                return;
+                // LOGGER.error("Dropped an paintComponent update -- didn't come through refresh()");
+                // return;
+                if (this.gridView == null) {
+                    return;
+                }
+                refresh_all = true;
+            } else {
+                this.repaintedCnt = this.refreshedCnt;
+                if (gridView == null || !gridView.getBounds().equals(this.grid.getBounds())) {
+                    this.gridView = this.grid.like();
+                    refresh_all = true;
+                }
+                // this.gridView = this.grid.copySubGrid(this.grid.getHeight(), this.grid.getWidth(), 0, 0);
+                grid = this.grid;
             }
-            this.repaintedCnt = this.refreshedCnt;
+            // grid = this.gridView;
         }
 
         try {
@@ -301,16 +327,24 @@ public class BlackenPanel extends JPanel {
             } else {
                 if (lastCursorX != -1 && lastCursorY != -1) {
                     if (cursorX != lastCursorX || cursorY != lastCursorY) {
-                        if (grid.contains(lastCursorY, lastCursorX)) {
-                            c = grid.get(lastCursorY, lastCursorX);
+                        if (gridView.contains(lastCursorY, lastCursorX)) {
+                            if (grid != null) {
+                                c = grid.get(lastCursorY, lastCursorX);
+                            } else {
+                                c = gridView.get(lastCursorY, lastCursorX);
+                            }
                             c.setDirty(true);
                         }
                     }
                 }
             }
             if (cursorX != -1 && cursorY != -1) {
-                if (grid.contains(cursorY, cursorX)) {
-                    c = grid.get(cursorY, cursorX);
+                if (gridView.contains(cursorY, cursorX)) {
+                    if (grid != null) {
+                        c = grid.get(cursorY, cursorX);
+                    } else {
+                        c = gridView.get(cursorY, cursorX);
+                    }
                     if (c.isDirty()) {
                         need_cursor = true;
                     } else if (cursorX != lastCursorX || cursorY != lastCursorY) {
@@ -318,23 +352,27 @@ public class BlackenPanel extends JPanel {
                     }
                 } else {
                     need_cursor = true;
-                    if (cursorY >= grid.getHeight() + grid.getY()) {
-                        cursorY = grid.getHeight() + grid.getY() -1;
+                    if (cursorY >= gridView.getHeight() + gridView.getY()) {
+                        cursorY = gridView.getHeight() + gridView.getY() -1;
                     }
-                    if (cursorX >= grid.getWidth() + grid.getX()) {
-                        cursorX = grid.getWidth() + grid.getX() -1;
+                    if (cursorX >= gridView.getWidth() + gridView.getX()) {
+                        cursorX = gridView.getWidth() + gridView.getX() -1;
                     }
                 }
             }
             lastCursorX = cursorX;
             lastCursorY = cursorY;
 
-            for (int y = 0; y < grid.getHeight(); y++) {
+            for (int y = 0; y < gridView.getHeight(); y++) {
                 // We do the background then the foreground so that double-wide
                 // characters get the background set reasonably.
 
-                for (int x = 0; x < grid.getWidth(); x++) {
-                    c = grid.get(y, x);
+                for (int x = 0; x < gridView.getWidth(); x++) {
+                    if (grid != null) {
+                        c = grid.get(y, x);
+                    } else {
+                        c = gridView.get(y, x);
+                    }
                     if (c.isDirty() || refresh_all) {
                         graphics.setPaint(c.getBackgroundColor());
                         graphics.fill(new Rectangle(x * fontSglAdvance,
@@ -346,14 +384,21 @@ public class BlackenPanel extends JPanel {
                 final int fontHeightD2 = fontHeight / 2;
                 final int fontSglAdvanceD2 = fontSglAdvance / 2;
 
-                for (int x = 0; x < grid.getWidth(); x++) {
-                    c = grid.get(y, x);
+                for (int x = 0; x < gridView.getWidth(); x++) {
+                    if (grid != null) {
+                        c = grid.get(y, x);
+                        if (c.isDirty() || refresh_all) {
+                            gridView.set(y, x, c);
+                        }
+                    } else {
+                        c = gridView.get(y, x);
+                    }
 
                     if (!c.isDirty() && !refresh_all) {
                         continue;
                     }
                     String cs = c.getSequence();
-                    c.setFont(this.font);
+                    // c.setFont(this.displayFont);
                     // For double-wide characters, we can safely put a NUL
                     // byte in the second slot and it will never be displayed.
                     if (cs != null && !"\u0000".equals(cs)) {
@@ -408,7 +453,7 @@ public class BlackenPanel extends JPanel {
                 }
             }
             if (need_cursor) {
-                c = grid.get(cursorY, cursorX);
+                c = gridView.get(cursorY, cursorX);
                 if (cursorColor == null) {
                     graphics.setPaint(c.getForegroundColor());
                 } else {
@@ -452,11 +497,11 @@ public class BlackenPanel extends JPanel {
      * <code>fontSglAdvance</code> are the same and <code>fontHasDouble</code>
      * is false.
      */
-    protected void recalculateFontBits() {
+    protected void recalculateFontBits(Font check) {
         if (this.getGraphics() == null) {
             return;
         }
-        metrics = this.getGraphics().getFontMetrics(this.font);
+        metrics = this.getGraphics().getFontMetrics(check);
         fontAscent = metrics.getMaxAscent();
         fontDblAdvance = metrics.getMaxAdvance();
         fontSglAdvance = metrics.charWidth('W');
@@ -559,15 +604,23 @@ public class BlackenPanel extends JPanel {
      * @param x1 coordinate of the box
      */
     public void refreshRegion(int height, int width, int y1, int x1) {
-        if (y1 < 0) y1 = 0;
-        if (x1 < 0) x1 = 0;
+        if (y1 < 0) {
+            y1 = 0;
+        }
+        if (x1 < 0) {
+            x1 = 0;
+        }
 
-        if (height < 0) height = grid.getHeight();
+        if (height < 0) {
+            height = grid.getHeight();
+        }
         if (height + y1 >= grid.getHeight()) {
             height = grid.getHeight() - y1;
         }
 
-        if (width < 0) width = grid.getWidth();
+        if (width < 0) {
+            width = grid.getWidth();
+        }
         if (width + y1 >= grid.getWidth()) {
             width = grid.getWidth() - y1;
         }
@@ -582,21 +635,21 @@ public class BlackenPanel extends JPanel {
         }
     }
 
-    protected void resizeFontToFit() {
+    protected Font resizeFontToFit(Font font) {
         // Rectangle r = this.getRootPane().getContentPane().getBounds();
         Rectangle r = this.getVisibleRect();
         float fsize = 0.5f;
         int idealAdvance = r.width / this.minX;
         int idealHeight = r.height / this.minY;
         //LOGGER.debug("ideal:{}, height:{}, idealAdvance, idealHeight");
-        Font f = this.font.deriveFont(fsize);
-        setFontNoUpdate(f);
+        Font f = font.deriveFont(fsize);
+        recalculateFontBits(f);
         if (idealAdvance <= fontSglAdvance || idealHeight <= fontHeight) {
             //LOGGER.debug("BOGUS advance:{}; height:{}",
                     //fontSglAdvance, fontHeight);
             // This is a real bogus size, but apparently we can't get 
             // anything better
-            return;
+            return font;
         }
         Font lastFont = f;
         //LOGGER.debug("size:{}; advance:{}; height:{}",
@@ -604,15 +657,11 @@ public class BlackenPanel extends JPanel {
         while (idealAdvance >= fontSglAdvance && idealHeight >= fontHeight) {
             lastFont = f;
             f = lastFont.deriveFont(fsize += 0.5f); 
-            setFontNoUpdate(f);
+            recalculateFontBits(f);
             //LOGGER.debug("size:{}; advance:{}; height:{}",
             //        new Object[] {fsize, fontSglAdvance, fontHeight});
         }
-        setFont(lastFont, false);
-        int newRows = r.height / fontHeight;
-        int newCols = r.width / fontSglAdvance;
-        grid.setSize(newRows, newCols);
-        // LOGGER.debug("grid: ys:{}; xs:{}", newRows, newCols);
+        return f;
     }
     
     /**
@@ -620,13 +669,16 @@ public class BlackenPanel extends JPanel {
      * 
      * @param frame frame to resize
      * @param fontSize font size to use
+     * @deprecated
      */
+    @Deprecated
     public void resizeFrame(JFrame frame, int fontSize) {
+        /*
         Font f;
         if (fontSize > 0) {
             f = this.font;
             if (f == null) {
-                f = new Font("Monospace", Font.PLAIN, fontSize); //$NON-NLS-1$
+                f = new Font("Monospace", Font.PLAIN, fontSize);
             } else {
                 f = f.deriveFont(fontSize);
             }
@@ -634,6 +686,7 @@ public class BlackenPanel extends JPanel {
         }
         Sizable sizes = getBestWindowSize();
         frame.setSize(sizes.getWidth(), sizes.getHeight());
+        */
     }
     /**
      * Resize the grid
@@ -674,6 +727,9 @@ public class BlackenPanel extends JPanel {
         AwtCell c = grid.get(y, x);
         c.set(cell);
         c.setDirty(true);
+    }
+    public void assign(int y, int x, AwtCell cell) {
+        grid.set(y, x, cell);
     }
     
     /**
@@ -726,10 +782,26 @@ public class BlackenPanel extends JPanel {
      * @param recalc true to recalculate
      */
     private void setFont(Font font, boolean recalc) {
-        setFontNoUpdate(font);
-        if (recalc && this.getGraphics() != null) {
-            resizeFontToFit();
+        if (font == null) {
+            font = this.font;
         }
+        if (recalc && this.getGraphics() != null) {
+            font = resizeFontToFit(font);
+            recalculateFontBits(font);
+            Rectangle r = this.getVisibleRect();
+            int newRows = r.height / fontHeight;
+            int newCols = r.width / fontSglAdvance;
+            grid.setSize(newRows, newCols);
+        } else {
+            recalculateFontBits(font);
+        }
+        this.font = font;
+        super.setFont(font);
+        if(this.getGraphics() != null) {
+            this.getGraphics().setFont(font);
+        }
+        AwtCell.setGlobalFont(font);
+        /*
         if (empty != null && this.font != null) {
             if (empty.getFont() == null || 
                     !empty.getFont().equals(this.font)) {
@@ -741,28 +813,20 @@ public class BlackenPanel extends JPanel {
                 }
             }
         }
-    }
-
-    /**
-     * Set the font and do not update
-     * @param font new font
-     */
-    private void setFontNoUpdate(Font font) {
-        if (font != null) {
-            this.font = font;
-        }
-        super.setFont(this.font);
-        if(this.getGraphics() != null) {
-            this.getGraphics().setFont(this.font);
-        }
-        recalculateFontBits();
+        */
     }
 
     /**
      * Process a window resize event.
      */
     public void windowResized() {
-        resizeFontToFit();
+        this.font = resizeFontToFit(font);
+        setFont(font);
+        Rectangle r = this.getVisibleRect();
+        int newRows = r.height / fontHeight;
+        int newCols = r.width / fontSglAdvance;
+        grid.setSize(newRows, newCols);
+        // LOGGER.debug("grid: ys:{}; xs:{}", newRows, newCols);
         refresh();
     }
 
