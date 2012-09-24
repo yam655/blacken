@@ -238,6 +238,14 @@ public class SingleLine {
         int lastUpX = start.getX() - 1;
         int lastUpY = start.getY() - 1;
         for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
+            if (x >= grid.getWidth()) {
+                x = 0;
+                y++;
+            }
+            if (y >= grid.getHeight()) {
+                terminal.moveBlock(grid.getHeight() - 1, grid.getWidth(), 1, 0, 0, 0);
+                y = grid.getHeight() - 1;
+            }
             cp = string.codePointAt(i);
             TerminalCellLike c;
             switch (Character.getType(cp)) {
@@ -278,14 +286,6 @@ public class SingleLine {
                         }
                         terminal.refresh(y, x);
                         x++;
-                    }
-                    if (x >= grid.getWidth()) {
-                        x = 0;
-                        y++;
-                    }
-                    if (y >= grid.getHeight()) {
-                        terminal.moveBlock(grid.getHeight() - 1, grid.getWidth(), 1, 0, 0, 0);
-                        y = grid.getHeight() - 1;
                     }
             }
         }

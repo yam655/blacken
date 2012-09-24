@@ -46,19 +46,22 @@ import org.slf4j.LoggerFactory;
  */
 public class BlackenPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanel.class);
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = -9074497119456670580L;
+    public class FontBits {
+        public Font font;
+        public FontMetrics metrics;
+        public int fontAscent;
+        public int fontDblAdvance;
+        public int fontSglAdvance;
+        public boolean fontHasDouble;
+        public int fontHeight;
+    }
+
     private AwtCell empty = new AwtCell();
     private int minX = 80;
     private int minY = 25;
     private Grid<AwtCell> grid = new Grid<>(empty, minY, minX);
-
-    private boolean fontHasDouble = true;
-    private int fontAscent;
-    private int fontSglAdvance;
-    private int fontDblAdvance;
-    private int fontHeight;
-    private Font font;
-    private FontMetrics metrics;
+    protected FontBits bits = new FontBits();
 
     /**
      * X Position where the cursor will be when image is updated
@@ -96,6 +99,7 @@ public class BlackenPanel extends JPanel {
     private int repaintedCnt = 0;
     private Grid<AwtCell> gridView;
     private boolean refreshAlways = false;
+    private boolean fontChanged;
 
     /**
      * Create a new panel.
@@ -145,7 +149,7 @@ public class BlackenPanel extends JPanel {
     public int findColForWindow(int x) {
         Rectangle r = this.getRootPane().getBounds();
         x -= r.x;
-        int ret = x / this.fontSglAdvance;
+        int ret = x / bits.fontSglAdvance;
         return ret;
     }
     /**
@@ -158,9 +162,9 @@ public class BlackenPanel extends JPanel {
     public int[] findPositionForWindow(int y, int x) {
         Rectangle r = this.getRootPane().getBounds();
         y -= r.y;
-        int retY = y / this.fontHeight;
+        int retY = y / bits.fontHeight;
         x -= r.x;
-        int retX = x / this.fontSglAdvance;
+        int retX = x / bits.fontSglAdvance;
         int[] ret = {retY, retX};
         return ret;
     }
@@ -172,7 +176,7 @@ public class BlackenPanel extends JPanel {
     public int findRowForWindow(int y) {
         Rectangle r = this.getRootPane().getBounds();
         y -= r.y;
-        int ret = y / this.fontHeight;
+        int ret = y / bits.fontHeight;
         return ret;
     }
     /**
@@ -193,8 +197,8 @@ public class BlackenPanel extends JPanel {
     protected Sizable getBestWindowSize() {
         int xsize, ysize;
         Sizable gridSize = grid.getSize();
-        xsize = fontSglAdvance * gridSize.getWidth();
-        ysize = fontHeight * gridSize.getHeight();
+        xsize = bits.fontSglAdvance * gridSize.getWidth();
+        ysize = bits.fontHeight * gridSize.getHeight();
         return new SimpleSize(ysize, xsize);
     }
     /**
@@ -286,11 +290,18 @@ public class BlackenPanel extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
+        if (this.fontChanged) {
+            if(this.getGraphics() != null) {
+                this.getGraphics().setFont(bits.font);
+            }
+            AwtCell.setGlobalFont(bits.font);
+        }
         AwtCell c;
         boolean need_cursor = false;
-        getTopLevelAncestor().setBackground(getEmpty().getBackgroundColor());
+        if (!getTopLevelAncestor().getBackground().equals(getEmpty().getBackgroundColor())) {
+            getTopLevelAncestor().setBackground(getEmpty().getBackgroundColor());
+        }
         Graphics2D graphics = (Graphics2D)g;
-        graphics.setPaint(getEmpty().getBackgroundColor());
         if (AwtCell.getGlobalFont() != null) {
             graphics.setFont(AwtCell.getGlobalFont());
         }
@@ -299,10 +310,9 @@ public class BlackenPanel extends JPanel {
             refresh_all = true;
         }
         Grid<AwtCell> grid = null;
+        refresh_all = true;
         synchronized(this) {
             if (this.refreshedCnt == this.repaintedCnt) {
-                // LOGGER.error("Dropped an paintComponent update -- didn't come through refresh()");
-                // return;
                 if (this.gridView == null) {
                     return;
                 }
@@ -313,10 +323,8 @@ public class BlackenPanel extends JPanel {
                     this.gridView = this.grid.like();
                     refresh_all = true;
                 }
-                // this.gridView = this.grid.copySubGrid(this.grid.getHeight(), this.grid.getWidth(), 0, 0);
                 grid = this.grid;
             }
-            // grid = this.gridView;
         }
 
         try {
@@ -373,16 +381,18 @@ public class BlackenPanel extends JPanel {
                     } else {
                         c = gridView.get(y, x);
                     }
-                    if (c.isDirty() || refresh_all) {
+                    if (c.isDirty() || (refresh_all
+                            && !c.getBackgroundColor().equals(
+                                    getEmpty().getBackgroundColor()))) {
                         graphics.setPaint(c.getBackgroundColor());
-                        graphics.fill(new Rectangle(x * fontSglAdvance,
-                                                    y * fontHeight,
-                                                    fontSglAdvance,
-                                                    fontHeight));
+                        graphics.fill(new Rectangle(x * bits.fontSglAdvance,
+                                                    y * bits.fontHeight,
+                                                    bits.fontSglAdvance,
+                                                    bits.fontHeight));
                     }
                 }
-                final int fontHeightD2 = fontHeight / 2;
-                final int fontSglAdvanceD2 = fontSglAdvance / 2;
+                final int fontHeightD2 = bits.fontHeight / 2;
+                final int fontSglAdvanceD2 = bits.fontSglAdvance / 2;
 
                 for (int x = 0; x < gridView.getWidth(); x++) {
                     if (grid != null) {
@@ -402,8 +412,8 @@ public class BlackenPanel extends JPanel {
                     // For double-wide characters, we can safely put a NUL
                     // byte in the second slot and it will never be displayed.
                     if (cs != null && !"\u0000".equals(cs)) {
-                        int w = metrics.stringWidth(cs);
-                        w = fontSglAdvance - w;
+                        int w = bits.metrics.stringWidth(cs);
+                        w = bits.fontSglAdvance - w;
                         if (w < 0) {
                             w = 0;
                         } else {
@@ -412,42 +422,42 @@ public class BlackenPanel extends JPanel {
                         graphics.setBackground(c.getBackgroundColor());
                         graphics.setColor(c.getForegroundColor());
                         graphics.drawString(c.getSequence(),
-                                        x * fontSglAdvance + w,
-                                        y * fontHeight + fontAscent);
+                                        x * bits.fontSglAdvance + w,
+                                        y * bits.fontHeight + bits.fontAscent);
                     }
 
                     c.setDirty(false);
                     if (c.getCellWalls() != null && !c.getCellWalls().isEmpty()) {
-                        int x1 = x * fontSglAdvance;
-                        int y1 = y * fontHeight;
+                        int x1 = x * bits.fontSglAdvance;
+                        int y1 = y * bits.fontHeight;
                         graphics.setColor(c.getForegroundColor());
                         if (c.getCellWalls().contains(CellWalls.TOP)) {
                             graphics.drawLine(x1, y1,
-                                                x1 + fontSglAdvance -1, y1);
+                                                x1 + bits.fontSglAdvance -1, y1);
                         }
                         if (c.getCellWalls().contains(CellWalls.LEFT)) {
                             graphics.drawLine(x1, y1, x1,
-                                                y1 + fontHeight -1);
+                                                y1 + bits.fontHeight -1);
                         }
                         if (c.getCellWalls().contains(CellWalls.BOTTOM)) {
-                            graphics.drawLine(x1, y1 + fontHeight-1,
-                                                x1 + fontSglAdvance -1,
-                                                y1 + fontHeight-1);
+                            graphics.drawLine(x1, y1 + bits.fontHeight-1,
+                                                x1 + bits.fontSglAdvance -1,
+                                                y1 + bits.fontHeight-1);
                         }
                         if (c.getCellWalls().contains(CellWalls.RIGHT)) {
-                            graphics.drawLine(x1 + fontSglAdvance-1, y1,
-                                                x1 + fontSglAdvance-1,
-                                                y1 + fontHeight -1);
+                            graphics.drawLine(x1 + bits.fontSglAdvance-1, y1,
+                                                x1 + bits.fontSglAdvance-1,
+                                                y1 + bits.fontHeight -1);
                         }
                         if (c.getCellWalls().containsAll(CellWalls.HORIZONTAL)) {
                             graphics.drawLine(x1, y1 + fontHeightD2,
-                                                x1 + fontSglAdvance -1,
+                                                x1 + bits.fontSglAdvance -1,
                                                 y1 + fontHeightD2);
                         }
                         if (c.getCellWalls().containsAll(CellWalls.VERTICAL)) {
                             graphics.drawLine(x1 + fontSglAdvanceD2, y1,
                                                 x1 + fontSglAdvanceD2,
-                                                y1 + fontHeight -1);
+                                                y1 + bits.fontHeight -1);
                         }
                     }
                 }
@@ -459,10 +469,10 @@ public class BlackenPanel extends JPanel {
                 } else {
                     graphics.setPaint(cursorColor);
                 }
-                graphics.fill(new Rectangle(cursorX * fontSglAdvance,
-                                            cursorY * fontHeight + fontAscent,
-                                            fontSglAdvance -1,
-                                            fontHeight - fontAscent -1));
+                graphics.fill(new Rectangle(cursorX * bits.fontSglAdvance,
+                                            cursorY * bits.fontHeight + bits.fontAscent,
+                                            bits.fontSglAdvance -1,
+                                            bits.fontHeight - bits.fontAscent -1));
             }
             refresh_all = false;
             long endTime = System.currentTimeMillis();
@@ -471,15 +481,19 @@ public class BlackenPanel extends JPanel {
             } else {
                 this.displaySpeed = (displaySpeed + endTime - startTime) / 2;
             }
-            //LOGGER.info("Panel update speed: {} ms / Average: {} ms",
-            //         endTime - startTime, displaySpeed);
+            LOGGER.info("Panel update speed: {} ms / Average: {} ms",
+                     endTime - startTime, displaySpeed);
+        } catch(IndexOutOfBoundsException ex) {
+            LOGGER.debug("grid changed size during an update");
         } finally {
-            synchronized(this) {
-                this.notifyAll();
+            if (grid != null) {
+                synchronized(this) {
+                    this.notifyAll();
+                }
             }
         }
     }
-    
+
     /**
      * Recalculate the font bits.
      * 
@@ -497,27 +511,28 @@ public class BlackenPanel extends JPanel {
      * <code>fontSglAdvance</code> are the same and <code>fontHasDouble</code>
      * is false.
      */
-    protected void recalculateFontBits(Font check) {
+    protected void recalculateFontBits(Font check, FontBits bits) {
         if (this.getGraphics() == null) {
             return;
         }
-        metrics = this.getGraphics().getFontMetrics(check);
-        fontAscent = metrics.getMaxAscent();
-        fontDblAdvance = metrics.getMaxAdvance();
-        fontSglAdvance = metrics.charWidth('W');
-        if (fontDblAdvance == -1) {
-            fontDblAdvance = fontSglAdvance;
+        bits.font = check;
+        bits.metrics = this.getGraphics().getFontMetrics(check);
+        bits.fontAscent = bits.metrics.getMaxAscent();
+        bits.fontDblAdvance = bits.metrics.getMaxAdvance();
+        bits.fontSglAdvance = bits.metrics.charWidth('W');
+        if (bits.fontDblAdvance == -1) {
+            bits.fontDblAdvance = bits.fontSglAdvance;
         }
-        fontHasDouble = false;
-        if (fontDblAdvance >= fontSglAdvance + fontSglAdvance) {
-            fontHasDouble = true;
+        bits.fontHasDouble = false;
+        if (bits.fontDblAdvance >= bits.fontSglAdvance + bits.fontSglAdvance) {
+            bits.fontHasDouble = true;
         } 
-        if (fontHasDouble) {
-            int sa = fontDblAdvance / 2;
-            if (sa >= fontSglAdvance) {
-                fontSglAdvance = sa;
+        if (bits.fontHasDouble) {
+            int sa = bits.fontDblAdvance / 2;
+            if (sa >= bits.fontSglAdvance) {
+                bits.fontSglAdvance = sa;
             } else {
-                fontDblAdvance = fontSglAdvance * 2;
+                bits.fontDblAdvance = bits.fontSglAdvance * 2;
             }
         }
         /* XXX: Here's the issue:
@@ -561,9 +576,9 @@ public class BlackenPanel extends JPanel {
          * For details on the various code ranges, and the glyphs supported
          * by each: http://unicode.org/charts/
          */
-        //fontHeight = metrics.getMaxAscent() + metrics.getMaxDescent() 
-        //                                    + metrics.getLeading();
-        fontHeight = metrics.getHeight() /* + 2 */;
+        //bits.fontHeight = bits.metrics.getMaxAscent() + bits.metrics.getMaxDescent()
+        //                                    + bits.metrics.getLeading();
+        bits.fontHeight = bits.metrics.getHeight() /* + 2 */;
     }
     /**
      * Refresh the window.
@@ -635,33 +650,33 @@ public class BlackenPanel extends JPanel {
         }
     }
 
-    protected Font resizeFontToFit(Font font) {
+    protected FontBits resizeFontToFit(Font font) {
         // Rectangle r = this.getRootPane().getContentPane().getBounds();
         Rectangle r = this.getVisibleRect();
         float fsize = 0.5f;
         int idealAdvance = r.width / this.minX;
         int idealHeight = r.height / this.minY;
         //LOGGER.debug("ideal:{}, height:{}, idealAdvance, idealHeight");
-        Font f = font.deriveFont(fsize);
-        recalculateFontBits(f);
-        if (idealAdvance <= fontSglAdvance || idealHeight <= fontHeight) {
+        FontBits fbits = new FontBits();
+        recalculateFontBits(font.deriveFont(fsize), fbits);
+        if (idealAdvance <= fbits.fontSglAdvance || idealHeight <= fbits.fontHeight) {
             //LOGGER.debug("BOGUS advance:{}; height:{}",
                     //fontSglAdvance, fontHeight);
             // This is a real bogus size, but apparently we can't get 
             // anything better
-            return font;
+            return fbits;
         }
-        Font lastFont = f;
+        FontBits lastBits = fbits;
         //LOGGER.debug("size:{}; advance:{}; height:{}",
         //        new Object[] {fsize, fontSglAdvance, fontHeight});
-        while (idealAdvance >= fontSglAdvance && idealHeight >= fontHeight) {
-            lastFont = f;
-            f = lastFont.deriveFont(fsize += 0.5f); 
-            recalculateFontBits(f);
+        while (idealAdvance >= fbits.fontSglAdvance && idealHeight >= fbits.fontHeight) {
+            lastBits = fbits;
+            fbits = new FontBits();
+            recalculateFontBits(lastBits.font.deriveFont(fsize += 0.5f), fbits);
             //LOGGER.debug("size:{}; advance:{}; height:{}",
             //        new Object[] {fsize, fontSglAdvance, fontHeight});
         }
-        return f;
+        return fbits;
     }
     
     /**
@@ -704,8 +719,8 @@ public class BlackenPanel extends JPanel {
     protected void resizeGridToWindow() {
         int xsize, ysize;
         Dimension d = this.getSize();
-        xsize = d.width / fontSglAdvance;
-        ysize = d.height / fontHeight;
+        xsize = d.width / bits.fontSglAdvance;
+        ysize = d.height / bits.fontHeight;
         this.grid.setSize(ysize, xsize);
     }
     
@@ -773,60 +788,35 @@ public class BlackenPanel extends JPanel {
      */
     @Override
     public void setFont(Font font) {
-        setFont(font, true);
+        if (font == null) {
+            font = bits.font;
+        }
+        if (this.getGraphics() != null) {
+            FontBits fbits = null;
+            fbits = resizeFontToFit(font);
+            recalculateFontBits(font, fbits);
+            setFont(fbits);
+        }
+        super.setFont(font);
+        this.fontChanged = true;
     }
 
-    /**
-     * Set the font.
-     * @param font font to use
-     * @param recalc true to recalculate
-     */
-    private void setFont(Font font, boolean recalc) {
-        if (font == null) {
-            font = this.font;
-        }
-        if (recalc && this.getGraphics() != null) {
-            font = resizeFontToFit(font);
-            recalculateFontBits(font);
-            Rectangle r = this.getVisibleRect();
-            int newRows = r.height / fontHeight;
-            int newCols = r.width / fontSglAdvance;
-            grid.setSize(newRows, newCols);
-        } else {
-            recalculateFontBits(font);
-        }
-        this.font = font;
-        super.setFont(font);
-        if(this.getGraphics() != null) {
-            this.getGraphics().setFont(font);
-        }
-        AwtCell.setGlobalFont(font);
-        /*
-        if (empty != null && this.font != null) {
-            if (empty.getFont() == null || 
-                    !empty.getFont().equals(this.font)) {
-                empty.setFont(this.font);
-                for(int y = 0; y < grid.getHeight(); y++) {
-                    for(int x = 0; x < grid.getWidth(); x++) {
-                        grid.get(y, x).setFont(this.font);
-                    }
-                }
-            }
-        }
-        */
+    private void setFont(FontBits fbits) {
+        this.bits = fbits;
+        super.setFont(fbits.font);
+        Rectangle r = this.getVisibleRect();
+        int newRows = r.height / fbits.fontHeight;
+        int newCols = r.width / fbits.fontSglAdvance;
+        grid.setSize(newRows, newCols);
+        this.fontChanged = true;
     }
 
     /**
      * Process a window resize event.
      */
     public void windowResized() {
-        this.font = resizeFontToFit(font);
-        setFont(font);
-        Rectangle r = this.getVisibleRect();
-        int newRows = r.height / fontHeight;
-        int newCols = r.width / fontSglAdvance;
-        grid.setSize(newRows, newCols);
-        // LOGGER.debug("grid: ys:{}; xs:{}", newRows, newCols);
+        FontBits fbits = resizeFontToFit(bits.font);
+        setFont(fbits);
         refresh();
     }
 

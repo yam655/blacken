@@ -1160,4 +1160,10 @@ public class TestCursesLikeAPI {
         BlackenImageLoader imageLoader = terminal.getImageLoader();
         assertNotNull(imageLoader);
     }
+
+    @Test
+    @Covers("public boolean isRunning()")
+    public void isRunning() {
+        assertTrue(terminal.isRunning());
+    }
 }

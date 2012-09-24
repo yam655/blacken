@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener, MouseListener {
     static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
-    protected BlackenPanel gui;
+    protected BlackenPanel gui = null;
     protected EventListener listener;
     protected JFrame frame;
     protected DropTarget dropTarget;
@@ -207,14 +207,23 @@ public class SwingTerminal extends AbstractTerminal
             gui.requestFocusInWindow();
         }
         this.refresh();
-        int activeModifier = this.lastModifier;
-        int ch = listener.blockingPopKey(millis);
+        int ch;
+        if (millis >= 0) {
+            ch = listener.blockingPopKey(millis);
+        } else {
+            try {
+                ch = listener.blockingPopKey();
+            } catch (InterruptedException e) {
+                ch = BlackenKeys.NO_KEY;
+            }
+        }
         if (ch == BlackenKeys.RESIZE_EVENT) {
             // Debounce RESIZE_EVENTs
             while (listener.peekKey() == BlackenKeys.RESIZE_EVENT) {
                 listener.popKey();
             }
         }
+        int activeModifier = this.lastModifier;
         if (BlackenKeys.isModifier(ch)) {
             this.lastModifier = ch;
         } else {
@@ -237,44 +246,7 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public int getch() {
-        if (!gui.hasFocus()) {
-            gui.requestFocusInWindow();
-        }
-        this.refresh();
-        int ch = listener.popKey();
-        if (ch == BlackenKeys.RESIZE_EVENT) {
-            // Debounce RESIZE_EVENTs
-            while (listener.peekKey() == BlackenKeys.RESIZE_EVENT) {
-                listener.popKey();
-            }
-        }
-        int activeModifier = this.lastModifier;
-        if (ch == BlackenKeys.NO_KEY) {
-            //this.refresh();
-            try {
-                ch = listener.blockingPopKey();
-            } catch (InterruptedException e) {
-                ch = BlackenKeys.NO_KEY;
-            }
-        }
-        if (BlackenKeys.isModifier(ch)) {
-            this.lastModifier = ch;
-        } else {
-            this.lastModifier = BlackenKeys.NO_KEY;
-        }
-        if (ch == BlackenKeys.RESIZE_EVENT) {
-            gui.windowResized();
-            getGrid().setBounds(gui.getGridBounds());
-        } else if (ch == BlackenKeys.KEY_ENTER) {
-            // Set<BlackenModifier> mods = BlackenModifier.getAsSet(activeModifier);
-            if (activeModifier == BlackenModifier.MODIFIER_KEY_ALT.getAsCodepoint()) {
-                if (!this.inhibitFullScreen) {
-                    this.setFullScreen(!this.getFullScreen());
-                    ch = BlackenKeys.NO_KEY;
-                }
-            }
-        }
-        return ch;
+        return getch(-1);
     }
 
     /*
@@ -307,7 +279,7 @@ public class SwingTerminal extends AbstractTerminal
         if (this.defaultFont != null && (fonts == null || fonts.length==1 && fonts[0] == null)) {
             fonts = new String[] {defaultFont};
         }
-        if (frame != null) {
+        if (this.isRunning()) {
             try {
                 setFont(fonts);
             } catch (FontNotFoundException ex) {
@@ -325,7 +297,7 @@ public class SwingTerminal extends AbstractTerminal
         gui = new BlackenPanel();
         // gui.setIgnoreRepaint(true);
         gui.setDoubleBuffered(true);
-        listener = new EventListener(gui);
+        listener = new EventListener(this, gui);
         gui.setFocusTraversalKeysEnabled(false);
         gui.setRequestFocusEnabled(true);
         gui.setFocusCycleRoot(true);
@@ -396,6 +368,11 @@ public class SwingTerminal extends AbstractTerminal
 
         frame.setVisible(true);
         gui.requestFocusInWindow();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return gui != null;
     }
 
     @Override
@@ -501,7 +478,12 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void quit() {
-        frame.dispose();
+        if (frame != null && frame.isDisplayable()) {
+            frame.dispose();
+        }
+        super.quit();
+        gui = null;
+        frame = null;
     }
 
     @Override

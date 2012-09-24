@@ -623,6 +623,11 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
+    public boolean isRunning() {
+        return terminal.isRunning();
+    }
+
+    @Override
     public void setSize(TerminalScreenSize size) {
         terminal.setSize(size);
     }

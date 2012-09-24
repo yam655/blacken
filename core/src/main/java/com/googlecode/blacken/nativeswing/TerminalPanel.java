@@ -840,13 +840,10 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         this.grid.setSize(ysize, xsize);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.nativeswing.AwtTerminalInterface#set(int, int, com.googlecode.blacken.swing.AwtCell)
-     */
     @Override
     public void set(int y, int x, AwtCell cell) {
         AwtCell c = grid.get(y, x);
-        c.setCell(cell);
+        c.set(cell);
         c.setDirty(true);
     }
 
@@ -922,20 +919,13 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         moveCursor(y, x);
     }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.blacken.nativeswing.AwtTerminalInterface#setEmpty(com.googlecode.blacken.swing.AwtCell)
-     */
     @Override
     public void setEmpty(AwtCell empty) {
         if (this.empty != empty) {
-            this.empty.setCell(empty);
+            this.empty.set(empty);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see javax.swing.JComponent#setFont(java.awt.Font)
-     */
     @Override
     public void setFont(Font font) {
         // super.setFont(font); // called later

@@ -180,6 +180,13 @@ public interface TerminalInterface extends TerminalViewInterface {
     public void init(String name, int rows, int cols, TerminalScreenSize size, String... font);
     public void init(String name, int rows, int cols, TerminalScreenSize size);
 
+    /**
+     * Has the windowing system been quit?
+     *
+     * @return
+     */
+    public boolean isRunning();
+
     @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, 
                           int newY, int newX);
