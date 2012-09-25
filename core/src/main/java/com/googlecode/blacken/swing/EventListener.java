@@ -43,7 +43,6 @@ import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.BlackenWindowState;
-import com.googlecode.blacken.terminal.TerminalInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,17 +67,14 @@ public class EventListener implements WindowListener, KeyListener,
         EnumSet.noneOf(BlackenEventType.class);
     private BlackenMouseEvent lastMouseEvent = null;
     private BlackenPanel gui;
-    private TerminalInterface term;
     private boolean variantKeyMode = false;
 
     /**
      * Create the listener.
-     * @param term terminal interface we will be watching for
      * @param gui panel to use
      */
-    public EventListener(TerminalInterface term, BlackenPanel gui) {
+    public EventListener(BlackenPanel gui) {
         this.gui = gui;
-        this.term = term;
     }
 
     public int blockingPopKey(int millis) {
@@ -1176,7 +1172,6 @@ public class EventListener implements WindowListener, KeyListener,
                 new BlackenWindowEvent(BlackenEventType.WINDOW_CLOSED);
             loadWindow(e, w);
         }
-        term.quit();
     }
 
     @Override

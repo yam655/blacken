@@ -15,6 +15,8 @@
 */
 package com.googlecode.blacken.terminal;
 
+import java.util.EnumSet;
+
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
@@ -23,7 +25,6 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.editing.SingleLine;
-import java.util.EnumSet;
 
 /**
  * This is just vaguely similar to the Curses API.
@@ -32,7 +33,6 @@ import java.util.EnumSet;
  * the glory of the Curses API.</p>
  *
  * @author Steven Black
- * @since 1.1
  */
 public class CursesLikeAPI implements TerminalInterface {
     private int curForeground = 0xffffffff;
@@ -623,11 +623,6 @@ public class CursesLikeAPI implements TerminalInterface {
     }
 
     @Override
-    public boolean isRunning() {
-        return terminal.isRunning();
-    }
-
-    @Override
     public void setSize(TerminalScreenSize size) {
         terminal.setSize(size);
     }
@@ -682,29 +677,5 @@ public class CursesLikeAPI implements TerminalInterface {
     @Override
     public EnumSet<BlackenEventType> getEventNotices() {
         return terminal.getEventNotices();
-    }
-
-    @Override
-    public Positionable putString(int y, int x, String string) {
-        Positionable pos = terminal.putString(y, x, string);
-        setCursorPosition(pos);
-        return pos;
-    }
-
-    @Override
-    public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
-        terminal.applyTemplate(y, x, template, length);
-    }
-
-    @Override
-    public Positionable putString(Positionable pos, String string) {
-        Positionable pos1 = terminal.putString(pos, string);
-        setCursorPosition(pos1);
-        return pos1;
-    }
-
-    @Override
-    public BlackenImageLoader getImageLoader() {
-        return terminal.getImageLoader();
     }
 }

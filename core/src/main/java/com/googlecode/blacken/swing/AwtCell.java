@@ -38,7 +38,7 @@ import java.util.Set;
  * 
  * <p>This encapsulates the AWT properties of a cell.</p>
  * 
- * @author Steven Black
+ * @author yam655
  */
 public class AwtCell implements Cloneable {
     static protected HashMap<Integer, Color> swingColor = new HashMap<>();
@@ -47,7 +47,7 @@ public class AwtCell implements Cloneable {
     static private ColorPalette palette;
     /**
      * Make the AWT cell dirty
-     * 
+     *
      * @author yam655
      */
     static public class ResetCell implements DirtyGridCell<AwtCell> {
@@ -66,7 +66,7 @@ public class AwtCell implements Cloneable {
     private boolean dirty;
     private Map<TextAttribute, Object> attributes = new HashMap<>();
     private EnumSet<CellWalls> cellWalls = EnumSet.noneOf(CellWalls.class);
-    
+
     /**
      * Make an unset AWT cell.
      */
@@ -83,9 +83,9 @@ public class AwtCell implements Cloneable {
         attributes.put(TextAttribute.FOREGROUND, Color.WHITE);
     }
 
-    @Override 
+    @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (sequence == null) {
             buf.append("null");
         } else {
@@ -294,29 +294,29 @@ public class AwtCell implements Cloneable {
                 buf.append(", ");
             }
             buf.append("}");
-            
+
         }
         return buf.toString();
     }
-    
+
     /**
      * Create a new simple AWT cell
-     * 
+     *
      * @param glyph the character sequence
      * @param background the background color
      * @param foreground the foreground color
      * @param dirty the dirty status
      */
-    public AwtCell(String glyph, Color background, Color foreground, 
+    public AwtCell(String glyph, Color background, Color foreground,
                    boolean dirty) {
         super();
         setCell(glyph, background, foreground);
         this.dirty = dirty;
     }
-    
+
     /**
      * Create a new AWT cell based upon an existing cell.
-     * 
+     *
      * @param source source cell
      * @deprecated Use set(AwtCell) or clone() instead.
      */
@@ -343,10 +343,10 @@ public class AwtCell implements Cloneable {
 
     /**
      * Clear the text attributes, but not the colors.
-     * 
+     *
      * <p>While generally we treat the foreground and background color as
      * simply attributes, this function avoids clearing them. This allows
-     * us to hope that the character has a better chance of remaining 
+     * us to hope that the character has a better chance of remaining
      * visible.</p>
      */
     public void clearTextAttributes() {
@@ -425,7 +425,7 @@ public class AwtCell implements Cloneable {
     public Color getForegroundColor() {
         return (Color)attributes.get(TextAttribute.FOREGROUND);
     }
- 
+
     /**
      * Get the character sequence.
      * @return the character sequence
@@ -454,12 +454,12 @@ public class AwtCell implements Cloneable {
     }
     /**
      * Set a text attribute
-     * 
+     *
      * @param key the key
      * @param value the value
      * @return the previous value
      */
-    public Object setTextAttribute(TextAttribute key, 
+    public Object setTextAttribute(TextAttribute key,
                                Object value) {
         dirty = true;
         if (value == null) {
@@ -517,10 +517,10 @@ public class AwtCell implements Cloneable {
         }
         dirty = true;
     }
-    
+
     /**
      * Set some common parts of a cell.
-     * 
+     *
      * @param glyph the character sequence
      * @param background the background
      * @param foreground the foreground
@@ -552,10 +552,10 @@ public class AwtCell implements Cloneable {
         setForegroundColor(foreground);
         setBackgroundColor(background);
     }
-    
+
     /**
      * Set the cell using the better common form
-     * 
+     *
      * @param glyph the character sequence
      * @param attributes the text attributes
      */
@@ -563,15 +563,15 @@ public class AwtCell implements Cloneable {
         this.sequence = glyph;
         setTextAttributes(attributes);
     }
-    
+
     /**
      * Set all of a cell.
-     * 
+     *
      * @param sequence the character sequence
      * @param attributes the text attributes
      * @param walls the cell walls
      */
-    public void setCell(String sequence, Map<TextAttribute, Object> attributes, 
+    public void setCell(String sequence, Map<TextAttribute, Object> attributes,
                         EnumSet<CellWalls> walls) {
         setSequence(sequence);
         setTextAttributes(attributes);

@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,14 @@
 */
 package com.googlecode.blacken.nativeswing;
 
+import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Point;
+import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.grid.SimpleSize;
+import com.googlecode.blacken.grid.Sizable;
+import com.googlecode.blacken.swing.AwtCell;
+import com.googlecode.blacken.terminal.CellWalls;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,24 +32,13 @@ import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Point;
-import com.googlecode.blacken.grid.Positionable;
-import com.googlecode.blacken.grid.Regionlike;
-import com.googlecode.blacken.grid.SimpleSize;
-import com.googlecode.blacken.grid.Sizable;
-import com.googlecode.blacken.swing.AwtCell;
-import com.googlecode.blacken.terminal.CellWalls;
 
 /**
  * This is (most of) the TerminalInterface that is event agnostic.
@@ -840,10 +837,13 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         this.grid.setSize(ysize, xsize);
     }
 
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.nativeswing.AwtTerminalInterface#set(int, int, com.googlecode.blacken.swing.AwtCell)
+     */
     @Override
     public void set(int y, int x, AwtCell cell) {
         AwtCell c = grid.get(y, x);
-        c.set(cell);
+        c.setCell(cell);
         c.setDirty(true);
     }
 
@@ -919,13 +919,20 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         moveCursor(y, x);
     }
 
+    /* (non-Javadoc)
+     * @see com.googlecode.blacken.nativeswing.AwtTerminalInterface#setEmpty(com.googlecode.blacken.swing.AwtCell)
+     */
     @Override
     public void setEmpty(AwtCell empty) {
         if (this.empty != empty) {
-            this.empty.set(empty);
+            this.empty.setCell(empty);
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see javax.swing.JComponent#setFont(java.awt.Font)
+     */
     @Override
     public void setFont(Font font) {
         // super.setFont(font); // called later

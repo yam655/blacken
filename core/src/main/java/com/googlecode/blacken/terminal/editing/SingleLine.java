@@ -16,11 +16,10 @@
 package com.googlecode.blacken.terminal.editing;
 
 import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.TerminalCellLike;
-import com.googlecode.blacken.terminal.TerminalCellTemplate;
+import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
 
 /**
@@ -52,7 +51,7 @@ public class SingleLine {
      * @param callback call back
      * @return
      */
-    static public String getString(TerminalViewInterface terminal, int y, int x,
+    static public String getString(TerminalInterface terminal, int y, int x,
             int length, CodepointCallbackInterface callback) {
         // XXX needs updated for BreakableLoop class.
         if (callback == null) {
@@ -164,88 +163,35 @@ public class SingleLine {
         return out.toString();
     }
 
-    static public void applyTemplate(TerminalViewInterface terminal,
-            int y, int x, TerminalCellTemplate template, int length) {
-        if (template == null) {
-            return;
-        }
-        if (length < 0) {
-            length += terminal.getWidth() +1;
-            length -= x;
-        }
-        for (int o = 0; o < length; o++) {
-            TerminalCellLike c = terminal.get(y, x+o);
-            template.applyOn(c, terminal.getBounds(), y, x+o);
-            terminal.refresh(y, x+o);
-        }
-    }
-
-    static public void applyTemplate(TerminalViewInterface terminal,
-            int rows, int cols, int y, int x, TerminalCellTemplate template) {
-        if (template == null) {
-            return;
-        }
-        if (rows < 0) {
-            rows += terminal.getHeight() +1;
-            rows -= y;
-        }
-        if (cols < 0) {
-            cols += terminal.getWidth() +1;
-            cols -= x;
-        }
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                TerminalCellLike cell = terminal.get(y+r, x+c);
-                template.applyOn(cell, terminal.getBounds(), y+r, x+c);
-                terminal.refresh(y+r, x+c);
-            }
-        }
-    }
-
     /**
-     * Write a string.
-     *
+     * A simple method to write a processed string to a terminal.
+     * 
+     * <p>The sequence is processed for common codepoints that have meaning
+     * such as TAB, NL, CR.
+     * 
      * @param terminal
-     * @param start
-     * @param end
+     * @param y
+     * @param x
      * @param string
-     * @param template
-     * @return
+     * @param fore
+     * @param back
+     * @return int[] {y, x}
      */
-    static public Positionable putString(TerminalViewInterface terminal, 
-            Positionable start, Positionable end, String string, TerminalCellTemplate template) {
-
+    static public int[] putString(TerminalViewInterface terminal, int y, int x, String string, int fore, int back) {
         Grid<TerminalCellLike> grid = terminal.getGrid();
         if (grid == null) {
             throw new NullPointerException("TerminalInterface wasn't initialized.");
         }
-        if (start == null) {
-            throw new NullPointerException("start position needs to be created");
-        }
-        Positionable ret = end;
-        if (ret == null) {
-            ret = new Point();
-        }
-        int y = start.getY();
-        int x = start.getX();
         int cp;
-        if (start.getX() >= grid.getWidth()) {
-            start.setX(grid.getWidth() - 1);
+        if (x >= grid.getWidth()) {
+            x = grid.getWidth() - 1;
         }
-        if (start.getY() >= grid.getHeight()) {
-            start.setY(grid.getHeight() - 1);
+        if (y >= grid.getHeight()) {
+            y = grid.getHeight() - 1;
         }
-        int lastUpX = start.getX() - 1;
-        int lastUpY = start.getY() - 1;
+        int lastUpX = x - 1;
+        int lastUpY = y - 1;
         for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
-            if (x >= grid.getWidth()) {
-                x = 0;
-                y++;
-            }
-            if (y >= grid.getHeight()) {
-                terminal.moveBlock(grid.getHeight() - 1, grid.getWidth(), 1, 0, 0, 0);
-                y = grid.getHeight() - 1;
-            }
             cp = string.codePointAt(i);
             TerminalCellLike c;
             switch (Character.getType(cp)) {
@@ -255,7 +201,6 @@ public class SingleLine {
                     if (lastUpX >= 0 && lastUpY >= 0) {
                         c = terminal.get(lastUpY, lastUpX);
                         c.addSequence(cp);
-                        terminal.refresh(lastUpY, lastUpX);
                     }
                     break;
                 default:
@@ -274,47 +219,29 @@ public class SingleLine {
                         }
                         cell = terminal.get(y, x);
                         cell.setSequence("\u0000");
-                        terminal.refresh(y, x);
+                        terminal.set(y, x, cell);
                     } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
                         x += 8;
                         x -= x % 8;
                     } else {
                         cell = terminal.get(y, x);
                         cell.setSequence(cp);
-                        if (template != null) {
-                            template.applyOn(cell, terminal.getBounds(), y, x);
-                        }
-                        terminal.refresh(y, x);
+                        cell.setForeground(fore);
+                        cell.setBackground(back);
+                        terminal.set(y, x, cell);
                         x++;
+                    }
+                    if (x >= grid.getWidth()) {
+                        x = 0;
+                        y++;
+                    }
+                    if (y >= grid.getHeight()) {
+                        terminal.moveBlock(grid.getHeight() - 1, grid.getWidth(), 1, 0, 0, 0);
+                        y = grid.getHeight() - 1;
                     }
             }
         }
-        ret.setY(y);
-        ret.setX(x);
+        int[] ret = {y, x};
         return ret;
-
-    }
-
-    /**
-     * A simple method to write a processed string to a terminal.
-     * 
-     * <p>The sequence is processed for common codepoints that have meaning
-     * such as TAB, NL, CR.
-     * 
-     * @param terminal
-     * @param y
-     * @param x
-     * @param string
-     * @param fore
-     * @param back
-     * @return int[] {y, x}
-     * @since 1.1
-     */
-    static public int[] putString(TerminalViewInterface terminal, int y, int x, String string, int fore, int back) {
-        TerminalCellTemplate colorTemplate = new TerminalCellTemplate();
-        colorTemplate.setBackground(back);
-        colorTemplate.setForeground(fore);
-        Positionable out = putString(terminal, new Point(y, x), null, string, colorTemplate);
-        return new int[] {out.getY(), out.getX()};
     }
 }

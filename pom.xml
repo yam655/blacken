@@ -1,12 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.googlecode.blacken</groupId>
   <artifactId>blacken</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.1.1</version>
   <packaging>pom</packaging>
 
   <name>Blacken Roguelike Library</name>
@@ -20,9 +17,9 @@
       </license>
   </licenses>
   <scm>
-      <connection>scm:svn:http://blacken.googlecode.com/svn/trunk</connection>
-      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/trunk</developerConnection>
-      <url>https://code.google.com/p/blacken/source/browse/</url>
+      <connection>scm:svn:http://blacken.googlecode.com/svn/tags/blacken-1.1.1</connection>
+      <developerConnection>scm:svn:https://blacken.googlecode.com/svn/tags/blacken-1.1.1</developerConnection>
+      <url>https://code.google.com/p/blacken/source/browse/tags/blacken-1.1.1</url>
   </scm>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -88,7 +85,10 @@
           <artifactId>maven-release-plugin</artifactId>
           <version>2.3.2</version>
           <configuration>
-            <tagBase>https://blacken.googlecode.com/svn/branches</tagBase>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <commitByProject>true</commitByProject>
+              <remoteTagging>false</remoteTagging>
+              <suppressCommitBeforeTag>true</suppressCommitBeforeTag>
           </configuration>
         </plugin>
     </plugins>

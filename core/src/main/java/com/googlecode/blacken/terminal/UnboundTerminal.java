@@ -145,8 +145,4 @@ import com.googlecode.blacken.grid.Grid;
         return EnumSet.noneOf(BlackenEventType.class);
     }
 
-    @Override
-    public BlackenImageLoader getImageLoader() {
-        return PlainImageLoader.getInstance();
-    }
 }

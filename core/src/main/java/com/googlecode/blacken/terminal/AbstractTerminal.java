@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
+ * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
 */
 package com.googlecode.blacken.terminal;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.BoxRegion;
@@ -23,11 +29,6 @@ import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.editing.SingleLine;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An abstract terminal to handle common terminal functions.
@@ -41,7 +42,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
     private TerminalCellLike empty = new TerminalCell();
     private int cursorX = -1;
     private int cursorY = -1;
-    private boolean is_running = false;
 
     /**
      * Create a new abstract terminal
@@ -81,7 +81,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
     public abstract void enableEventNotice(BlackenEventType event);
 
     @Override
-    @Deprecated
     public abstract void enableEventNotices(EnumSet<BlackenEventType> events);
 
     @Override
@@ -202,20 +201,28 @@ public abstract class AbstractTerminal implements TerminalInterface {
         init(name, rows, cols, (TerminalScreenSize)null, font);
     }
 
+    /*
+    @Override
+    public abstract TerminalInterface getGlass();
+
+    @Override
+    public TerminalInterface initGlass(int rows, int cols) {
+        return initGlass(rows, cols, null);
+    }
+
+    @Override
+    public abstract TerminalInterface initGlass(int rows, int cols, String font);
+    */
+
     @Override
     public void init(String name, int rows, int cols, TerminalScreenSize size, String... font) {
         if (grid == null) {
             grid = new Grid<>(this.empty, rows, cols);
         } else {
             grid.reset(rows, cols, this.empty);
+            
         }
         setCursorLocation(-1,-1);
-        is_running = true;
-    }
-
-    @Override
-    public boolean isRunning() {
-        return is_running;
     }
 
     @Override
@@ -227,7 +234,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void quit() {
-        this.is_running = false;
+        /* do nothing */;
     }
 
     @Override
@@ -625,20 +632,4 @@ public abstract class AbstractTerminal implements TerminalInterface {
             // Silence the NetBeans warning.
         }
     }
-
-    @Override
-    public Positionable putString(int y, int x, String string) {
-        return SingleLine.putString(this, new Point(y, x), null, string, null);
-    }
-
-    @Override
-    public Positionable putString(Positionable pos, String string) {
-        return SingleLine.putString(this, pos, null, string, null);
-    }
-
-    @Override
-    public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
-        SingleLine.applyTemplate(this, y, x, template, length);
-    }
-
 }

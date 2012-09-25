@@ -15,6 +15,11 @@
 */
 package com.googlecode.blacken.swing;
 
+import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.grid.SimpleSize;
+import com.googlecode.blacken.grid.Sizable;
+import com.googlecode.blacken.terminal.CellWalls;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -27,15 +32,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.font.TextAttribute;
 import java.util.Map;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Regionlike;
-import com.googlecode.blacken.grid.SimpleSize;
-import com.googlecode.blacken.grid.Sizable;
-import com.googlecode.blacken.terminal.CellWalls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,27 @@ import org.slf4j.LoggerFactory;
  */
 public class BlackenPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanel.class);
-    private static final long serialVersionUID = -9074497119456670580L;
+    private static final long serialVersionUID = 1;
+    private AwtCell empty = new AwtCell();
+    private int minX = 80;
+    private int minY = 25;
+    private Grid<AwtCell> grid = new Grid<>(empty, minY, minX);
+
+    @Deprecated
+    private boolean fontHasDouble;
+    @Deprecated
+    private int fontAscent;
+    @Deprecated
+    private int fontSglAdvance;
+    @Deprecated
+    private int fontDblAdvance;
+    @Deprecated
+    private int fontHeight;
+    @Deprecated
+    private Font font;
+    @Deprecated
+    private FontMetrics metrics;
+
     public class FontBits {
         public Font font;
         public FontMetrics metrics;
@@ -57,10 +75,6 @@ public class BlackenPanel extends JPanel {
         public int fontHeight;
     }
 
-    private AwtCell empty = new AwtCell();
-    private int minX = 80;
-    private int minY = 25;
-    private Grid<AwtCell> grid = new Grid<>(empty, minY, minX);
     protected FontBits bits = new FontBits();
 
     /**
@@ -108,7 +122,7 @@ public class BlackenPanel extends JPanel {
         super(true);
         checkForWorkarounds();
     }
-    
+
     /**
      * Create a new panel with a layout manager.
      * @param layout layout manager
@@ -132,7 +146,7 @@ public class BlackenPanel extends JPanel {
         grid.clear(this.empty);
         this.moveCursor(0, 0);
     }
-    
+
     /**
      * Perform a window update.
      * @deprecated No longer needed
@@ -140,7 +154,7 @@ public class BlackenPanel extends JPanel {
     @Deprecated
     public void doUpdate() {
     }
-    
+
     /**
      * Find the column number for the window coordinate
      * @param x window coordinate
@@ -154,7 +168,7 @@ public class BlackenPanel extends JPanel {
     }
     /**
      * Find the grid position for a window position.
-     * 
+     *
      * @param y window coordinate
      * @param x window coordinate
      * @return {row, col}
@@ -181,7 +195,7 @@ public class BlackenPanel extends JPanel {
     }
     /**
      * Get an AWT cell for a position.
-     * 
+     *
      * @param y coordinate
      * @param x coordinate
      * @return the AWT cell
@@ -191,7 +205,7 @@ public class BlackenPanel extends JPanel {
     }
     /**
      * Get the best window size.
-     * 
+     *
      * @return window size, as a SimpleSize
      */
     protected Sizable getBestWindowSize() {
@@ -228,7 +242,7 @@ public class BlackenPanel extends JPanel {
     }
     /**
      * Initialize the terminal window.
-     * 
+     *
      * @param font the font to use
      * @param rows the number of rows to use
      * @param cols the columns to use
@@ -249,7 +263,7 @@ public class BlackenPanel extends JPanel {
 
     /**
      * Move a block of cells.
-     * 
+     *
      * @param numRows number of rows to move
      * @param numCols number of columns to move
      * @param origY orignal Y coordinate
@@ -259,23 +273,23 @@ public class BlackenPanel extends JPanel {
      */
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
-        grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
+        grid.moveBlock(numRows, numCols, origY, origX, newY, newX,
                        new AwtCell.ResetCell());
     }
-    
+
     /**
      * Move the cursor.
-     * 
+     *
      * @param y coordinate
      * @param x coordinate
      */
     public void moveCursor(int y, int x) {
         moveCursor(y, x, null);
     }
-    
+
     /**
      * Move the cursor, and set a new cursor color.
-     * 
+     *
      * @param y coordinate
      * @param x coordinate
      * @param cursorColor new cursor color
@@ -484,7 +498,7 @@ public class BlackenPanel extends JPanel {
             LOGGER.info("Panel update speed: {} ms / Average: {} ms",
                      endTime - startTime, displaySpeed);
         } catch(IndexOutOfBoundsException ex) {
-            LOGGER.debug("grid changed size during an update");
+            LOGGER.error("grid changed size during an update");
         } finally {
             if (grid != null) {
                 synchronized(this) {
@@ -496,18 +510,18 @@ public class BlackenPanel extends JPanel {
 
     /**
      * Recalculate the font bits.
-     * 
-     * <p>The logic this uses totally breaks down if a variable-width font is 
+     *
+     * <p>The logic this uses totally breaks down if a variable-width font is
      * used.
-     * 
+     *
      * <p>For a variable-width font, you'd need to walk every character you
-     * plan to use, track the width, then use the max double-wide width or 2x 
-     * the max single-wide width... That is, if you plan to do the 
+     * plan to use, track the width, then use the max double-wide width or 2x
+     * the max single-wide width... That is, if you plan to do the
      * single-width / double-width logic traditionally found on terminals.
-     *  
-     * <p>If you want variable width fonts, it is probably best not to treat it 
-     * as a traditional double-wide character and to instead treat it as a 
-     * large single-width character -- so that <code>fontDblAdvance</code> and 
+     *
+     * <p>If you want variable width fonts, it is probably best not to treat it
+     * as a traditional double-wide character and to instead treat it as a
+     * large single-width character -- so that <code>fontDblAdvance</code> and
      * <code>fontSglAdvance</code> are the same and <code>fontHasDouble</code>
      * is false.
      */
@@ -526,7 +540,7 @@ public class BlackenPanel extends JPanel {
         bits.fontHasDouble = false;
         if (bits.fontDblAdvance >= bits.fontSglAdvance + bits.fontSglAdvance) {
             bits.fontHasDouble = true;
-        } 
+        }
         if (bits.fontHasDouble) {
             int sa = bits.fontDblAdvance / 2;
             if (sa >= bits.fontSglAdvance) {
@@ -539,27 +553,27 @@ public class BlackenPanel extends JPanel {
          * <ul>
          * <li>The font metrics are based upon the base-line location.
          * <li>Any font can have multiple base-line locations.
-         * <li>More-over, any reasonably complete font <i>will</i> have 
+         * <li>More-over, any reasonably complete font <i>will</i> have
          *     multiple baseline locations.
-         * <li>FontMetrics.getHeight() does not claim to use the MaxAscent and 
+         * <li>FontMetrics.getHeight() does not claim to use the MaxAscent and
          *     MaxDescent.
          * <li>getAscent and getDescent explicitly state that some glyphs will
          *     fall outside the ascent and descent lines that they describe.
-         * <li>The font height, as it is all based upon distance away the 
+         * <li>The font height, as it is all based upon distance away the
          *     baseline, will be wrong if we just use getMaxAscent and
          *     getMaxDescent. (Just imagine that ROMAN_BASELINE has glyphs
-         *     spanning far above the baseline, and the same font has 
+         *     spanning far above the baseline, and the same font has
          *     HANGING_BASELINE glyphs which hang far below the baseline.
          *     They could even be the same height!)
-         * <li>LineMetrics (which can provide baseline offsets) does not 
-         *     appear to support any supplementary 
+         * <li>LineMetrics (which can provide baseline offsets) does not
+         *     appear to support any supplementary
          *     characters.
          * <li>Our use-case doesn't require consistent baseline between glyphs
          *     which use a different baseline. We much prefer to maximize the
          *     visible cell. This is consistent with what you'd expect in a
          *     terminal application with a fixed-point font.
          * </ul>
-         * 
+         *
          * The best solution, then, would be to keep separate metrics for
          * font regions which use ROMAN_BASELINE, HANGING_BASELINE, and
          * CENTER_BASELINE glyphs. Unfortunately, there doesn't seem to be a
@@ -569,7 +583,7 @@ public class BlackenPanel extends JPanel {
          * things can have the same baseline and still have different metrics.)
          * <p>
          * I think, for us, the best approach would be to require a consistent
-         * font within a Unicode range, and to allow for custom fonts for 
+         * font within a Unicode range, and to allow for custom fonts for
          * specific code ranges. We could then track the metrics for the Unicode
          * code ranges instead of for each font.
          * <p>
@@ -594,6 +608,10 @@ public class BlackenPanel extends JPanel {
             }
         }
     }
+
+    public void flagFullRefresh() {
+        this.refresh_all = true;
+    }
     public void forceRefresh() {
         this.refresh_all = true;
         refresh();
@@ -604,7 +622,7 @@ public class BlackenPanel extends JPanel {
      */
     public void refreshLine(int y) {
         if (y < 0) { y = 0; }
-        if (y > grid.getHeight()) { y = grid.getHeight(); } 
+        if (y > grid.getHeight()) { y = grid.getHeight(); }
         for (int x = 0; x < grid.getWidth(); x++) {
             grid.get(y, x).setDirty(true);
         }
@@ -612,7 +630,7 @@ public class BlackenPanel extends JPanel {
 
     /**
      * Refresh a box on the screen.
-     * 
+     *
      * @param height height of the box
      * @param width width of the box
      * @param y1 coordinate of the box
@@ -662,7 +680,7 @@ public class BlackenPanel extends JPanel {
         if (idealAdvance <= fbits.fontSglAdvance || idealHeight <= fbits.fontHeight) {
             //LOGGER.debug("BOGUS advance:{}; height:{}",
                     //fontSglAdvance, fontHeight);
-            // This is a real bogus size, but apparently we can't get 
+            // This is a real bogus size, but apparently we can't get
             // anything better
             return fbits;
         }
@@ -678,10 +696,10 @@ public class BlackenPanel extends JPanel {
         }
         return fbits;
     }
-    
+
     /**
      * Resize the frame.
-     * 
+     *
      * @param frame frame to resize
      * @param fontSize font size to use
      * @deprecated
@@ -705,14 +723,14 @@ public class BlackenPanel extends JPanel {
     }
     /**
      * Resize the grid
-     * 
+     *
      * @param rows new rows
      * @param cols new columns
      */
     public void resizeGrid(int rows, int cols) {
         grid.setSize(rows, cols);
     }
-    
+
     /**
      * Resize the grid to the window.
      */
@@ -723,17 +741,17 @@ public class BlackenPanel extends JPanel {
         ysize = d.height / bits.fontHeight;
         this.grid.setSize(ysize, xsize);
     }
-    
+
     /**
      * Set a cell.
-     * 
+     *
      * <p>Note: This does nothing to ease the issues inherent in double-wide
      * characters. The background of a double-wide character needs to be set
      * individually, and the second half of the character needs the glyph
      * cleared or it will overwrite. -- This has particular implications
      * when changing an existing double-wide character, as the second-half
      * needs to be marked as dirty separately.
-     * 
+     *
      * @param y row number
      * @param x column number
      * @param cell cell definition
@@ -746,10 +764,10 @@ public class BlackenPanel extends JPanel {
     public void assign(int y, int x, AwtCell cell) {
         grid.set(y, x, cell);
     }
-    
+
     /**
      * Set a cell to some common values.
-     * 
+     *
      * @param y row
      * @param x column
      * @param glyph sequence
@@ -762,13 +780,13 @@ public class BlackenPanel extends JPanel {
 
     /**
      * Set a cell to some things.
-     * 
+     *
      * @param y row
      * @param x column
      * @param glyph sequence
      * @param attributes text attributes
      */
-    public void set(int y, int x, int glyph, 
+    public void set(int y, int x, int glyph,
                     Map<TextAttribute, Object> attributes) {
         grid.get(y, x).setCell(glyph, attributes);
     }
@@ -817,7 +835,7 @@ public class BlackenPanel extends JPanel {
     public void windowResized() {
         FontBits fbits = resizeFontToFit(bits.font);
         setFont(fbits);
-        refresh();
+        forceRefresh();
     }
 
 }

@@ -15,11 +15,9 @@
 */
 package com.googlecode.blacken.swing;
 
-import com.googlecode.blacken.colors.ColorPalette;
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.terminal.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -31,23 +29,33 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.font.GraphicAttribute;
+import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JFrame;
+
+import com.googlecode.blacken.colors.ColorHelper;
+import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.terminal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Create a new Terminal using Swing.
  * 
- * @author Steven Black
- * @since 1.0
+ * @author yam655
  */
 public class SwingTerminal extends AbstractTerminal
                     implements ComponentListener, MouseListener {
     static private final Logger LOGGER = LoggerFactory.getLogger(SwingTerminal.class);
-    protected BlackenPanel gui = null;
+    protected BlackenPanel gui;
     protected EventListener listener;
     protected JFrame frame;
     protected DropTarget dropTarget;
@@ -56,7 +64,7 @@ public class SwingTerminal extends AbstractTerminal
 
     /**
      * Create and initialize the function at once.
-     * 
+     *
      * @param name Window name
      * @param rows number of rows (0 is acceptable)
      * @param cols number of columns (0 is acceptable)
@@ -132,14 +140,14 @@ public class SwingTerminal extends AbstractTerminal
         gui.requestFocusInWindow();
         // LOGGER.debug("event: {}", e);
     }
-    
+
     @Override
     public void copyFrom(TerminalViewInterface oterm, int numRows, int numCols,
                          int startY, int startX, int destY, int destX) {
         if (oterm == this) {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
         } else {
-            getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
+            getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX,
                            destY, destX, new TerminalCell.ResetCell());
             forceRefresh(numRows, numCols, destY, destX);
         }
@@ -149,7 +157,7 @@ public class SwingTerminal extends AbstractTerminal
     public void disableEventNotice(BlackenEventType event) {
         listener.unsetEnabled(event);
     }
-    
+
     @Override
     public void disableEventNotices() {
         listener.clearEnabled();
@@ -200,7 +208,7 @@ public class SwingTerminal extends AbstractTerminal
         }
         return listener.hasKeys();
     }
-    
+
     @Override
     public int getch(int millis) {
         if (!gui.hasFocus()) {
@@ -272,14 +280,14 @@ public class SwingTerminal extends AbstractTerminal
         BlackenWindowEvent e = listener.popWindow();
         return e;
     }
-    
+
     @Override
     public void init(String name, int rows, int cols, TerminalScreenSize size,
             String... fonts) {
         if (this.defaultFont != null && (fonts == null || fonts.length==1 && fonts[0] == null)) {
             fonts = new String[] {defaultFont};
         }
-        if (this.isRunning()) {
+        if (frame != null) {
             try {
                 setFont(fonts);
             } catch (FontNotFoundException ex) {
@@ -297,7 +305,7 @@ public class SwingTerminal extends AbstractTerminal
         gui = new BlackenPanel();
         // gui.setIgnoreRepaint(true);
         gui.setDoubleBuffered(true);
-        listener = new EventListener(this, gui);
+        listener = new EventListener(gui);
         gui.setFocusTraversalKeysEnabled(false);
         gui.setRequestFocusEnabled(true);
         gui.setFocusCycleRoot(true);
@@ -309,7 +317,7 @@ public class SwingTerminal extends AbstractTerminal
         frame.getContentPane().add(gui);
         frame.setCursor(null);
         frame.pack();
-        
+
         AwtCell empty = AwtCell.makeAwtFromTerminal(null);
 
         Font fontObj = null;
@@ -335,7 +343,7 @@ public class SwingTerminal extends AbstractTerminal
         }
         gui.init(fontObj, rows, cols, empty);
         setCursorLocation(-1, -1);
-                
+
         frame.setResizable(true);
         frame.addKeyListener(listener);
         frame.addMouseListener(listener);
@@ -368,11 +376,6 @@ public class SwingTerminal extends AbstractTerminal
 
         frame.setVisible(true);
         gui.requestFocusInWindow();
-    }
-
-    @Override
-    public boolean isRunning() {
-        return gui != null;
     }
 
     @Override
@@ -469,9 +472,9 @@ public class SwingTerminal extends AbstractTerminal
     }
 
     @Override
-    public void moveBlock(int numRows, int numCols, int origY, int origX, 
+    public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
-        getGrid().moveBlock(numRows, numCols, origY, origX, newY, newX, 
+        getGrid().moveBlock(numRows, numCols, origY, origX, newY, newX,
                        new TerminalCell.ResetCell());
         gui.moveBlock(numRows, numCols, origY, origX, newY, newX);
     }
@@ -681,10 +684,5 @@ public class SwingTerminal extends AbstractTerminal
 
     @Override
     public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public BlackenImageLoader getImageLoader() {
-        return new AwtImageLoader();
     }
 }
