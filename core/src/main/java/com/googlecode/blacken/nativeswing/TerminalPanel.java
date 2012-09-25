@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,14 @@
 */
 package com.googlecode.blacken.nativeswing;
 
+import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.grid.Point;
+import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.grid.SimpleSize;
+import com.googlecode.blacken.grid.Sizable;
+import com.googlecode.blacken.swing.AwtCell;
+import com.googlecode.blacken.terminal.CellWalls;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,24 +32,13 @@ import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import com.googlecode.blacken.grid.Grid;
-import com.googlecode.blacken.grid.Point;
-import com.googlecode.blacken.grid.Positionable;
-import com.googlecode.blacken.grid.Regionlike;
-import com.googlecode.blacken.grid.SimpleSize;
-import com.googlecode.blacken.grid.Sizable;
-import com.googlecode.blacken.swing.AwtCell;
-import com.googlecode.blacken.terminal.CellWalls;
 
 /**
  * This is (most of) the TerminalInterface that is event agnostic.
@@ -200,7 +197,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
             this.moveBlock(numRows, numCols, startY, startX, destY, destX);
         } else {
             getGrid().copyFrom(oterm.getGrid(), numRows, numCols, startY, startX, 
-                           destY, destX, new AwtCell().new ResetCell());
+                           destY, destX, new AwtCell.ResetCell());
             forceRefresh(numRows, numCols, destY, destX);
         }
     }
@@ -424,7 +421,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
     public void moveBlock(int numRows, int numCols, int origY, int origX,
                           int newY, int newX) {
         grid.moveBlock(numRows, numCols, origY, origX, newY, newX, 
-                       new AwtCell().new ResetCell());
+                       new AwtCell.ResetCell());
     }
     
     /* (non-Javadoc)
