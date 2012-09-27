@@ -24,7 +24,7 @@ public class BresenhamLOS {
     /**
      *  A Bresenham-based line-of-sight algorithm.
      *  Requires the use of the {@link MapLike} interface.
-     *  @author = xlambda
+     *  @author xlambda
      */
 
     private MapLike map;

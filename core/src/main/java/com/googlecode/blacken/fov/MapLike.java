@@ -20,7 +20,7 @@ public interface MapLike {
 
     /** A simple interface to allow custom map structures to use the Blacken FOV toolkit.
      *  Any map structure implementing it must provide the listed methods for checking wall-ness, indicating a visible tile and determining map size.
-     *  @author XLambda
+     *  @author xlambda
      */
 
     /** When implemented by the map structure, this method should return whether a given map tile blocks field of view or not.
