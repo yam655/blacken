@@ -13,14 +13,14 @@ public interface MapLike {
      *  @return does the tile (x,y) block fov? returns true if yes, false otherwise.
      */
 
-    public boolean blocksFOV(int x, int y);
+    public boolean blocksFOV(int y, int x);
 
     /** When implemented by the map structure, this method will be called on all map tiles that are visible according to the FOV algorithm.
      *  @param x the x ordinate of the map tile
      *  @param y the y ordinate of the map tile
      */
 
-    public void touch(int x, int y);
+    public void touch(int y, int x);
 
     /** When implemented by the map structure, this method should return the overall height of the map.
      *  @return the map height
