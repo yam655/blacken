@@ -16,27 +16,28 @@
 
 package com.googlecode.blacken.fov;
 
+import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Bresenham;
 import com.googlecode.blacken.grid.Positionable;
 
-public class BresenhamLOS {
-
     /**
      *  A Bresenham-based line-of-sight algorithm.
-     *  Requires the use of the {@link MapLike} interface.
+     *  Requires the use of the {@link LineOfSightable} interface.
      *  @author xlambda
      */
 
-    private MapLike map;
+public class BresenhamLOS {
+
+    private Grid<? extends LineOfSightable> grid;
 
     /**
-     * Create a Bresenham LOS solver for a fixed {@link MapLike} structure.
+     * Create a Bresenham LOS solver for a fixed {@link Grid} of cells which implement {@link LineOfSightable}
      *
-     * @param map the map structure for which we want to solve LOS.
+     * @param grid the grid for which we want to solve LOS.
      */
 
-    public BresenhamLOS(MapLike map) {
-        this.map = map;
+    public BresenhamLOS(Grid<? extends LineOfSightable> grid) {
+        this.grid = grid;
     }
 
     /**
@@ -55,7 +56,7 @@ public class BresenhamLOS {
         while(running) {
             if(lit.hasNext()) {
                 Positionable np = lit.next();
-                if(map.blocksFOV(np.getY(), np.getX())) {
+                if(grid.get(np.getY(), np.getX()).blocksFOV()) {
                     successful = false;
                     running = false;
                 }
@@ -80,12 +81,12 @@ public class BresenhamLOS {
 
 
     /**
-     *  Set a new {@link MapLike} structure for the LOS solver to work on.
-     *  @param map the new map structure
+     *  Set a new {@link com.googlecode.blacken.grid.Grid} of {@link LineOfSightable} cells for the LOS solver to work on.
+     *  @param grid the new cell grid
      */
 
-    public void setMapLike(MapLike map) {
-        this.map = map;
+    public void setGrid(Grid<? extends LineOfSightable> grid) {
+        this.grid = grid;
     }
 
 }
