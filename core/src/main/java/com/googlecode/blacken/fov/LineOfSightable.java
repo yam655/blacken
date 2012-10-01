@@ -33,16 +33,9 @@ public interface LineOfSightable {
 	public boolean blocksFOV(); 
 
     /** 
-	 *	When implemented by the cell, this method will be called if it is visible according to the FOV algorithm. 
+	 *	When implemented by the cell, this method will be called to set visibility when running the FOV algorithm. 
      */ 
 	  
-    public void touch(); 
-	
-	/**
-	 *	When implemented by the cell, this method will be called to remove visibility data. 
-	 *	It should remove the effects of {@link touch()}.
-	 */
-	 
-	public void reset();
+    public void setVisible(boolean visible); 
 
 }

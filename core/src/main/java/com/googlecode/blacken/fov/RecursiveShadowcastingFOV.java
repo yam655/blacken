@@ -107,7 +107,7 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 		for (oct=0; oct < 8; oct++){
 			castLight(x,y,1,1.0f,0.0f,range,r2,mult[0][oct],mult[1][oct],mult[2][oct],mult[3][oct],0);
 		}
-		grid.get(y,x).touch();
+		grid.get(y,x).setVisible(true);
 	}
 	
 	/**
@@ -139,7 +139,7 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 					r_slope = (dx+0.5f)/(dy-0.5f);
 					if(start < r_slope) continue;
 					else if(end > l_slope) break;
-					if (dx*dx+dy*dy <= r2 && (wallsVisible || !grid.get(Y,X).blocksFOV())) grid.get(Y,X).touch();
+					if (dx*dx+dy*dy <= r2 && (wallsVisible || !grid.get(Y,X).blocksFOV())) grid.get(Y,X).setVisible(true);
 					if (blocked){
 						if(grid.get(Y,X).blocksFOV()){
 							new_start = r_slope;
@@ -163,7 +163,7 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	private void purgeFOV(){
 		for(int x = 0; x < grid.getWidth(); x++){
 			for(int y = 0; y < grid.getHeight(); y++){
-				grid.get(y,x).reset();
+				grid.get(y,x).setVisible(false);
 			}
 		}
 	}
