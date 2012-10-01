@@ -32,7 +32,14 @@ public interface FOVAlgorithm{
 	 *	@param grid the grid to be used
 	 */
 
-	public void setGrid(Grid<? extends LineOfSightable> grid);
+	public void setOpacityMap(Grid<? extends LineOfSightable> grid);
+	
+	/**
+	 *	Set the {@link Grid} to hold the result of the FOV algorithm.
+	 *	@param grid the grid to be used
+	 */	
+
+	public void setVisibilityMap(Grid<? extends Lightable> grid);
 	
 	/**
 	 *	Set the maximum range of sight.

@@ -18,18 +18,17 @@ package com.googlecode.blacken.fov;
 
     /** 
 	 *	A simple interface to allow cell grids to use the Blacken FOV toolkit.
-     *  Any cell implementing it must provide the listed method for determining opacity.
+     *  Any cell implementing it must provide the listed method for indicating that it is visible.
      *  @author xlambda
      */
 
 
-public interface LineOfSightable {
+public interface Lightable {
 
     /** 
-	 *	When implemented by the cell, this method should return whether it blocks field of view or not. 
-     *  @return does the cell block fov? returns true if yes, false otherwise. 
+	 *	When implemented by the cell, this method will be called to set visibility when running the FOV algorithm. 
      */ 
-     
-	public boolean blocksFOV(); 
+	  
+    public void setVisible(boolean visible); 
 
 }

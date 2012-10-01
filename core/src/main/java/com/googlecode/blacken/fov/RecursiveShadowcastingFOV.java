@@ -29,18 +29,21 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	};
 	
 	private int range;
-	private Grid<? extends LineOfSightable> grid;
+	private Grid<? extends Lightable> visibilityMap;
+	private Grid<? extends LineOfSightable> opacityMap;
 	private boolean wallsVisible = true;
 	
 	/**
 	 *	Create a new Recursive Shadowcasting FOV Solver.
-	 *	@param grid the grid you want to solve FOV for
+	 *	@param opacityMap the grid you want to solve FOV for
+	 *	@param grid the grid you want to write the FOV solution into.
 	 *	@param range the maximum range of sight
 	 *	@param wallsVisible Wall visibility
 	 */
 	
-	public RecursiveShadowcastingFOV(Grid<? extends LineOfSightable> grid, int range, boolean wallsVisible){
-		this.grid = grid;
+	public RecursiveShadowcastingFOV(Grid<? extends LineOfSightable> opacityMap, Grid<? extends Lightable> visibilityMap, int range, boolean wallsVisible){
+		this.opacityMap = opacityMap;
+		this.visibilityMap = visibilityMap;
 		this.range = range;
 		this.wallsVisible = wallsVisible;
 	}
@@ -55,12 +58,22 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	
 	/**
 	 *	Set a new {@link Grid} of {@link LineOfSightable} cells for the algorithm to work on.
-	 *	@param grid the new Grid object
+	 *	@param opacityMap the new Grid object
 	 */
 	
 	@Override
-	public void setGrid(Grid<? extends LineOfSightable> grid){
-		this.grid = grid;
+	public void setOpacityMap(Grid<? extends LineOfSightable> opacityMap){
+		this.opacityMap = opacityMap;
+	}
+	
+	/**
+	 *	Set a new {@link Grid} of {@link Lightable} cells for the algorithm to write into.
+	 *	@param visibilityMap the new Grid object
+	 */
+	
+	@Override
+	public void setVisibilityMap(Grid<? extends Lightable> visibilityMap){
+		this.visibilityMap = visibilityMap;
 	}
 	
 	/** 
@@ -96,8 +109,8 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 		int r2;
 		purgeFOV();
 		if(range == 0){
-			int max_radius_x = grid.getWidth()-x;
-			int max_radius_y = grid.getHeight()-y;
+			int max_radius_x = opacityMap.getWidth()-x;
+			int max_radius_y = opacityMap.getHeight()-y;
 			max_radius_x = Math.max(max_radius_x,x);
 			max_radius_y = Math.max(max_radius_y,y);
 			range = (int) (Math.sqrt(max_radius_x*max_radius_x+max_radius_y*max_radius_y))+1;
@@ -107,7 +120,7 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 		for (oct=0; oct < 8; oct++){
 			castLight(x,y,1,1.0f,0.0f,range,r2,mult[0][oct],mult[1][oct],mult[2][oct],mult[3][oct],0);
 		}
-		grid.get(y,x).setVisible(true);
+		visibilityMap.get(y,x).setVisible(true);
 	}
 	
 	/**
@@ -132,16 +145,16 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 				dx++;
 				int X = cx+dx*xx+dy*xy;
 				int Y = cy+dx*yx+dy*yy;
-				if ((long) X < (long) grid.getWidth() && (long) Y < (long) grid.getHeight()) {
+				if ((long) X < (long) opacityMap.getWidth() && (long) Y < (long) opacityMap.getHeight()) {
 					float l_slope;
 					float r_slope;
 					l_slope = (dx-0.5f)/(dy+0.5f);
 					r_slope = (dx+0.5f)/(dy-0.5f);
 					if(start < r_slope) continue;
 					else if(end > l_slope) break;
-					if (dx*dx+dy*dy <= r2 && (wallsVisible || !grid.get(Y,X).blocksFOV())) grid.get(Y,X).setVisible(true);
+					if (dx*dx+dy*dy <= r2 && (wallsVisible || !opacityMap.get(Y,X).blocksFOV())) visibilityMap.get(Y,X).setVisible(true);
 					if (blocked){
-						if(grid.get(Y,X).blocksFOV()){
+						if(opacityMap.get(Y,X).blocksFOV()){
 							new_start = r_slope;
 							continue;
 						}else{
@@ -149,7 +162,7 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 							start = new_start;
 						}
 					}else{
-						if(grid.get(Y,X).blocksFOV() && j<radius){
+						if(opacityMap.get(Y,X).blocksFOV() && j<radius){
 							blocked = true;
 							castLight(cx,cy,j+1,start,l_slope,radius,r2,xx,xy,yx,yy,id+1);
 							new_start=r_slope;
@@ -161,9 +174,9 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	}
 	
 	private void purgeFOV(){
-		for(int x = 0; x < grid.getWidth(); x++){
-			for(int y = 0; y < grid.getHeight(); y++){
-				grid.get(y,x).setVisible(false);
+		for(int x = 0; x < visibilityMap.getWidth(); x++){
+			for(int y = 0; y < visibilityMap.getHeight(); y++){
+				visibilityMap.get(y,x).setVisible(false);
 			}
 		}
 	}
