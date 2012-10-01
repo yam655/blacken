@@ -29,6 +29,13 @@ public interface Lightable {
 	 *	When implemented by the cell, this method will be called to set visibility when running the FOV algorithm. 
      */ 
 	  
-    public void setVisible(boolean visible); 
+    public void setVisible(boolean visible);
+	
+	/**
+	 *	When implemented by the cell, this method should return its visibility status.
+	 *	@return true, if the cell is visible, false otherwise.
+	 */
+	 
+	public boolean isVisible();
 
 }
