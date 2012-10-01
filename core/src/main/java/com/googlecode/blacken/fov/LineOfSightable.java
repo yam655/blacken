@@ -37,5 +37,12 @@ public interface LineOfSightable {
      */ 
 	  
     public void touch(); 
+	
+	/**
+	 *	When implemented by the cell, this method will be called to remove visibility data. 
+	 *	It should remove the effects of {@link touch()}.
+	 */
+	 
+	public void reset();
 
 }
