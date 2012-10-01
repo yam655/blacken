@@ -33,11 +33,11 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	private boolean wallsVisible = true;
 	
 	/**
-	*	Create a new Recursive Shadowcasting FOV Solver.
-	*	@param grid the grid you want to solve FOV for
-	*	@param range the maximum range of sight
-	*	@param wallsVisible Wall visibility
-	*/
+	 *	Create a new Recursive Shadowcasting FOV Solver.
+	 *	@param grid the grid you want to solve FOV for
+	 *	@param range the maximum range of sight
+	 *	@param wallsVisible Wall visibility
+	 */
 	
 	public RecursiveShadowcastingFOV(Grid<? extends LineOfSightable> grid, int range, boolean wallsVisible){
 		this.grid = grid;
@@ -46,17 +46,17 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	}
 	
 	/**
-	*	Create a new Recursive Shadowcasting FOV Solver without setting any variables.
-	*/
+	 *	Create a new Recursive Shadowcasting FOV Solver without setting any variables.
+	 */
 	
 	public RecursiveShadowcastingFOV(){
 		// do nothing
 	}
 	
 	/**
-	*	Set a new {@link Grid} of {@link LineOfSightable} cells for the algorithm to work on.
-	*	@param grid the new Grid object
-	*/
+	 *	Set a new {@link Grid} of {@link LineOfSightable} cells for the algorithm to work on.
+	 *	@param grid the new Grid object
+	 */
 	
 	@Override
 	public void setGrid(Grid<? extends LineOfSightable> grid){
@@ -64,9 +64,9 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	}
 	
 	/** 
-	*	Set a new maximum range for the field-of-view.
-	*	@param range the new maximum range
-	*/
+	 *	Set a new maximum range for the field-of-view.
+	 *	@param range the new maximum range
+	 */
 
 	@Override
 	public void setRange(int range){
@@ -74,14 +74,20 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 	}
 	
 	/**
-	*	Set Wall visibility.
-	*	@param wallsVisible wall visibility.
-	*/
+	 *	Set Wall visibility.
+	 *	@param wallsVisible wall visibility.
+	 */
 	
 	@Override
 	public void setWallsVisible(boolean wallsVisible){
 		this.wallsVisible = wallsVisible;
 	}
+	
+	/**
+	 *	Solve FOV for a given pair of ordinates.
+	 *	@param y the y ordinate
+	 *	@param x the x ordinate
+	 */
 	
 	@Override
 	public void solveFOV(int y, int x){
@@ -103,6 +109,11 @@ public class RecursiveShadowcastingFOV implements FOVAlgorithm{
 		}
 		grid.get(y,x).touch();
 	}
+	
+	/**
+	 *	Solve FOV for a given {@link Positionable}
+	 *	@param pos the Positionable
+	 */
 	
 	@Override
 	public void solveFOV(Positionable pos){
