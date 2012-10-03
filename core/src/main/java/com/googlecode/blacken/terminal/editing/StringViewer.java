@@ -25,7 +25,6 @@ import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
-import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalCellTemplate;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
 import org.slf4j.Logger;
@@ -51,6 +50,8 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         template = new TerminalCellTemplate();
         template.setBackground(background);
         template.setForeground(foreground);
+        template.clearCellWalls();
+        template.clearStyle();
     }
     public StringViewer(TerminalViewInterface term, String message, CodepointCallbackInterface callback) {
         this.term = term;
@@ -61,6 +62,8 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         template = new TerminalCellTemplate();
         template.setBackground(background);
         template.setForeground(foreground);
+        template.clearCellWalls();
+        template.clearStyle();
     }
     public int getLines() {
         return lines.length;
@@ -96,6 +99,8 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         template = new TerminalCellTemplate();
         template.setBackground(background);
         template.setForeground(foreground);
+        template.clearCellWalls();
+        template.clearStyle();
     }
     public void setColor(String foreground, String background) {
         ColorPalette palette = term.getBackingTerminal().getPalette();
@@ -107,10 +112,33 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         if (template == null) {
             throw new NullPointerException("template cannot be null");
         }
-        this.template = template.clone();
+        template = new TerminalCellTemplate(template);
+        try {
+            if (template.getSequence() == null) {
+                template.setSequence(" ");
+            }
+        } catch(NullPointerException ex) {
+            template.setSequence(" ");
+        }
+        try {
+            if (template.getCellWalls() == null) {
+                template.clearCellWalls();
+            }
+        } catch(NullPointerException ex) {
+            template.clearCellWalls();
+        }
+        try {
+            if (template.getStyle() == null) {
+                template.clearStyle();
+            }
+        } catch(NullPointerException ex) {
+            template.clearStyle();
+        }
+        this.template = template;
     }
     public void run() {
-        BreakableLoop looper = new BreakableLoop(term, BreakableLoop.DEFAULT_FREQUENCY_MILLIS, this, this);
+        BreakableLoop looper = new BreakableLoop(term,
+                BreakableLoop.DEFAULT_FREQUENCY_MILLIS, this, this);
         looper.run();
     }
 
@@ -126,7 +154,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
 
     @Override
     public void step() {
-        term.clear();
+        SingleLine.applyTemplate(term, template);
         Regionlike bounds = term.getBounds();
         if (startLine < 0) {
             startLine = 0;
@@ -144,7 +172,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
                 msg = msg.substring(0, term.getWidth());
             }
             p.setY(y + bounds.getY());
-            SingleLine.putString(term, p, null, msg, template);
+            SingleLine.putString(term, p, null, msg, null);
         }
     }
 

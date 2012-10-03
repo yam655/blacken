@@ -69,6 +69,11 @@ public class TerminalCellTemplate implements TerminalCellLike {
             EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
         internalSetAll(null, sequence, fore, back, style, walls);
     }
+    public TerminalCellTemplate(TerminalCellTemplate template) {
+        internalSetAll(template.transformer, template.sequence,
+                template.foreground, template.background,
+                template.style, template.cellWalls);
+    }
 
     private void internalSetAll(TerminalCellTransformer transformer,
             String sequence, Integer fore, Integer back,
@@ -128,7 +133,7 @@ public class TerminalCellTemplate implements TerminalCellLike {
     }
 
     @Override
-    public TerminalCellTemplate clone() {
+    public TerminalCellLike clone() {
         TerminalCellTemplate template = new TerminalCellTemplate();
         template.set(this);
         return template;

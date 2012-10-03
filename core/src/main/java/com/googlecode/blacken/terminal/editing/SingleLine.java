@@ -18,6 +18,7 @@ package com.googlecode.blacken.terminal.editing;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
+import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalCellTemplate;
@@ -180,6 +181,19 @@ public class SingleLine {
         }
     }
 
+    /**
+     *
+     * @param terminal
+     * @param template
+     * @since 1.2
+     */
+    static public void applyTemplate(TerminalViewInterface terminal,
+        TerminalCellTemplate template) {
+        Regionlike bounds = terminal.getBounds();
+        applyTemplate(terminal, bounds.getHeight(), bounds.getWidth(),
+                bounds.getY(), bounds.getX(), template);
+    }
+
     static public void applyTemplate(TerminalViewInterface terminal,
             int rows, int cols, int y, int x, TerminalCellTemplate template) {
         if (template == null) {
@@ -193,9 +207,13 @@ public class SingleLine {
             cols += terminal.getWidth() +1;
             cols -= x;
         }
+        Regionlike bounds = terminal.getBounds();
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 TerminalCellLike cell = terminal.get(y+r, x+c);
+                if (cell == null) {
+                    continue;
+                }
                 template.applyOn(cell, terminal.getBounds(), y+r, x+c);
                 terminal.refresh(y+r, x+c);
             }
