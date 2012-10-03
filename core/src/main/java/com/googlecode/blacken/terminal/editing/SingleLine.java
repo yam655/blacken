@@ -203,6 +203,48 @@ public class SingleLine {
     }
 
     /**
+     * Find the number of advancing codepoints, and the line terminator.
+     *
+     * @return {advancingCodepoints, lengthToTerminator}
+     */
+    static public int[] findAdvancingCodepoints(String str, int start) {
+        int[] ret = {0, 0};
+
+        out:
+        for (int i = start; i < str.length(); i++) {
+            int cp = str.codePointAt(i);
+            if (cp > 0xffff) {
+                if (Character.isLowSurrogate(str.charAt(i))) {
+                    continue;
+                }
+            }
+            switch (Character.getType(cp)) {
+            case Character.COMBINING_SPACING_MARK:
+            case Character.ENCLOSING_MARK:
+            case Character.NON_SPACING_MARK:
+                // do nothing
+                break;
+            default:
+                if (cp == '\n' || cp == BlackenKeys.KEY_ENTER || 
+                        cp == BlackenKeys.KEY_NP_ENTER || cp == '\r') {
+                    ret[1] = i;
+                    break out;
+                } else if (cp == '\b' || cp == BlackenKeys.KEY_BACKSPACE) {
+                    ret[0] --;
+                } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
+                    ret[1] = i;
+                    break out;
+                } else {
+                    ret[0] ++;
+                }
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    /**
      * Write a string.
      *
      * @param terminal
@@ -214,6 +256,11 @@ public class SingleLine {
      */
     static public Positionable putString(TerminalViewInterface terminal, 
             Positionable start, Positionable end, String string, TerminalCellTemplate template) {
+        return putString(terminal, start, end, string, template, Alignment.FIRST);
+    }
+    static public Positionable putString(TerminalViewInterface terminal,
+            Positionable start, Positionable end, String string,
+            TerminalCellTemplate template, Alignment align) {
 
         Grid<TerminalCellLike> grid = terminal.getGrid();
         if (grid == null) {
@@ -228,6 +275,15 @@ public class SingleLine {
         }
         int y = start.getY();
         int x = start.getX();
+        if (align.equals(Alignment.CENTER)) {
+            int[] a = findAdvancingCodepoints(string, 0);
+            x -= a[0] / 2;
+        } else if (align.equals(Alignment.RIGHT)) {
+            int[] a = findAdvancingCodepoints(string, 0);
+            x -= a[0];
+        } else if (align.equals(Alignment.FIRST)) {
+            // nothing here.
+        }
         int cp;
         if (start.getX() >= grid.getWidth()) {
             start.setX(grid.getWidth() - 1);
@@ -237,7 +293,13 @@ public class SingleLine {
         }
         int lastUpX = start.getX() - 1;
         int lastUpY = start.getY() - 1;
-        for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
+        for (int i = 0; i < string.length(); i++) {
+            cp = string.codePointAt(i);
+            if (cp > 0xffff) {
+                if (Character.isLowSurrogate(string.charAt(i))) {
+                    continue;
+                }
+            }
             if (x >= grid.getWidth()) {
                 x = 0;
                 y++;
@@ -246,7 +308,6 @@ public class SingleLine {
                 terminal.moveBlock(grid.getHeight() - 1, grid.getWidth(), 1, 0, 0, 0);
                 y = grid.getHeight() - 1;
             }
-            cp = string.codePointAt(i);
             TerminalCellLike c;
             switch (Character.getType(cp)) {
                 case Character.COMBINING_SPACING_MARK:
@@ -265,9 +326,22 @@ public class SingleLine {
                     if (cp == '\n' || cp == BlackenKeys.KEY_ENTER || 
                             cp == BlackenKeys.KEY_NP_ENTER) {
                         y++;
-                        x = 0;
+                        x = start.getX();
+                        if (align.equals(Alignment.CENTER)) {
+                            int[] a = findAdvancingCodepoints(string, i+1);
+                            x -= a[0] / 2;
+                        } else if (align.equals(Alignment.RIGHT)) {
+                            int[] a = findAdvancingCodepoints(string, i+1);
+                            x -= a[0];
+                        } else if (align.equals(Alignment.FIRST)) {
+                            x = 0;
+                        }
+
                     } else if (cp == '\r') {
-                        x = 0;
+                        x = start.getX();
+                        if (align.equals(Alignment.FIRST)) {
+                            x = 0;
+                        }
                     } else if (cp == '\b' || cp == BlackenKeys.KEY_BACKSPACE) {
                         if (x > 0) {
                             x--;
@@ -278,13 +352,15 @@ public class SingleLine {
                     } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
                         x += 8;
                         x -= x % 8;
-                    } else {
+                    } else if (x >= 0 && y >= 0) {
                         cell = terminal.get(y, x);
                         cell.setSequence(cp);
                         if (template != null) {
                             template.applyOn(cell, terminal.getBounds(), y, x);
                         }
                         terminal.refresh(y, x);
+                        x++;
+                    } else {
                         x++;
                     }
             }
@@ -317,4 +393,6 @@ public class SingleLine {
         Positionable out = putString(terminal, new Point(y, x), null, string, colorTemplate);
         return new int[] {out.getY(), out.getX()};
     }
+
+
 }

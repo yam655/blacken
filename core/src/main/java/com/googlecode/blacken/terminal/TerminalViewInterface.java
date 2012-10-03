@@ -221,6 +221,19 @@ public interface TerminalViewInterface {
     public int getWidth();
 
     /**
+     * Get the current min X position
+     * @return smallest legal X value
+     * @since 1.2
+     */
+    public int getX();
+    /**
+     * Get the current min Y position
+     * @return smallest legal Y value
+     * @since 1.2
+     */
+    public int getY();
+
+    /**
      * Get a character without visible user-feedback.
      *
      * @return character returned.
@@ -307,6 +320,10 @@ public interface TerminalViewInterface {
      * <p>If you only use the set(...) family of calls to change the cell states
      * you can ignore this call and just use {@link #doUpdate()} to refresh the
      * display more efficiently.
+     *
+     * <p>The contract for this function has it explicitly refreshing the cell
+     * regardless of whether the cell is marked "dirty" or not. If this is not
+     * what you want, check the dirty status before you call.
      *
      * @param y row
      * @param x column

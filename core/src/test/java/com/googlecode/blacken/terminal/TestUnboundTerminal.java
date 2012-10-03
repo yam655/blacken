@@ -953,4 +953,13 @@ public class TestUnboundTerminal {
     public void isRunning() {
         assertTrue(terminal.isRunning());
     }
+
+    @Test
+    @Covers({"public int getX()",
+             "public int getY()"
+    })
+    public void getX() {
+        assertEquals(0, terminal.getX());
+        assertEquals(0, terminal.getY());
+    }
 }

@@ -17,8 +17,13 @@
 package com.googlecode.blacken.terminal.editing;
 
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.terminal.TerminalCellLike;
+import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -100,4 +105,25 @@ public class Images {
         }
     }
 
+    /**
+     * This takes a collection of colors, and refreshes every cell with those
+     * colors in either the foreground or background.
+     * @param palette
+     * @param term
+     * @since 1.2
+     */
+    public static void refreshForColors(Collection<Integer> palette, TerminalViewInterface term) {
+        Set<Integer> pal = new HashSet<>(palette);
+        for (int y = 0; y < term.getHeight(); y++) {
+            for (int x = 0; x < term.getWidth(); x++) {
+                TerminalCellLike cell = term.get(y + term.getY(), x + term.getX());
+                if (cell == null) {
+                    continue;
+                }
+                if (pal.contains(cell.getBackground()) || pal.contains(cell.getForeground())) {
+                    term.refresh(y + term.getY(), x + term.getX());
+                }
+            }
+        }
+    }
 }

@@ -18,6 +18,7 @@ package com.googlecode.blacken.terminal.editing;
 
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
@@ -25,6 +26,7 @@ import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.TerminalCellLike;
+import com.googlecode.blacken.terminal.TerminalCellTemplate;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,22 +40,27 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     private TerminalViewInterface term;
     private CodepointCallbackInterface secondaryCallback = null;
     private int startLine = 0;
-    private int foreground;
-    private int background;
     private String[] lines;
     private Integer maxCol = null;
+    private TerminalCellTemplate template;
     public StringViewer(TerminalViewInterface term, String message) {
         this.term = term;
         this.lines = message.split("\n");
-        background = term.getEmpty().getBackground();
-        foreground = ColorHelper.makeVisible(background);
+        int background = term.getEmpty().getBackground();
+        int foreground = ColorHelper.makeVisible(background);
+        template = new TerminalCellTemplate();
+        template.setBackground(background);
+        template.setForeground(foreground);
     }
     public StringViewer(TerminalViewInterface term, String message, CodepointCallbackInterface callback) {
         this.term = term;
         this.lines = message.split("\n");
         this.secondaryCallback = callback;
-        background = term.getEmpty().getBackground();
-        foreground = ColorHelper.makeVisible(background);
+        int background = term.getEmpty().getBackground();
+        int foreground = ColorHelper.makeVisible(background);
+        template = new TerminalCellTemplate();
+        template.setBackground(background);
+        template.setForeground(foreground);
     }
     public int getLines() {
         return lines.length;
@@ -86,18 +93,21 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         return maxCol;
     }
     public void setColor(int foreground, int background) {
-        this.foreground = foreground;
-        this.background = background;
-        TerminalCellLike cell = term.getEmpty().clone();
-        cell.setBackground(background);
-        cell.setForeground(foreground);
-        term.setEmpty(cell);
+        template = new TerminalCellTemplate();
+        template.setBackground(background);
+        template.setForeground(foreground);
     }
     public void setColor(String foreground, String background) {
         ColorPalette palette = term.getBackingTerminal().getPalette();
         int fg = palette.getColorOrIndex(foreground);
         int bg = palette.getColorOrIndex(background);
         setColor(fg, bg);
+    }
+    public void setColor(TerminalCellTemplate template) {
+        if (template == null) {
+            throw new NullPointerException("template cannot be null");
+        }
+        this.template = template.clone();
     }
     public void run() {
         BreakableLoop looper = new BreakableLoop(term, BreakableLoop.DEFAULT_FREQUENCY_MILLIS, this, this);
@@ -123,6 +133,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         } else if (startLine >= lines.length) {
             startLine = lines.length -1;
         }
+        Point p = new Point(bounds);
         for (int y = 0; y < term.getHeight(); y++) {
             String msg = "";
             if (lines.length > startLine + y) {
@@ -132,8 +143,8 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
                 // XXX Perhaps add column offset, too?
                 msg = msg.substring(0, term.getWidth());
             }
-            SingleLine.putString(term, y  + bounds.getY(), bounds.getX(),
-                    msg, foreground, background);
+            p.setY(y + bounds.getY());
+            SingleLine.putString(term, p, null, msg, template);
         }
     }
 

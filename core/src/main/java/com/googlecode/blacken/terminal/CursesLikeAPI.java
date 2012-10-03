@@ -707,4 +707,14 @@ public class CursesLikeAPI implements TerminalInterface {
     public BlackenImageLoader getImageLoader() {
         return terminal.getImageLoader();
     }
+
+    @Override
+    public int getX() {
+        return terminal.getX();
+    }
+
+    @Override
+    public int getY() {
+        return terminal.getY();
+    }
 }

@@ -235,7 +235,13 @@ public abstract class AbstractTerminal implements TerminalInterface {
         Grid<TerminalCellLike> grid = getGrid();
         for (int y = grid.getY(); y < grid.getHeight() + grid.getY(); y++) {
             for (int x = grid.getX(); x < grid.getWidth() + grid.getX(); x++) {
-                refresh(y, x);
+                TerminalCellLike cell = get(y, x);
+                if (cell == null) {
+                    continue;
+                }
+                if (cell.isDirty()) {
+                    refresh(y, x);
+                }
             }
         }
     }
@@ -639,6 +645,15 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
         SingleLine.applyTemplate(this, y, x, template, length);
+    }
+
+    @Override
+    public int getX() {
+        return 0;
+    }
+    @Override
+    public int getY() {
+        return 0;
     }
 
 }

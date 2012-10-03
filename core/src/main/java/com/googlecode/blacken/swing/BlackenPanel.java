@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * A JPanel implementation supporting Blacken.
  * 
  * @author Steven Black
+ * @since 1.0
  */
 public class BlackenPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanel.class);
@@ -310,7 +311,7 @@ public class BlackenPanel extends JPanel {
             refresh_all = true;
         }
         Grid<AwtCell> grid = null;
-        refresh_all = true;
+        // refresh_all = true;
         synchronized(this) {
             if (this.refreshedCnt == this.repaintedCnt) {
                 if (this.gridView == null) {
@@ -484,7 +485,7 @@ public class BlackenPanel extends JPanel {
             LOGGER.info("Panel update speed: {} ms / Average: {} ms",
                      endTime - startTime, displaySpeed);
         } catch(IndexOutOfBoundsException ex) {
-            LOGGER.debug("grid changed size during an update");
+            LOGGER.error("grid changed size during an update");
         } finally {
             if (grid != null) {
                 synchronized(this) {
@@ -593,6 +594,10 @@ public class BlackenPanel extends JPanel {
                 // do nothing
             }
         }
+    }
+
+    public void flagFullRefresh() {
+        this.refresh_all = true;
     }
     public void forceRefresh() {
         this.refresh_all = true;
@@ -817,7 +822,7 @@ public class BlackenPanel extends JPanel {
     public void windowResized() {
         FontBits fbits = resizeFontToFit(bits.font);
         setFont(fbits);
-        refresh();
+        forceRefresh();
     }
 
 }

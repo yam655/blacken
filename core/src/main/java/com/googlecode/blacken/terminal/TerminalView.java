@@ -16,13 +16,12 @@
 
 package com.googlecode.blacken.terminal;
 
-import java.util.EnumSet;
-
 import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.RegionIterator;
 import com.googlecode.blacken.grid.Regionlike;
+import java.util.EnumSet;
 
 /**
  * This provides an read/write view to another TerminalInterface.
@@ -274,6 +273,14 @@ public class TerminalView implements TerminalViewInterface {
     public int getWidth() {
         return bounds.getWidth();
     }
+    @Override
+    public int getX() {
+        return bounds.getX();
+    }
+    @Override
+    public int getY() {
+        return bounds.getY();
+    }
 
     @Override
     public void moveBlock(int numRows, int numCols, int origY, int origX, int newY, int newX) {
@@ -290,12 +297,19 @@ public class TerminalView implements TerminalViewInterface {
         Grid<TerminalCellLike> grid = getGrid();
         for (int y = bounds.getY(); y < bounds.getHeight() + bounds.getY(); y++) {
             for (int x = bounds.getX(); x < bounds.getWidth() + bounds.getX(); x++) {
-                refresh(y, x);
+                TerminalCellLike cell = get(y, x);
+                if (cell == null) {
+                    continue;
+                }
+                if (cell.isDirty()) {
+                    refresh(y, x);
+                }
             }
         }
         term.doUpdate();
     }
 
+    @Override
     public void refresh(int y, int x) {
         if (bounds.contains(y, x)) {
             term.refresh(y, x);

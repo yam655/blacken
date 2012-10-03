@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -495,9 +495,6 @@ public class SwingTerminal extends AbstractTerminal
     @Override
     public void refresh(int y, int x) {
         TerminalCellLike tcell = get(y, x);
-        if (!tcell.isDirty()) {
-            return;
-        }
         AwtCell acell = AwtCell.makeAwtFromTerminal(tcell);
         gui.assign(y, x, acell);
         tcell.setDirty(false);

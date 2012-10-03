@@ -128,7 +128,7 @@ public class TerminalCellTemplate implements TerminalCellLike {
     }
 
     @Override
-    public TerminalCellLike clone() {
+    public TerminalCellTemplate clone() {
         TerminalCellTemplate template = new TerminalCellTemplate();
         template.set(this);
         return template;
