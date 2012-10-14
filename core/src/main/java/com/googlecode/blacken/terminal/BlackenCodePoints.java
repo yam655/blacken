@@ -228,6 +228,15 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_COMBINING_OGONEK = '\u0328';
     static final public int CODEPOINT_COMBINING_GREEK_YPOGEGRAMMENI = '\u0345';
 
+    static final public int CODEPOINT_DAGGER = '\u2020';
+    static final public int CODEPOINT_DOUBLE_DAGGER = '\u2021';
+    static final public int CODEPOINT_BULLET = '\u2022';
+    static final public int CODEPOINT_TRIANGULAR_BULLET = '\u2023';
+    static final public int CODEPOINT_ONE_DOT_LEADER = '\u2024';
+    static final public int CODEPOINT_TWO_DOT_LEADER = '\u2025';
+    static final public int CODEPOINT_HORIZONTAL_ELLIPSIS = '\u2026';
+    static final public int CODEPOINT_HYPHENATION_POINT = '\u2027';
+
     static final public int CODEPOINT_LIGHT_SHADE = '\u2591';
     static final public int CODEPOINT_MEDIUM_SHADE = '\u2592';
     static final public int CODEPOINT_DARK_SHADE = '\u2593';
@@ -236,7 +245,81 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_WHITE_SQUARE = '\u25a1';
     static final public int CODEPOINT_BLACK_SMALL_SQUARE = '\u25aa';
     static final public int CODEPOINT_WHITE_SMALL_SQUARE = '\u25ab';
-    
+
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_HORIZONTAL = '\u2500';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_HORIZONTAL = '\u2501';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_VERTICAL = '\u2502';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_VERTICAL = '\u2503';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_TRIPLE_DASH_HORIZONTAL = '\u2504';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_TRIPLE_DASH_HORIZONTAL = '\u2505';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_TRIPLE_DASH_VERTICAL = '\u2506';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_TRIPLE_DASH_VERTICAL = '\u2507';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_QUADRUPLE_DASH_HORIZONTAL = '\u2508';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_QUADRUPLE_DASH_HORIZONTAL = '\u2509';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_QUADRUPLE_DASH_VERTICAL = '\u250a';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_QUADRUPLE_DASH_VERTICAL = '\u250b';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT = '\u250c';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_LIGHT_AND_RIGHT_HEAVY = '\u250d';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_HEAVY_AND_RIGHT_LIGHT = '\u250e';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_DOWN_AND_RIGHT = '\u250f';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT = '\u2510';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_LIGHT_AND_LEFT_HEAVY = '\u2511';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_HEAVY_AND_LEFT_LIGHT = '\u2512';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_DOWN_AND_LEFT = '\u2513';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_RIGHT = '\u2514';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_LIGHT_AND_RIGHT_HEAVY = '\u2515';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_HEAVY_AND_RIGHT_LIGHT = '\u2516';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_RIGHT = '\u2517';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_LEFT = '\u2518';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_LEFT_HEAVY = '\u2519';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LEFT_LIGHT = '\u251a';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LEFT = '\u251b';
+    /*
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u251c';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u251d';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u251e';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u251f';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u2520';
+    */
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_DOUBLE_DASH_HORIZONTAL = '\u254c';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_DOUBLE_DASH_HORIZONTAL = '\u254d';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_DOUBLE_DASH_VERTICAL = '\u254e';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_DOUBLE_DASH_VERTICAL = '\u254f';
+
+    // "SINGLE" here is "LIGHT" elsewhere.
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_HORIZONTAL = '\u2550';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_VERTICAL = '\u2551';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_SINGLE_AND_RIGHT_DOUBLE = '\u2552';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_DOUBLE_AND_RIGHT_SINGLE = '\u2553';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_DOWN_AND_RIGHT = '\u2554';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_SINGLE_AND_LEFT_DOUBLE = '\u2555';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOWN_DOUBLE_AND_LEFT_SINGLE = '\u2556';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_DOWN_AND_LEFT = '\u2557';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_SINGLE_AND_RIGHT_DOUBLE = '\u2558';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_DOUBLE_AND_RIGHT_SINGLE = '\u2559';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_UP_AND_RIGHT = '\u255a';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_SINGLE_AND_LEFT_DOUBLE = '\u255b';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_DOUBLE_AND_LEFT_SINGLE = '\u255c';
+    static final public int CODEPOINT_BOX_DRAWINGS_DOUBLE_UP_AND_LEFT = '\u255d';
+    /*
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u255e';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u255f';
+    static final public int CODEPOINT_BOX_DRAWINGS_ = '\u2560';
+    */
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_LEFT = '\u2574';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP = '\u2575';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_RIGHT = '\u2576';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_DOWN = '\u2577';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_LEFT = '\u2578';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP = '\u2579';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_RIGHT = '\u257a';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_DOWN = '\u257b';
+
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_LEFT_AND_HEAVY_RIGHT = '\u257c';
+    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_HEAVY_DOWN = '\u257d';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_LEFT_AND_LIGHT_RIGHT = '\u257e';
+    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LIGHT_DOWN = '\u257f';
+
     private static Map<Integer, String> shortMap = null;
     
     private static void createShortMap() {

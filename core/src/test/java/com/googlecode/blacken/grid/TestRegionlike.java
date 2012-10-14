@@ -82,7 +82,7 @@ public class TestRegionlike {
 
     @Test
     @Covers("public abstract boolean contains(Positionable)")
-    public void containsP() {
+    public void contains_Positionable() {
         Point p = new Point(y, x);
         assertTrue(data.contains(p));
         p = new Point(y - 1, x - 1);
@@ -90,6 +90,19 @@ public class TestRegionlike {
         p = new Point(y + size_y -1, x + size_x -1);
         assertTrue(data.contains(p));
         p = new Point(y + size_y, x + size_x);
+        assertFalse(data.contains(p));
+    }
+
+    @Test
+    @Covers("public abstract boolean contains(int[])")
+    public void contains_intArr() {
+        int[] p = new int[] {y, x};
+        assertTrue(data.contains(p));
+        p = new int[] {y + this.size_y -1, x + this.size_x -1};
+        assertTrue(data.contains(p));
+        p = new int[] {y - 1, x - 1};
+        assertFalse(data.contains(p));
+        p = new int[] {y + this.size_y, x + this.size_x};
         assertFalse(data.contains(p));
     }
 

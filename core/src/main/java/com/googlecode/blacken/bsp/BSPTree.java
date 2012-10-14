@@ -980,4 +980,9 @@ public class BSPTree<R> implements Regionlike {
         hash = 37 * hash + (this.horizontal ? 1 : 0);
         return hash;
     }
+
+    @Override
+    public boolean contains(int[] location) {
+        return contains(location[0], location[1]);
+    }
 }

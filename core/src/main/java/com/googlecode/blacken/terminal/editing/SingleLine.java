@@ -18,11 +18,11 @@ package com.googlecode.blacken.terminal.editing;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
-import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenKeys;
 import com.googlecode.blacken.terminal.TerminalCellLike;
 import com.googlecode.blacken.terminal.TerminalCellTemplate;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
+import com.googlecode.blacken.terminal.utils.CodePointUtils;
 
 /**
  *
@@ -165,103 +165,6 @@ public class SingleLine {
         return out.toString();
     }
 
-    static public void applyTemplate(TerminalViewInterface terminal,
-            int y, int x, TerminalCellTemplate template, int length) {
-        if (template == null) {
-            return;
-        }
-        if (length < 0) {
-            length += terminal.getWidth() +1;
-            length -= x;
-        }
-        for (int o = 0; o < length; o++) {
-            TerminalCellLike c = terminal.get(y, x+o);
-            template.applyOn(c, terminal.getBounds(), y, x+o);
-            terminal.refresh(y, x+o);
-        }
-    }
-
-    /**
-     *
-     * @param terminal
-     * @param template
-     * @since 1.2
-     */
-    static public void applyTemplate(TerminalViewInterface terminal,
-        TerminalCellTemplate template) {
-        Regionlike bounds = terminal.getBounds();
-        applyTemplate(terminal, bounds.getHeight(), bounds.getWidth(),
-                bounds.getY(), bounds.getX(), template);
-    }
-
-    static public void applyTemplate(TerminalViewInterface terminal,
-            int rows, int cols, int y, int x, TerminalCellTemplate template) {
-        if (template == null) {
-            return;
-        }
-        if (rows < 0) {
-            rows += terminal.getHeight() +1;
-            rows -= y;
-        }
-        if (cols < 0) {
-            cols += terminal.getWidth() +1;
-            cols -= x;
-        }
-        Regionlike bounds = terminal.getBounds();
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                TerminalCellLike cell = terminal.get(y+r, x+c);
-                if (cell == null) {
-                    continue;
-                }
-                template.applyOn(cell, terminal.getBounds(), y+r, x+c);
-                terminal.refresh(y+r, x+c);
-            }
-        }
-    }
-
-    /**
-     * Find the number of advancing codepoints, and the line terminator.
-     *
-     * @return {advancingCodepoints, lengthToTerminator}
-     */
-    static public int[] findAdvancingCodepoints(String str, int start) {
-        int[] ret = {0, 0};
-
-        out:
-        for (int i = start; i < str.length(); i++) {
-            int cp = str.codePointAt(i);
-            if (cp > 0xffff) {
-                if (Character.isLowSurrogate(str.charAt(i))) {
-                    continue;
-                }
-            }
-            switch (Character.getType(cp)) {
-            case Character.COMBINING_SPACING_MARK:
-            case Character.ENCLOSING_MARK:
-            case Character.NON_SPACING_MARK:
-                // do nothing
-                break;
-            default:
-                if (cp == '\n' || cp == BlackenKeys.KEY_ENTER || 
-                        cp == BlackenKeys.KEY_NP_ENTER || cp == '\r') {
-                    ret[1] = i;
-                    break out;
-                } else if (cp == '\b' || cp == BlackenKeys.KEY_BACKSPACE) {
-                    ret[0] --;
-                } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
-                    ret[1] = i;
-                    break out;
-                } else {
-                    ret[0] ++;
-                }
-                break;
-            }
-        }
-
-        return ret;
-    }
-
     /**
      * Write a string.
      *
@@ -294,10 +197,10 @@ public class SingleLine {
         int y = start.getY();
         int x = start.getX();
         if (align.equals(Alignment.CENTER)) {
-            int[] a = findAdvancingCodepoints(string, 0);
+            int[] a = CodePointUtils.findAdvancingCodepoints(string, 0);
             x -= a[0] / 2;
         } else if (align.equals(Alignment.RIGHT)) {
-            int[] a = findAdvancingCodepoints(string, 0);
+            int[] a = CodePointUtils.findAdvancingCodepoints(string, 0);
             x -= a[0];
         } else if (align.equals(Alignment.FIRST)) {
             // nothing here.
@@ -346,10 +249,10 @@ public class SingleLine {
                         y++;
                         x = start.getX();
                         if (align.equals(Alignment.CENTER)) {
-                            int[] a = findAdvancingCodepoints(string, i+1);
+                            int[] a = CodePointUtils.findAdvancingCodepoints(string, i+1);
                             x -= a[0] / 2;
                         } else if (align.equals(Alignment.RIGHT)) {
-                            int[] a = findAdvancingCodepoints(string, i+1);
+                            int[] a = CodePointUtils.findAdvancingCodepoints(string, i+1);
                             x -= a[0];
                         } else if (align.equals(Alignment.FIRST)) {
                             x = 0;

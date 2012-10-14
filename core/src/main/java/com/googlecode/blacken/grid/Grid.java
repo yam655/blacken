@@ -1246,4 +1246,9 @@ implements Serializable, Regionlike {
                 cellCopier.getClass().getName() + "}";
     }
 
+    @Override
+    public boolean contains(int[] location) {
+        return contains(location[0], location[1]);
+    }
+
 }

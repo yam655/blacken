@@ -27,9 +27,15 @@ public interface Regionlike extends Positionable, Sizable {
      * 
      * @param y coordinate
      * @param x coordinate
-     * @return true on success; false on failure
+     * @return true if contained; false otherwise
      */
     public boolean contains(int y, int x);
+    /**
+     * Is the coordinate in the region?
+     * @param location int[] {y, x}
+     * @return true if contained; false otherwise
+     */
+    public boolean contains(int[] location);
     /**
      * Is the box in the region?
      * 

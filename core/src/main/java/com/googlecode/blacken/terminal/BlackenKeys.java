@@ -590,8 +590,10 @@ public class BlackenKeys {
     /**
      * We are done with whatever command was processing.
      */
-    static final public int CMD_END_LOOP = KEY_FIRST + 1000;
-
+    public static final int CMD_END_LOOP = KEY_FIRST + 1000;
+    public static final int CMD_FOCUS_PREVIOUS = KEY_FIRST + 1001;
+    public static final int CMD_FOCUS_NEXT = KEY_FIRST + 1002;
+    public static final int CMD_EXECUTE = KEY_FIRST + 1003;
     
     // END OF LOGICAL KEY SPACE
 

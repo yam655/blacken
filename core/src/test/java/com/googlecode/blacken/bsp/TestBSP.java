@@ -290,6 +290,14 @@ public class TestBSP {
         assertTrue(t.contains(new Point(START_Y + NUM_ROWS -1, START_X + NUM_COLS -1)));
         assertFalse(t.contains(new Point(START_Y + NUM_ROWS, START_X + NUM_COLS)));
     }
+    @Test
+    @Covers("public boolean contains(int[])")
+    public void contains_intArr() {
+        assertTrue(t.contains(new int[] {START_Y, START_X}));
+        assertFalse(t.contains(new int[] {START_Y -1, START_X-1}));
+        assertTrue(t.contains(new int[] {START_Y + NUM_ROWS -1, START_X + NUM_COLS -1}));
+        assertFalse(t.contains(new int[] {START_Y + NUM_ROWS, START_X + NUM_COLS}));
+    }
 
     @Test
     @Covers("public boolean contains(int,int,int,int)")

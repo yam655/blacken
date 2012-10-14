@@ -660,4 +660,9 @@ public class Room<T> implements Regionlike {
         }
         return true;
     }
+
+    @Override
+    public boolean contains(int[] location) {
+        return contains(location[0], location[1]);
+    }
 }

@@ -27,6 +27,7 @@ import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 import com.googlecode.blacken.terminal.TerminalCellTemplate;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
+import com.googlecode.blacken.terminal.utils.TerminalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,17 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     private String[] lines;
     private Integer maxCol = null;
     private TerminalCellTemplate template;
+    public StringViewer(TerminalViewInterface term, String[] message) {
+        this.term = term;
+        this.lines = message;
+        int background = term.getEmpty().getBackground();
+        int foreground = ColorHelper.makeVisible(background);
+        template = new TerminalCellTemplate();
+        template.setBackground(background);
+        template.setForeground(foreground);
+        template.clearCellWalls();
+        template.clearStyle();
+    }
     public StringViewer(TerminalViewInterface term, String message) {
         this.term = term;
         this.lines = message.split("\n");
@@ -56,6 +68,18 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     public StringViewer(TerminalViewInterface term, String message, CodepointCallbackInterface callback) {
         this.term = term;
         this.lines = message.split("\n");
+        this.secondaryCallback = callback;
+        int background = term.getEmpty().getBackground();
+        int foreground = ColorHelper.makeVisible(background);
+        template = new TerminalCellTemplate();
+        template.setBackground(background);
+        template.setForeground(foreground);
+        template.clearCellWalls();
+        template.clearStyle();
+    }
+    public StringViewer(TerminalViewInterface term, String[] message, CodepointCallbackInterface callback) {
+        this.term = term;
+        this.lines = message;
         this.secondaryCallback = callback;
         int background = term.getEmpty().getBackground();
         int foreground = ColorHelper.makeVisible(background);
@@ -154,7 +178,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
 
     @Override
     public void step() {
-        SingleLine.applyTemplate(term, template);
+        TerminalUtils.applyTemplate(term, template);
         Regionlike bounds = term.getBounds();
         if (startLine < 0) {
             startLine = 0;
@@ -269,4 +293,5 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     public boolean isComplete() {
         return false;
     }
+
 }

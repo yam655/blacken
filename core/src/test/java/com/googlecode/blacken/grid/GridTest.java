@@ -385,6 +385,19 @@ public class GridTest {
         p = new Point(start_y + this.size_y, start_x + this.size_x);
         assertFalse(grid.contains(p));
     }
+
+    @Test
+    @Covers("public boolean contains(int[])")
+    public void contains_intArr() {
+        int[] p = new int[] {start_y, start_x};
+        assertTrue(grid.contains(p));
+        p = new int[] {start_y + this.size_y -1, start_x + this.size_x -1};
+        assertTrue(grid.contains(p));
+        p = new int[] {start_y - 1, start_x - 1};
+        assertFalse(grid.contains(p));
+        p = new int[] {start_y + this.size_y, start_x + this.size_x};
+        assertFalse(grid.contains(p));
+    }
     
     @Test
     @Covers("public boolean contains(Regionlike)")

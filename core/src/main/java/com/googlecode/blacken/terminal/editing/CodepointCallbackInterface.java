@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.terminal.editing;
 
+import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
 

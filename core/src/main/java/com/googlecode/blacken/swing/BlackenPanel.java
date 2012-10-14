@@ -482,8 +482,7 @@ public class BlackenPanel extends JPanel {
             } else {
                 this.displaySpeed = (displaySpeed + endTime - startTime) / 2;
             }
-            LOGGER.info("Panel update speed: {} ms / Average: {} ms",
-                     endTime - startTime, displaySpeed);
+            // LOGGER.info("Panel update speed: {} ms / Average: {} ms", endTime - startTime, displaySpeed);
         } catch(IndexOutOfBoundsException ex) {
             LOGGER.error("grid changed size during an update");
         } finally {

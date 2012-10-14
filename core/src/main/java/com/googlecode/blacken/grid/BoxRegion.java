@@ -22,6 +22,13 @@ package com.googlecode.blacken.grid;
  */
 public class BoxRegion implements Regionlike {
 
+    public static BoxRegion inset(Regionlike self, int ya, int xa) {
+        BoxRegion ret = new BoxRegion(self);
+        ret.setSize(ret.getHeight() - Math.abs(ya) * 2,
+                ret.getWidth() - Math.abs(xa) * 2);
+        ret.setPosition(ret.getY() + ya, ret.getX() + xa);
+        return ret;
+    }
     /**
      * Helper function to perform a simple box-check to see if a position is in
      * a region.
@@ -158,13 +165,13 @@ public class BoxRegion implements Regionlike {
      * intersects a region.
      * 
      * @param self container region to check
-     * @param room contained region to check
+     * @param region contained region to check
      * @return whether the box is in the region or not
      */
-    public static boolean intersects(Regionlike self, Regionlike room) {
+    public static boolean intersects(Regionlike self, Regionlike region) {
         boolean does_contain = false;
         boolean does_not_contain = false;
-        RegionIterator edge = room.getNotOutsideIterator();
+        RegionIterator edge = region.getNotOutsideIterator();
         int[] p = new int[4];
         boolean[] pattern;
         int segtype;
@@ -446,5 +453,10 @@ public class BoxRegion implements Regionlike {
     public String toString() {
         return String.format("Position: %s,%s; Size: %s,%s", this.start_y,
                 this.start_x, this.size_y, this.size_x);
+    }
+
+    @Override
+    public boolean contains(int[] location) {
+        return contains(location[0], location[1]);
     }
 }

@@ -23,6 +23,7 @@ import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.editing.SingleLine;
+import com.googlecode.blacken.terminal.utils.TerminalUtils;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -644,7 +645,7 @@ public abstract class AbstractTerminal implements TerminalInterface {
 
     @Override
     public void applyTemplate(int y, int x, TerminalCellTemplate template, int length) {
-        SingleLine.applyTemplate(this, y, x, template, length);
+        TerminalUtils.applyTemplate(this, y, x, template, length);
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.googlecode.blacken.terminal;
 
+import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.grid.Regionlike;
 import java.util.EnumSet;
 import java.util.Set;
@@ -60,6 +61,10 @@ public class TerminalCellTemplate implements TerminalCellLike {
     public TerminalCellTemplate(String sequence, Integer fore, Integer back) {
         internalSetAll(null, sequence, fore, back, null, null);
     }
+    public TerminalCellTemplate(int sequence, Integer fore, Integer back) {
+        String s = String.copyValueOf(Character.toChars(sequence));
+        internalSetAll(null, s, fore, back, null, null);
+    }
     public TerminalCellTemplate(TerminalCellTransformer transformer,
             String sequence, Integer fore, Integer back,
             EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
@@ -68,6 +73,10 @@ public class TerminalCellTemplate implements TerminalCellLike {
     public TerminalCellTemplate(String sequence, Integer fore, Integer back, 
             EnumSet<TerminalStyle> style, EnumSet<CellWalls> walls) {
         internalSetAll(null, sequence, fore, back, style, walls);
+    }
+    public TerminalCellTemplate(String sequence, Integer fore, Integer back,
+            EnumSet<TerminalStyle> style, CellWalls walls) {
+        internalSetAll(null, sequence, fore, back, style, EnumSet.of(walls));
     }
     public TerminalCellTemplate(TerminalCellTemplate template) {
         internalSetAll(template.transformer, template.sequence,
@@ -182,11 +191,6 @@ public class TerminalCellTemplate implements TerminalCellLike {
 
     public void applyOn(TerminalCellLike tcell, Regionlike bounds, int y, int x) {
         boolean changed = false;
-        if (this.transformer != null) {
-            if (this.transformer.transform(tcell, bounds, y, x)) {
-                changed = true;
-            }
-        }
         if (background != null) {
             tcell.setBackground(background);
             changed = true;
@@ -206,6 +210,11 @@ public class TerminalCellTemplate implements TerminalCellLike {
         if (style != null) {
             tcell.setStyle(style);
             changed = true;
+        }
+        if (this.transformer != null) {
+            if (this.transformer.transform(tcell, bounds, y, x)) {
+                changed = true;
+            }
         }
         if (changed) {
             tcell.setDirty(true);
@@ -274,4 +283,55 @@ public class TerminalCellTemplate implements TerminalCellLike {
         this.style = EnumSet.of(style);
     }
 
+    public boolean isStyleUnset() {
+        return this.style == null;
+    }
+
+    public boolean isCellWallsUnset() {
+        return this.cellWalls == null;
+    }
+
+    public boolean isForegroundUnset() {
+        return this.foreground == null;
+    }
+
+    public boolean isBackgroundUnset() {
+        return this.background == null;
+    }
+
+    public boolean isSequenceUnset() {
+        return this.sequence == null;
+    }
+
+    public boolean isTransformerUnset() {
+        return this.transformer == null;
+    }
+
+    public void makeSafe() {
+        if (background == null && foreground == null) {
+            background = 0xFF000000;
+            foreground = 0xFFFFFFFF;
+        } else if (background == null) {
+            background = ColorHelper.makeVisible(foreground);
+        } else if (foreground == null) {
+            foreground = ColorHelper.makeVisible(background);
+        }
+        if (sequence == null) {
+            sequence = "\u0000";
+        }
+        if (cellWalls == null) {
+            this.clearCellWalls();
+        }
+        if (style == null) {
+            this.clearStyle();
+        }
+    }
+
+    public void addStyle(TerminalStyle terminalStyle) {
+        if (this.style == null) {
+            setStyle(terminalStyle);
+        } else {
+            style.add(terminalStyle);
+        }
+    }
 }
