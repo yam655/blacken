@@ -211,7 +211,7 @@ public class SymmetricalHashMap<K, V> implements Map<K, V>, Cloneable, Serializa
         if (kMap.containsKey(key) && vMap.containsKey(value)) {
             if (kMap.get(key).hashCode() != value.hashCode()) {
                 throw new IllegalArgumentException(
-                       "key and value exist in the map with different relations"); //$NON-NLS-1$
+                       "key and value exist in the map with different relations");
             }
             oldValue = kMap.put(key, value);
             oldKey = vMap.put(value, key); // oldKey == key
@@ -227,7 +227,7 @@ public class SymmetricalHashMap<K, V> implements Map<K, V>, Cloneable, Serializa
             kMap.put(key, value);
             ret = new AbstractMap.SimpleEntry<K, V>(oldKey, oldValue);
         } else if (key == null || value == null) {
-            throw new NullPointerException("neither key nor value can be null"); //$NON-NLS-1$
+            throw new NullPointerException("neither key nor value can be null");
         } else {
             kMap.put(key, value);
             vMap.put(value, key);
@@ -249,7 +249,7 @@ public class SymmetricalHashMap<K, V> implements Map<K, V>, Cloneable, Serializa
         if (kMap.containsKey(key) && vMap.containsKey(value)) {
             if (kMap.get(key).hashCode() != value.hashCode()) {
                 throw new IllegalArgumentException(
-                       "key and value exist in the map with different relations"); //$NON-NLS-1$
+                       "key and value exist in the map with different relations");
             }
             K oldKey = vMap.put(value, key);
             kMap.put(key, value);
@@ -272,7 +272,7 @@ public class SymmetricalHashMap<K, V> implements Map<K, V>, Cloneable, Serializa
         if (kMap.containsKey(key) && vMap.containsKey(value)) {
             if (kMap.get(key).hashCode() != value.hashCode()) {
                 throw new IllegalArgumentException(
-                     "key and value exist in the map with different relations"); //$NON-NLS-1$
+                     "key and value exist in the map with different relations");
             }
             V oldValue = kMap.put(key, value);
             vMap.put(value, key);

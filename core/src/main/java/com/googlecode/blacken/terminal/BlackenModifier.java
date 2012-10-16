@@ -17,7 +17,10 @@ package com.googlecode.blacken.terminal;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Modifier notices exist on PLANE_MODIFIER_NOTICES, which is guaranteed
@@ -36,42 +39,49 @@ public enum BlackenModifier {
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_ALT(0x0001, "Alt"), //$NON-NLS-1$
+    MODIFIER_KEY_ALT(0x0001, "Alt"),
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_ALTGR(0x0002, "AltGr"),  //$NON-NLS-1$
+    MODIFIER_KEY_ALTGR(0x0002, "AltGr"), 
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_CTRL(0x0004, "Ctrl"),  //$NON-NLS-1$
+    MODIFIER_KEY_CTRL(0x0004, "Ctrl"), 
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_META(0x0008, "Meta"),  //$NON-NLS-1$
+    MODIFIER_KEY_META(0x0008, "Meta"), 
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_SHIFT(0x0010, "Shift"), //$NON-NLS-1$
+    MODIFIER_KEY_SHIFT(0x0010, "Shift"),
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_CAPS_LOCK(0x0020, "CapsLock"), //$NON-NLS-1$
+    MODIFIER_KEY_CAPS_LOCK(0x0020, "CapsLock"),
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_KANA_LOCK(0x0040, "KanaLock"), //$NON-NLS-1$
+    MODIFIER_KEY_KANA_LOCK(0x0040, "KanaLock"),
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_NUM_LOCK(0x0080, "NumLock"), //$NON-NLS-1$
+    MODIFIER_KEY_NUM_LOCK(0x0080, "NumLock"),
     /**
      * Create new modifier state
      */
-    MODIFIER_KEY_SCROLL_LOCK(0x0100, "ScrollLock"); //$NON-NLS-1$
+    MODIFIER_KEY_SCROLL_LOCK(0x0100, "ScrollLock");
     
     private final int bit;
     private String keyname;
+    static private Map<String, BlackenModifier> inverse;
+    static {
+        inverse = new HashMap<>();
+        for (BlackenModifier modifier : BlackenModifier.values()) {
+            inverse.put(modifier.keyname, modifier);
+        }
+    }
 
     /**
      * Create a modifier
@@ -264,6 +274,18 @@ public enum BlackenModifier {
         return keybuf;
     }
 
+    public static String getModifierString(EnumSet<BlackenModifier> set, int codepoint) {
+        StringBuffer buf = getModifierString(set);
+        buf.appendCodePoint(codepoint);
+        return buf.toString();
+    }
+
+    public static String getModifierString(int modifier, int codepoint) {
+        StringBuffer buf = getModifierString(modifier);
+        buf.appendCodePoint(codepoint);
+        return buf.toString();
+    }
+
     /**
      * Get the modifier string
      * @param set set of modifiers that are enabled
@@ -282,4 +304,22 @@ public enum BlackenModifier {
         return keybuf;
     }
 
+    /**
+     * Extract modifiers from a list of names (removing them from the list).
+     * @param modifierList
+     * @return set of modifiers
+     */
+    public static EnumSet<BlackenModifier> extractModifiers(List<String> modifierList) {
+        EnumSet<BlackenModifier> ret = EnumSet.noneOf(BlackenModifier.class);
+        Iterator<String> iter = modifierList.iterator();
+        while(iter.hasNext()) {
+            String c = iter.next();
+            BlackenModifier mod = inverse.get(c);
+            if (mod != null) {
+                ret.add(mod);
+                iter.remove();
+            }
+        }
+        return ret;
+    }
 }

@@ -78,7 +78,7 @@ public class AwtCell implements Cloneable {
     private void internalReset() {
         attributes.clear();
         cellWalls = EnumSet.noneOf(CellWalls.class);
-        sequence = "\u0000";
+        sequence = "";
         attributes.put(TextAttribute.BACKGROUND, Color.BLACK);
         attributes.put(TextAttribute.FOREGROUND, Color.WHITE);
     }
@@ -507,7 +507,7 @@ public class AwtCell implements Cloneable {
      */
     public void set(AwtCell cell) {
         if (cell == null) {
-            setCell("\u0000", Color.BLACK, Color.WHITE);
+            setCell("", Color.BLACK, Color.WHITE);
             clearTextAttributes();
             clearCellWalls();
         } else {
@@ -641,8 +641,8 @@ public class AwtCell implements Cloneable {
      * @param sequence new sequence
      */
     public void setSequence(String sequence) {
-        if (sequence == null || sequence.length() == 0) {
-            sequence = "\u0000";
+        if (sequence == null) {
+            sequence = "";
         }
         if (this.sequence == null) {
             this.sequence = sequence;
@@ -674,7 +674,7 @@ public class AwtCell implements Cloneable {
         awt.dirty = true;
         String sequence = term.getSequence();
         if (sequence == null || sequence.length() == 0) {
-            sequence = "\u0000";
+            sequence = "";
         }
         awt.sequence = sequence;
         Set<CellWalls> w = term.getCellWalls();
@@ -763,7 +763,7 @@ public class AwtCell implements Cloneable {
             // Is there a STYLE_SUPERSCRIPT | STYLE_SUBSCRIPT ?
 
             case STYLE_INVISIBLE:
-                awt.sequence = "\u0000";
+                awt.sequence = "";
                 break;
             case STYLE_REPLACEMENT:
                 awt.sequence = "\uFFFC";

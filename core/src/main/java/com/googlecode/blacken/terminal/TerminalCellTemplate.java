@@ -18,6 +18,7 @@ package com.googlecode.blacken.terminal;
 
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.terminal.utils.CodePointUtils;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -120,6 +121,9 @@ public class TerminalCellTemplate implements TerminalCellLike {
         if (sequence == null) {
             throw new NullPointerException("Can't add to null");
         }
+        if (this.sequence.isEmpty()) {
+            this.sequence = String.copyValueOf(Character.toChars(BlackenCodePoints.CODEPOINT_DOTTED_CIRCLE));;
+        }
         sequence += String.valueOf(Character.toChars(glyph));
     }
 
@@ -127,6 +131,9 @@ public class TerminalCellTemplate implements TerminalCellLike {
     public void addSequence(String glyph) {
         if (sequence == null) {
             throw new NullPointerException("Can't add to null");
+        }
+        if (this.sequence.isEmpty()) {
+            this.sequence = String.copyValueOf(Character.toChars(BlackenCodePoints.CODEPOINT_DOTTED_CIRCLE));;
         }
         sequence += glyph;
     }
@@ -187,6 +194,58 @@ public class TerminalCellTemplate implements TerminalCellLike {
     @Override
     public boolean isDirty() {
         return true;
+    }
+
+    public void joinOn(TerminalCellLike tcell, Regionlike bounds, int y, int x) {
+        boolean changed = false;
+        if (background != null) {
+            tcell.setBackground(ColorHelper.lerp(tcell.getBackground(), background));
+            changed = true;
+        }
+        if (foreground != null) {
+            tcell.setForeground(ColorHelper.lerp(tcell.getForeground(), foreground));
+            changed = true;
+        }
+        if (sequence != null && !sequence.isEmpty()) {
+            int[] adv = CodePointUtils.findAdvancingCodepoints(sequence, 0);
+            if (adv[0] == 0 && adv[1] == sequence.length()) {
+                String old = tcell.getSequence();
+                if (old.isEmpty()) {
+                    old = String.copyValueOf(Character.toChars(BlackenCodePoints.CODEPOINT_DOTTED_CIRCLE));
+                }
+                tcell.setSequence(old + sequence);
+            } else {
+                tcell.setSequence(sequence);
+            }
+            changed = true;
+        }
+        if (cellWalls != null && !cellWalls.isEmpty()) {
+            if (tcell.getCellWalls().isEmpty()) {
+                tcell.setCellWalls(cellWalls);
+            } else {
+                EnumSet<CellWalls> walls = EnumSet.copyOf(tcell.getCellWalls());
+                walls.addAll(cellWalls);
+                tcell.setCellWalls(walls);
+            }
+            changed = true;
+        }
+        if (style != null && !style.isEmpty()) {
+            if (tcell.getStyle().isEmpty()) {
+                tcell.setStyle(style);
+            } else {
+                EnumSet<TerminalStyle> nStyle = EnumSet.copyOf(tcell.getStyle());
+                nStyle.addAll(style);
+            }
+            changed = true;
+        }
+        if (this.transformer != null) {
+            if (this.transformer.transform(tcell, bounds, y, x)) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            tcell.setDirty(true);
+        }
     }
 
     public void applyOn(TerminalCellLike tcell, Regionlike bounds, int y, int x) {
@@ -266,6 +325,9 @@ public class TerminalCellTemplate implements TerminalCellLike {
 
     @Override
     public void setSequence(String sequence) {
+        if (sequence == null) {
+            sequence = "";
+        }
         this.sequence = sequence;
     }
 
@@ -307,24 +369,49 @@ public class TerminalCellTemplate implements TerminalCellLike {
         return this.transformer == null;
     }
 
-    public void makeSafe() {
+    public TerminalCellLike makeSafe(TerminalCellLike target) {
+        TerminalCellLike ret = target;
+        if (ret == null) {
+            ret = new TerminalCell();
+        }
         if (background == null && foreground == null) {
-            background = 0xFF000000;
-            foreground = 0xFFFFFFFF;
+            ret.setBackground(0xFF000000);
+            ret.setForeground(0xFFFFFFFF);
         } else if (background == null) {
-            background = ColorHelper.makeVisible(foreground);
+            ret.setBackground(ColorHelper.makeVisible(foreground));
+            if (ret != this) {
+                ret.setForeground(foreground);
+            }
         } else if (foreground == null) {
-            foreground = ColorHelper.makeVisible(background);
+            ret.setForeground(ColorHelper.makeVisible(background));
+            if (ret != this) {
+                ret.setBackground(background);
+            }
+        } else if (ret != this) {
+            ret.setForeground(foreground);
+            ret.setBackground(background);
         }
         if (sequence == null) {
-            sequence = "\u0000";
+            ret.setSequence("");
+        } else if (ret != this) {
+            ret.setSequence(sequence);
         }
         if (cellWalls == null) {
-            this.clearCellWalls();
+            ret.clearCellWalls();
+        } else if (ret != this) {
+            ret.setCellWalls(cellWalls);
         }
         if (style == null) {
             this.clearStyle();
+        } else if (ret != this) {
+            ret.setStyle(style);
         }
+        ret.setDirty(true);
+        return ret;
+    }
+
+    public void makeSafe() {
+        makeSafe(this);
     }
 
     public void addStyle(TerminalStyle terminalStyle) {

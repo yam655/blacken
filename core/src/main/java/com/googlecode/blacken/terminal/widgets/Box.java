@@ -30,8 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * A widget creating an inset box around another widget.
  *
- * @author yam655
+ * <p>Also functions as container class for static functions performing
+ * generic box drawing.
+ *
+ * @author Steven Black
  */
 public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
     private final static Map<BoxMethod, List<TerminalCellTemplate>> methodMap;
@@ -60,6 +64,9 @@ public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
         DOUBLE_UNICODE,
         HEAVY_UNICODE,
         LIGHT_DOUBLE_DASH_UNICODE,
+        REMOVE_UNICODE,
+        REMOVE_WALL,
+        INSET_ONLY,
     };
     static {
         methodMap = new HashMap<>(BoxMethod.values().length);
@@ -135,6 +142,16 @@ public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
                 new TerminalCellTemplate(BlackenCodePoints
                     .CODEPOINT_BOX_DRAWINGS_DOUBLE_UP_AND_LEFT, null, null),
                 null));
+        methodMap.put(BoxMethod.REMOVE_UNICODE, Arrays.asList(
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                new TerminalCellTemplate("", null, null),
+                null));
         methodMap.put(BoxMethod.CENTER_WALL, Arrays.asList(
                 new TerminalCellTemplate(null, null, null, null,
                             CellWalls.VERTICAL),
@@ -177,6 +194,27 @@ public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
                 new TerminalCellTemplate(null, null, null, null, CellWalls.BOTTOM),
                 new TerminalCellTemplate(null, null, null, null, CellWalls.TOP),
                 null, null, null, null, null));
+        methodMap.put(BoxMethod.REMOVE_WALL, Arrays.asList(
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                new TerminalCellTemplate(null, null, null, null,
+                            EnumSet.noneOf(CellWalls.class)),
+                null));
+        methodMap.put(BoxMethod.INSET_ONLY, Arrays.asList(
+                (TerminalCellTemplate)null, null, null, null, null,
+                null, null, null, null));
     }
     public Box(String name, Regionlike bounds, BoxMethod method) {
         super(name, bounds);
@@ -199,6 +237,13 @@ public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
 
     public void setMethod(BoxMethod method) {
         this.method = method;
+    }
+
+    public static void box(TerminalViewInterface view, BoxMethod method, Regionlike bounds) {
+        List<TerminalCellTemplate> sides = methodMap.get(method);
+        Box.box(view, bounds, sides.get(0), sides.get(1), sides.get(2),
+                sides.get(3), sides.get(4), sides.get(5), sides.get(6),
+                sides.get(7), sides.get(8));
     }
 
     @Override
@@ -329,40 +374,61 @@ public class Box extends SimpleWidgetContainer implements BlackenWidgetResizer {
         Regionlike bounds = view.getBounds();
         for (int y = y1; y <= y2; y++) {
             for (int x = x1; x <= x2; x++){
+                boolean isInside = true;
                 if (y == y1) {
+                    isInside = false;
+                    boolean insideRow = true;
                     if (x == x1){
                         if (topleft != null) {
-                            topleft.applyOn(view.get(y, x), bounds, y, x);
+                            topleft.joinOn(view.get(y, x), bounds, y, x);
                         }
-                    } else if (x == x2) {
-                        if (topright != null) {
-                            topright.applyOn(view.get(y, x), bounds, y, x);
-                        }
-                    } else if (top != null) {
-                        top.applyOn(view.get(y, x), bounds, y, x);
+                        insideRow = false;
                     }
-                } else if (y == y2) {
+                    if (x == x2) {
+                        if (topright != null) {
+                            topright.joinOn(view.get(y, x), bounds, y, x);
+                        }
+                        insideRow = false;
+                    }
+                    if (insideRow && top != null) {
+                        top.joinOn(view.get(y, x), bounds, y, x);
+                    }
+                }
+                if (y == y2) {
+                    isInside = false;
+                    boolean insideRow = true;
                     if (x == x1) {
                         if (bottomleft != null) {
-                            bottomleft.applyOn(view.get(y, x), bounds, y, x);
+                            bottomleft.joinOn(view.get(y, x), bounds, y, x);
                         }
-                    } else if (x == x2) {
+                        insideRow = false;
+                    }
+                    if (x == x2) {
                         if (bottomright != null) {
-                            bottomright.applyOn(view.get(y, x), bounds, y, x);
+                            bottomright.joinOn(view.get(y, x), bounds, y, x);
                         }
-                    } else if (bottom != null) {
-                        bottom.applyOn(view.get(y, x), bounds, y, x);
+                        insideRow = false;
+                    } 
+                    if (insideRow && bottom != null) {
+                        bottom.joinOn(view.get(y, x), bounds, y, x);
                     }
-                } else if (x == x2) {
-                    if (right != null) {
-                        right.applyOn(view.get(y, x), bounds, y, x);
+                }
+                if (isInside) {
+                    if (x == x2) {
+                        isInside = false;
+                        if (right != null) {
+                            right.joinOn(view.get(y, x), bounds, y, x);
+                        }
                     }
-                } else if (x == x1) {
-                    if (left != null) {
-                        left.applyOn(view.get(y, x), bounds, y, x);
+                    if (x == x1) {
+                        isInside = false;
+                        if (left != null) {
+                            left.joinOn(view.get(y, x), bounds, y, x);
+                        }
                     }
-                } else if (inside != null) {
-                    inside.applyOn(view.get(y, x), bounds, y, x);
+                }
+                if (isInside && inside != null) {
+                    inside.joinOn(view.get(y, x), bounds, y, x);
                 }
             }
         }

@@ -65,6 +65,9 @@ public class BlackenCodePointsTest {
                     continue;
                 }
                 String found = BlackenCodePoints.getName(codepoint);
+                if (fieldname.equals("CODEPOINT_SP") && found.equals("CODEPOINT_SPACE")) {
+                    continue;
+                }
                 if (longname != null) {
                     if (!codepointname.equals(longname.value())) {
                         buf.append(String.format("Field %s has LongName %s " +
@@ -79,7 +82,7 @@ public class BlackenCodePointsTest {
                     continue;
                 }
                 String expected = "CODEPOINT_" + codepointname.replaceAll("[ ()-]+", "_");
-                if (!found.equals(expected) || !found.equals(fieldname)) {
+                if (found == null || !found.equals(expected) || !found.equals(fieldname)) {
                     buf.append(String.format(
                             "Field %s; Unicode name: %s; Expected Field Name: %s; Returned Name: %s\n",
                             fieldname, codepointname, expected, found));

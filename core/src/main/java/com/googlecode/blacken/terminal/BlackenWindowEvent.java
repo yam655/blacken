@@ -64,7 +64,7 @@ public class BlackenWindowEvent {
             keybuf.append(name);
         }
         if (keybuf.length() == 0) {
-            keybuf.append("(none)"); //$NON-NLS-1$
+            keybuf.append("(none)");
         }
         return keybuf;
     }
@@ -74,7 +74,7 @@ public class BlackenWindowEvent {
      */
     @Override
     public String toString() {
-        return String.format("Window: %s now: %s (was: %s) now: %s (was: %s)",  //$NON-NLS-1$
+        return String.format("Window: %s now: %s (was: %s) now: %s (was: %s)", 
                              type.name(), name, oppositeName,
                              getWindowStateString(newState),
                              getWindowStateString(oldState));

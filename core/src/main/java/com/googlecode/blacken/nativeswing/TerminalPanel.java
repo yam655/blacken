@@ -144,7 +144,7 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
         } else if (what == '\b') {
             if (updateX > 0) updateX --;
             cell = this.get(updateY, updateX);
-            cell.setSequence("\u0000");
+            cell.setSequence("");
             this.set(updateY, updateX, cell);
         } else if (what == '\t') {
             updateX = updateX + 8;
@@ -550,11 +550,14 @@ public class TerminalPanel extends JPanel implements AwtTerminalInterface {
                     c.setFont(this.font);
                     // For double-wide characters, we can safely put a NUL
                     // byte in the second slot and it will never be displayed.
-                    if (cs != null && !"\u0000".equals(cs)) {
+                    if (cs != null && !cs.isEmpty()) {
                         int w = metrics.stringWidth(cs);
                         w = fontSglAdvance - w;
-                        if (w < 0) w = 0;
-                        else w /= 2;
+                        if (w < 0) {
+                            w = 0;
+                        } else {
+                            w /= 2;
+                        }
                         graphics.drawString(c.getAttributedString().getIterator(), 
                                         x * fontSglAdvance + w, 
                                         y * fontHeight + fontAscent);

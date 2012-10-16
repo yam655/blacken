@@ -30,13 +30,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A utility class for dealing with resources.
  *
- * @author yam655
+ * @author Steven Black
  */
 public class ResourceUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtils.class);
-    public static String getResourceAsString(Class resourceLoader, String name) throws ResourceMissingException {
-        InputStream stream = resourceLoader.getResourceAsStream(name);
+
+    public static String getResourceAsString(ResourceIdentifier resid) throws ResourceMissingException {
+        return getResourceAsString(resid.getResourceLoader(), resid.getResourcePath());
+    }
+
+    public static String getResourceAsString(Class resourceLoader, String path) throws ResourceMissingException {
+        if (resourceLoader == null) {
+            // legal for absolute paths
+            resourceLoader = Object.class;
+        }
+        InputStream stream = resourceLoader.getResourceAsStream(path);
         byte[] bytebuf = new byte[4096];
         int cnt;
         StringBuilder buf = new StringBuilder();
@@ -45,16 +55,28 @@ public class ResourceUtils {
                 buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
             }
         } catch (NullPointerException | IOException ex) {
-            throw new ResourceMissingException("Failed to load :" + name, ex);
+            throw new ResourceMissingException("Failed to load :" + path, ex);
         }
         return buf.toString();
     }
 
     public static boolean hasResource(Class resourceLoader, String name) {
+        if (resourceLoader == null) {
+            // legal for absolute paths
+            resourceLoader = Object.class;
+        }
         return resourceLoader.getResource(name) != null;
     }
 
+    public static boolean hasResource(ResourceIdentifier resid) {
+        return resid.getResourceLoader().getResource(resid.getResourcePath()) != null;
+    }
+
     public static Properties getResourceAsProperties(Class resourceLoader, String name) throws ResourceMissingException {
+        if (resourceLoader == null) {
+            // legal for absolute paths
+            resourceLoader = Object.class;
+        }
         Properties p = new Properties();
         try {
             p.load(resourceLoader.getResourceAsStream(name));
@@ -62,6 +84,16 @@ public class ResourceUtils {
             throw new ResourceMissingException("Failed to load :" + name, ex);
         }
         return p;
+    }
+
+    public static Properties getResourceAsProperties(ResourceIdentifier resid) throws ResourceMissingException {
+        return getResourceAsProperties(resid.getResourceLoader(), resid.getResourcePath());
+    }
+
+    public static Grid<Integer> getResourceAsGrid(ResourceIdentifier resid,
+            Map<String,Integer> transform, boolean doTrim)
+            throws ResourceMissingException {
+        return getResourceAsGrid(resid.getResourceLoader(), resid.getResourcePath(), transform, doTrim);
     }
 
     public static Grid<Integer> getResourceAsGrid(Class resourceLoader,

@@ -87,9 +87,11 @@ public class EventListener implements WindowListener, KeyListener,
             ret = keyEvents.poll(millis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             ret = BlackenKeys.NO_KEY;
+            // LOGGER.debug("blockingPopKey(millis) interrupted: {}", ex);
         }
         if (ret == null) {
             ret = BlackenKeys.NO_KEY;
+            // LOGGER.debug("blockingPopKey(millis) TIMEOUT");
         }
         return ret;
     }
@@ -294,6 +296,17 @@ public class EventListener implements WindowListener, KeyListener,
                 loadKey(e, BlackenKeys.KEY_PRINT_SCREEN);
                 break;
 
+            case KeyEvent.VK_SHIFT:
+            case KeyEvent.VK_CONTROL:
+            case KeyEvent.VK_ALT:
+            case KeyEvent.VK_ALT_GRAPH:
+            case KeyEvent.VK_KANA_LOCK:
+            case KeyEvent.VK_META:
+            case KeyEvent.VK_NUM_LOCK:
+            case KeyEvent.VK_SCROLL_LOCK:
+                // modifiers are getting here.
+                // avoid the "undefined" message
+                break;
             default:
                 int cp = e.getKeyChar();
                 // LOGGER.debug("Key: {}", e);

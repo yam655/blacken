@@ -140,7 +140,7 @@ public class ColorHelper {
         if (color == null) {
             return false;
         }
-        if (color.startsWith("#")) {  //$NON-NLS-1$
+        if (color.startsWith("#")) { 
             color = color.substring(1);
             try {
                 Integer.parseInt(color, 16);
@@ -148,8 +148,8 @@ public class ColorHelper {
             } catch (NumberFormatException e) {
                 // do nothing
             }
-        } else if (color.startsWith("0x") ||  //$NON-NLS-1$
-                color.startsWith("0X")) { //$NON-NLS-1$
+        } else if (color.startsWith("0x") || 
+                color.startsWith("0X")) {
             color = color.substring(2);
             try {
                 Integer.parseInt(color, 16);
@@ -803,7 +803,7 @@ public class ColorHelper {
         case 4: r = t; g = p; b = v; break;
         default: r = v; g = p; b = q; break;
         }
-        return makeColor(r, g, b, alpha);
+        return colorFromFloatComponents(r, g, b, alpha);
     }
 
     /**
@@ -1006,6 +1006,30 @@ public class ColorHelper {
                         (int)Math.floor(comps1[1] + (comps2[1] - comps1[1]) * weight),
                         (int)Math.floor(comps1[2] + (comps2[2] - comps1[2]) * weight),
                         (int)Math.floor(comps1[3] + (comps2[3] - comps1[3]) * weight)};
+        return colorFromComponents(result);
+    }
+
+    /**
+     * Perform a lerp based upon the alpha value of the second color.
+     * 
+     * <p>This uses the alpha value of the second color to define the weight.
+     * This is like {@link #lerp(int, int, float)} using a <code>weight</code>
+     * of {@link #getAlpha(int)} of the second color divided by 
+     * <code>255.0f</code>. The resulting color has 100% of the first colors
+     * alpha value.
+     * 
+     * @param rgba1
+     * @param rgba2
+     * @return 
+     */
+    public static int lerp(int rgba1, int rgba2) {
+        int[] comps1 = colorToComponents(rgba1);
+        int[] comps2 = colorToComponents(rgba2);
+        float weight = comps2[3] / 255.0f;
+        int[] result = {(int)Math.floor(comps1[0] + (comps2[0] - comps1[0]) * weight),
+                        (int)Math.floor(comps1[1] + (comps2[1] - comps1[1]) * weight),
+                        (int)Math.floor(comps1[2] + (comps2[2] - comps1[2]) * weight),
+                        comps1[3]};
         return colorFromComponents(result);
     }
 

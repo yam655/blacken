@@ -349,7 +349,7 @@ public class TerminalView implements TerminalViewInterface {
     @Override
     public void setBounds(Regionlike bounds) {
         if (term.getBounds().contains(bounds)) {
-            this.bounds = bounds;
+            this.bounds = new BoxRegion(bounds);
         } else {
             throw new IndexOutOfBoundsException(String.format("%s not within %s", bounds, term.getBounds()));
         }

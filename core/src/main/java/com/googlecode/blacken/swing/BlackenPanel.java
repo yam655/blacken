@@ -412,7 +412,7 @@ public class BlackenPanel extends JPanel {
                     // c.setFont(this.displayFont);
                     // For double-wide characters, we can safely put a NUL
                     // byte in the second slot and it will never be displayed.
-                    if (cs != null && !"\u0000".equals(cs)) {
+                    if (cs != null && !cs.isEmpty()) {
                         int w = bits.metrics.stringWidth(cs);
                         w = bits.fontSglAdvance - w;
                         if (w < 0) {

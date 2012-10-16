@@ -122,7 +122,7 @@ public class SingleLine {
                     x--;
                 }
                 c = terminal.get(y, x);
-                c.setSequence("\u0000");
+                c.setSequence("");
                 terminal.set(y, x, c);
                 terminal.setCursorLocation(y, x);
                 if (Character.isSurrogate(out.charAt(out.length()-1))) {
@@ -268,7 +268,7 @@ public class SingleLine {
                             x--;
                         }
                         cell = terminal.get(y, x);
-                        cell.setSequence("\u0000");
+                        cell.setSequence("");
                         terminal.refresh(y, x);
                     } else if (cp == '\t' || cp == BlackenKeys.KEY_TAB) {
                         x += 8;

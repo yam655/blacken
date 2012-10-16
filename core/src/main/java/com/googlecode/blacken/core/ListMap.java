@@ -170,7 +170,7 @@ implements List<V>, Cloneable, Serializable {
          */
         @Override
         public String toString() {
-            return String.format("%s -> %s", keys, entry); //$NON-NLS-1$
+            return String.format("%s -> %s", keys, entry);
         }
     }
 
@@ -216,7 +216,7 @@ implements List<V>, Cloneable, Serializable {
         public void setValue(W value) { this.value = value; }
         @Override
         public String toString() {
-            return String.format("%d: %s", index, value); //$NON-NLS-1$
+            return String.format("%d: %s", index, value);
         }
     }
 
@@ -1165,7 +1165,7 @@ implements List<V>, Cloneable, Serializable {
             }
             if (!clmes.containsKey(idx)) {
                 throw new IndexOutOfBoundsException(String.format(
-                 "requested index out of bounds: %d requested; size is only %d", //$NON-NLS-1$
+                 "requested index out of bounds: %d requested; size is only %d",
                  idx, clmes.size()));
             }
             Integer oldidx = null;
@@ -1369,7 +1369,7 @@ implements List<V>, Cloneable, Serializable {
     @Override
     public boolean retainAll(Collection<?> values) {
         if (values == null) {
-            throw new NullPointerException("'values' parameter can not be null"); //$NON-NLS-1$
+            throw new NullPointerException("'values' parameter can not be null");
         }
         int oldSize = this.size();
         int index = 0;

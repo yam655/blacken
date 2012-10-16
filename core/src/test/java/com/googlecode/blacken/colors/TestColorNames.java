@@ -64,8 +64,8 @@ public class TestColorNames {
         ColorPalette palette;
         palette = new ColorPalette(ColorNames.SVG_COLORS.length);
         palette.addMapping(ColorNames.SVG_COLORS);
-        assertEquals(palette.get("Grey"),  //$NON-NLS-1$
-                     palette.get("Gray")); //$NON-NLS-1$
+        assertEquals(palette.get("Grey"), 
+                     palette.get("Gray"));
     }
     
     /**
@@ -80,10 +80,10 @@ public class TestColorNames {
         for (int i = 0; i < origSize; i ++) {
             svg.set(i, ~svg.get(i));
         }
-        assertEquals("overwriting index entries changed size",  //$NON-NLS-1$
+        assertEquals("overwriting index entries changed size", 
                      origSize, svg.size());
         svg.addMapping(ColorNames.SVG_COLORS);
-        assertEquals("overwriten palette unexpected size",  //$NON-NLS-1$
+        assertEquals("overwriten palette unexpected size", 
                      origSize * 2, svg.size());
     }
     
@@ -99,10 +99,10 @@ public class TestColorNames {
         for (int i = 0; i < origSize; i ++) {
             svg.set(i, ~svg.get(i));
         }
-        assertEquals("overwriting index entries changed size",  //$NON-NLS-1$
+        assertEquals("overwriting index entries changed size", 
                      origSize, svg.size());
         svg.putMapping(ColorNames.SVG_COLORS);
-        assertEquals("overwriten palette changed size",  //$NON-NLS-1$
+        assertEquals("overwriten palette changed size", 
                      origSize, svg.size());
     }
 
@@ -114,8 +114,8 @@ public class TestColorNames {
         ColorPalette palette = new ColorPalette();
         palette.addMapping(ColorNames.HTML_COLORS);
         assertEquals(17, palette.size());
-        assertEquals(palette.get("Grey"),  //$NON-NLS-1$
-                     palette.get("Gray")); //$NON-NLS-1$
+        assertEquals(palette.get("Grey"), 
+                     palette.get("Gray"));
     }
 
     /**
@@ -126,9 +126,9 @@ public class TestColorNames {
         ColorPalette palette = new ColorPalette();
         palette.addMapping(ColorNames.STANDARD_16_COLORS);
         assertEquals(16, palette.size());
-        assertEquals(palette.get("grey"),  //$NON-NLS-1$
-                     palette.get("gray")); //$NON-NLS-1$
-        assertEquals(1, palette.indexOfKey("dark red")); //$NON-NLS-1$
+        assertEquals(palette.get("grey"), 
+                     palette.get("gray"));
+        assertEquals(1, palette.indexOfKey("dark red"));
     }
 
     /**
@@ -139,9 +139,9 @@ public class TestColorNames {
         ColorPalette palette = new ColorPalette();
         palette.addMapping(ColorNames.CGA_16_COLORS);
         assertEquals(16, palette.size());
-        assertEquals(palette.get("grey"),  //$NON-NLS-1$
-                     palette.get("gray")); //$NON-NLS-1$
-        assertEquals(1, palette.indexOfKey("dark blue")); //$NON-NLS-1$
+        assertEquals(palette.get("grey"), 
+                     palette.get("gray"));
+        assertEquals(1, palette.indexOfKey("dark blue"));
     }
 
 }

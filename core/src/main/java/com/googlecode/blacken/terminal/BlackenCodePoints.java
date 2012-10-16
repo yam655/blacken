@@ -112,6 +112,7 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_RS = 0x1e;
     @LongName("INFORMATION SEPARATOR ONE")
     static final public int CODEPOINT_US = 0x1f;
+    static final public int CODEPOINT_SPACE = 0x20;
     @LongName("SPACE")
     static final public int CODEPOINT_SP = 0x20;
     @LongName("DELETE")
@@ -271,8 +272,8 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_BOX_DRAWINGS_UP_HEAVY_AND_RIGHT_LIGHT = '\u2516';
     static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_RIGHT = '\u2517';
     static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_LEFT = '\u2518';
-    static final public int CODEPOINT_BOX_DRAWINGS_LIGHT_UP_AND_LEFT_HEAVY = '\u2519';
-    static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LEFT_LIGHT = '\u251a';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_LIGHT_AND_LEFT_HEAVY = '\u2519';
+    static final public int CODEPOINT_BOX_DRAWINGS_UP_HEAVY_AND_LEFT_LIGHT = '\u251a';
     static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LEFT = '\u251b';
     /*
     static final public int CODEPOINT_BOX_DRAWINGS_ = '\u251c';
@@ -320,6 +321,8 @@ public class BlackenCodePoints {
     static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_LEFT_AND_LIGHT_RIGHT = '\u257e';
     static final public int CODEPOINT_BOX_DRAWINGS_HEAVY_UP_AND_LIGHT_DOWN = '\u257f';
 
+    static final public int CODEPOINT_DOTTED_CIRCLE = 0x25cc;
+
     private static Map<Integer, String> shortMap = null;
     
     private static void createShortMap() {
@@ -331,6 +334,9 @@ public class BlackenCodePoints {
             String name = f.getName();
             if (!name.startsWith("CODEPOINT_")) {
                 continue;
+            }
+            if (name.equals("CODEPOINT_SP")) {
+                continue; // favoring CODEPOINT_SPACE instead.
             }
             LongName ln = f.getAnnotation(LongName.class);
             if (ln == null) {

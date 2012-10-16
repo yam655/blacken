@@ -293,14 +293,14 @@ public class AwtPalette extends ListMap<String, Color> {
             Collections.sort(sortKeys);
             for (String key : sortKeys) {
                 if (buf.length() > 0) {
-                    buf.append(" / "); //$NON-NLS-1$
+                    buf.append(" / ");
                 }
                 buf.append(key);
             }
             if (buf.length() > 0) {
-                buf.append(" -> "); //$NON-NLS-1$
+                buf.append(" -> ");
             }
-            buf.append(String.format("%#08x", e.getValue())); //$NON-NLS-1$
+            buf.append(String.format("%#08x", e.getValue()));
             ret.add(buf.toString());
         }
         return ret.toArray(new String[0]);
@@ -317,7 +317,7 @@ public class AwtPalette extends ListMap<String, Color> {
             return false;
         }
         for (final String color : colors) {
-            final String s[] = color.split("[ \t]+->[ \t]+", 2); //$NON-NLS-1$
+            final String s[] = color.split("[ \t]+->[ \t]+", 2);
             final String names[];
             final String colorDef;
             if (s.length == 1) {
@@ -326,11 +326,11 @@ public class AwtPalette extends ListMap<String, Color> {
                     names = new String[0];
                 } else {
                     throw new RuntimeException(String.format
-                                           ("Color format lacked '->': %s",  //$NON-NLS-1$
+                                           ("Color format lacked '->': %s", 
                                             color));
                 }
             } else {
-                names = s[0].split("[ \t]+/[ \t]+"); //$NON-NLS-1$
+                names = s[0].split("[ \t]+/[ \t]+");
                 colorDef = s[1];
             }
             Integer colr;

@@ -209,12 +209,15 @@ public class SwingTerminal extends AbstractTerminal
         this.refresh();
         int ch;
         if (millis >= 0) {
+            // LOGGER.debug("blockingPopKey(millis = {})", millis);
             ch = listener.blockingPopKey(millis);
         } else {
             try {
+                // LOGGER.debug("blockingPopKey()");
                 ch = listener.blockingPopKey();
             } catch (InterruptedException e) {
                 ch = BlackenKeys.NO_KEY;
+                // LOGGER.debug("... interrupted");
             }
         }
         if (ch == BlackenKeys.RESIZE_EVENT) {

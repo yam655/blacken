@@ -22,6 +22,7 @@ import com.googlecode.blacken.terminal.TerminalInterface;
 import com.googlecode.blacken.terminal.TerminalViewInterface;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,10 +82,16 @@ public class Images {
     public static void imageToSequence(TerminalViewInterface term, int yo, int xo, Grid<Integer> grid,
             Map<Integer, String> translate) {
         for (int y = 0; y < grid.getHeight(); y++) {
+            if (y + yo < term.getY()) {
+                continue;
+            }
             if (y + yo >= term.getHeight()) {
                 break;
             }
             for (int x = 0; x < grid.getWidth(); x++) {
+                if (x + xo < term.getX()) {
+                    continue;
+                }
                 if (x + xo >= term.getWidth()) {
                     break;
                 }
@@ -121,6 +128,30 @@ public class Images {
                     continue;
                 }
                 if (pal.contains(cell.getBackground()) || pal.contains(cell.getForeground())) {
+                    term.refresh(y + term.getY(), x + term.getX());
+                }
+            }
+        }
+    }
+
+    public static void removeColors(List<Integer> palette, TerminalInterface term, int background) {
+        Set<Integer> pal = new HashSet<>(palette);
+        for (int y = 0; y < term.getHeight(); y++) {
+            for (int x = 0; x < term.getWidth(); x++) {
+                TerminalCellLike cell = term.get(y + term.getY(), x + term.getX());
+                if (cell == null) {
+                    continue;
+                }
+                boolean changed = false;
+                if (pal.contains(cell.getBackground())) {
+                    cell.setBackground(background);
+                    changed = true;
+                }
+                if (pal.contains(cell.getForeground())) {
+                    cell.setForeground(background);
+                    changed = true;
+                }
+                if (changed) {
                     term.refresh(y + term.getY(), x + term.getX());
                 }
             }

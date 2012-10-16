@@ -16,6 +16,9 @@
 
 package com.googlecode.blacken.core;
 
+import com.googlecode.blacken.resources.ResourceIdentifier;
+import com.googlecode.blacken.resources.ResourceMissingException;
+import com.googlecode.blacken.resources.ResourceUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -30,32 +33,49 @@ import org.slf4j.LoggerFactory;
 public class Obligations {
     private static final Logger LOGGER = LoggerFactory.getLogger(Obligations.class);
     private static String getResourceContents(String name) {
-        // LOGGER.debug("Found resource {}", Obligations.class.getResource(name));
-        InputStream stream = Obligations.class.getResourceAsStream(name);
-        byte[] bytebuf = new byte[4096];
-        int cnt;
-        StringBuilder buf = new StringBuilder();
+        String ret;
         try {
-            while ((cnt = stream.read(bytebuf)) != -1) {
-                buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
-            }
-        } catch (NullPointerException | IOException ex) {
-            buf.append("Failed to load ");
-            buf.append(name);
-            buf.append(" file\n");
+            ret = ResourceUtils.getResourceAsString(Obligations.class, name);
+        } catch (ResourceMissingException ex) {
+            ret =  String.format("Failed to load 'Obligations' resource: %s", name);
         }
-        return buf.toString();
+        return ret;
     }
     public static String getBlackenLicense() {
         return getResourceContents("LICENSE.txt");
     }
+    public static ResourceIdentifier getBlackenLicense(ResourceIdentifier resid) {
+        if (resid == null) {
+            resid = new ResourceIdentifier();
+        }
+        resid.setResourceLoader(Obligations.class);
+        resid.setResourcePath("LICENSE.txt");
+        return resid;
+    }
     public static String getBlackenNotice() {
         return getResourceContents("NOTICE.txt");
     }
+    public static ResourceIdentifier getBlackenNotice(ResourceIdentifier resid) {
+        if (resid == null) {
+            resid = new ResourceIdentifier();
+        }
+        resid.setResourceLoader(Obligations.class);
+        resid.setResourcePath("NOTICE.txt");
+        return resid;
+    }
+
     public static String getFontName() {
         return "DejaVu";
     }
     public static String getFontLicense() {
         return getResourceContents("/fonts/LICENSE-dejavu.txt");
+    }
+    public static ResourceIdentifier getFontLicense(ResourceIdentifier resid) {
+        if (resid == null) {
+            resid = new ResourceIdentifier();
+        }
+        resid.setResourceLoader(null);
+        resid.setResourcePath("/fonts/LICENSE-dejavu.txt");
+        return resid;
     }
 }

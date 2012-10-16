@@ -24,8 +24,8 @@ public class BoxRegion implements Regionlike {
 
     public static BoxRegion inset(Regionlike self, int ya, int xa) {
         BoxRegion ret = new BoxRegion(self);
-        ret.setSize(ret.getHeight() - Math.abs(ya) * 2,
-                ret.getWidth() - Math.abs(xa) * 2);
+        ret.setSize(ret.getHeight() - ya * 2,
+                ret.getWidth() - xa * 2);
         ret.setPosition(ret.getY() + ya, ret.getX() + xa);
         return ret;
     }

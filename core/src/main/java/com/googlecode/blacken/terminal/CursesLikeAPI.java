@@ -79,7 +79,7 @@ public class CursesLikeAPI implements TerminalInterface {
                 updateX--;
             }
             cell = this.get(updateY, updateX);
-            cell.setSequence("\u0000");
+            cell.setSequence("");
             this.set(updateY, updateX, cell);
         } else if (what == '\t' || what == BlackenKeys.KEY_TAB) {
             updateX = updateX + 8;

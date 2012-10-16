@@ -112,7 +112,7 @@ public class UnmodifiableTerminalCell implements TerminalCellLike {
         try {
             ret = (UnmodifiableTerminalCell)super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("unexpected clone failure"); //$NON-NLS-1$
+            throw new RuntimeException("unexpected clone failure");
         }
         return ret;
     }

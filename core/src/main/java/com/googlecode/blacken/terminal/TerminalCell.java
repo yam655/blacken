@@ -48,7 +48,7 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
             cell.setDirty(isDirty);
         }
     }
-    private String sequence = "\u0000";
+    private String sequence = "";
     private int fg_color = 0xFFAAAAAA;
     private int bg_color = 0xFF000000;
     private Set<TerminalStyle> style = EnumSet.noneOf(TerminalStyle.class);
@@ -110,11 +110,9 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
      * Create a new cell.
      * 
      * @param cell cell to base this one off of
-     * @deprecated Use clone() or set() instead.
      */
-    @Deprecated
     public TerminalCell(TerminalCellLike cell) {
-        set(cell);
+        internalSet(cell);
     }
 
     @Override
@@ -126,8 +124,8 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
 
     @Override
     public void addSequence(int codepoint) {
-        if (this.sequence.equals("\u0000")) {
-            this.sequence = "\u25cc";
+        if (this.sequence.isEmpty()) {
+            this.sequence = String.copyValueOf(Character.toChars(BlackenCodePoints.CODEPOINT_DOTTED_CIRCLE));
         }
         this.sequence += String.copyValueOf(Character.toChars(codepoint));
         dirty = true;
@@ -135,8 +133,8 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
 
     @Override
     public void addSequence(String sequence) {
-        if (this.sequence.equals("\u0000")) {
-            this.sequence = "\u25cc";
+        if (this.sequence.isEmpty()) {
+            this.sequence = String.copyValueOf(Character.toChars(BlackenCodePoints.CODEPOINT_DOTTED_CIRCLE));;
         }
         this.sequence += sequence;
         dirty = true;
@@ -243,6 +241,10 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
 
     @Override
     public void set(TerminalCellLike same) {
+        internalSet(same);
+    }
+
+    private void internalSet(TerminalCellLike same) {
         this.sequence = same.getSequence();
         this.fg_color = same.getForeground();
         this.bg_color = same.getBackground();
@@ -290,14 +292,17 @@ public class TerminalCell implements Cloneable, TerminalCellLike {
 
     @Override
     public void setSequence(int sequence) {
+        if (sequence == 0 || sequence == BlackenKeys.NO_KEY) {
+            this.sequence = "";
+        }
         this.sequence = String.copyValueOf(Character.toChars(sequence));
         dirty = true;
     }
 
     @Override
     public void setSequence(String sequence) {
-        if (sequence == null) {
-            this.sequence = "\u0000";
+        if (sequence == null || "\u0000".equals(sequence)) {
+            this.sequence = "";
         } else {
             this.sequence = sequence;
         }

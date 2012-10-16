@@ -22,6 +22,8 @@ import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
+import com.googlecode.blacken.terminal.BlackenModifier;
+import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;
@@ -43,9 +45,10 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     private String[] lines;
     private Integer maxCol = null;
     private TerminalCellTemplate template;
+    private int modifier;
     public StringViewer(TerminalViewInterface term, String[] message) {
         this.term = term;
-        this.lines = message;
+        internalSetMessage(message);
         int background = term.getEmpty().getBackground();
         int foreground = ColorHelper.makeVisible(background);
         template = new TerminalCellTemplate();
@@ -56,7 +59,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     }
     public StringViewer(TerminalViewInterface term, String message) {
         this.term = term;
-        this.lines = message.split("\n");
+        internalSetMessage(message.split("\n"));
         int background = term.getEmpty().getBackground();
         int foreground = ColorHelper.makeVisible(background);
         template = new TerminalCellTemplate();
@@ -65,9 +68,13 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         template.clearCellWalls();
         template.clearStyle();
     }
+    private void internalSetMessage(String[] message) {
+        this.lines = message;
+        this.startLine = 0;
+    }
     public StringViewer(TerminalViewInterface term, String message, CodepointCallbackInterface callback) {
         this.term = term;
-        this.lines = message.split("\n");
+        internalSetMessage(message.split("\n"));
         this.secondaryCallback = callback;
         int background = term.getEmpty().getBackground();
         int foreground = ColorHelper.makeVisible(background);
@@ -79,7 +86,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     }
     public StringViewer(TerminalViewInterface term, String[] message, CodepointCallbackInterface callback) {
         this.term = term;
-        this.lines = message;
+        internalSetMessage(message);
         this.secondaryCallback = callback;
         int background = term.getEmpty().getBackground();
         int foreground = ColorHelper.makeVisible(background);
@@ -205,6 +212,10 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
         if (this.secondaryCallback != null) {
             codepoint = secondaryCallback.handleCodepoint(codepoint);
         }
+        if (BlackenKeys.isModifier(codepoint)) {
+            this.modifier = codepoint;
+            return codepoint;
+        }
         switch (codepoint) {
             case ' ':
             case BlackenKeys.KEY_PAGE_DOWN:
@@ -251,6 +262,7 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
                 codepoint = BlackenKeys.CMD_END_LOOP;
                 break;
         }
+        this.modifier = BlackenKeys.NO_KEY;
         return codepoint;
     }
 
@@ -292,6 +304,21 @@ public class StringViewer implements Steppable, CodepointCallbackInterface {
     @Override
     public boolean isComplete() {
         return false;
+    }
+
+    public CodepointCallbackInterface getSecondaryCallback() {
+        return secondaryCallback;
+    }
+
+    public void setSecondaryCallback(CodepointCallbackInterface secondaryCallback) {
+        this.secondaryCallback = secondaryCallback;
+    }
+
+    public void setMessage(String message) {
+        internalSetMessage(message.split("\n"));
+    }
+    public void setMessage(String[] message) {
+        internalSetMessage(message);
     }
 
 }

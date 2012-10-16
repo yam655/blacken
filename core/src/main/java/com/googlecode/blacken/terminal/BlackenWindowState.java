@@ -70,7 +70,7 @@ public enum BlackenWindowState {
             buf.append(name);
         }
         if (buf.length() == 0) {
-            buf.append("(none)"); //$NON-NLS-1$
+            buf.append("(none)");
         }
         return buf;
     }

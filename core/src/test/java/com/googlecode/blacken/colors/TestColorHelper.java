@@ -538,6 +538,14 @@ public class TestColorHelper {
         assertEquals(GREY_HALF, ColorHelper.lerp(BLACK, WHITE, 127.0F/255.0F));
         assertEquals(WHITE, ColorHelper.lerp(BLACK, WHITE, 1.0F));
     }
+
+    @Test
+    @Covers("public static int lerp(int,int)")
+    public void lerp_a_b() {
+        assertEquals(BLACK, ColorHelper.lerp(BLACK, 0x00ffffff));
+        assertEquals(GREY_HALF, ColorHelper.lerp(BLACK, 0x7fffffff));
+        assertEquals(WHITE, ColorHelper.lerp(BLACK, 0xffffffff));
+    }
     @Test
     @Covers("public static int lerp(int,int,float[])")
     public void lerp_a_b_floatarr() {
