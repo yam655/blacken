@@ -320,14 +320,15 @@ public class TerminalCellTemplate implements TerminalCellLike {
 
     @Override
     public void setSequence(int sequence) {
-        this.sequence = String.copyValueOf(Character.toChars(sequence));
+        if (sequence == BlackenKeys.NO_KEY || sequence == BlackenCodePoints.CODEPOINT_NUL) {
+            this.sequence = "";
+        } else {
+            this.sequence = String.copyValueOf(Character.toChars(sequence));
+        }
     }
 
     @Override
     public void setSequence(String sequence) {
-        if (sequence == null) {
-            sequence = "";
-        }
         this.sequence = sequence;
     }
 

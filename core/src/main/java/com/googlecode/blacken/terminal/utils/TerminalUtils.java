@@ -48,14 +48,14 @@ public class TerminalUtils {
             cols += terminal.getWidth() + 1;
             cols -= x;
         }
-        Regionlike bounds = terminal.getBounds();
+        Regionlike bounds = terminal.getBackingTerminal().getBounds();
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 TerminalCellLike cell = terminal.get(y + r, x + c);
                 if (cell == null) {
                     continue;
                 }
-                template.applyOn(cell, terminal.getBounds(), y + r, x + c);
+                template.applyOn(cell, bounds, y + r, x + c);
                 terminal.refresh(y + r, x + c);
             }
         }

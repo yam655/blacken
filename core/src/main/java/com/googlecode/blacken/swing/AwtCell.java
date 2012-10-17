@@ -41,6 +41,7 @@ import java.util.Set;
  * @author Steven Black
  */
 public class AwtCell implements Cloneable {
+    static public final Color TRANSPARENT_COLOR = new Color(0);
     static protected HashMap<Integer, Color> swingColor = new HashMap<>();
     static private HashMap<String, GraphicAttribute> replacement = null;
     static private Font globalFont = null;
@@ -827,9 +828,12 @@ public class AwtCell implements Cloneable {
 
     protected static Color getSwingColor(int c) {
         Color clr;
-        ColorPalette palette = getPalette();
-        if (palette != null) {
-            c = palette.getColor(c);
+        ColorPalette p = getPalette();
+        if (p != null) {
+            c = p.getColor(c);
+        }
+        if ((c & 0xff000000) == 0) {
+            return TRANSPARENT_COLOR;
         }
         if (swingColor.containsKey(c)) {
             clr = swingColor.get(c);
