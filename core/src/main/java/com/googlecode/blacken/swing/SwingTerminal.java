@@ -17,6 +17,7 @@ package com.googlecode.blacken.swing;
 
 import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
+import com.googlecode.blacken.resources.BlackenConfig;
 import com.googlecode.blacken.terminal.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -74,6 +75,7 @@ public class SwingTerminal extends AbstractTerminal
     private int lastModifier;
     private boolean windows7VerticalMaxFix = false;
     private int ignoreResize;
+    private BlackenConfig config;
 
     /**
      * Create a new terminal
@@ -275,10 +277,32 @@ public class SwingTerminal extends AbstractTerminal
         BlackenWindowEvent e = listener.popWindow();
         return e;
     }
-    
+
+    @Override
+    public BlackenConfig overrideConfig(String gameName) {
+        if (this.config == null) {
+            config = new BlackenConfig();
+        }
+        config.override(gameName);
+        return config;
+    }
+
     @Override
     public void init(String name, int rows, int cols, TerminalScreenSize size,
             String... fonts) {
+        if (this.config == null) {
+            this.config = new BlackenConfig();
+            config.override(name);
+        }
+        if (rows < config.getMinCols()) {
+            rows = config.getMinCols();
+        }
+        if (cols < config.getMinCols()) {
+            cols = config.getMinCols();
+        }
+        if (config.getInitialSize() != null) {
+            size = config.getInitialSize();
+        }
         if (this.defaultFont != null && (fonts == null || fonts.length==1 && fonts[0] == null)) {
             fonts = new String[] {defaultFont};
         }
@@ -312,7 +336,8 @@ public class SwingTerminal extends AbstractTerminal
         frame.getContentPane().add(gui);
         frame.setCursor(null);
         frame.pack();
-        
+
+        gui.setMaxFontSize(config.getMaxFontSize());
         AwtCell empty = AwtCell.makeAwtFromTerminal(null);
 
         Font fontObj = null;
@@ -353,7 +378,7 @@ public class SwingTerminal extends AbstractTerminal
         if (size == null) {
             size = this.defaultSize;
             if (size == null) {
-                size = TerminalScreenSize.SIZE_MEDIUM;
+                size = config.getInitialSize();
             }
         }
         switch(size) {

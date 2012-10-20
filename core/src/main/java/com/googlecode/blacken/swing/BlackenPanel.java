@@ -48,6 +48,14 @@ import org.slf4j.LoggerFactory;
 public class BlackenPanel extends JPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlackenPanel.class);
     private static final long serialVersionUID = -9074497119456670580L;
+    private float maxFontSize = 0f;
+
+    void setMaxFontSize(float maxFontSize) {
+        if (maxFontSize < 0f) {
+            maxFontSize = 0f;
+        }
+        this.maxFontSize = maxFontSize;
+    }
     public class FontBits {
         public Font font;
         public FontMetrics metrics;
@@ -674,6 +682,9 @@ public class BlackenPanel extends JPanel {
         //LOGGER.debug("size:{}; advance:{}; height:{}",
         //        new Object[] {fsize, fontSglAdvance, fontHeight});
         while (idealAdvance >= fbits.fontSglAdvance && idealHeight >= fbits.fontHeight) {
+            if (maxFontSize > 0.5f && fsize + 0.5f > this.maxFontSize) {
+                break;
+            }
             lastBits = fbits;
             fbits = new FontBits();
             recalculateFontBits(lastBits.font.deriveFont(fsize += 0.5f), fbits);

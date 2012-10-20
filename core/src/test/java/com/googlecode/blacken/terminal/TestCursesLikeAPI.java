@@ -23,6 +23,8 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.resources.BlackenConfig;
+import com.googlecode.blacken.resources.PlannedSecurityException;
 import java.util.EnumSet;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -1174,5 +1176,34 @@ public class TestCursesLikeAPI {
     public void getX() {
         assertEquals(0, terminal.getX());
         assertEquals(0, terminal.getY());
+    }
+
+    @Test
+    @Covers("public BlackenConfig overrideConfig(String)")
+    public void overrideConfig_string() {
+        BlackenConfig config = terminal.overrideConfig(null);
+        try {
+            config.getInitialSize();
+            config.getMaxFontSize();
+            config.getMinCols();
+            config.getMinRows();
+        } catch(Exception ex) {
+            fail(ex.toString());
+        }
+        try {
+            assertNotNull(config.getUserHome());
+        } catch (PlannedSecurityException ex) {
+            fail(ex.toString());
+        }
+        try {
+            config.getUserConfigFileName(null, "sample.properties");
+            config.getUserConfigFileName("junit", "sample.properties");
+            config.getSharedConfigFileName(null, "highscore");
+            config.getSharedConfigFileName("junit", "highscore");
+            config.getSystemConfigFileName(null, "system.properties");
+            config.getSystemConfigFileName("junit", "system.properties");
+        } catch (PlannedSecurityException ex) {
+            fail(ex.toString());
+        }
     }
 }

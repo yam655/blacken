@@ -22,6 +22,7 @@ import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.resources.BlackenConfig;
 import com.googlecode.blacken.terminal.editing.SingleLine;
 import java.util.EnumSet;
 
@@ -716,5 +717,10 @@ public class CursesLikeAPI implements TerminalInterface {
     @Override
     public int getY() {
         return terminal.getY();
+    }
+
+    @Override
+    public BlackenConfig overrideConfig(String gameName) {
+        return terminal.overrideConfig(gameName);
     }
 }

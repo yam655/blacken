@@ -22,6 +22,7 @@ import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.resources.BlackenConfig;
 import com.googlecode.blacken.terminal.editing.SingleLine;
 import com.googlecode.blacken.terminal.utils.TerminalUtils;
 import java.util.EnumSet;
@@ -655,6 +656,15 @@ public abstract class AbstractTerminal implements TerminalInterface {
     @Override
     public int getY() {
         return 0;
+    }
+
+    @Override
+    public BlackenConfig overrideConfig(String gameName) {
+        BlackenConfig ret = new BlackenConfig();
+        if (gameName != null) {
+            ret.override(gameName);
+        }
+        return ret;
     }
 
 }

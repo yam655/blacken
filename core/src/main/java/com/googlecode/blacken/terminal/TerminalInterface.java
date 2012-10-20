@@ -19,6 +19,7 @@ import com.googlecode.blacken.colors.ColorPalette;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Positionable;
 import com.googlecode.blacken.grid.Regionlike;
+import com.googlecode.blacken.resources.BlackenConfig;
 import java.util.EnumSet;
 
 /**
@@ -374,5 +375,17 @@ public interface TerminalInterface extends TerminalViewInterface {
 
     @Override
     public void doUpdate();
+
+    /**
+     * Blacken supports allowing the player to override configuration parameters
+     * on a per-game basis, but does not guess the game's name. To enable this
+     * feature you need to call this function with the name of the game before
+     * you call {@link #init(java.lang.String, int, int)}.
+     *
+     * @param gameName name of the game
+     * @return configuration object
+     * @since 1.2
+     */
+    public BlackenConfig overrideConfig(String gameName);
 
 }
