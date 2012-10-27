@@ -296,12 +296,18 @@ public class TerminalCellTemplate implements TerminalCellLike {
 
     @Override
     public void setCellWalls(CellWalls walls) {
+        if (walls == null) {
+            cellWalls = null;
+            return;
+        }
         this.cellWalls = EnumSet.of(walls);
     }
 
     @Override
     public void setCellWalls(Set<CellWalls> walls) {
-        if (walls == null || walls.isEmpty()) {
+        if (walls == null) {
+            this.cellWalls = null;
+        } else if (walls.isEmpty()) {
             this.cellWalls = EnumSet.noneOf(CellWalls.class);
         } else {
             this.cellWalls = EnumSet.copyOf(walls);
