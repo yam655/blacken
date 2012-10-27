@@ -22,8 +22,6 @@ import com.googlecode.blacken.grid.Point;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.terminal.BlackenEventType;
 import com.googlecode.blacken.terminal.BlackenKeys;
-import com.googlecode.blacken.terminal.BlackenModifier;
-import com.googlecode.blacken.terminal.BlackenModifier;
 import com.googlecode.blacken.terminal.BlackenMouseButton;
 import com.googlecode.blacken.terminal.BlackenMouseEvent;
 import com.googlecode.blacken.terminal.BlackenWindowEvent;

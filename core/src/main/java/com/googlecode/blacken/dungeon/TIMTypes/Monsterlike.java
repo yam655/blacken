@@ -33,4 +33,5 @@ public interface Monsterlike extends Positionable, Serializable {
 
     public void setDriver(MotileDriver driver);
 
+    public String getName();
 }
