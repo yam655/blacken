@@ -20,7 +20,9 @@ package com.googlecode.blacken.dungeon.TIMTypes;
  *
  * @author yam655
  */
-public interface Skill {
+public interface Skill extends Comparable {
+    public String getTitle();
+    public String getGroupName();
     public int getSkill();
     public void setSkill(int value);
     public String getRelatedAttribute();

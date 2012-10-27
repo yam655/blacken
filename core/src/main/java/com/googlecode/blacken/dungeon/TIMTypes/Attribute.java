@@ -24,4 +24,5 @@ public interface Attribute {
     public int getCurrent();
     public int getBase();
     public void setBase(int value);
+    public String getTitle();
 }

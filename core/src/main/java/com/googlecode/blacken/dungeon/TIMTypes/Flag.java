@@ -19,7 +19,9 @@ package com.googlecode.blacken.dungeon.TIMTypes;
  *
  * @author yam655
  */
-interface Flag {
+interface Flag extends Comparable {
+    public String getTitle();
+    public String getGroupName();
     public String getRelatedAttribute();
     public String getRelatedSkill();
 }

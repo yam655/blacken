@@ -380,7 +380,7 @@ public interface TerminalInterface extends TerminalViewInterface {
      * Blacken supports allowing the player to override configuration parameters
      * on a per-game basis, but does not guess the game's name. To enable this
      * feature you need to call this function with the name of the game before
-     * you call {@link #init(java.lang.String, int, int)}.
+     * you call {@link #init(String, int, int)}.
      *
      * @param gameName name of the game
      * @return configuration object

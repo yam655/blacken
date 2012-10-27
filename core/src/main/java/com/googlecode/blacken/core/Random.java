@@ -134,41 +134,45 @@ public class Random extends java.util.Random {
         }
         return ret;
     }
-    
+
+    public <T> T choice(T c0, T... c) {
+        int pick = (int)(nextFloat() * (c.length + 1));
+        if (pick == 0) {
+            return c0;
+        }
+        pick --;
+        return c[pick];
+    }
+
     /**
      * Get a random choice from a List
-     * 
-     * <p>If the List does not support RandomAccess, it ends up calling
-     * {@link #choice(Collection)}.</p>
      * 
      * @param <T> type contained in the List
      * @param c List from which to pull a random item
      * @return random item from List
      */
     public <T> T choice(List<T> c) {
-        for (Class<?> cls : c.getClass().getInterfaces()) {
-            if (cls.equals(RandomAccess.class)) {
-                T ret = c.get((int)(nextFloat() * c.size()));
-                return ret;
-            }
-        }
-        return choice((Collection<T>)c);
+        T ret = c.get((int)(nextFloat() * c.size()));
+        return ret;
     }
     
     /**
      * Get a random choice from a Collection
-     * 
-     * <p>This calls {@link Collection#toArray()} so if that is slow, this will
-     * be slow.</p>
      * 
      * @param <T> type contained in the Collection
      * @param c Set from which to pull a random item
      * @return random item from Collection
      */
     public <T> T choice(Collection<T> c) {
-        Object[] a = c.toArray();
-        @SuppressWarnings("unchecked")
-        T ret = (T)a[(int)(nextFloat() * a.length)];
+        int pick = (int)(nextFloat() * c.size());
+        T ret = null;
+        for (T thing : c) {
+            if (pick == 0) {
+                ret = thing;
+                break;
+            }
+            pick --;
+        }
         return ret;
     }
 

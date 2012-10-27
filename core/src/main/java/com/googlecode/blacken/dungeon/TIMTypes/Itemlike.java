@@ -26,4 +26,6 @@ import com.googlecode.blacken.grid.Positionable;
 public interface Itemlike extends Positionable {
     public Containerlike getContainer();
     public void setContainer();
+    public void setKnown(boolean state);
+    public boolean isKnown();
 }
