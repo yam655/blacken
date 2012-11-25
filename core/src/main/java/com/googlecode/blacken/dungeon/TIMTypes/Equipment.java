@@ -1,4 +1,4 @@
-/* blacken - a library for Roguelike games
+ /* blacken - a library for Roguelike games
  * Copyright © 2012 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,17 @@
 
 package com.googlecode.blacken.dungeon.TIMTypes;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author yam655
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
 public @interface Equipment {
     public static final String MELEE="melee";
     public static final String PROJECTILE="projectile";

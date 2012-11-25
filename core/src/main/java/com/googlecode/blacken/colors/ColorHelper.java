@@ -347,7 +347,10 @@ public class ColorHelper {
      * <li>0xRRGGBB (opaque)</li>
      * <li>#RGB (web short-cut for #RRGGBB)</li>
      * <li>#RRGGBB (web standard)</li>
+     * <li>rrr,ggg,bbb[,aaa]
+     * <li>rrr ggg bbb[ aaa]
      * </ul>
+     *
      * </p>
      * 
      * <p>Note that this does not handle named colors. If you want that, check
@@ -362,7 +365,35 @@ public class ColorHelper {
     public static int makeColor(String color)
             throws InvalidStringFormatException {
         color = color.trim();
-        if (color.startsWith("#")) {
+        if (color.startsWith("[")) {
+            String[] subset = color.split("[]]", 2);
+            String mode = subset[0].substring(1).toUpperCase();
+            if (mode.equals("RGB")) {
+                // default operation
+                return makeColor(subset[1]);
+            } else if (mode.equals("HSV")) {
+                String[] parts;
+                if (color.contains(",")) {
+                    parts = color.split(", *");
+                } else {
+                    parts = color.split("[ \t]+");
+                }
+                float[] hsva = new float[4];
+                try {
+                    hsva[0] = Float.parseFloat(parts[0].trim());
+                    hsva[1] = Float.parseFloat(parts[1].trim());
+                    hsva[2] = Float.parseFloat(parts[2].trim());
+                    if (parts.length > 3) {
+                        hsva[3] = Float.parseFloat(parts[3].trim());
+                    } else {
+                        hsva[3] = 1.0f;
+                    }
+                } catch(NumberFormatException e) {
+                    throw new InvalidStringFormatException(e);
+                }
+                return colorFromHSV(hsva);
+            }
+        } else if (color.startsWith("#")) {
             color = color.substring(1);
             int c;
             try {

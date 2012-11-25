@@ -16,13 +16,6 @@
 
 package com.googlecode.blacken.bsp;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.googlecode.blacken.core.Random;
 import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.BoxRegionIterator;
@@ -32,6 +25,12 @@ import com.googlecode.blacken.grid.RegionIterator;
 import com.googlecode.blacken.grid.Regionlike;
 import com.googlecode.blacken.grid.SimpleSize;
 import com.googlecode.blacken.grid.Sizable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * An implementation of Binary Screen Partitioning Trees, useful for quick and good dungeon generation.

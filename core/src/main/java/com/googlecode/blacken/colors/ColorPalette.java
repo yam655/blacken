@@ -70,11 +70,28 @@ public class ColorPalette extends ListMap<String, Integer> {
      *
      * <ul>
      * <li>0 - Prior to Blacken 1.2 there was no type or version information.
-     * <li>1 - First version number used. Color formats: #RGB, #RRGGBB,
-     *         0xRRGGBB. 0xAARRGGBB, "rrr,ggg,bbb", "rrr ggg bbb",
-     *         "rrr,ggg,bbb,aaa", "rrr ggg bbb aaa". (Uppercase denotes hex,
-     *         lowercase denotes decimal.) First version to support comments,
-     *         and to have generalized configuration variable support.
+     * <li>1 - various changes:<ul>
+     *       <li>First version number used.
+     *       <li>Color formats: #RGB, #RRGGBB,
+     *           0xRRGGBB. 0xAARRGGBB, "rrr,ggg,bbb", "rrr ggg bbb",
+     *           "rrr,ggg,bbb,aaa", "rrr ggg bbb aaa". (Uppercase denotes hex,
+     *           lowercase denotes decimal.) First version to support comments,
+     *           and to have generalized configuration variable support.
+     *      <li>Added @{name} references to other colors. Also
+     *          added HSV-based modifications to previously referenced colors.
+     *          Modifiable components include "value", "saturation", and "alpha",
+     *          and they are all floats between 0 and 1.
+     *          Float alpha modification done using the "ALPHA.0" label to
+     *          distinguish it from (later) decimal alpha changes.
+     *          (ex. "<code>@{Color of Awesome} value=-10%</code>")
+     *      <li>Modifications include saturation (or "sat" or "s") and value 
+     *          (or "v") in addition to the float alpha (as "alpha.0"). These
+     *          are case-insensitive. Modifications include setting (no prefix),
+     *          adding a float ("+"), subtracting a float ("-"), multiplying
+     *          a float ("*"), dividing a float ("/"). All of these can use a
+     *          percentage of the existing value instead of a static value by
+     *          suffixing "%".
+     *      </ul>
      * </ul>
      */
     public static final Integer BLACKEN_COLOR_MAPPING_VERSION=1;
@@ -404,7 +421,7 @@ public class ColorPalette extends ListMap<String, Integer> {
      * @param onlyAdd true: only do add; false: do put or add
      * @return true if change, false otherwise
      */
-    protected boolean processMapping(String[] colors, boolean onlyAdd) {
+   protected boolean processMapping(String[] colors, boolean onlyAdd) {
         if (colors == null || colors.length == 0) {
             return false;
         }
@@ -454,10 +471,37 @@ public class ColorPalette extends ListMap<String, Integer> {
                 colorDef = s[1];
             }
             Integer colr;
-            try {
-                colr = ColorHelper.makeColor(colorDef);
-            } catch (InvalidStringFormatException e) {
-                throw new RuntimeException(e);
+            if (colorDef.startsWith("@{")) {
+                String[] s2 = colorDef.split("}\\s*", 2);
+                String colorDef2 = s2[0].substring(2);
+                if (this.containsKey(colorDef2)) {
+                    colr = this.get(colorDef2);
+                } else {
+                    try {
+                        colr = ColorHelper.makeColor(colorDef2);
+                    } catch (InvalidStringFormatException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                Map<String, Integer> components = ColorHelper.colorToComponents(colr, null);
+                Map<String, Float> hsva = ColorHelper.colorToHSV(colr, null);
+                for (String mod : s2[1].split("\\s*")) {
+                    String[] ma = mod.split("=", 2);
+                    String op = ma[0].toUpperCase();
+                    if (op.equals("VALUE") || op.equals("V")) {
+                        parseFloatMod(hsva, components, ColorHelper.VALUE, ma[1]);
+                    } else if (op.equals("SATURATION") || op.equals("SAT") || op.equals("S")) {
+                        parseFloatMod(hsva, components, ColorHelper.SATURATION, ma[1]);
+                    } else if (op.equals("ALPHA.0")) {
+                        parseFloatMod(hsva, components, ColorHelper.ALPHA, ma[1]);
+                    }
+                }
+            } else {
+                try {
+                    colr = ColorHelper.makeColor(colorDef);
+                } catch (InvalidStringFormatException e) {
+                    throw new RuntimeException(e);
+                }
             }
             Integer idx = -1;
             if (!onlyAdd) {
@@ -539,5 +583,61 @@ public class ColorPalette extends ListMap<String, Integer> {
      */
     public boolean putMapping(String[] colors) {
         return processMapping(colors, false);
+    }
+
+    private void parseFloatMod(Map<String, Float> hsva, Map<String, Integer> components, String part, String value) {
+        Float o = hsva.get(part);
+        if (value.endsWith("%")) {
+            char m = value.charAt(0);
+            float v;
+            switch(m) {
+            case '+':
+                v = Float.parseFloat(value.substring(1, value.length()-1));
+                hsva.put(part, o + o * v);
+                break;
+            case '-':
+                v = Float.parseFloat(value.substring(1, value.length()-1));
+                hsva.put(part, o - o * v);
+                break;
+            case '*':
+                v = Float.parseFloat(value.substring(1, value.length()-1));
+                hsva.put(part, o * (o * v));
+                break;
+            case '/':
+                v = Float.parseFloat(value.substring(1, value.length()-1));
+                hsva.put(part, o / (o * v));
+                break;
+            default:
+                v = Float.parseFloat(value.substring(0, value.length()-1));
+                hsva.put(part, o * v);
+                break;
+            }
+        } else {
+            char m = value.charAt(0);
+            float v;
+            switch(m) {
+            case '+':
+                v = Float.parseFloat(value.substring(1, value.length()));
+                hsva.put(part, o + o * v);
+                break;
+            case '-':
+                v = Float.parseFloat(value.substring(1, value.length()));
+                hsva.put(part, o - o * v);
+                break;
+            case '*':
+                v = Float.parseFloat(value.substring(1, value.length()));
+                hsva.put(part, o * (o * v));
+                break;
+            case '/':
+                v = Float.parseFloat(value.substring(1, value.length()));
+                hsva.put(part, o / (o * v));
+                break;
+            default:
+                v = Float.parseFloat(value.substring(0, value.length()));
+                hsva.put(part, v);
+                break;
+            }
+        }
+        ColorHelper.colorToComponents(ColorHelper.colorFromHSV(hsva), components);
     }
 }

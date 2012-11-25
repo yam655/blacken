@@ -16,40 +16,41 @@
 
 package com.googlecode.blacken.dungeon;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.googlecode.blacken.core.Random;
+import com.googlecode.blacken.dungeon.TIMTypes.Itemlike;
+import com.googlecode.blacken.dungeon.TIMTypes.Monsterlike;
+import com.googlecode.blacken.dungeon.TIMTypes.Terrainlike;
 import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Regionlike;
 
 /**
  *
- * @param <T> type this room can contain
  * @author Steven Black
  */
-public class RoomFactory<T> {
-    private class CheckData<T> {
-        CheckData(ThingTypeCheck<T> verifier, boolean sizeLimited) {
-            this.verifier = verifier;
+public class RoomFactory {
+    protected class CheckData {
+        CheckData(Class<?> type, RoomSize sizeLimited) {
+            this.type = type;
             this.sizeLimited = sizeLimited;
         }
-        public ThingTypeCheck<T> verifier;
-        public boolean sizeLimited;
+        public Class<?> type;
+        public RoomSize sizeLimited;
     }
-    private Map<String, CheckData<T>> checks;
-    private Random rng = Random.getInstance();
-    private Map<String, T> config = Collections.emptyMap();
+    protected Map<String, CheckData> checks;
+    protected Random rng = Random.getInstance();
+    protected Class<? extends Room> roomType = Room.class;
 
     /**
      * A room factory creating simple single-item rooms.
      * @param simple null to disable type checking
      */
-    public RoomFactory(ThingTypeCheck<T> simple) {
-        checks = new LinkedHashMap<>(2);
-        checks.put("simple", new CheckData(simple, true));
+    public RoomFactory(Class<?> simple) {
+        checks = new LinkedHashMap<>(1);
+        checks.put("simple", new CheckData(simple, RoomSize.NO_LIMIT));
     }
 
     /**
@@ -64,10 +65,11 @@ public class RoomFactory<T> {
      * @param small
      * @param havePiles
      */
-    public RoomFactory(ThingTypeCheck<T> large, ThingTypeCheck<T> small, boolean havePiles) {
+    public RoomFactory(Class<?> large, Class<?> small, boolean havePiles) {
         checks = new LinkedHashMap<>(2);
-        checks.put("large", new CheckData(large, true));
-        checks.put("small", new CheckData(small, !havePiles));
+        checks.put("large", new CheckData(large, RoomSize.ROOM_LIMIT));
+        checks.put("small", new CheckData(small, 
+                havePiles ? RoomSize.NO_LIMIT : RoomSize.ROOM_LIMIT));
     }
 
     /**
@@ -85,12 +87,38 @@ public class RoomFactory<T> {
      * @param small
      * @param havePiles
      */
-    public RoomFactory(ThingTypeCheck<T> terrain, ThingTypeCheck<T> large,
-            ThingTypeCheck<T> small, boolean havePiles) {
+    public RoomFactory(Class<?> terrain, Class<?> large,
+            Class<?> small, boolean havePiles) {
         checks = new LinkedHashMap<>(2);
-        checks.put("terrain", new CheckData(terrain, true));
-        checks.put("large", new CheckData(large, true));
-        checks.put("small", new CheckData(small, !havePiles));
+        checks.put("terrain", new CheckData(terrain, RoomSize.ROOM_LIMIT));
+        checks.put("large", new CheckData(large, RoomSize.ROOM_LIMIT));
+        checks.put("small", new CheckData(small, 
+                havePiles ? RoomSize.NO_LIMIT : RoomSize.ROOM_LIMIT));
+    }
+
+    /**
+     *
+     * @param terrain
+     * @param item
+     * @param monster
+     * @param itemLimit
+     */
+    public RoomFactory(Class<? extends Terrainlike> terrain, Class<? extends Itemlike> item,
+            Class<? extends Monsterlike> monster, RoomSize itemLimit) {
+        checks = new LinkedHashMap<>(2);
+        checks.put("terrain", new CheckData(terrain, RoomSize.ROOM_LIMIT));
+        checks.put("item", new CheckData(item, itemLimit));
+        checks.put("monster", new CheckData(monster, RoomSize.ROOM_LIMIT));
+    }
+
+    public RoomFactory(Class<?> terrain, Class<?> large,
+            Class<?> small, Class<?> flag, boolean havePiles) {
+        checks = new LinkedHashMap<>(2);
+        checks.put("terrain", new CheckData(terrain, RoomSize.ROOM_LIMIT));
+        checks.put("large", new CheckData(large, RoomSize.ROOM_LIMIT));
+        checks.put("small", new CheckData(small,
+                havePiles ? RoomSize.NO_LIMIT : RoomSize.ROOM_LIMIT));
+        checks.put("flag", new CheckData(flag, RoomSize.ONE));
     }
 
     /**
@@ -98,15 +126,18 @@ public class RoomFactory<T> {
      * @param region
      * @return
      */
-    public Room<T> createRoom(Regionlike region) {
-        Room<T> ret = new Room<>(region);
+    public Room createRoom(Regionlike region) {
+        Room ret = null;
+        try {
+            ret = roomType.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        }
+        ret.setBounds(region);
         if (checks != null) {
-            for (Entry<String, CheckData<T>> check : checks.entrySet()) {
-                ret.assignContainer(check.getKey(), new SimpleContainer(
-                        check.getValue().verifier,
-                        check.getValue().sizeLimited ? 1 : -1));
-                ret.setConfig(config);
-                ret.setRandom(rng);
+            for (Entry<String, CheckData> check : checks.entrySet()) {
+                RoomSize sizeLimit = check.getValue().sizeLimited;
+                ret.createContainer(check.getKey(), check.getValue().type, sizeLimit);
             }
         }
         return ret;
@@ -122,7 +153,7 @@ public class RoomFactory<T> {
      * @param per percentage of original room to change multiplied to 1000 (0-1000)
      * @return
      */
-    public Room<T> createApproximateRoom(Regionlike region, int per) {
+    public Room createApproximateRoom(Regionlike region, int per) {
         Regionlike r = new BoxRegion(region);
         int meddleX = r.getWidth() * 1000 / per;
         int meddleY = r.getHeight() * 1000 / per;
@@ -157,11 +188,12 @@ public class RoomFactory<T> {
         return rng;
     }
 
-    public void setConfig(Map<String, T> config) {
-        this.config = config;
+    public Class<? extends Room> getRoomType() {
+        return roomType;
     }
 
-    public Map<String, T> getConfig() {
-        return config;
+    public void setRoomType(Class<? extends Room> roomType) {
+        this.roomType = roomType;
     }
+
 }

@@ -18,9 +18,8 @@ package com.googlecode.blacken.dungeon.TIMTypes;
 
 /**
  *
- * @author Steven Black
+ * @author yam655
  */
-public interface MotileDriver {
-    public MotileDriver getInstance();
-    public void drive(TimedMonsterlike whom);
+public interface Terrainlike {
+
 }

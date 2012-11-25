@@ -16,11 +16,21 @@
 
 package com.googlecode.blacken.dungeon.TIMTypes;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
+ * Mark that an item or monster is massive enough to impact the line-of-sight.
+ * 
+ * <p>This is not used directly by the line-of-sight logic, but it is used by
+ * {@link TimFovCell}.
  *
  * @author Steven Black
  */
-public interface MotileDriver {
-    public MotileDriver getInstance();
-    public void drive(TimedMonsterlike whom);
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface ImpactsLOS {
+
 }

@@ -16,11 +16,12 @@
 
 package com.googlecode.blacken.dungeon.TIMTypes;
 
+import com.googlecode.blacken.terminal.TerminalCellLike;
+
 /**
  *
  * @author Steven Black
  */
-public interface MotileDriver {
-    public MotileDriver getInstance();
-    public void drive(TimedMonsterlike whom);
+public interface Renderable {
+    public TerminalCellLike getRendering();
 }
