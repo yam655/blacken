@@ -394,4 +394,47 @@ public class TestColorPalette {
         assertEquals(new Integer(0xff098abd), cp1.get("space/is->needed"));
         assertEquals(new Integer(0xff3399ff), cp1.get("web shorthand"));
     }
+
+        /**
+     * This command accepts an array of strings and turns them in to a color
+     * palette.
+     */
+    @Test
+    public void putMapping_insensitive_StringArray() {
+        String[] mapping = {
+            "", "",
+            "Black -> #000",
+            "White -> #fff",
+            "name WITH spaces -> #00aa22",
+            "Alternate name -> #ffffff",
+            "Case Sensitive -> #a98765",
+            "Remember hex works, too -> 0x12ab9f",
+            "hex supports ALPHA -> 0x11335577",
+            "space/IS->needed -> #098abd",
+            "web shorTHand -> #39f"
+        };
+        mapping[0] = String.format("TYPE=%s",
+            ColorPalette.BLACKEN_COLOR_MAPPING_TYPE);
+        mapping[1] = String.format("VERSION=%s",
+            ColorPalette.BLACKEN_COLOR_MAPPING_VERSION);
+        ColorPalette cp1 = new ColorPalette();
+        cp1.setCaseInsensitive(true);
+        cp1.add("bLack", 0xf0000000);
+        cp1.putKey("even BLacker", "BlacK");
+        cp1.add("white", 0xf0ffffff);
+        assertEquals(new Integer(0xf0ffffff), cp1.get("white"));
+        cp1.putMapping(mapping);
+        assertEquals(mapping.length - 2, cp1.size());
+        assertEquals(new Integer(0xff000000), cp1.get(0));
+        assertEquals(new Integer(0xffffffff), cp1.get(1));
+        assertEquals(cp1.get("Black"), cp1.get("blACK"));
+        assertEquals(cp1.get("Black"), cp1.get("even blACKer"));
+        assertEquals((Integer)0xffffffff, cp1.get("white"));
+        assertEquals((Integer)0xff00aa22, cp1.get("name with SPACES"));
+        assertEquals((Integer)0xff12ab9f, cp1.get("remember HEX works, too"));
+        assertEquals((Integer)0x11335577, cp1.get("hex SUPPORTS alpha"));
+        assertEquals((Integer)0xff098abd, cp1.get("space/is->needed"));
+        assertEquals((Integer)0xff3399ff, cp1.get("WEB SHORTHAND"));
+    }
+
 }

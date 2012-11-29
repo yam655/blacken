@@ -106,25 +106,25 @@ public class DungeonUtils {
             view.set(y, x, cell);
         }
     }
-    private Random rng;
+    static private Random rng;
 
-    public <T> boolean assignContents(Grid<TIMCell> grid, Grid<T> flatgrid, Map<String, T> config, Room room) {
+    public static <T> boolean assignContents(Grid<TIMCell> grid, Grid<T> flatgrid, Map<String, T> config, Room room) {
         for (Terrainlike t : room.getContainer("terrain", Terrainlike.class)) {
-            Positionable pos = this.placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
+            Positionable pos = placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
             grid.get(pos).setTerrain(t);
         }
         for (Itemlike i : room.getContainer("item", Itemlike.class)) {
-            Positionable pos = this.placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
+            Positionable pos = placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
             grid.get(pos).setItem(i);
         }
         for (Monsterlike m : room.getContainer("monster", Monsterlike.class)) {
-            Positionable pos = this.placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
+            Positionable pos = placeIt(flatgrid, config.get("room:floor"), config.get("thing:other"), room);
             grid.get(pos).setMonster(m);
         }
         return false;
     }
 
-    public <T> boolean digRoom(Grid<T> grid, Map<String, T> config, Regionlike region) {
+    public static <T> boolean digRoom(Grid<T> grid, Map<String, T> config, Regionlike region) {
         boolean intr = false;
         int[] coords = {0,0,0,0};
         RegionIterator itr = region.getInsideIterator();
@@ -294,7 +294,7 @@ public class DungeonUtils {
         return intr;
     }
 
-    public <T> Positionable findLocation(Grid<T> grid, Set<T> empties, Regionlike r) {
+    public static <T> Positionable findLocation(Grid<T> grid, Set<T> empties, Regionlike r) {
         Positionable placement = null;
         for (int t=0; t < 10 && placement == null; t++) {
             int x1 = rng.nextInt(r.getWidth()) + r.getX();
@@ -373,20 +373,20 @@ public class DungeonUtils {
      * @param what
      * @return location used
      */
-    public <T> Positionable placeThing(Grid<T> grid, Room room, T empty, T what) {
+    static public <T> Positionable placeThing(Grid<T> grid, Room room, T empty, T what) {
         if (!room.isDug) {
             throw new RuntimeException("room must be dug first");
         }
         room.assignToContainer(what);
-        return this.placeIt(grid, empty, what, room);
+        return placeIt(grid, empty, what, room);
     }
 
-    public Random getRandom() {
+    public static Random getRandom() {
         return rng;
     }
 
-    public void setRandom(Random rng) {
-        this.rng = rng;
+    static public void setRandom(Random rng) {
+        DungeonUtils.rng = rng;
     }
 
     /**
@@ -396,7 +396,7 @@ public class DungeonUtils {
      * @param what
      * @return location used
      */
-    private <T> Positionable placeIt(Grid<T> grid, T empty, T what, Regionlike room) {
+    static private <T> Positionable placeIt(Grid<T> grid, T empty, T what, Regionlike room) {
         Set<T> empties = new HashSet<>(1);
         empties.add(empty);
 

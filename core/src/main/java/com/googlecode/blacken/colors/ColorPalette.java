@@ -20,13 +20,17 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -100,6 +104,9 @@ public class ColorPalette extends ListMap<String, Integer> {
      * released with? (Older versions of Blacken will be incompatible.)
      */
     public static final String BLACKEN_COLOR_MAPPING_MIN_BLACKEN="1.2";
+    private boolean caseInsensitive = false;
+    static private Locale defaultPaletteLocale = Locale.ENGLISH;
+    private Locale paletteLocale = defaultPaletteLocale;
 
     /**
      * Create a new empty palette.
@@ -133,6 +140,12 @@ public class ColorPalette extends ListMap<String, Integer> {
      */
     public ColorPalette(ListMap<String, Integer> colors) {
         super(colors.size());
+        addAll(colors);
+    }
+
+    public ColorPalette(ListMap<String, Integer> colors, boolean caseInsensative) {
+        super(colors.size());
+        this.caseInsensitive = caseInsensative;
         addAll(colors);
     }
 
@@ -202,6 +215,9 @@ public class ColorPalette extends ListMap<String, Integer> {
      * <p>This currently makes no attempt to prevent duplication in the index 
      * or in overwriting the existing value in the nameMap.</p>
      * 
+     * <p>This uses {@link ColorHelper#neverTransparent(int)} to add opaquacy
+     * if <code>full_alpha</code> is false.
+     *
      * @param name The name of the color
      * @param rgba The color value
      * @param full_alpha when true, neverTransparent is not in effect
@@ -211,8 +227,11 @@ public class ColorPalette extends ListMap<String, Integer> {
         if (!full_alpha) {
             rgba = ColorHelper.neverTransparent(rgba);
         }
+        if (this.caseInsensitive) {
+            name = name.toLowerCase(paletteLocale);
+        }
         int idx = this.size();
-        this.add(name, new Integer(rgba));
+        this.add(name, (Integer)rgba);
         put(name, rgba);
         return idx;
     }
@@ -234,8 +253,59 @@ public class ColorPalette extends ListMap<String, Integer> {
     public int add(String name, String colordef) 
     throws InvalidStringFormatException {
         final Integer color = ColorHelper.makeColor(colordef);
+        if (this.caseInsensitive) {
+            name = name.toLowerCase(paletteLocale);
+        }
         this.add(name, color);
         return indexOfKey(name);
+    }
+
+    /**
+     * If case-insensitive keys/names are used, this will return the canonical
+     * internal representation of a key. This may be useful for debugging in
+     * situations where you think a key should exist but it does not.
+     *
+     * <p>Case insensitivity is handled by using
+     * {@link String#toLowerCase(Locale)} so if this isn't returning the
+     * expected response, you should explicitly set the palette locale.
+     *
+     * <p>The locale can be set through {@link #setPaletteLocale(Locale)} or
+     * you can set the default palette for all future instances with
+     * {@link #setDefaultPaletteLocale(Locale)}.
+     *
+     * @param name
+     * @return
+     */
+    public String canonicalKey(String name) {
+        if (this.caseInsensitive) {
+            name = name.toLowerCase(paletteLocale);
+        }
+        return name;
+    }
+
+    /**
+     * Get this palette's locale.
+     *
+     * @since 1.2
+     * @see #setPaletteLocale(Locale)
+     * @see #setDefaultPaletteLocale(Locale)
+     * @return this palette's locale
+     */
+    public Locale getPaletteLocale() {
+        return paletteLocale;
+    }
+
+    /**
+     * Set this palette's locale for case-insensitive keys. This should be
+     * done either before anything has been added to the palette or before the
+     * palette has been switched froma case-sensitive palette.
+     *
+     * @since 1.2
+     * @see #setDefaultPaletteLocale(Locale)
+     * @param paletteLocale
+     */
+    public void setPaletteLocale(Locale paletteLocale) {
+        this.paletteLocale = paletteLocale;
     }
 
     /**
@@ -335,6 +405,16 @@ public class ColorPalette extends ListMap<String, Integer> {
         }
         return putMapping(buf.toString().split("[\r\n]+"));
     }
+
+    @Override
+    public Integer get(String key) {
+        String k = key;
+        if (this.caseInsensitive) {
+            k = key.toLowerCase(paletteLocale);
+        }
+        return super.get(k);
+    }
+
     /**
      * Helper function to bypass the palette if it wasn't used.
      * 
@@ -375,6 +455,13 @@ public class ColorPalette extends ListMap<String, Integer> {
         if (this.containsKey(keyOrColor)) {
             return this.indexOfKey(keyOrColor);
         }
+        if (this.caseInsensitive) {
+            String name = keyOrColor.toLowerCase(paletteLocale);
+            if (this.containsKey(name)) {
+                return this.indexOfKey(name);
+            }
+        }
+
         try {
             return ColorHelper.makeColor(keyOrColor);
         } catch (InvalidStringFormatException ex) {
@@ -470,42 +557,14 @@ public class ColorPalette extends ListMap<String, Integer> {
                 names = s[0].split("[ \t]+/[ \t]+");
                 colorDef = s[1];
             }
-            Integer colr;
-            if (colorDef.startsWith("@{")) {
-                String[] s2 = colorDef.split("}\\s*", 2);
-                String colorDef2 = s2[0].substring(2);
-                if (this.containsKey(colorDef2)) {
-                    colr = this.get(colorDef2);
-                } else {
-                    try {
-                        colr = ColorHelper.makeColor(colorDef2);
-                    } catch (InvalidStringFormatException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                Map<String, Integer> components = ColorHelper.colorToComponents(colr, null);
-                Map<String, Float> hsva = ColorHelper.colorToHSV(colr, null);
-                for (String mod : s2[1].split("\\s*")) {
-                    String[] ma = mod.split("=", 2);
-                    String op = ma[0].toUpperCase();
-                    if (op.equals("VALUE") || op.equals("V")) {
-                        parseFloatMod(hsva, components, ColorHelper.VALUE, ma[1]);
-                    } else if (op.equals("SATURATION") || op.equals("SAT") || op.equals("S")) {
-                        parseFloatMod(hsva, components, ColorHelper.SATURATION, ma[1]);
-                    } else if (op.equals("ALPHA.0")) {
-                        parseFloatMod(hsva, components, ColorHelper.ALPHA, ma[1]);
-                    }
-                }
-            } else {
-                try {
-                    colr = ColorHelper.makeColor(colorDef);
-                } catch (InvalidStringFormatException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            Integer colr = makeColor(colorDef);
             Integer idx = -1;
             if (!onlyAdd) {
-                for (final String n : names) {
+                for (final String n1 : names) {
+                    String n = n1;
+                    if (this.caseInsensitive) {
+                        n = n.toLowerCase(paletteLocale);
+                    }
                     if (this.containsKey(n)) {
                         idx = this.indexOfKey(n);
                         // Do not stomp on a color from the new set
@@ -531,6 +590,43 @@ public class ColorPalette extends ListMap<String, Integer> {
         return true;
     }
 
+   private int makeColor(String colorDef) {
+       Integer colr = null;
+        if (colorDef.startsWith("@{")) {
+            String[] s2 = colorDef.split("}\\s*", 2);
+            String colorDef2 = s2[0].substring(2);
+            if (this.containsKey(colorDef2)) {
+                colr = this.get(colorDef2);
+            } else {
+                try {
+                    colr = ColorHelper.makeColor(colorDef2);
+                } catch (InvalidStringFormatException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Map<String, Integer> components = ColorHelper.colorToComponents(colr, null);
+            Map<String, Float> hsva = ColorHelper.colorToHSV(colr, null);
+            for (String mod : s2[1].split("\\s*")) {
+                String[] ma = mod.split("=", 2);
+                String op = ma[0].toUpperCase(Locale.ENGLISH);
+                if (op.equals("VALUE") || op.equals("V")) {
+                    parseFloatMod(hsva, components, ColorHelper.VALUE, ma[1]);
+                } else if (op.equals("SATURATION") || op.equals("SAT") || op.equals("S")) {
+                    parseFloatMod(hsva, components, ColorHelper.SATURATION, ma[1]);
+                } else if (op.equals("ALPHA.0")) {
+                    parseFloatMod(hsva, components, ColorHelper.ALPHA, ma[1]);
+                }
+            }
+        } else {
+            try {
+                colr = ColorHelper.makeColor(colorDef);
+            } catch (InvalidStringFormatException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return colr;
+   }
+
     /**
      * Update both an indexed color, as well as a name for the color. This will
      * overwrite an existing value.
@@ -547,6 +643,9 @@ public class ColorPalette extends ListMap<String, Integer> {
     public int put(String name, String colordef) 
     throws InvalidStringFormatException {
         final Integer color = ColorHelper.makeColor(colordef);
+        if (this.caseInsensitive) {
+            name = name.toLowerCase(paletteLocale);
+        }
         this.put(name, color);
         return indexOfKey(name);
     }
@@ -640,4 +739,91 @@ public class ColorPalette extends ListMap<String, Integer> {
         }
         ColorHelper.colorToComponents(ColorHelper.colorFromHSV(hsva), components);
     }
+
+    /**
+     * @since 1.2
+     * @return
+     */
+    public static Locale getDefaultPaletteLocale() {
+        return defaultPaletteLocale;
+    }
+
+    /**
+     * This sets the default locale used for case insensitive palletes.
+     *
+     * <p>We do <em>not</em> default to the system locale, as that could have
+     * unexpected results if the user is in a poorly tested locale. Besides,
+     * the palette strings will be in the locale of the developer when they
+     * are not the Blacken system default (which is English).
+     *
+     * @param defaultPaletteLocale
+     * @since 1.2
+     */
+    public static void setDefaultPaletteLocale(Locale defaultPaletteLocale) {
+        ColorPalette.defaultPaletteLocale = defaultPaletteLocale;
+    }
+
+    @Override
+    protected Integer add(Map.Entry<String, Integer> entry) {
+        Map.Entry<String, Integer> ntry = entry;
+        if (this.caseInsensitive) {
+            String name = entry.getKey();
+            name = name.toLowerCase(paletteLocale);
+            if (!name.equals(entry.getKey())) {
+                ntry = new AbstractMap.SimpleEntry<>(name, entry.getValue());
+            }
+        }
+        return super.add(ntry);
+    }
+
+    @Override
+    public boolean add(String key, Integer value) {
+        if (this.caseInsensitive) {
+            key = key.toLowerCase(paletteLocale);
+        }
+        return super.add(key, value);
+    }
+
+    @Override
+    public ColorPalette clone() {
+        return new ColorPalette(this);
+    }
+
+    public boolean isCaseInsensitive() {
+        return caseInsensitive;
+    }
+
+    public void setCaseInsensitive(boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+        if (!caseInsensitive) {
+            return;
+        }
+        Set<String> keySet = new HashSet<>(keySet());
+        for (String key : keySet) {
+            String lcKey = key.toLowerCase(paletteLocale);
+            if (lcKey.equals(key)) {
+                continue;
+            }
+            putKey(lcKey, key);
+            this.removeKey(key);
+        }
+    }
+
+    @Override
+    public int putKey(String newKey, String existingKey) {
+        if (this.caseInsensitive) {
+            newKey = newKey.toLowerCase(paletteLocale);
+            existingKey = existingKey.toLowerCase(paletteLocale);
+        }
+        return super.putKey(newKey, existingKey);
+    }
+
+    @Override
+    public int putKey(String key, int index) {
+        if (this.caseInsensitive) {
+            key = key.toLowerCase(paletteLocale);
+        }
+        return super.putKey(key, index);
+    }
+
 }

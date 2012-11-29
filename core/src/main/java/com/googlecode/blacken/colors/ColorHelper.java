@@ -349,6 +349,12 @@ public class ColorHelper {
      * <li>#RRGGBB (web standard)</li>
      * <li>rrr,ggg,bbb[,aaa]
      * <li>rrr ggg bbb[ aaa]
+     * <li>[RGB]0xAARRGGBB</li>
+     * <li>[RGB]0xRRGGBB (opaque)</li>
+     * <li>[RGB]#RGB (web short-cut for #RRGGBB)</li>
+     * <li>[RGB]#RRGGBB (web standard)</li>
+     * <li>[RGB]rrr,ggg,bbb[,aaa]
+     * <li>[RGB]rrr ggg bbb[ aaa]
      * </ul>
      *
      * </p>
@@ -373,11 +379,7 @@ public class ColorHelper {
                 return makeColor(subset[1]);
             } else if (mode.equals("HSV")) {
                 String[] parts;
-                if (color.contains(",")) {
-                    parts = color.split(", *");
-                } else {
-                    parts = color.split("[ \t]+");
-                }
+                parts = color.split("([;,][\t ]*|[ \t]+)");
                 float[] hsva = new float[4];
                 try {
                     hsva[0] = Float.parseFloat(parts[0].trim());
@@ -405,6 +407,10 @@ public class ColorHelper {
                 // web shorthand #RGB == #RRGGBB
                 return makeColor((c & 0xf00) >> 8, (c & 0x0f0) >> 4,
                                  (c & 0x00f), 0xf, 0xf);
+            } else if (color.length() == 4) {
+                // This may be disappearing or changing
+                return makeColor((c & 0xf00) >> 8, (c & 0x0f0) >> 4,
+                                 (c & 0x00f), (c & 0xf000) >> 12, 0xf);
             } else if (color.length() == 6) {
                 return makeOpaque(c);
             } else if (color.length() == 8) {
@@ -427,13 +433,9 @@ public class ColorHelper {
             } else if (color.length() == 8) {
                 return c;
             }
-        } else if (color.contains(",") || color.contains("\t") || color.contains(" ")) {
+        } else if (color.matches("([;,][\t ]*|[ \t]+)")) {
             String[] parts;
-            if (color.contains(",")) {
-                parts = color.split(",");
-            } else {
-                parts = color.split("[ \t]+");
-            }
+            parts = color.split("([;,][\t ]*|[ \t]+)");
             int[] components = new int[4];
             try {
                 components[0] = Integer.parseInt(parts[0].trim(), 10);
@@ -584,9 +586,9 @@ public class ColorHelper {
      * @param black index to use for black
      * @return the <code>white</code> or <code>black> value
      */
-    public static Integer makeVisible(int value, int threshold, int white, 
-            int black) {
-        int[] parts = makeComponents(value);
+    public static Integer makeVisible(int value, int threshold, Integer white,
+            Integer black) {
+        int[] parts = colorToComponents(value);
         int g = (parts[0] * 20 + parts[1] * 69 + parts[2] * 11) / 255;
         if (g < threshold) {
             return white;
@@ -1298,5 +1300,115 @@ public class ColorHelper {
             ret.add(col.get(i));
         }
         return ret;
+    }
+
+    public static int guessBlack(ColorPalette palette) {
+        Integer black;
+        ColorPalette ciPalette = palette;
+        if (!palette.isCaseInsensitive()) {
+            ciPalette = new ColorPalette(palette, true);
+        }
+        black = ciPalette.get("black");
+        if (black != null) {
+            return ciPalette.indexOfKey("black");
+        }
+        Map<Integer, Integer> inversePalette = new HashMap<>();
+        for (int i = 0; i < palette.size(); i++) {
+            inversePalette.put(palette.get(i), i);
+        }
+        for (int i = 0; i <= 15; i++) {
+            black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0 + i, null));
+            if (black != null) { break; }
+            if (i == 0) {
+                continue;
+            }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0, null));
+            if (black != null) { break; }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0 + i, null));
+            if (black != null) { break; }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0, null));
+            if (black != null) { break; }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0 + i, null));
+            if (black != null) { break; }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0, null));
+            if (black != null) { break; }
+            black = inversePalette.get(ColorHelper.colorFromComponents(0, 0, 0 + i, null));
+            if (black != null) { break; }
+        }
+        if (black == null) {
+            int idx;
+            int t1 = cheapGreyLevel(palette.get(0));
+            int t2 = cheapGreyLevel(palette.get(1));
+            if (t1 < t2) {
+                idx = 0;
+            } else {
+                idx = 1;
+                t1 = t2;
+            }
+            t2 = cheapGreyLevel(palette.get(palette.size() -1));
+            if (t1 > t2) {
+                idx = palette.size() -1;
+            }
+            black = idx;
+        }
+        return black;
+    }
+
+    private static int cheapGreyLevel(int color) {
+        int[] parts = colorToComponents(color);
+        int g = (parts[0] * 20 + parts[1] * 69 + parts[2] * 11) / 255;
+        return g;
+    }
+
+    public static int guessWhite(ColorPalette palette) {
+        Integer white;
+        ColorPalette ciPalette = palette;
+        if (!palette.isCaseInsensitive()) {
+            ciPalette = new ColorPalette(palette, true);
+        }
+        white = ciPalette.get("white");
+        if (white != null) {
+            return ciPalette.indexOfKey("white");
+        }
+        Map<Integer, Integer> inversePalette = new HashMap<>();
+        for (int i = 0; i < palette.size(); i++) {
+            inversePalette.put(palette.get(i), i);
+        }
+        for (int i = 15; i >= 0; i--) {
+            white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 240 + i, null));
+            if (white != null) { break; }
+            if (i == 15) {
+                continue;
+            }
+            white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 255, null));
+            if (white != null) { break; }
+            white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 240 + i, null));
+            if (white != null) { break; }
+            white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 255, null));
+            if (white != null) { break; }
+            white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 240 + i, null));
+            if (white != null) { break; }
+            white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 255, null));
+            if (white != null) { break; }
+            white = inversePalette.get(ColorHelper.colorFromComponents(255, 255, 240 + i, null));
+            if (white != null) { break; }
+        }
+        if (white == null) {
+            int idx;
+            int t1 = cheapGreyLevel(palette.get(0));
+            int t2 = cheapGreyLevel(palette.get(1));
+            if (t1 > t2) {
+                idx = 0;
+            } else {
+                idx = 1;
+                t1 = t2;
+            }
+            t2 = cheapGreyLevel(palette.get(palette.size() -1));
+            if (t1 < t2) {
+                idx = palette.size() -1;
+            }
+            white = idx;
+        }
+        return white;
     }
 }

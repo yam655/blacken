@@ -393,10 +393,10 @@ public abstract class AbstractTerminal implements TerminalInterface {
         Integer w = null;
         Integer b = null;
         if (white != null) {
-            w = palette.indexOfKey(white);
+            w = palette.getColorOrIndex(white);
         }
         if (black != null) {
-            b = palette.indexOfKey(black);
+            b = palette.getColorOrIndex(black);
         }
         return coerceToPalette(palette, w, b);
     }
@@ -414,62 +414,6 @@ public abstract class AbstractTerminal implements TerminalInterface {
         Map<Integer, Integer> inversePalette = new HashMap<>();
         for (int i = 0; i < palette.size(); i++) {
             inversePalette.put(palette.get(i), i);
-        }
-        if (white == null) {
-            for (int i = 15; i >= 0; i--) {
-                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 240 + i, null));
-                if (white != null) { break; }
-                if (i == 15) {
-                    continue;
-                }
-                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 240 + i, 255, null));
-                if (white != null) { break; }
-                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 240 + i, null));
-                if (white != null) { break; }
-                white = inversePalette.get(ColorHelper.colorFromComponents(240 + i, 255, 255, null));
-                if (white != null) { break; }
-                white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 240 + i, null));
-                if (white != null) { break; }
-                white = inversePalette.get(ColorHelper.colorFromComponents(255, 240 + i, 255, null));
-                if (white != null) { break; }
-                white = inversePalette.get(ColorHelper.colorFromComponents(255, 255, 240 + i, null));
-                if (white != null) { break; }
-            }
-            if(white == null) {
-                white = 1;
-            }
-        }
-        if (black == null) {
-            for (int i = 0; i <= 15; i++) {
-                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0 + i, null));
-                if (black != null) { break; }
-                if (i == 0) {
-                    continue;
-                }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0 + i, 0, null));
-                if (black != null) { break; }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0 + i, null));
-                if (black != null) { break; }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0 + i, 0, 0, null));
-                if (black != null) { break; }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0 + i, null));
-                if (black != null) { break; }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0 + i, 0, null));
-                if (black != null) { break; }
-                black = inversePalette.get(ColorHelper.colorFromComponents(0, 0, 0 + i, null));
-                if (black != null) { break; }
-            }
-            if(black == null) {
-                black = 0;
-            }
-        }
-        if (white > palette.size()) {
-            throw new IllegalArgumentException(
-                    "argument (white) out of bounds");
-        }
-        if (black > palette.size()) {
-            throw new IllegalArgumentException(
-                    "argument (black) out of bounds");
         }
         Set<Integer> changedColors = null;
         if (oldPalette != null) {
@@ -495,17 +439,13 @@ public abstract class AbstractTerminal implements TerminalInterface {
                 boolean change = false;
                 if (oldPalette != null) {
                     /// turn an oldPalette index in to a color
-                    if (b > psize) {
-                        if (changedColors.contains(b)) {
-                            change = true;
-                            b = oldPalette.get(b);
-                        }
+                    if (changedColors.contains(b)) {
+                        change = true;
+                        b = oldPalette.get(b);
                     }
-                    if (f > psize) {
-                        if (changedColors.contains(f)) {
-                            change = true;
-                            f = oldPalette.get(f);
-                        }
+                    if (changedColors.contains(f)) {
+                        change = true;
+                        f = oldPalette.get(f);
                     }
                 }
                 if (inversePalette != null) {
@@ -524,20 +464,21 @@ public abstract class AbstractTerminal implements TerminalInterface {
                     }
                 }
 
+                Integer t;
+                int fore = f;
+                fore = palette.getColor(f);
                 if (b > psize) {
-                    int fore = f;
-                    if (f <= psize) {
-                        fore = palette.get(f);
+                    t = ColorHelper.makeVisible(fore, 66, white, black);
+                    if (t != null) {
+                        b = t;
                     }
-                    b = ColorHelper.makeVisible(fore, 66, white, black);
                     change = true;
                 }
                 if (f > psize) {
-                    int back = b;
-                    if (b <= psize) {
-                        back = palette.get(b);
+                    t = ColorHelper.makeVisible(fore, 66, black, white);
+                    if (t != null) {
+                        f = t;
                     }
-                    f = ColorHelper.makeVisible(back, 66, white, black);
                     change = true;
                 }
                 

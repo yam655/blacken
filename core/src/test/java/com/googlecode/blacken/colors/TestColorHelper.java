@@ -96,7 +96,7 @@ public class TestColorHelper {
      * For a given color value, decide whether "black" or "white" is visible
      */
     @Test
-    @Covers("public static Integer makeVisible(int,int,int,int)")
+    @Covers("public static Integer makeVisible(int,int,Integer,Integer)")
     public void makeVisible_Value_Threshold_White_Black() {
         assertEquals(RED, 
                 (int)ColorHelper.makeVisible(GREY_HALF, 75, RED, BLUE));
@@ -202,10 +202,9 @@ public class TestColorHelper {
             // do nothing
         }
         try {
-            assertEquals(RED, ColorHelper.makeColor("#F800"));
-            fail();
+            assertEquals(RED, ColorHelper.makeColor("#FF00"));
         } catch (InvalidStringFormatException e) {
-            // do nothing
+            throw new RuntimeException(e);
         }
         try {
             assertEquals(GREEN, ColorHelper.makeColor("#00ZF00"));
@@ -988,4 +987,31 @@ public class TestColorHelper {
         assertEquals("0xffbfbfbf", String.format("0x%8x", gradient.get(3)));
     }
 
+    @Test
+    @Covers({"public static int guessBlack(ColorPalette)",
+             "public static int guessWhite(ColorPalette)",
+    })
+    public void guessWhiteBlack_ColorPalette() {
+        ColorPalette palette = new ColorPalette();
+        palette.add(WHITE);
+        palette.add(BLACK);
+        palette.add("wHite", RED);
+        palette.add("bLack", GREEN);
+        assertEquals(3, ColorHelper.guessBlack(palette));
+        assertEquals(2, ColorHelper.guessWhite(palette));
+
+        palette = new ColorPalette();
+        palette.add(RED);
+        palette.add(WHITE);
+        palette.add(BLACK);
+        assertEquals(2, ColorHelper.guessBlack(palette));
+        assertEquals(1, ColorHelper.guessWhite(palette));
+
+        palette = new ColorPalette();
+        palette.add(RED);
+        palette.add(0xFFfefafa);
+        palette.add(0xFF010303);
+        assertEquals(2, ColorHelper.guessBlack(palette));
+        assertEquals(1, ColorHelper.guessWhite(palette));
+    }
 }
