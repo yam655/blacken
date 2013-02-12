@@ -141,6 +141,7 @@ public class TestUnboundTerminal {
     @Test
     @Covers({"public ColorPalette coerceToPalette(ColorPalette,Integer,Integer)",
              "public ColorPalette setPalette(ColorPalette,int,int)",
+             "public ColorPalette setPalette(ColorPalette,AbstractTerminal$CoerceMethod,PaletteTransformer)",
             })
     public void coerceToPalette_palette_num_num() {
         assertEquals(-1, terminal.getCursorY());
@@ -176,6 +177,7 @@ public class TestUnboundTerminal {
 
     @Test
     @Covers({"public ColorPalette coerceToPalette(ColorPalette,String,String)",
+             "public ColorPalette setPalette(ColorPalette,AbstractTerminal$CoerceMethod,PaletteTransformer)",
             })
     public void coerceToPalette_palette_name_name() {
         assertEquals(-1, terminal.getCursorY());
@@ -630,7 +632,10 @@ public class TestUnboundTerminal {
     }
 
     @Test
-    @Covers("public ColorPalette setPalette(ColorPalette)")
+    @Covers({"public ColorPalette setPalette(ColorPalette)",
+            "public ColorPalette setPalette(ColorPalette,AbstractTerminal$CoerceMethod,PaletteTransformer)",
+
+    })
     public void setPalette_palette() {
         assertEquals(-1, terminal.getCursorY());
         assertEquals(-1, terminal.getCursorX());

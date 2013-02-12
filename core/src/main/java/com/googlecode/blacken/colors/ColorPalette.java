@@ -17,6 +17,8 @@ package com.googlecode.blacken.colors;
 
 import com.googlecode.blacken.core.ListMap;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -465,7 +467,8 @@ public class ColorPalette extends ListMap<String, Integer> {
         try {
             return ColorHelper.makeColor(keyOrColor);
         } catch (InvalidStringFormatException ex) {
-            throw new IllegalArgumentException("Not in palette and illegal color definition" + keyOrColor);
+            throw new IllegalArgumentException("Not in palette and illegal "
+                    + "color definition: " + keyOrColor);
         }
     }
 
@@ -824,6 +827,28 @@ public class ColorPalette extends ListMap<String, Integer> {
             key = key.toLowerCase(paletteLocale);
         }
         return super.putKey(key, index);
+    }
+
+    public boolean putMappingFile(String name) throws FileNotFoundException, IOException {
+        FileInputStream stream = new FileInputStream(name);
+        byte[] bytebuf = new byte[4096];
+        int cnt;
+        StringBuilder buf = new StringBuilder();
+        while ((cnt = stream.read(bytebuf)) != -1) {
+            buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
+        }
+        return putMapping(buf.toString().split("[\r\n]+"));
+    }
+
+    public boolean addMappingFile(String name) throws FileNotFoundException, IOException {
+        FileInputStream stream = new FileInputStream(name);
+        byte[] bytebuf = new byte[4096];
+        int cnt;
+        StringBuilder buf = new StringBuilder();
+        while ((cnt = stream.read(bytebuf)) != -1) {
+            buf.append(new String(bytebuf, 0, cnt, Charset.forName("UTF-8")));
+        }
+        return addMapping(buf.toString().split("[\r\n]+"));
     }
 
 }

@@ -128,6 +128,7 @@ public class BlackenPanel extends JPanel {
     }
 
     private void checkForWorkarounds() {
+        // this.refreshAlways = true;
         if (System.getProperty("os.name", "Other").contains("Mac")) {
             this.refreshAlways = true;
         }

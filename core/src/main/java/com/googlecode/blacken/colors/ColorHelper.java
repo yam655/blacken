@@ -1,5 +1,5 @@
 /* blacken - a library for Roguelike games
- * Copyright © 2010, 2011 Steven Black <yam655@gmail.com>
+ * Copyright © 2010-2013 Steven Black <yam655@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,10 +376,11 @@ public class ColorHelper {
         if (color.startsWith("[")) {
             String[] subset = color.split("[]]", 2);
             String mode = subset[0].substring(1).toUpperCase();
-            if (mode.equals("RGB")) {
+            switch (mode) {
+            case "RGB":
                 // default operation
                 return makeColor(subset[1]);
-            } else if (mode.equals("HSV")) {
+            case "HSV":
                 String[] parts;
                 parts = color.split("([;,][\t ]*|[ \t]+)");
                 float[] hsva = new float[4];
@@ -433,9 +436,13 @@ public class ColorHelper {
             } else if (color.length() == 8) {
                 return c;
             }
-        } else if (color.matches("([;,][\t ]*|[ \t]+)")) {
+        } else if (color.matches("^.*[;, \\t].*$")) {
             String[] parts;
-            parts = color.split("([;,][\t ]*|[ \t]+)");
+            if (color.matches("^.*[;,].*$")) {
+                parts = color.split("[;,]");
+            } else {
+                parts = color.split("[ \\t]+");
+            }
             int[] components = new int[4];
             try {
                 components[0] = Integer.parseInt(parts[0].trim(), 10);
@@ -451,7 +458,7 @@ public class ColorHelper {
             }
             return colorFromComponents(components);
         }
-        throw new InvalidStringFormatException();
+        throw new InvalidStringFormatException(color);
     }
 
     /**
@@ -1411,4 +1418,21 @@ public class ColorHelper {
         }
         return white;
     }
+
+
+    public static Set<Integer> findChangedColors(ColorPalette newPalette, ColorPalette oldPalette) {
+        Set<Integer> changedColors = null;
+        if (oldPalette != null) {
+            changedColors = new HashSet<>();
+            for (int c = 0; c < oldPalette.size(); c++) {
+                if (c >= newPalette.size()) {
+                    changedColors.add(c);
+                } else if (newPalette.get(c) != oldPalette.get(c)) {
+                    changedColors.add(c);
+                }
+            }
+        }
+        return changedColors;
+    }
+
 }

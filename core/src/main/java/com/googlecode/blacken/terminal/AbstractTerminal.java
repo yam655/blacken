@@ -17,6 +17,9 @@ package com.googlecode.blacken.terminal;
 
 import com.googlecode.blacken.colors.ColorHelper;
 import com.googlecode.blacken.colors.ColorPalette;
+import com.googlecode.blacken.colors.PaletteTransformer;
+import com.googlecode.blacken.colors.transformers.ForcedPaletteTransformer;
+import com.googlecode.blacken.colors.transformers.GentlePaletteTransformer;
 import com.googlecode.blacken.grid.BoxRegion;
 import com.googlecode.blacken.grid.Grid;
 import com.googlecode.blacken.grid.Point;
@@ -313,181 +316,82 @@ public abstract class AbstractTerminal implements TerminalInterface {
         return this.coerceToPalette(palette, white, black);
     }
 
-    @Override
-    public ColorPalette setPalette(ColorPalette palette) {
+    public static enum CoerceMethod {
+        COERCE_NOTHING,
+        COERCE_FOREGROUND,
+        COERCE_BACKGROUND,
+        COERCE_FORE_AND_BACK,
+    }
+
+    public ColorPalette setPalette(ColorPalette newPalette, CoerceMethod method, PaletteTransformer transform) {
         ColorPalette oldPalette = this.palette;
-        Map<Integer, Integer> inversePalette = null;
-        if (palette != null) {
-            this.palette = palette;
-            inversePalette = new HashMap<>();
-            for (int i = 0; i < palette.size(); i++) {
-                inversePalette.put(palette.get(i), i);
+        if (transform == null) {
+            if (newPalette != null) {
+                this.palette = newPalette;
+                this.refresh();
             }
-        } else {
             return oldPalette;
         }
-        int psize = palette.size();
-        Set<Integer> changedColors = null;
-        if (oldPalette != null) {
-            changedColors = new HashSet<>();
-            for (int c = 0; c < oldPalette.size(); c++) {
-                if (c >= palette.size()) {
-                    changedColors.add(c);
-                } else if (palette.get(c) != oldPalette.get(c)) {
-                    changedColors.add(c);
-                }
-            }
+        if (newPalette != null) {
+            this.palette = newPalette;
+            transform.setPalettes(newPalette, oldPalette);
+        } else if (oldPalette != transform.getNewPalette()) {
+            // We mean != and <em>not</em> !equals()
+            transform.setPalettes(newPalette, oldPalette);
         }
-        for (int y = 0; y < grid.getHeight(); y++) {
-            for (int x = 0; x < grid.getWidth(); x++) {
-                TerminalCellLike cell = get(y, x);
+        oldPalette = transform.getOldPalette();
+        for (int y = grid.getY(); y < grid.getHeight(); y++) {
+            for (int x = grid.getX(); x < grid.getWidth(); x++) {
+                TerminalCellLike cell = grid.get(y, x);
                 int b = cell.getBackground();
                 int f = cell.getForeground();
-                boolean change = false;
-                if (oldPalette != null) {
-                    /// turn an oldPalette index in to a color
-                    if (b > psize) {
-                        if (changedColors.contains(b)) {
-                            change = true;
-                            b = oldPalette.get(b);
-                        }
-                    }
-                    if (f > psize) {
-                        if (changedColors.contains(f)) {
-                            change = true;
-                            f = oldPalette.get(f);
-                        }
-                    }
-                }
-                if (inversePalette != null) {
-                    // turn a color in to a current index
-                    if (b > psize) {
-                        if (inversePalette.containsKey(b)) {
-                            change = true;
-                            b = inversePalette.get(b);
-                        }
-                    }
-                    if (f > psize) {
-                        if (inversePalette.containsKey(f)) {
-                            change = true;
-                            f = inversePalette.get(f);
-                        }
+                // take an oldPalette color and transform it in to a newPalette color
+                b = transform.transform(b);
+                f = transform.transform(f);
+                // Always make sure we redraw it.
+                if (b == f) {
+                    int clr = newPalette.getColor(f);
+                    switch(method) {
+                        case COERCE_NOTHING:
+                            break;
+                        case COERCE_FOREGROUND:
+                            f = transform.makeVisible(clr, true);
+                            break;
+                        case COERCE_BACKGROUND:
+                            b = transform.makeVisible(clr, false);
+                            break;
+                        case COERCE_FORE_AND_BACK:
+                            f = transform.makeVisible(clr, true);
+                            b = transform.makeVisible(clr, false);
+                            break;
                     }
                 }
-                if (change) {
-                    this.set(y, x, null, f, b);
-                } else if (changedColors != null) {
-                    if (changedColors.contains(f) || 
-                            changedColors.contains(b)) {
-                        this.set(y, x, null, null, null);
-                    }
-                }
+                this.set(y, x, null, f, b);
             }
         }
         return oldPalette;
     }
 
     @Override
+    @Deprecated
+    public ColorPalette setPalette(ColorPalette palette) {
+        return setPalette(palette, CoerceMethod.COERCE_NOTHING, new GentlePaletteTransformer());
+    }
+
+    @Override
+    @Deprecated
     public ColorPalette coerceToPalette(ColorPalette palette, String white,
             String black) {
-        Integer w = null;
-        Integer b = null;
-        if (white != null) {
-            w = palette.getColorOrIndex(white);
-        }
-        if (black != null) {
-            b = palette.getColorOrIndex(black);
-        }
-        return coerceToPalette(palette, w, b);
+        return setPalette(palette, CoerceMethod.COERCE_FOREGROUND,
+                new ForcedPaletteTransformer(white, black));
     }
 
     @Override
+    @Deprecated
     public ColorPalette coerceToPalette(ColorPalette palette, Integer white,
             Integer black) {
-        ColorPalette oldPalette = this.palette;
-        if (palette == null) {
-            palette = this.palette;
-        } else {
-            this.palette = palette;
-        }
-        boolean paletteTruncation = false;
-        Map<Integer, Integer> inversePalette = new HashMap<>();
-        for (int i = 0; i < palette.size(); i++) {
-            inversePalette.put(palette.get(i), i);
-        }
-        Set<Integer> changedColors = null;
-        if (oldPalette != null) {
-            changedColors = new HashSet<>();
-            for (int c = 0; c < oldPalette.size(); c++) {
-                if (c >= palette.size()) {
-                    changedColors.add(c);
-                } else if (palette.get(c) != oldPalette.get(c)) {
-                    changedColors.add(c);
-                }
-            }
-            if (palette.size() < oldPalette.size()) {
-                paletteTruncation = true;
-            }
-        }
-
-        int psize = palette.size();
-        for (int y = 0; y < grid.getHeight(); y++) {
-            for (int x = 0; x < grid.getWidth(); x++) {
-                TerminalCellLike cell = get(y, x);
-                Integer b = cell.getBackground();
-                Integer f = cell.getForeground();
-                boolean change = false;
-                if (oldPalette != null) {
-                    /// turn an oldPalette index in to a color
-                    if (changedColors.contains(b)) {
-                        change = true;
-                        b = oldPalette.get(b);
-                    }
-                    if (changedColors.contains(f)) {
-                        change = true;
-                        f = oldPalette.get(f);
-                    }
-                }
-                if (inversePalette != null) {
-                    // turn a color in to a current index
-                    if (b > psize) {
-                        if (inversePalette.containsKey(b)) {
-                            change = true;
-                            b = inversePalette.get(b);
-                        }
-                    }
-                    if (f > psize) {
-                        if (inversePalette.containsKey(f)) {
-                            change = true;
-                            f = inversePalette.get(f);
-                        }
-                    }
-                }
-
-                Integer t;
-                int fore = f;
-                fore = palette.getColor(f);
-                if (b > psize) {
-                    t = ColorHelper.makeVisible(fore, 66, white, black);
-                    if (t != null) {
-                        b = t;
-                    }
-                    change = true;
-                }
-                if (f > psize) {
-                    t = ColorHelper.makeVisible(fore, 66, black, white);
-                    if (t != null) {
-                        f = t;
-                    }
-                    change = true;
-                }
-                
-                if (change) {
-                    this.set(y, x, null, f, b);
-                }
-            }
-        }
-        return oldPalette;
+        return setPalette(palette, CoerceMethod.COERCE_FOREGROUND,
+                new ForcedPaletteTransformer(white, black));
     }
 
     @Override

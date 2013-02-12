@@ -22,6 +22,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -553,6 +554,11 @@ implements List<V>, Cloneable, Serializable {
     @Override
     public ListMap<K, V> clone() {
         return new ListMap(this);
+    }
+
+    public void makeUnmodifiable() {
+        valueList = Collections.unmodifiableList(valueList);
+        keyMap = Collections.unmodifiableMap(keyMap);
     }
 
     /**

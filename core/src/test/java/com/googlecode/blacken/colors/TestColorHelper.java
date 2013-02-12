@@ -19,8 +19,11 @@ import com.googlecode.blacken.core.Coverage;
 import com.googlecode.blacken.core.Covers;
 import com.googlecode.blacken.exceptions.InvalidStringFormatException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -471,6 +474,26 @@ public class TestColorHelper {
                 ColorHelper.increaseAlpha(NEAR_BLACK, 50000.0)));
         assertEquals(0x7f, ColorHelper.getAlpha(
                 ColorHelper.increaseAlpha(BLACK, -50.0)));
+    }
+
+    @Test
+    @Covers("public static Set<Integer> findChangedColors(ColorPalette,ColorPalette)")
+    public void findChangedColors() {
+        ColorPalette cp1 = new ColorPalette();
+        cp1.add(BLACK);
+        cp1.add(WHITE);
+        cp1.add(BLUE);
+        ColorPalette cp2 = new ColorPalette();
+        cp2.add(GREEN);
+        cp2.add(WHITE);
+        cp2.add(BLACK);
+        cp2.add(RED);
+        Set<Integer> raw = ColorHelper.findChangedColors(cp1, cp2);
+        List<Integer> got = new ArrayList<>(raw);
+        Collections.sort(got);
+        List<Integer> expected = new ArrayList<>(Arrays.asList(
+                0, 2, 3));
+        assertEquals(expected, got);
     }
 
     @Test

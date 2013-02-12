@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author yam655
+ * @author Steven Black
  */
 public class BlackenConfig {
     private Map<String, String> internalConfigMap = new HashMap<>();
@@ -43,11 +43,32 @@ public class BlackenConfig {
     private int minCols = 0;
     private TerminalScreenSize initialSize = null;
     private float maxFontSize = 0;
+    private String gameName = null;
     public BlackenConfig() {
         preload();
         setup(null);
     }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public void override() {
+        override(gameName);
+    }
+
+    /**
+     * Set the gameName and override internal Blacken defaults with
+     * user-provided (possibly game-specific) settings.
+     *
+     * @param gameName
+     */
     public void override(String gameName) {
+        this.gameName = gameName;
         if (gameName == null) {
             preload();
         }
@@ -148,6 +169,9 @@ public class BlackenConfig {
 
     private void setInternalConfig(String name, Properties props, String def) {
         this.internalConfigMap.put(name, props.getProperty(name, def));
+    }
+    public String getUserConfigFolder() throws PlannedSecurityException {
+        return getUserConfigFolder(this.gameName);
     }
 
     /**
